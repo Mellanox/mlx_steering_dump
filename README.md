@@ -7,10 +7,16 @@ Dump generation is done using rdma-core,
 it can be done directly by calling mlx5dv_dump_dr_domain API
 or using mlx5_pmd
 
+dump example
+============
+example.json
+
 Running examples
 ================
-mlx_steering_dump.py -f /tmp/dump.file
-
+To show steering rules run:
+	mlx_steering_dump.py -f `pwd`/example.json
+To show steering tree/hierarchy run:
+	mlx_steering_dump.py -f `pwd`/example.json
 Recommended python
 ==================
 Python 2.6.6 and above
