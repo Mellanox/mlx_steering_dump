@@ -54,7 +54,7 @@ def dict_join_str(in_dict):
 
 	return ', '.join(attrs)
 
-def read_dump(file_name, verbose):
+def read_dumps(file_name, verbose):
 	try:
 		phase = "file checks"
 		if not (os.path.exists(file_name)):
@@ -64,24 +64,27 @@ def read_dump(file_name, verbose):
 		# Print message for large files (100MB)
 		if os.path.getsize(file_name) > pow(2, 26):
 			print_dr("Loading large file, please wait...")
-	
+
 		phase = "read file"
 		file = open(file_name, "r")
 		txt = file.read()
 		txt = txt.replace("\n", "")
+		txt = txt.replace("}{", "},{")
+		txt = "[" + txt + "]"
 		file.close()
 
 		phase = "evaluate file"
-		dump = eval(txt)
-		if not isinstance(dump, dict):
+
+		dumps = eval(txt)
+		if not isinstance(dumps, list):
 			print_dr("Incompatible file format")
 			return {}
 
 	except Exception as e:
-		print("Read dump error (%s): %s" % (phase, e))
+		print("Read dumps error (%s): %s" % (phase, e))
 		return {}
 
-	return dump
+	return dumps
 
 def print_rule_actions(actions_types, actions_values):
 	actions = map(lambda (i): g_actions_str[i], actions_types)
@@ -243,6 +246,13 @@ def print_domain_tree(domain, verbose):
 
 
 def print_domain_rules(domain, verbose):
+	print_dr("domain %s: type: %s, gvmi: %s, num_vports: %s" % (
+                _srd(domain, "handle"),
+                _srd(domain, "type"),
+                _srd(domain, "gvmi"),
+                _srd(domain, "num_vports")))
+	inc_indent()
+
 	if "tables" not in domain.keys():
 		return 0
 
@@ -277,14 +287,16 @@ def main():
 		print_dr("No input steering dump file provided (-f FILEPATH)")
 		return 0
 
-	dump = read_dump(args.FILEPATH, args.verbose)
-	if (dump == {}):
+	dumps = read_dumps(args.FILEPATH, args.verbose)
+	if (len(dumps) == 0):
 		return -1
 
-	if (args.tree_view):
-		print_domain_tree(dump["domain"], args.verbose)
-	else:
-		print_domain_rules(dump["domain"], args.verbose)
+	for dump in dumps:
+		if (args.tree_view):
+			print_domain_tree(dump["domain"], args.verbose)
+		else:
+			print_domain_rules(dump["domain"], args.verbose)
+			dec_indent()
 
 	return 0
 
