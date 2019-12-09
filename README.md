@@ -14,9 +14,10 @@ example.json
 Running examples
 ================
 To show steering rules run:
-	mlx_steering_dump.py -f `pwd`/example.json
+	mlx_steering_dump.py -f `pwd`/example.json<br/>
 To show steering tree/hierarchy run:
 	mlx_steering_dump.py -f `pwd`/example.json
+
 Recommended python
 ==================
 Python 2.6.6 and above

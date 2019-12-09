@@ -384,19 +384,19 @@ def mlx5_ifc_ste_mpls_bits_tag_parser(bin_str) :
 
 def mlx5_ifc_ste_register_0_bits_tag_parser(bin_str) :
 	ret = {}
-	ret["register_0_h"] = _val(bin_str[0: 32])
-	ret["register_0_l"] = _val(bin_str[32: 64])
-	ret["register_1_h"] = _val(bin_str[64: 96])
-	ret["register_1_l"] = _val(bin_str[96: 128])
+	ret["metadata_reg_c_0"] = _val(bin_str[0: 32])
+	ret["metadata_reg_c_1"] = _val(bin_str[32: 64])
+	ret["metadata_reg_c_2"] = _val(bin_str[64: 96])
+	ret["metadata_reg_c_3"] = _val(bin_str[96: 128])
 	return ret
 
 
 def mlx5_ifc_ste_register_1_bits_tag_parser(bin_str) :
 	ret = {}
-	ret["register_2_h"] = _val(bin_str[0: 32])
-	ret["register_2_l"] = _val(bin_str[32: 64])
-	ret["register_3_h"] = _val(bin_str[64: 96])
-	ret["register_3_l"] = _val(bin_str[96: 128])
+	ret["metadata_reg_c_4"] = _val(bin_str[0: 32])
+	ret["metadata_reg_c_5"] = _val(bin_str[32: 64])
+	ret["metadata_reg_c_6"] = _val(bin_str[64: 96])
+	ret["metadata_reg_c_7"] = _val(bin_str[96: 128])
 	return ret
 
 
@@ -421,7 +421,7 @@ def mlx5_ifc_ste_gre_bits_tag_parser(bin_str) :
 
 def mlx5_ifc_ste_general_purpose_bits_tag_parser(bin_str) :
 	ret = {}
-	ret["general_purpose_lookup_field"] = _val(bin_str[0: 32])
+	ret["metadata_reg_a"] = _val(bin_str[0: 32])
 	ret["reserved_at_20"] = _val(bin_str[32: 64])
 	ret["reserved_at_40"] = _val(bin_str[64: 96])
 	ret["reserved_at_60"] = _val(bin_str[96: 128])
