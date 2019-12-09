@@ -204,7 +204,7 @@ def print_domain_tree(domain, verbose):
 		print_dr("table %s: level: %s, type: %s, id: %s" % (
 			_srd(table, "handle"),
 			_srd(table, "level"),
-			_srd(table, "type"),
+			_srd(table, "type") if _srd(table, "level") != "0" else "NONE",
 			_srd(table, "id")))
 
 		if (verbose):
