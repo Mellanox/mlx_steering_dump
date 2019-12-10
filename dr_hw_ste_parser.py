@@ -261,7 +261,7 @@ def mlx5_ifc_ste_eth_l2_tnl_bits_tag_parser_p(bin_str) :
 	ret = {}
 	ret["dmac"] = _val(bin_str[0: 48])
 	ret["ethertype"] = _val(bin_str[48: 64])
-	ret["l2_tunneling_network_id"] = _val(bin_str[64: 96])
+	ret["l2_tunneling_network_id"] = _val(bin_str[64: 88])
 	ret["ip_fragmented"] = _val(bin_str[96: 97])
 	ret["tcp_syn"] = _val(bin_str[97: 98])
 	ret["encp_type"] = _val(bin_str[98: 100])
@@ -445,7 +445,7 @@ def mlx5_ifc_ste_src_gvmi_qp_bits_tag_parser(bin_str) :
 
 def mlx5_tag_parser(lookup_type, tag) :
 	switch = { "0x05" : [ mlx5_ifc_ste_src_gvmi_qp_bits_tag_parser, False ],
-		   "0x0a" : [ mlx5_ifc_ste_eth_l2_tnl_bits_tag_parser_p, False ],
+		   "0x0a" : [ mlx5_ifc_ste_eth_l2_tnl_bits_tag_parser_p, True ],
 		   "0x06" : [ mlx5_ifc_ste_eth_l2_dst_bits_tag_parser_p, False ],
 		   "0x07" : [ mlx5_ifc_ste_eth_l2_dst_bits_tag_parser_p, True ],		   
 		   "0x1b" : [ mlx5_ifc_ste_eth_l2_dst_bits_tag_parser_p, False ],

@@ -12,10 +12,10 @@ import dr_hw_ste_parser
 
 g_indent = 0
 g_version = "1.0.0"
-g_actions_str = [ "encap L2",
-		"decap l2",
-		"decap l3",
-		"encap l3",
+g_actions_str = ["decap L2",
+		"encap L2",
+		"decap L3",
+		"encap L3",
 		"drop",
 		"dest QP",
 		"dest FT",
