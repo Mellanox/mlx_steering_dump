@@ -246,13 +246,6 @@ def print_domain_tree(domain, verbose):
 
 
 def print_domain_rules(domain, verbose):
-	print_dr("domain %s: type: %s, gvmi: %s, num_vports: %s" % (
-                _srd(domain, "handle"),
-                _srd(domain, "type"),
-                _srd(domain, "gvmi"),
-                _srd(domain, "num_vports")))
-	inc_indent()
-
 	if "tables" not in domain.keys():
 		return 0
 
@@ -296,7 +289,6 @@ def main():
 			print_domain_tree(dump["domain"], args.verbose)
 		else:
 			print_domain_rules(dump["domain"], args.verbose)
-			dec_indent()
 
 	return 0
 
