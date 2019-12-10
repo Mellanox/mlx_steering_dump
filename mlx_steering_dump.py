@@ -87,10 +87,13 @@ def read_dumps(file_name, verbose):
 	return dumps
 
 def print_rule_actions(actions_types, actions_values):
-	actions = map(lambda (i): g_actions_str[i], actions_types)
-	for i in range(len(actions)):
+	actions = []
+	for i in range(len(actions_types)):
+		action_str = g_actions_str[actions_types[i]]
 		if actions_values[i] != "":
-			actions[i] = actions[i] + " " + actions_values[i]
+			action_str += " " + actions_values[i]
+
+		actions.append(action_str)
 
 	print_dr("actions: %s" % ", ".join(actions))
 
@@ -167,7 +170,7 @@ def print_matcher_mask(mask):
 		# Parse the input mask
 		parsed_mask = sub_mask_parser(input_mask)
 
-		for k, v in parsed_mask.items():
+		for k, v in list(parsed_mask.items()):
 			# Remove empty keys
 			if eval(v) == 0:
 				del parsed_mask[k]
@@ -205,7 +208,7 @@ def print_domain_tree(domain, verbose):
 			_srd(table, "handle"),
 			_srd(table, "level"),
 			_srd(table, "type") if _srd(table, "level") != "0" else "NONE",
-			_srd(table, "id")))
+			hex(int(_srd(table, "id"))) if _srd(table, "level") != "0" else "NONE"))
 
 		if (verbose):
 			print_dr("icm_addr_rx: %s icm_addr_tx: %s" % (\
