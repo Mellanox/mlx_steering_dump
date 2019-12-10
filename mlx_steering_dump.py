@@ -9,6 +9,7 @@ import math
 import argparse
 import dr_parser
 import dr_hw_ste_parser
+import json
 
 g_indent = 0
 g_version = "1.0.0"
@@ -75,7 +76,7 @@ def read_dumps(file_name, verbose):
 
 		phase = "evaluate file"
 
-		dumps = eval(txt)
+		dumps = json.loads(txt)
 		if not isinstance(dumps, list):
 			print_dr("Incompatible file format")
 			return {}
