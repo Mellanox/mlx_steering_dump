@@ -9,13 +9,13 @@ def conv_ip_version(version):
 
 
 def _val(field_str):
-	nibbels = str(2 + len(field_str) / 4)
-	fmt = "#0" + nibbels + "x"
-	return format(int(field_str, 2), fmt)
+	nibbels = str(int(len(field_str) / 4))
+	fmt = "0x{:0" + nibbels + "x}"
+	return fmt.format(int(field_str, 2))
 
 
 def add_inner_to_key(in_dict):
-	for k, v in in_dict.items():
+	for k, v in list(in_dict.items()):
 		in_dict["inner_" + k] = v
 		del in_dict[k]
 
