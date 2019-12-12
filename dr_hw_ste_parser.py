@@ -461,7 +461,7 @@ def mlx5_tag_parser(lookup_type, tag) :
 		   "0x0f" : [ mlx5_ifc_ste_eth_l3_ipv6_src_bits_tag_parser_p, False ],
 		   "0x10" : [ mlx5_ifc_ste_eth_l3_ipv6_src_bits_tag_parser_p, True ],
 		   "0x1f" : [ mlx5_ifc_ste_eth_l3_ipv6_src_bits_tag_parser_p, False ],
-		   "0x10" : [ mlx5_ifc_ste_eth_l3_ipv4_5_tuple_bits_tag_parser_p, False ],
+		   "0x11" : [ mlx5_ifc_ste_eth_l3_ipv4_5_tuple_bits_tag_parser_p, False ],
 		   "0x12" : [ mlx5_ifc_ste_eth_l3_ipv4_5_tuple_bits_tag_parser_p, True ],
 		   "0x20" : [ mlx5_ifc_ste_eth_l3_ipv4_5_tuple_bits_tag_parser_p, False ],	
 		   "0x29" : [ mlx5_ifc_ste_eth_l3_ipv4_misc_bits_tag_parser_p, False ],
