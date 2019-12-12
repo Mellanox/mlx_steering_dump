@@ -20,4 +20,4 @@ To show steering tree/hierarchy run:
 
 Recommended python
 ==================
-Python 2.6.6 and above
+Python 2.6.6 and Python 3
