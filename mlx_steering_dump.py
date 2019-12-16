@@ -269,7 +269,7 @@ def parse_args():
 	parser = argparse.ArgumentParser(
 	description='''mlx_steering_dump.py - Steering dump tool''')
 	parser.add_argument('-f', dest="FILEPATH", default="", help='input steering dump file path')
-	parser.add_argument('-d', dest="trigger", metavar=('pid', 'port'), nargs=2, help='Trigger DPDK app to generate json dump file (-d <APP PID> <PORT NUMBER>)')
+	parser.add_argument('-d', dest="trigger", default=[], metavar=('PID', 'PORT'), nargs=2, help='Trigger DPDK app to generate json dump file (-d <APP PID> <PORT NUMBER>)')
 	parser.add_argument('-t', action='store_true', default=False, dest='tree_view', help='tree view (default is rule view)')
 	parser.add_argument('-v', action='store_true', default=False, dest='verbose', help='verbose output')
 	parser.add_argument('-version', action='store_true', default=False, dest='version', help='show version')
@@ -289,10 +289,7 @@ def main():
 		pid = int(args.trigger[0])
 		port = int(args.trigger[1])
 		dr_trigger.trigger_dump(pid, port, args.FILEPATH)
-	elif(os.path.exists(args.FILEPATH) == False):
-		print_dr("Input steering dump file doesn't exist")
-		return 0
-	
+
 	dumps = read_dumps(args.FILEPATH, args.verbose)
 	if (len(dumps) == 0):
 		return -1
