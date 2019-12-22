@@ -1,4 +1,5 @@
 # Written by valex@mellanox.com and Muhammads@mellanox.com
+import dr_aux_funcs
 
 from socket import ntohl
 
@@ -27,7 +28,7 @@ def _val(field_str):
 	return "0x" + field_str
 
 
-def dr_mask_spec_parser(mask):
+def dr_mask_spec_parser(mask, raw):
 	ret = {}
 	data = ""
 	for i in range(0, len(mask), 8):
@@ -64,10 +65,13 @@ def dr_mask_spec_parser(mask):
 	else:
 		ret["dst_ip"] = _val(data[96: 128])  # IPV6
 
+	if not raw :
+		ret = dr_aux_funcs.prettify_mask(ret)
+
 	return ret
 
 
-def dr_mask_misc_parser(mask):
+def dr_mask_misc_parser(mask, raw):
 	ret = {}
 	data = ""
 	for i in range(0, len(mask), 8):
@@ -109,10 +113,14 @@ def dr_mask_misc_parser(mask):
 	ret["reserved_auto8"] = get_bits_at(data, 72, 80, 0, 10)
 	ret["bth_dst_qp"] = get_bits_at(data, 80, 88, 8, 32)
 	ret["reserved_auto9"] = get_bits_at(data, 80, 88, 0, 8)
+
+	if not raw :
+		ret = dr_aux_funcs.prettify_mask(ret)
+
 	return ret
 
 
-def dr_mask_misc2_parser(mask):
+def dr_mask_misc2_parser(mask, raw):
 	ret = {}
 	data = ""
 	for i in range(0, len(mask), 8):
@@ -144,10 +152,14 @@ def dr_mask_misc2_parser(mask):
 	ret["metadata_reg_c_0"] = _val(data[88: 96])
 	ret["metadata_reg_a"] = _val(data[96: 104])
 	ret["metadata_reg_b"] = _val(data[104: 112])
+
+	if not raw :
+		ret = dr_aux_funcs.prettify_mask(ret)
+
 	return ret
 
 
-def dr_mask_misc3_parser(mask):
+def dr_mask_misc3_parser(mask, raw):
 	ret = {}
 	data = ""
 	for i in range(0, len(mask), 8):
@@ -168,5 +180,9 @@ def dr_mask_misc3_parser(mask):
 	ret["icmpv6_type"] = get_bits_at(data, 64, 72, 16, 24)
 	ret["icmpv4_code"] = get_bits_at(data, 64, 72, 8, 16)
 	ret["icmpv4_type"] = get_bits_at(data, 64, 72, 0, 8)
+
+	if not raw :
+		ret = dr_aux_funcs.prettify_mask(ret)
+
 	return ret
 

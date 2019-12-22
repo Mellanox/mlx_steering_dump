@@ -1,4 +1,5 @@
 # Written by valex@mellanox.com and Muhammads@mellanox.com
+import dr_aux_funcs
 
 def conv_ip_version(version):
 	if eval(version) == 1:
@@ -443,7 +444,7 @@ def mlx5_ifc_ste_src_gvmi_qp_bits_tag_parser(bin_str) :
 	return ret
 
 
-def mlx5_tag_parser(lookup_type, tag) :
+def mlx5_tag_parser(lookup_type, tag, raw) :
 	switch = { "0x05" : [ mlx5_ifc_ste_src_gvmi_qp_bits_tag_parser, False ],
 		   "0x0a" : [ mlx5_ifc_ste_eth_l2_tnl_bits_tag_parser_p, True ],
 		   "0x06" : [ mlx5_ifc_ste_eth_l2_dst_bits_tag_parser_p, False ],
@@ -484,6 +485,10 @@ def mlx5_tag_parser(lookup_type, tag) :
 
 	func, inner = switch[lookup_type]
 	parsed_tag = func(tag)
+
+	if not raw:
+		parsed_tag = dr_aux_funcs.prettify_tag(parsed_tag)
+
 	if inner:
 		add_inner_to_key(parsed_tag)
 
@@ -491,7 +496,7 @@ def mlx5_tag_parser(lookup_type, tag) :
 
 
 # HW_STE parsing funcs
-def mlx5_ifc_ste_rx_steering_mult_bits_parser(bin_str) :
+def mlx5_ifc_ste_rx_steering_mult_bits_parser(bin_str, raw) :
 	ret = {}
 	
 	ret["entry_type"] = _val(bin_str[0 : 4])
@@ -522,10 +527,10 @@ def mlx5_ifc_ste_rx_steering_mult_bits_parser(bin_str) :
 	ret["match_polarity"] = _val(bin_str[252 : 253])
 	ret["mask_mode"] = _val(bin_str[253 : 254])
 	ret["miss_rank"] = _val(bin_str[254 : 256])
-	ret["tag"] = mlx5_tag_parser(ret["entry_sub_type"], bin_str[256 : 384])
+	ret["tag"] = mlx5_tag_parser(ret["entry_sub_type"], bin_str[256 : 384], raw)
 	return ret
 
-def mlx5_ifc_ste_sx_transmit_bits_parser(bin_str) :
+def mlx5_ifc_ste_sx_transmit_bits_parser(bin_str, raw) :
 	ret = {}
 
 	ret["entry_type"] = _val(bin_str[0 : 4])
@@ -562,10 +567,10 @@ def mlx5_ifc_ste_sx_transmit_bits_parser(bin_str) :
 	ret["match_polarity"] = _val(bin_str[252 : 253])
 	ret["mask_mode"] = _val(bin_str[253 : 254])
 	ret["miss_rank"] = _val(bin_str[254 : 256])
-	ret["tag"] = mlx5_tag_parser(ret["entry_sub_type"], bin_str[256 : 384])
+	ret["tag"] = mlx5_tag_parser(ret["entry_sub_type"], bin_str[256 : 384], raw)
 	return ret
 
-def mlx5_ifc_ste_modify_packet_bits_parser(bin_str) :
+def mlx5_ifc_ste_modify_packet_bits_parser(bin_str, raw) :
 	ret = {}
 
 	ret["entry_type"] = _val(bin_str[0 : 4])
@@ -596,10 +601,10 @@ def mlx5_ifc_ste_modify_packet_bits_parser(bin_str) :
 	ret["match_polarity"] = _val(bin_str[252 : 253])
 	ret["mask_mode"] = _val(bin_str[253 : 254])
 	ret["miss_rank"] = _val(bin_str[254 : 256])
-	ret["tag"] = mlx5_tag_parser(ret["entry_sub_type"], bin_str[256 : 384])
+	ret["tag"] = mlx5_tag_parser(ret["entry_sub_type"], bin_str[256 : 384], raw)
 	return ret
 
-def mlx5_hw_ste_parser(hex_str) :
+def mlx5_hw_ste_parser(hex_str, raw) :
 	arr = { 
 		"0": "0000", "1": "0001", "2": "0010", "3": "0011",
 		"4": "0100", "5": "0101", "6": "0110", "7": "0111",
@@ -618,5 +623,5 @@ def mlx5_hw_ste_parser(hex_str) :
 		   6 : mlx5_ifc_ste_modify_packet_bits_parser
 	        }
 
-	return switch[entry_type](bin_str)
+	return switch[entry_type](bin_str, raw)
 	

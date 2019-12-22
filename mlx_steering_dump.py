@@ -11,6 +11,7 @@ import dr_parser
 import dr_hw_ste_parser
 import json
 import dr_trigger
+import dr_aux_funcs
 
 g_indent = 0
 g_version = "1.0.0"
@@ -98,19 +99,18 @@ def print_rule_actions(actions_types, actions_values):
 
 	print_dr("actions: %s" % ", ".join(actions))
 
-def parse_hw_stes(hw_stes):
+def parse_hw_stes(hw_stes, raw):
 	final = {}
 	for hw_ste in hw_stes:
-		parsed_ste = dr_hw_ste_parser.mlx5_hw_ste_parser(hw_ste)
+		parsed_ste = dr_hw_ste_parser.mlx5_hw_ste_parser(hw_ste, raw)
 		if "tag" not in parsed_ste.keys():
 			continue
 
-		clean_tag = dict(filter(lambda elem: eval(elem[1]) != 0, parsed_ste["tag"].items()))
-		final.update(clean_tag)
+		final.update(parsed_ste["tag"])
 
 	return dict_join_str(final)
 
-def print_rule_ste_arr(rule, verbose):
+def print_rule_ste_arr(rule, verbose, raw):
 	all_hw_stes = []
 	for rx_tx in ["rx", "tx"]:
 		if rx_tx in rule.keys():
@@ -124,20 +124,20 @@ def print_rule_ste_arr(rule, verbose):
 						rx_tx.upper(),
 						_srd(ste, "icm_address"),
 						_srd(ste, "hw_ste"),
-						parse_hw_stes([ste["hw_ste"]])))
+						parse_hw_stes([ste["hw_ste"]], raw)))
 
-	print_dr("match: %s" % parse_hw_stes(all_hw_stes))
+	print_dr("match: %s" % parse_hw_stes(all_hw_stes, raw))
 
-def print_rule_tree(rule, verbose):
+def print_rule_tree(rule, verbose, raw):
 	print_dr("rule %s:" % (_srd(rule, "handle")))
 
 	inc_indent()
-	print_rule_ste_arr(rule, verbose)
+	print_rule_ste_arr(rule, verbose, raw)
 	if "actions_types" in rule.keys() and "actions_values" in rule.keys():
 		print_rule_actions(rule["actions_types"], rule["actions_values"])
 	dec_indent()
 
-def print_rule_view(domain, table, matcher, rule, verbose):
+def print_rule_view(domain, table, matcher, rule, verbose, raw):
 	print_dr("rule %s: matcher %s, prio %s, table %s, level %s, domain: %s" % (
 		_srd(rule, "handle"),
 		_srd(matcher, "handle"),
@@ -147,12 +147,12 @@ def print_rule_view(domain, table, matcher, rule, verbose):
 		_srd(domain, "handle")))
 
 	inc_indent()
-	print_rule_ste_arr(rule, verbose)
+	print_rule_ste_arr(rule, verbose, raw)
 	if "actions_types" in rule.keys() and "actions_values" in rule.keys():
 		print_rule_actions(rule["actions_types"], rule["actions_values"])
 	dec_indent()
 
-def print_matcher_mask(mask):
+def print_matcher_mask(mask, raw):
 	parsed_mask_final = {}
 	sub_masks = ["outer", "inner", "misc", "misc2", "misc3"]
 	sub_mask_parsers = [ dr_parser.dr_mask_spec_parser,
@@ -169,23 +169,19 @@ def print_matcher_mask(mask):
 			continue
 
 		# Parse the input mask
-		parsed_mask = sub_mask_parser(input_mask)
+		parsed_mask = sub_mask_parser(input_mask, raw)
 
 		for k, v in list(parsed_mask.items()):
-			# Remove empty keys
-			if eval(v) == 0:
+			if sub_mask == "inner":
+				parsed_mask[sub_mask + "_" + k] = v
 				del parsed_mask[k]
-			else:
-				if sub_mask == "inner":
-					parsed_mask[sub_mask + "_" + k] = v
-					del parsed_mask[k]
 
 		# Merge to final dictionary
 		parsed_mask_final.update(parsed_mask)
 
 	print_dr("mask: %s" % dict_join_str(parsed_mask_final))
 
-def print_domain_tree(domain, verbose):
+def print_domain_tree(domain, verbose, raw):
 	print_dr("domain %s: type: %s, gvmi: %s, num_vports: %s" % (
 		_srd(domain, "handle"),
 		_srd(domain, "type"),
@@ -236,20 +232,20 @@ def print_domain_tree(domain, verbose):
 					_srd(matcher["tx"], "e_anchor") if "tx" in matcher.keys() else "None"))
 			
 			inc_indent()
-			print_matcher_mask(matcher["mask"])
+			print_matcher_mask(matcher["mask"], raw)
 
 			if "rules" not in matcher.keys():
 				continue
 
 			for rule in matcher["rules"]:
-				print_rule_tree(rule, verbose)
+				print_rule_tree(rule, verbose, raw)
 
 			dec_indent()
 		dec_indent()
 	dec_indent()
 
 
-def print_domain_rules(domain, verbose):
+def print_domain_rules(domain, verbose, raw):
 	if "tables" not in domain.keys():
 		return 0
 
@@ -262,7 +258,7 @@ def print_domain_rules(domain, verbose):
 				continue
 
 			for rule in matcher["rules"]:
-				print_rule_view(domain, table, matcher, rule, verbose)
+				print_rule_view(domain, table, matcher, rule, verbose, raw)
 
 
 def parse_args():
@@ -272,6 +268,7 @@ def parse_args():
 	parser.add_argument('-d', dest="trigger", default=[], metavar=('PID', 'PORT'), nargs=2, help='Trigger DPDK app to generate json dump file (-d <APP PID> <PORT NUMBER>)')
 	parser.add_argument('-t', action='store_true', default=False, dest='tree_view', help='tree view (default is rule view)')
 	parser.add_argument('-v', action='store_true', default=False, dest='verbose', help='verbose output')
+	parser.add_argument('-r', action='store_true', default=False, dest='raw', help='raw output')
 	parser.add_argument('-version', action='store_true', default=False, dest='version', help='show version')
 	return parser.parse_args()
 
@@ -296,9 +293,9 @@ def main():
 
 	for dump in dumps:
 		if (args.tree_view):
-			print_domain_tree(dump["domain"], args.verbose)
+			print_domain_tree(dump["domain"], args.verbose, args.raw)
 		else:
-			print_domain_rules(dump["domain"], args.verbose)
+			print_domain_rules(dump["domain"], args.verbose, args.raw)
 
 	return 0
 
