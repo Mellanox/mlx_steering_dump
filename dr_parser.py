@@ -1,6 +1,5 @@
 # Written by valex@mellanox.com and Muhammads@mellanox.com
 import dr_aux_funcs
-
 from socket import ntohl
 
 def little_endian_32(hex_str):

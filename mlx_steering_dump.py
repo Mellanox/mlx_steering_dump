@@ -99,7 +99,22 @@ def print_rule_actions(actions_types, actions_values):
 
 	print_dr("actions: %s" % ", ".join(actions))
 
-def parse_hw_stes(hw_stes, raw):
+def parse_action_from_ste(rule, parsed_ste):
+       actions_types = rule["actions_types"]
+       actions_values = rule["actions_values"]
+
+       #flow tag action
+       if "qp_list_pointer" in parsed_ste.keys():
+               tag = parsed_ste["qp_list_pointer"]
+               if int(tag, 16) & (1 << 31):
+                       tag = hex(int(tag, 16) & 0x7fffffff)
+                       for i in range(0, len(actions_types)):
+                               _type = g_actions_str[actions_types[i]]
+                               if(_type == "tag"):
+                                       actions_values[i] = tag
+
+
+def parse_hw_stes(rule, hw_stes, raw):
 	final = {}
 	for hw_ste in hw_stes:
 		parsed_ste = dr_hw_ste_parser.mlx5_hw_ste_parser(hw_ste, raw)
@@ -107,6 +122,7 @@ def parse_hw_stes(hw_stes, raw):
 			continue
 
 		final.update(parsed_ste["tag"])
+		parse_action_from_ste(rule, parsed_ste)
 
 	return dict_join_str(final)
 
@@ -124,9 +140,9 @@ def print_rule_ste_arr(rule, verbose, raw):
 						rx_tx.upper(),
 						_srd(ste, "icm_address"),
 						_srd(ste, "hw_ste"),
-						parse_hw_stes([ste["hw_ste"]], raw)))
+						parse_hw_stes(rule, [ste["hw_ste"]], raw)))
 
-	print_dr("match: %s" % parse_hw_stes(all_hw_stes, raw))
+	print_dr("match: %s" % parse_hw_stes(rule, all_hw_stes, raw))
 
 def print_rule_tree(rule, verbose, raw):
 	print_dr("rule %s:" % (_srd(rule, "handle")))
