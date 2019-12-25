@@ -1,12 +1,10 @@
 # Written by valex@mellanox.com and Muhammads@mellanox.com
 
-def little_endian_32(hex_str):
-	data = ""
-	for i in range(0, len(hex_str), 8):
-		data += hex_str[i + 6: i + 8] + hex_str[i+4: i+6] + \
-			hex_str[i+2: i+4] + hex_str[i: i+2]
-	return data
+from socket import ntohl
 
+def little_endian_32(hex_str):
+	l_e_32 = ntohl(int(hex_str, 16))
+	return "{:08x}".format(l_e_32)
 
 def hex_2_bin(hex_str):
 	arr = {"0": "0000", "1": "0001", "2": "0010", "3": "0011",
@@ -171,3 +169,4 @@ def dr_mask_misc3_parser(mask):
 	ret["icmpv4_code"] = get_bits_at(data, 64, 72, 8, 16)
 	ret["icmpv4_type"] = get_bits_at(data, 64, 72, 0, 8)
 	return ret
+
