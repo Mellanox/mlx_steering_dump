@@ -1,8 +1,5 @@
-#!/usr/bin/env python3
-
 # Parse tool for SW steering debug dump file
 # Written by valex@mellanox.com and Muhammads@mellanox.com
-
 import sys
 import os
 import math
