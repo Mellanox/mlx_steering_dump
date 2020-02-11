@@ -1,5 +1,5 @@
-# mlx_steering_dump
-This is Mellanox SW steering Dump Tool.
+# mlx_steering_dump_parser
+This is Mellanox SW steering dump file parser.
 
 How to trigger a dump.file generation
 =====================================
@@ -7,21 +7,20 @@ Dump generation is done using rdma-core,
 it can be done directly by calling mlx5dv_dump_dr_domain API
 or using mlx5_pmd
 
-dump example
+Dump file example
 ============
-example.json
+example.csv
 
 Running examples
 ================
 To show steering rules run:<br/>
-	mlx_steering_dump.py -f `pwd`/example.json<br/>
+<pre>mlx_steering_dump_parser.py -f `pwd`/example.csv</pre>
 To show steering tree/hierarchy run:<br/>
-	mlx_steering_dump.py -f `pwd`/example.json -t<br/>
-To trigger DPDK app run for pid=5336 and mlx5_port=0:<br/>
-	mlx_steering_dump/mlx_steering_dump.py -d 5336 0 -f /tmp/my_json_dump<br/>
-To trigger testpmd app:<br/>
-	mlx_steering_dump.py -d `pgrep testpmd` 0  -f /tmp/my_json_dump -t<br/>
+<pre>mlx_steering_dump_parser.py -f `pwd`/example.csv -t</pre>
+To trigger DPDK app run:<br/>
+<pre>mlx_steering_dump_parser.py -p &lt;DPDK PID&gt; -f &lt;dump_file&gt;</pre>
 
 Recommended python
 ==================
+Python 2<br/>
 Python 3
