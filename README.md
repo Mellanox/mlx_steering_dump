@@ -1,5 +1,6 @@
 # mlx_steering_dump_parser
-This is Mellanox SW steering dump file parser.
+This is Mellanox SW steering parser for dump files in **CSV format**.<br/>
+For JSON dump parser please move to branch [`json_parser`](https://github.com/Mellanox/mlx_steering_dump/tree/json_parser).
 
 How to trigger a dump.file generation
 =====================================
