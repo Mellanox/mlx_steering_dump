@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 # Copyright (c) 2020 Mellanox Technologies, Inc.  All rights reserved.
 #
 # This software is available to you under a choice of one of two
@@ -32,13 +34,13 @@
 import argparse
 import csv
 
-import dr_trigger
-from dr_action import *
-from dr_domain import *
-from dr_matcher import *
-from dr_rule import *
-from dr_table import *
-from dr_utilities import *
+from src import dr_trigger
+from src.dr_action import *
+from src.dr_domain import *
+from src.dr_matcher import *
+from src.dr_rule import *
+from src.dr_table import *
+from src.dr_utilities import *
 
 
 # mapping csv records types to it's relevant parser function
@@ -77,6 +79,9 @@ def dr_csv_rec_type_parser(rec_type):
         dr_dump_rec_type.DR_DUMP_REC_TYPE_ACTION_DECAP_L2.value[0]: dr_dump_action_decup_l2,
         dr_dump_rec_type.DR_DUMP_REC_TYPE_ACTION_DECAP_L3.value[0]: dr_dump_action_decup_l3,
         dr_dump_rec_type.DR_DUMP_REC_TYPE_ACTION_DEVX_TIR.value[0]: dr_dump_action_devx_tir,
+        dr_dump_rec_type.DR_DUMP_REC_TYPE_ACTION_POP_VLAN.value[0]: dr_dump_action_pop_vlan,
+        dr_dump_rec_type.DR_DUMP_REC_TYPE_ACTION_PUSH_VLAN.value[0]: dr_dump_action_push_vlan,
+        dr_dump_rec_type.DR_DUMP_REC_TYPE_ACTION_METER.value[0]: dr_dump_action_meter,
     }
 
     return switch[rec_type]

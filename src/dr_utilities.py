@@ -34,7 +34,7 @@ from enum import Enum
 # sw steering dump tool version
 g_version = "1.0.1"
 g_indent = 0
-
+TAB = "   "
 
 class dr_dump_view(Enum):
     DR_DUMP_VIEW_RULE = 0,
@@ -76,6 +76,9 @@ class dr_dump_rec_type(Enum):
     DR_DUMP_REC_TYPE_ACTION_DECAP_L2 = 3409,
     DR_DUMP_REC_TYPE_ACTION_DECAP_L3 = 3410,
     DR_DUMP_REC_TYPE_ACTION_DEVX_TIR = 3411,
+    DR_DUMP_REC_TYPE_ACTION_PUSH_VLAN = 3412,
+    DR_DUMP_REC_TYPE_ACTION_POP_VLAN = 3413,
+    DR_DUMP_REC_TYPE_ACTION_METER = 3414,
 
     @classmethod
     def find_name(self, index):
@@ -122,10 +125,10 @@ class dr_obj(object):
         self.data[field_name] = value
 
     def print_tree_view(self, dump_ctx, verbose, raw):
-        return
+        print_dr(self.dump_str())
 
     def print_rule_view(self, dump_ctx, verbose, raw):
-        return
+        print_dr(self.dump_str())
 
 
 def inc_indent():
@@ -142,9 +145,15 @@ def get_indet():
     return g_indent
 
 
+def get_indent_str():
+    global g_indent
+    return TAB * g_indent
+
+
+
 def print_dr(*args):
     global g_indent
-    tab = "   " * g_indent
+    tab = TAB * g_indent
     str_ = tab + " ".join(map(str, args))
     sys.stdout.write(str_)
 

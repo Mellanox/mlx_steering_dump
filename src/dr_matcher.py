@@ -28,7 +28,7 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import dr_matcher_mask_parser
+from src.parsers import dr_matcher_mask_parser
 import dr_prettify
 from dr_utilities import _srd, dict_join_str, print_dr, dr_obj, inc_indent, dec_indent, dr_dump_rec_type
 
@@ -53,9 +53,11 @@ class dr_dump_matcher(dr_obj):
         print_dr(self.mask.dump_str())
         dec_indent()
 
+        inc_indent()
         for r in self.rule_list:
             dump_ctx.rule = None
             r.print_tree_view(dump_ctx, verbose, raw)
+        dec_indent()
 
     def print_rule_view(self, dump_ctx, verbose, raw):
         for r in self.rule_list:
@@ -128,7 +130,7 @@ class dr_dump_matcher_builder(dr_obj):
     def dump_string(self):
         rx_tx_type = "rx"
         return "matcher_id %s, index %s, rx_tx_type %s, lu_type %s\n" % (
-               _srd(self.data, "matcher_id"),
-               _srd(self.data, "index"),
-               rx_tx_type,
-               dr_prettify.lu_type_conv(_srd(self.data, "lu_type")))
+            _srd(self.data, "matcher_id"),
+            _srd(self.data, "index"),
+            rx_tx_type,
+            dr_prettify.lu_type_conv(_srd(self.data, "lu_type")))

@@ -28,7 +28,7 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import dr_prettify
+from src import dr_prettify
 
 
 def conv_ip_version(version):

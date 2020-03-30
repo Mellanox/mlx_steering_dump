@@ -28,13 +28,13 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import dr_hw_ste_parser
+from src.parsers import dr_hw_ste_parser
 from dr_utilities import _srd
 from dr_utilities import dec_indent
 from dr_utilities import dict_join_str
 from dr_utilities import dr_dump_rec_type
 from dr_utilities import dr_obj
-from dr_utilities import get_indet
+from dr_utilities import get_indent_str
 from dr_utilities import inc_indent
 from dr_utilities import print_dr
 
@@ -50,21 +50,26 @@ class dr_dump_rule(dr_obj):
         return "rule %s\n" % (_srd(self.data, "id"))
 
     def dump_match_str(self, verbose, raw):
-        match_str = "match: "
+        MATCH = "match: "
+        match_str = MATCH
 
         for i in range(0, len(self.rule_entry_list)):
             rule_mem = self.rule_entry_list[i]
             match_str += rule_mem.dump_str(verbose, raw) + " "
             if verbose and i != (len(self.rule_entry_list) - 1):
-                match_str += "\n" + get_indet() * "      "
+                match_str += "\n" + get_indent_str() + len(MATCH) * " "
 
         return match_str + "\n"
 
     def dump_actions_str(self):
-        action_str = "action: "
+        ACTION = "action: "
+        action_str = ACTION
 
-        for action in self.rule_action_list:
-            action_str += action.dump_str() + " "
+        for i in range(0, len(self.rule_action_list)):
+            action = self.rule_action_list[i]
+            action_str += action.dump_str()
+            if i != (len(self.rule_action_list) - 1):
+                action_str += " & "
 
         return action_str + "\n"
 
@@ -103,15 +108,20 @@ class dr_dump_rule_entry_rx_tx(dr_obj):
         if "tag" not in parsed_ste.keys():
             return ""
 
-        if verbose:
-            if self.data['dr_dump_rec_type'] == dr_dump_rec_type.DR_DUMP_REC_TYPE_RULE_RX_ENTRY.value[0]:
+        if verbose == 0:
+            return "%s" % dict_join_str(parsed_ste["tag"])
+        else:
+            if int(self.data['dr_dump_rec_type']) == dr_dump_rec_type.DR_DUMP_REC_TYPE_RULE_RX_ENTRY.value[0]:
                 rx_tx = "RX"
             else:
                 rx_tx = "TX"
 
-            return "(%s STE, icm_idx %s): %s (%s)" % (
-                   rx_tx, _srd(self.data, "ste_icm_address"),
-                   _srd(self.data, "ste_data"),
-                   dict_join_str(parsed_ste["tag"]))
-        else:
-            return "%s" % dict_join_str(parsed_ste["tag"])
+            if verbose == 1:
+                return "(%s STE, icm_idx %s): %s" % (
+                       rx_tx, _srd(self.data, "ste_icm_addr"),
+                       dict_join_str(parsed_ste["tag"]))
+            elif verbose >= 2:
+                return "(%s STE, icm_idx %s): %s (%s)" % (
+                    rx_tx, _srd(self.data, "ste_icm_addr"),
+                    _srd(self.data, "ste_data"),
+                    dict_join_str(parsed_ste["tag"]))

@@ -35,10 +35,19 @@ from dr_utilities import inc_indent
 from dr_utilities import print_dr
 
 
+def domain_type_str(type_str):
+    switch = {"0": "NIC_RX",
+              "1": "NIC_TX",
+              "2": "FDB",
+              }
+    return switch[type_str]
+
+
 class dr_dump_domain(dr_obj):
     def __init__(self, data):
         keys = ["dr_dump_rec_type", "id", "type", "gvmi", "support_sw_steering", "package_version", "dev_name"]
         self.data = dict(zip(keys, data))
+        self.fix_data()
         self.table_list = []
         self.dev_attr = None
         self.caps = None
@@ -58,14 +67,14 @@ class dr_dump_domain(dr_obj):
     def print_tree_view(self, dump_ctx, verbose, raw):
         print_dr(self.dump_str())
         inc_indent()
-        if verbose >= 2:
+        if verbose > 1:
             if self.dev_attr:
                 print_dr(self.dev_attr.dump_string())
             if self.caps:
                 print_dr(self.caps.dump_string())
             if self.send_ring:
                 print_dr(self.send_ring.dump_string())
-        if verbose >= 3:
+        if verbose > 2:
             if len(self.flex_parsers) > 0:
                 for f_p in self.flex_parsers:
                     print_dr(f_p.dump_string())
@@ -89,6 +98,11 @@ class dr_dump_domain(dr_obj):
             dump_ctx.matcher = None
             dump_ctx.rule = None
             t.print_rule_view(dump_ctx, verbose, raw)
+
+    def fix_data(self):
+        self.data["type"] = domain_type_str(self.data["type"])
+        self.data["gvmi"] = "0x" + str(int(self.data["gvmi"], 16))
+        self.data["support_sw_steering"] = True if self.data["support_sw_steering"] is "1" else False
 
     def add_table(self, table):
         self.table_list.append(table)
@@ -154,7 +168,7 @@ class dr_dump_domain_info_vport(dr_obj):
         self.data = dict(zip(keys, data))
 
     def dump_string(self):
-        return "vport: index %s, gvmi %d, icm_addr_rx %s, icm_addr_tx %s\n" % (
+        return "vport: index %s, gvmi %s, icm_addr_rx %s, icm_addr_tx %s\n" % (
             _srd(self.data, "index"),
             _srd(self.data, "gvmi"),
             _srd(self.data, "icm_addr_rx"),

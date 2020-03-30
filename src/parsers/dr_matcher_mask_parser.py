@@ -30,7 +30,7 @@
 
 from socket import ntohl
 
-import dr_prettify
+from src import dr_prettify
 
 
 def little_endian_32(hex_str):

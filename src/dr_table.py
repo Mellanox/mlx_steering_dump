@@ -35,18 +35,35 @@ class dr_dump_table(dr_obj):
     def __init__(self, data):
         keys = ["dr_dump_rec_type", "id", "domain_id", "type", "level"]
         self.data = dict(zip(keys, data))
+        self.fix_data()
         self.matcher_list = []
         self.table_rx = None
         self.table_tx = None
 
-    def dump_str(self):
-        return "table %s: level: %s, type: %s\n" % (
-               _srd(self.data, "id"),
-               _srd(self.data, "level"),
-               _srd(self.data, "type"))
+    def dump_str(self, verbose):
+        if verbose == 0:
+            return "table %s: level: %s, type: %s\n" % (
+                _srd(self.data, "id"),
+                _srd(self.data, "level"),
+                _srd(self.data, "type"))
+        else:
+            rx_s_anchor = ""
+            tx_s_anchor = ""
+
+            if self.table_rx:
+                rx_s_anchor = "rx s_anchor %s," %(self.table_rx.dump_str())
+            if self.table_tx:
+                tx_s_anchor = "tx s_anchor %s" %(self.table_tx.dump_str())
+
+            return "table %s: level: %s, type: %s, %s %s\n" % (
+                _srd(self.data, "id"),
+                _srd(self.data, "level"),
+                _srd(self.data, "type"),
+                rx_s_anchor,
+                tx_s_anchor)
 
     def print_tree_view(self, dump_ctx, verbose, raw):
-        print_dr(self.dump_str())
+        print_dr(self.dump_str(verbose))
         inc_indent()
 
         for m in self.matcher_list:
@@ -62,11 +79,24 @@ class dr_dump_table(dr_obj):
             dump_ctx.rule = None
             m.print_rule_view(dump_ctx, verbose, raw)
 
+    def fix_data(self):
+        type = int(self.data["type"])
+        switch = { 0x0 : "NIC_RX",
+                   0x1 : "NIC_TX",
+                   0x2 : "ESW_EGRESS_ACL",
+                   0x3 : "ESW_INGRESS_ACL",
+                   0X4 : "FDB",
+                   0X5 : "SNIFFER_RX",
+                   0X6 : "SNIFFER_TX"
+                 }
+        self.data["type"] = switch[type]
+
     def add_matcher(self, matcher):
         self.matcher_list.append(matcher)
 
     def add_table_rx_tx(self, table_rx_tx):
-        if table_rx_tx.data['dr_dump_rec_type'] == dr_dump_rec_type.DR_DUMP_REC_TYPE_TABLE_RX.value[0]:
+        anchor_type = int(table_rx_tx.data['dr_dump_rec_type'])
+        if anchor_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_TABLE_RX.value[0]:
             self.table_rx = table_rx_tx
         else:
             self.table_tx = table_rx_tx
@@ -77,5 +107,5 @@ class dr_dump_table_rx_tx(dr_obj):
         keys = ["dr_dump_rec_type", "table_id", "s_anchor"]
         self.data = dict(zip(keys, data))
 
-    def dump_string(self):
-        return "icm_addr_rx: %s\n" % (_srd(self.data, "s_anchor"))
+    def dump_str(self):
+        return "%s" % (_srd(self.data, "s_anchor"))
