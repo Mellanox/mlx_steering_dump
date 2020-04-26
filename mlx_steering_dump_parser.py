@@ -110,75 +110,89 @@ def print_ctx(dump_ctx, view, verbose, raw):
         dr_obj.print_rule_view(dump_ctx, verbose, raw)
 
 
-# print parsed data either in tree or rule view
-def print_domain(file_path, view, verbose, raw):
-    with open(file_path) as csv_file:
-        csv_reader = csv.reader(csv_file, delimiter=',')
-        dump_ctx = dr_dump_ctx()
+# Used to mark end of file
+LAST_OBJ = dr_obj()
 
-        for line in csv_reader:
-            dr_obj = dr_csv_get_obj(line)
-            dr_rec_type = int(line[0])
 
-            # update Domain objects
-            if dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_DOMAIN.value[0]:
-                if dump_ctx.domain is not None:
-                    print_ctx(dump_ctx, view, verbose, raw)
-                dump_ctx.domain = dr_obj
+def parse_domain(csv_reader, domain_obj=None):
+    """
+    Function is parsing one domain from provided csv reader
+    :param csv_reader: csv reader to parse with
+    :param domain_obj: domain object that was parsed in previous function call
+    :return: dump_ctx: parsed domain
+              dr_obj: parsed domain object for the next function call (or
+              LAST_OBJ when end of file is reached)
+    """
+    dump_ctx = dr_dump_ctx()
 
-            elif dump_ctx.domain and dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_DOMAIN_INFO_FLEX_PARSER.value[0]:
-                dump_ctx.domain.add_flex_parser(dr_obj)
+    if domain_obj:
+        dump_ctx.domain = domain_obj
 
-            elif dump_ctx.domain and dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_DOMAIN_INFO_DEV_ATTR.value[0]:
-                dump_ctx.domain.add_dev_attr(dr_obj)
+    for line in csv_reader:
+        dr_obj = dr_csv_get_obj(line)
+        dr_rec_type = int(line[0])
+        # update Domain objects
+        if dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_DOMAIN.value[0]:
+            # If parsing reached the next domain we return the parsed object to
+            # use it for the next function call since we can't re-parse this
+            # line again
+            if dump_ctx.domain is not None:
+                return dump_ctx, dr_obj
+            dump_ctx.domain = dr_obj
 
-            elif dump_ctx.domain and dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_DOMAIN_INFO_VPORT.value[0]:
-                dump_ctx.domain.add_vport(dr_obj)
+        elif dump_ctx.domain and dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_DOMAIN_INFO_FLEX_PARSER.value[0]:
+            dump_ctx.domain.add_flex_parser(dr_obj)
 
-            elif dump_ctx.domain and dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_DOMAIN_INFO_CAPS.value[0]:
-                dump_ctx.domain.add_caps(dr_obj)
+        elif dump_ctx.domain and dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_DOMAIN_INFO_DEV_ATTR.value[0]:
+            dump_ctx.domain.add_dev_attr(dr_obj)
 
-            elif dump_ctx.domain and dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_DOMAIN_SEND_RING.value[0]:
-                dump_ctx.domain.add_send_ring(dr_obj)
+        elif dump_ctx.domain and dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_DOMAIN_INFO_VPORT.value[0]:
+            dump_ctx.domain.add_vport(dr_obj)
 
-            # update Table objects
-            elif dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_TABLE.value[0]:
-                dump_ctx.table = dr_obj
-                dump_ctx.domain.add_table(dr_obj)
+        elif dump_ctx.domain and dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_DOMAIN_INFO_CAPS.value[0]:
+            dump_ctx.domain.add_caps(dr_obj)
 
-            elif dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_TABLE_RX.value[0] or \
-                    dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_TABLE_TX.value[0]:
-                dump_ctx.table.add_table_rx_tx(dr_obj)
+        elif dump_ctx.domain and dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_DOMAIN_SEND_RING.value[0]:
+            dump_ctx.domain.add_send_ring(dr_obj)
 
-            # update Matcher objects
-            elif dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_MATCHER.value[0]:
-                dump_ctx.matcher = dr_obj
-                dump_ctx.table.add_matcher(dr_obj)
+        # update Table objects
+        elif dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_TABLE.value[0]:
+            dump_ctx.table = dr_obj
+            dump_ctx.domain.add_table(dr_obj)
 
-            elif dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_MATCHER_MASK.value[0]:
-                dump_ctx.matcher.add_mask(dr_obj)
+        elif dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_TABLE_RX.value[0] or \
+                dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_TABLE_TX.value[0]:
+            dump_ctx.table.add_table_rx_tx(dr_obj)
 
-            elif dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_MATCHER_RX.value[0] or \
-                    dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_MATCHER_RX.value[0]:
-                dump_ctx.matcher.add_matcher_rx_tx(dr_obj)
+        # update Matcher objects
+        elif dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_MATCHER.value[0]:
+            dump_ctx.matcher = dr_obj
+            dump_ctx.table.add_matcher(dr_obj)
 
-            elif dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_MATCHER_BUILDER.value[0]:
-                dump_ctx.matcher.add_builder(dr_obj)
+        elif dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_MATCHER_MASK.value[0]:
+            dump_ctx.matcher.add_mask(dr_obj)
 
-            # update Rule objects
-            elif dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_RULE.value[0]:
-                dump_ctx.rule = dr_obj
-                dump_ctx.matcher.add_rule(dr_obj)
+        elif dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_MATCHER_RX.value[0] or \
+                dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_MATCHER_RX.value[0]:
+            dump_ctx.matcher.add_matcher_rx_tx(dr_obj)
 
-            elif dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_RULE_RX_ENTRY.value[0] \
-                    or dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_RULE_TX_ENTRY.value[0]:
-                dump_ctx.rule.add_rule_entry(dr_obj)
+        elif dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_MATCHER_BUILDER.value[0]:
+            dump_ctx.matcher.add_builder(dr_obj)
 
-            # update Action objects
-            elif dr_dump_rec_type.find_name(dr_rec_type).startswith('DR_DUMP_REC_TYPE_ACTION_'):
-                dump_ctx.rule.add_action(dr_obj)
+        # update Rule objects
+        elif dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_RULE.value[0]:
+            dump_ctx.rule = dr_obj
+            dump_ctx.matcher.add_rule(dr_obj)
 
-        print_ctx(dump_ctx, view, verbose, raw)
+        elif dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_RULE_RX_ENTRY.value[0] \
+                or dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_RULE_TX_ENTRY.value[0]:
+            dump_ctx.rule.add_rule_entry(dr_obj)
+
+        # update Action objects
+        elif dr_dump_rec_type.find_name(dr_rec_type).startswith('DR_DUMP_REC_TYPE_ACTION_'):
+            dump_ctx.rule.add_action(dr_obj)
+
+    return dump_ctx, LAST_OBJ
 
 
 def parse_args():
@@ -206,11 +220,14 @@ def main():
     if (args.dpdk_pid > 0):
         if dr_trigger.trigger_dump(args.dpdk_pid, DPDK_PORT, args.FILEPATH) is None:
             return -1
-
-    if (args.tree_view):
-        print_domain(args.FILEPATH, dr_dump_view.DR_DUMP_VIEW_TREE, args.verbose, args.raw)
-    else:
-        print_domain(args.FILEPATH, dr_dump_view.DR_DUMP_VIEW_RULE, args.verbose, args.raw)
+    domain_obj = None
+    with open(args.FILEPATH) as csv_file:
+        csv_reader = csv.reader(csv_file)
+        while domain_obj != LAST_OBJ:
+            dump_ctx, domain_obj = parse_domain(csv_reader, domain_obj)
+            print_ctx(dump_ctx, dr_dump_view.DR_DUMP_VIEW_TREE if args.tree_view
+                      else dr_dump_view.DR_DUMP_VIEW_RULE, args.verbose,
+                      args.raw)
 
     return 0
 
