@@ -206,20 +206,20 @@ def parse_args():
     return parser.parse_args()
 
 
-def main():
+if __name__ == '__main__':
     DPDK_PORT = 0
     args = parse_args()
     if (args.version):
         print_dr("Version %s\n" % g_version)
-        return 0
+        sys.exit(0)
 
     if (args.FILEPATH == ""):
         print_dr("No input steering dump file provided (-f FILEPATH)\n")
-        return 0
+        sys.exit(0)
 
     if (args.dpdk_pid > 0):
         if dr_trigger.trigger_dump(args.dpdk_pid, DPDK_PORT, args.FILEPATH) is None:
-            return -1
+            sys.exit(-1)
     domain_obj = None
     with open(args.FILEPATH) as csv_file:
         csv_reader = csv.reader(csv_file)
@@ -229,7 +229,4 @@ def main():
                       else dr_dump_view.DR_DUMP_VIEW_RULE, args.verbose,
                       args.raw)
 
-    return 0
-
-
-main()
+    sys.exit(0)
