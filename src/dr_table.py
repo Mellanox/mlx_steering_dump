@@ -89,7 +89,10 @@ class dr_dump_table(dr_obj):
                    0X5 : "SNIFFER_RX",
                    0X6 : "SNIFFER_TX"
                  }
-        self.data["type"] = switch[type]
+        if int(self.data["level"]) == 0:
+            self.data["type"] = "ROOT"
+        else:
+            self.data["type"] = switch[type]
 
     def add_matcher(self, matcher):
         self.matcher_list.append(matcher)
