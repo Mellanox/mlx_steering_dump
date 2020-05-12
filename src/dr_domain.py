@@ -215,10 +215,10 @@ def felx_parser_dump_string(flex_protocols):
         dump += "tnl_geneve, "
 
     if dr_matcher_supp_flex_parser_icmp_v4(flex_protocols):
-        dump = + "icmp_v6 -> flex_parser_1, "
+        dump += "icmp_v4 -> flex_parser_1, "
 
     if dr_matcher_supp_flex_parser_icmp_v6(flex_protocols):
-        dump = + "icmp_v6 -> flex_parser_1, "
+        dump += "icmp_v6 -> flex_parser_1, "
 
     if dump != "":
         return "supports " + dump
