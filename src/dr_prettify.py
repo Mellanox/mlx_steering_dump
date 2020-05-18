@@ -27,10 +27,12 @@
 # ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-import ipaddress
 
-def pretty_ip(ip):
-    return str(ipaddress.ip_address(int(ip, 16)))
+
+def pretty_ipv4(ip):
+    ipaddr = "%i.%i.%i.%i" % (int(ip[2:4], 16), int(ip[4:6], 16),
+                              int(ip[6:8], 16), int(ip[8:10], 16))
+    return ipaddr
 
 
 def pretty_mac(mac):
@@ -59,7 +61,7 @@ def prettify_fields(dic):
             dic[j] = pretty_ip_protocol(dic[j])
             continue
         if "src_ip" in j or "dst_ip" in j:
-            dic[j] = pretty_ip(dic[j])
+            dic[j] = pretty_ipv4(dic[j])
 
         if "smac" in j or "dmac" in j:
             dic[j] = pretty_mac(dic[j])
