@@ -31,6 +31,7 @@
 from src import dr_prettify
 from src.dr_domain import dr_matcher_supp_flex_parser_geneve
 from src.dr_domain import dr_matcher_supp_flex_parser_vxlan_gpe
+from src.dr_domain import dr_matcher_supp_flex_parser_gtpu
 
 def conv_ip_version(version):
     if eval(version) == 1:
@@ -517,12 +518,26 @@ def mlx5_ifc_ste_flex_parser_tnl_vxlan_gpe_bits_tag_parser(bin_str):
     return ret
 
 
+def mlx5_ifc_ste_flex_parser_tnl_gtpu_bits(bin_str):
+    ret = {}
+    ret["reserved_at_0"] = _val(bin_str[0: 5])
+    ret["gtpu_flags"] = _val(bin_str[5: 8])
+    ret["gtpu_msg_type"] = _val(bin_str[8: 16])
+    ret["reserved_at_10"] = _val(bin_str[16: 32])
+    ret["gtpu_teid"] = _val(bin_str[32: 64])
+    ret["reserved_at_40"] = _val(bin_str[64: 128])
+    return ret
+
+
 def mlx5_ifc_ste_flex_parser_tag_parser(caps, bin_str):
     if dr_matcher_supp_flex_parser_geneve(caps):
         return mlx5_ifc_ste_flex_parser_tnl_geneve_bits_tag_parser(bin_str)
 
     if dr_matcher_supp_flex_parser_vxlan_gpe(caps):
         return mlx5_ifc_ste_flex_parser_tnl_vxlan_gpe_bits_tag_parser(bin_str)
+
+    if dr_matcher_supp_flex_parser_gtpu(caps):
+        return mlx5_ifc_ste_flex_parser_tnl_gtpu_bits(bin_str)
 
 
 def mlx5_tag_parser(lookup_type, tag, raw, flex_parser_caps):

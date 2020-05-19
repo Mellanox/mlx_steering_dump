@@ -191,6 +191,11 @@ def dr_matcher_supp_flex_parser_vxlan_gpe(flex_protocols):
     return flex_protocols & MLX5_FLEX_PARSER_VXLAN_GPE_ENABLED
 
 
+def dr_matcher_supp_flex_parser_gtpu(flex_protocols):
+    MLX5_FLEX_PARSER_GTPU_ENABLED = 1 << 11
+    return flex_protocols & MLX5_FLEX_PARSER_GTPU_ENABLED
+
+
 def dr_matcher_supp_flex_parser_geneve(flex_protocols):
     MLX5_FLEX_PARSER_GENEVE_ENABLED = 1 << 3
     return flex_protocols & MLX5_FLEX_PARSER_GENEVE_ENABLED
