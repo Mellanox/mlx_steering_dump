@@ -29,7 +29,7 @@
 # SOFTWARE.
 
 from src import dr_prettify
-
+from src.dr_domain import dr_matcher_supp_flex_parser_geneve
 
 def conv_ip_version(version):
     if eval(version) == 1:
@@ -492,7 +492,25 @@ def mlx5_ifc_ste_flex_parser_1_bits_tag_parser(bin_str):
     return ret
 
 
-def mlx5_tag_parser(lookup_type, tag, raw):
+def mlx5_ifc_ste_flex_parser_tnl_geneve_bits_tag_parser(bin_str):
+    ret = {}
+    ret["reserved_at_0"] = _val(bin_str[0: 2])
+    ret["geneve_opt_len"] = _val(bin_str[2: 8])
+    ret["geneve_oam"] = _val(bin_str[8: 9])
+    ret["reserved_at_9"] = _val(bin_str[9: 16])
+    ret["geneve_protocol_type"] = _val(bin_str[16: 32])
+    ret["geneve_vni"] = _val(bin_str[32: 56])
+    ret["reserved_at_38"] = _val(bin_str[56: 64])
+    ret["reserved_at_40"] = _val(bin_str[64: 128])
+    return ret
+
+def mlx5_ifc_ste_flex_parser_tag_parser(caps, bin_str):
+    if dr_matcher_supp_flex_parser_geneve(caps):
+        return mlx5_ifc_ste_flex_parser_tnl_geneve_bits_tag_parser(bin_str)
+
+
+def mlx5_tag_parser(lookup_type, tag, raw, flex_parser_caps):
+    FLEX_PARSER_LOOKUP_TYPE = "0X19"
     switch = {"0x05": [mlx5_ifc_ste_src_gvmi_qp_bits_tag_parser, False],
               "0x0a": [mlx5_ifc_ste_eth_l2_tnl_bits_tag_parser_p, True],
               "0x06": [mlx5_ifc_ste_eth_l2_dst_bits_tag_parser_p, False],
@@ -531,6 +549,7 @@ def mlx5_tag_parser(lookup_type, tag, raw):
               "0x13": [mlx5_ifc_ste_eth_l4_bits_tag_parser, False],
               "0x14": [mlx5_ifc_ste_eth_l4_bits_tag_parser, False],
               "0x21": [mlx5_ifc_ste_eth_l4_bits_tag_parser, False],
+              FLEX_PARSER_LOOKUP_TYPE: [mlx5_ifc_ste_flex_parser_tag_parser, False],
               }
 
     if lookup_type not in switch.keys():
@@ -538,7 +557,11 @@ def mlx5_tag_parser(lookup_type, tag, raw):
         return {}
 
     func, inner = switch[lookup_type]
-    parsed_tag = func(tag)
+
+    if lookup_type == FLEX_PARSER_LOOKUP_TYPE:
+        parsed_tag = func(flex_parser_caps, tag)
+    else:
+        parsed_tag = func(tag)
 
     if not raw:
         parsed_tag = dr_prettify.prettify_tag(parsed_tag)
@@ -550,7 +573,7 @@ def mlx5_tag_parser(lookup_type, tag, raw):
 
 
 # HW_STE parsing funcs
-def mlx5_ifc_ste_rx_steering_mult_bits_parser(bin_str, raw):
+def mlx5_ifc_ste_rx_steering_mult_bits_parser(bin_str, raw, flex_parser_caps):
     ret = {}
 
     ret["entry_type"] = _val(bin_str[0: 4])
@@ -581,11 +604,12 @@ def mlx5_ifc_ste_rx_steering_mult_bits_parser(bin_str, raw):
     ret["match_polarity"] = _val(bin_str[252: 253])
     ret["mask_mode"] = _val(bin_str[253: 254])
     ret["miss_rank"] = _val(bin_str[254: 256])
-    ret["tag"] = mlx5_tag_parser(ret["entry_sub_type"], bin_str[256: 384], raw)
+    ret["tag"] = mlx5_tag_parser(ret["entry_sub_type"], bin_str[256: 384], raw,
+                                 flex_parser_caps)
     return ret
 
 
-def mlx5_ifc_ste_sx_transmit_bits_parser(bin_str, raw):
+def mlx5_ifc_ste_sx_transmit_bits_parser(bin_str, raw, flex_parser_caps):
     ret = {}
 
     ret["entry_type"] = _val(bin_str[0: 4])
@@ -622,11 +646,12 @@ def mlx5_ifc_ste_sx_transmit_bits_parser(bin_str, raw):
     ret["match_polarity"] = _val(bin_str[252: 253])
     ret["mask_mode"] = _val(bin_str[253: 254])
     ret["miss_rank"] = _val(bin_str[254: 256])
-    ret["tag"] = mlx5_tag_parser(ret["entry_sub_type"], bin_str[256: 384], raw)
+    ret["tag"] = mlx5_tag_parser(ret["entry_sub_type"], bin_str[256: 384], raw,
+                                 flex_parser_caps)
     return ret
 
 
-def mlx5_ifc_ste_modify_packet_bits_parser(bin_str, raw):
+def mlx5_ifc_ste_modify_packet_bits_parser(bin_str, raw, flex_parser_caps):
     ret = {}
 
     ret["entry_type"] = _val(bin_str[0: 4])
@@ -657,11 +682,12 @@ def mlx5_ifc_ste_modify_packet_bits_parser(bin_str, raw):
     ret["match_polarity"] = _val(bin_str[252: 253])
     ret["mask_mode"] = _val(bin_str[253: 254])
     ret["miss_rank"] = _val(bin_str[254: 256])
-    ret["tag"] = mlx5_tag_parser(ret["entry_sub_type"], bin_str[256: 384], raw)
+    ret["tag"] = mlx5_tag_parser(ret["entry_sub_type"], bin_str[256: 384], raw,
+                                 flex_parser_caps)
     return ret
 
 
-def mlx5_hw_ste_parser(hex_str, raw):
+def mlx5_hw_ste_parser(hex_str, raw, flex_parser_caps):
     arr = {
         "0": "0000", "1": "0001", "2": "0010", "3": "0011",
         "4": "0100", "5": "0101", "6": "0110", "7": "0111",
@@ -680,4 +706,4 @@ def mlx5_hw_ste_parser(hex_str, raw):
               6: mlx5_ifc_ste_modify_packet_bits_parser
               }
 
-    return switch[entry_type](bin_str, raw)
+    return switch[entry_type](bin_str, raw, flex_parser_caps)

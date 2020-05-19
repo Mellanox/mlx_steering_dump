@@ -49,13 +49,13 @@ class dr_dump_rule(dr_obj):
     def dump_str(self):
         return "rule %s\n" % (_srd(self.data, "id"))
 
-    def dump_match_str(self, verbose, raw):
+    def dump_match_str(self, dump_ctx, verbose, raw):
         MATCH = "match: "
         match_str = MATCH
 
         for i in range(0, len(self.rule_entry_list)):
             rule_mem = self.rule_entry_list[i]
-            match_str += rule_mem.dump_str(verbose, raw) + " "
+            match_str += rule_mem.dump_str(dump_ctx, verbose, raw) + " "
             if verbose and i != (len(self.rule_entry_list) - 1):
                 match_str += "\n" + get_indent_str() + len(MATCH) * " "
 
@@ -76,7 +76,7 @@ class dr_dump_rule(dr_obj):
     def print_tree_view(self, dump_ctx, verbose, raw):
         print_dr(self.dump_str())
         inc_indent()
-        print_dr(self.dump_match_str(verbose, raw))
+        print_dr(self.dump_match_str(dump_ctx, verbose, raw))
         print_dr(self.dump_actions_str())
         dec_indent()
 
@@ -87,7 +87,7 @@ class dr_dump_rule(dr_obj):
 
         print_dr(dmn_str + tbl_str + matcher_str + self.dump_str())
         inc_indent()
-        print_dr(self.dump_match_str(verbose, raw))
+        print_dr(self.dump_match_str(dump_ctx, verbose, raw))
         print_dr(self.dump_actions_str())
         dec_indent()
 
@@ -103,8 +103,12 @@ class dr_dump_rule_entry_rx_tx(dr_obj):
         keys = ["dr_dump_rec_type", "ste_icm_addr", "rule_id", "ste_data"]
         self.data = dict(zip(keys, data))
 
-    def dump_str(self, verbose, raw):
-        parsed_ste = dr_hw_ste_parser.mlx5_hw_ste_parser(self.data['ste_data'], raw)
+    def dump_str(self, dump_ctx, verbose, raw):
+        flex_parser_caps = 0
+        for fp in dump_ctx.domain.flex_parsers:
+            flex_parser_caps |= int(fp.data["value"], 16)
+
+        parsed_ste = dr_hw_ste_parser.mlx5_hw_ste_parser(self.data['ste_data'], raw, flex_parser_caps)
         if "tag" not in parsed_ste.keys():
             return ""
 
