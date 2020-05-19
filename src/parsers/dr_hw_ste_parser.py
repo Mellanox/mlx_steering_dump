@@ -474,6 +474,15 @@ def mlx5_ifc_ste_src_gvmi_qp_bits_tag_parser(bin_str):
     return ret
 
 
+def mlx5_ifc_ste_flex_parser_0_bits_tag_parser(bin_str):
+    ret = {}
+    ret["flex_parser_3"] = _val(bin_str[0: 32])
+    ret["flex_parser_2"] = _val(bin_str[32: 64])
+    ret["flex_parser_1"] = _val(bin_str[64: 96])
+    ret["flex_parser_0"] = _val(bin_str[96: 128])
+    return ret
+
+
 def mlx5_tag_parser(lookup_type, tag, raw):
     switch = {"0x05": [mlx5_ifc_ste_src_gvmi_qp_bits_tag_parser, False],
               "0x0a": [mlx5_ifc_ste_eth_l2_tnl_bits_tag_parser_p, True],
@@ -508,6 +517,7 @@ def mlx5_tag_parser(lookup_type, tag, raw):
               "0x18": [mlx5_ifc_ste_general_purpose_bits_tag_parser, False],
               "0x2f": [mlx5_ifc_ste_register_0_bits_tag_parser, False],
               "0x30": [mlx5_ifc_ste_register_1_bits_tag_parser, False],
+              "0x22": [mlx5_ifc_ste_flex_parser_0_bits_tag_parser, False],
               }
 
     if lookup_type not in switch.keys():
