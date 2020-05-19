@@ -528,6 +528,9 @@ def mlx5_tag_parser(lookup_type, tag, raw):
               "0x30": [mlx5_ifc_ste_register_1_bits_tag_parser, False],
               "0x22": [mlx5_ifc_ste_flex_parser_0_bits_tag_parser, False],
               "0x23": [mlx5_ifc_ste_flex_parser_1_bits_tag_parser, False],
+              "0x13": [mlx5_ifc_ste_eth_l4_bits_tag_parser, False],
+              "0x14": [mlx5_ifc_ste_eth_l4_bits_tag_parser, False],
+              "0x21": [mlx5_ifc_ste_eth_l4_bits_tag_parser, False],
               }
 
     if lookup_type not in switch.keys():
