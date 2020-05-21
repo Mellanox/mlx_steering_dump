@@ -111,7 +111,7 @@ class dr_dump_rule_entry_rx_tx(dr_obj):
         if verbose == 0:
             return "%s" % dict_join_str(parsed_ste["tag"])
         else:
-            if int(self.data['dr_dump_rec_type']) == dr_dump_rec_type.DR_DUMP_REC_TYPE_RULE_RX_ENTRY.value[0]:
+            if int(self.data['dr_dump_rec_type']) == dr_dump_rec_type.DR_DUMP_REC_TYPE_RULE_RX_ENTRY:
                 rx_tx = "RX"
             else:
                 rx_tx = "TX"

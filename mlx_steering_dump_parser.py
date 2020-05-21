@@ -46,42 +46,42 @@ from src.dr_utilities import *
 # mapping csv records types to it's relevant parser function
 def dr_csv_rec_type_parser(rec_type):
     switch = {
-        dr_dump_rec_type.DR_DUMP_REC_TYPE_DOMAIN.value[0]: dr_dump_domain,
-        dr_dump_rec_type.DR_DUMP_REC_TYPE_DOMAIN_INFO_DEV_ATTR.value[0]: dr_dump_domain_info_dev_attr,
-        dr_dump_rec_type.DR_DUMP_REC_TYPE_DOMAIN_INFO_CAPS.value[0]: dr_dump_domain_info_caps,
-        dr_dump_rec_type.DR_DUMP_REC_TYPE_DOMAIN_INFO_VPORT.value[0]: dr_dump_domain_info_vport,
-        dr_dump_rec_type.DR_DUMP_REC_TYPE_DOMAIN_SEND_RING.value[0]: dr_dump_domain_send_ring,
-        dr_dump_rec_type.DR_DUMP_REC_TYPE_DOMAIN_INFO_FLEX_PARSER.value[0]: dr_dump_domain_info_flex_parser,
+        dr_dump_rec_type.DR_DUMP_REC_TYPE_DOMAIN: dr_dump_domain,
+        dr_dump_rec_type.DR_DUMP_REC_TYPE_DOMAIN_INFO_DEV_ATTR: dr_dump_domain_info_dev_attr,
+        dr_dump_rec_type.DR_DUMP_REC_TYPE_DOMAIN_INFO_CAPS: dr_dump_domain_info_caps,
+        dr_dump_rec_type.DR_DUMP_REC_TYPE_DOMAIN_INFO_VPORT: dr_dump_domain_info_vport,
+        dr_dump_rec_type.DR_DUMP_REC_TYPE_DOMAIN_SEND_RING: dr_dump_domain_send_ring,
+        dr_dump_rec_type.DR_DUMP_REC_TYPE_DOMAIN_INFO_FLEX_PARSER: dr_dump_domain_info_flex_parser,
 
-        dr_dump_rec_type.DR_DUMP_REC_TYPE_TABLE.value[0]: dr_dump_table,
-        dr_dump_rec_type.DR_DUMP_REC_TYPE_TABLE_RX.value[0]: dr_dump_table_rx_tx,
-        dr_dump_rec_type.DR_DUMP_REC_TYPE_TABLE_TX.value[0]: dr_dump_table_rx_tx,
+        dr_dump_rec_type.DR_DUMP_REC_TYPE_TABLE: dr_dump_table,
+        dr_dump_rec_type.DR_DUMP_REC_TYPE_TABLE_RX: dr_dump_table_rx_tx,
+        dr_dump_rec_type.DR_DUMP_REC_TYPE_TABLE_TX: dr_dump_table_rx_tx,
 
-        dr_dump_rec_type.DR_DUMP_REC_TYPE_MATCHER.value[0]: dr_dump_matcher,
-        dr_dump_rec_type.DR_DUMP_REC_TYPE_MATCHER_MASK.value[0]: dr_dump_matcher_mask,
-        dr_dump_rec_type.DR_DUMP_REC_TYPE_MATCHER_RX.value[0]: dr_dump_matcher_rx_tx,
-        dr_dump_rec_type.DR_DUMP_REC_TYPE_MATCHER_TX.value[0]: dr_dump_matcher_rx_tx,
-        dr_dump_rec_type.DR_DUMP_REC_TYPE_MATCHER_BUILDER.value[0]: dr_dump_matcher_builder,
+        dr_dump_rec_type.DR_DUMP_REC_TYPE_MATCHER: dr_dump_matcher,
+        dr_dump_rec_type.DR_DUMP_REC_TYPE_MATCHER_MASK: dr_dump_matcher_mask,
+        dr_dump_rec_type.DR_DUMP_REC_TYPE_MATCHER_RX: dr_dump_matcher_rx_tx,
+        dr_dump_rec_type.DR_DUMP_REC_TYPE_MATCHER_TX: dr_dump_matcher_rx_tx,
+        dr_dump_rec_type.DR_DUMP_REC_TYPE_MATCHER_BUILDER: dr_dump_matcher_builder,
 
-        dr_dump_rec_type.DR_DUMP_REC_TYPE_RULE.value[0]: dr_dump_rule,
-        dr_dump_rec_type.DR_DUMP_REC_TYPE_RULE_RX_ENTRY.value[0]: dr_dump_rule_entry_rx_tx,
-        dr_dump_rec_type.DR_DUMP_REC_TYPE_RULE_TX_ENTRY.value[0]: dr_dump_rule_entry_rx_tx,
+        dr_dump_rec_type.DR_DUMP_REC_TYPE_RULE: dr_dump_rule,
+        dr_dump_rec_type.DR_DUMP_REC_TYPE_RULE_RX_ENTRY: dr_dump_rule_entry_rx_tx,
+        dr_dump_rec_type.DR_DUMP_REC_TYPE_RULE_TX_ENTRY: dr_dump_rule_entry_rx_tx,
 
-        dr_dump_rec_type.DR_DUMP_REC_TYPE_ACTION_ENCAP_L2.value[0]: dr_dump_action_encup_l2,
-        dr_dump_rec_type.DR_DUMP_REC_TYPE_ACTION_ENCAP_L3.value[0]: dr_dump_action_encup_l2,
-        dr_dump_rec_type.DR_DUMP_REC_TYPE_ACTION_MODIFY_HDR.value[0]: dr_dump_action_modify_header,
-        dr_dump_rec_type.DR_DUMP_REC_TYPE_ACTION_DROP.value[0]: dr_dump_action_drop,
-        dr_dump_rec_type.DR_DUMP_REC_TYPE_ACTION_QP.value[0]: dr_dump_action_qp,
-        dr_dump_rec_type.DR_DUMP_REC_TYPE_ACTION_FT.value[0]: dr_dump_action_ft,
-        dr_dump_rec_type.DR_DUMP_REC_TYPE_ACTION_CTR.value[0]: dr_dump_action_ctr,
-        dr_dump_rec_type.DR_DUMP_REC_TYPE_ACTION_TAG.value[0]: dr_dump_action_tag,
-        dr_dump_rec_type.DR_DUMP_REC_TYPE_ACTION_VPORT.value[0]: dr_dump_action_vport,
-        dr_dump_rec_type.DR_DUMP_REC_TYPE_ACTION_DECAP_L2.value[0]: dr_dump_action_decup_l2,
-        dr_dump_rec_type.DR_DUMP_REC_TYPE_ACTION_DECAP_L3.value[0]: dr_dump_action_decup_l3,
-        dr_dump_rec_type.DR_DUMP_REC_TYPE_ACTION_DEVX_TIR.value[0]: dr_dump_action_devx_tir,
-        dr_dump_rec_type.DR_DUMP_REC_TYPE_ACTION_POP_VLAN.value[0]: dr_dump_action_pop_vlan,
-        dr_dump_rec_type.DR_DUMP_REC_TYPE_ACTION_PUSH_VLAN.value[0]: dr_dump_action_push_vlan,
-        dr_dump_rec_type.DR_DUMP_REC_TYPE_ACTION_METER.value[0]: dr_dump_action_meter,
+        dr_dump_rec_type.DR_DUMP_REC_TYPE_ACTION_ENCAP_L2: dr_dump_action_encup_l2,
+        dr_dump_rec_type.DR_DUMP_REC_TYPE_ACTION_ENCAP_L3: dr_dump_action_encup_l2,
+        dr_dump_rec_type.DR_DUMP_REC_TYPE_ACTION_MODIFY_HDR: dr_dump_action_modify_header,
+        dr_dump_rec_type.DR_DUMP_REC_TYPE_ACTION_DROP: dr_dump_action_drop,
+        dr_dump_rec_type.DR_DUMP_REC_TYPE_ACTION_QP: dr_dump_action_qp,
+        dr_dump_rec_type.DR_DUMP_REC_TYPE_ACTION_FT: dr_dump_action_ft,
+        dr_dump_rec_type.DR_DUMP_REC_TYPE_ACTION_CTR: dr_dump_action_ctr,
+        dr_dump_rec_type.DR_DUMP_REC_TYPE_ACTION_TAG: dr_dump_action_tag,
+        dr_dump_rec_type.DR_DUMP_REC_TYPE_ACTION_VPORT: dr_dump_action_vport,
+        dr_dump_rec_type.DR_DUMP_REC_TYPE_ACTION_DECAP_L2: dr_dump_action_decup_l2,
+        dr_dump_rec_type.DR_DUMP_REC_TYPE_ACTION_DECAP_L3: dr_dump_action_decup_l3,
+        dr_dump_rec_type.DR_DUMP_REC_TYPE_ACTION_DEVX_TIR: dr_dump_action_devx_tir,
+        dr_dump_rec_type.DR_DUMP_REC_TYPE_ACTION_POP_VLAN: dr_dump_action_pop_vlan,
+        dr_dump_rec_type.DR_DUMP_REC_TYPE_ACTION_PUSH_VLAN: dr_dump_action_push_vlan,
+        dr_dump_rec_type.DR_DUMP_REC_TYPE_ACTION_METER: dr_dump_action_meter,
     }
 
     return switch[rec_type]
@@ -132,7 +132,7 @@ def parse_domain(csv_reader, domain_obj=None):
         dr_obj = dr_csv_get_obj(line)
         dr_rec_type = int(line[0])
         # update Domain objects
-        if dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_DOMAIN.value[0]:
+        if dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_DOMAIN:
             # If parsing reached the next domain we return the parsed object to
             # use it for the next function call since we can't re-parse this
             # line again
@@ -140,52 +140,52 @@ def parse_domain(csv_reader, domain_obj=None):
                 return dump_ctx, dr_obj
             dump_ctx.domain = dr_obj
 
-        elif dump_ctx.domain and dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_DOMAIN_INFO_FLEX_PARSER.value[0]:
+        elif dump_ctx.domain and dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_DOMAIN_INFO_FLEX_PARSER:
             dump_ctx.domain.add_flex_parser(dr_obj)
 
-        elif dump_ctx.domain and dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_DOMAIN_INFO_DEV_ATTR.value[0]:
+        elif dump_ctx.domain and dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_DOMAIN_INFO_DEV_ATTR:
             dump_ctx.domain.add_dev_attr(dr_obj)
 
-        elif dump_ctx.domain and dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_DOMAIN_INFO_VPORT.value[0]:
+        elif dump_ctx.domain and dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_DOMAIN_INFO_VPORT:
             dump_ctx.domain.add_vport(dr_obj)
 
-        elif dump_ctx.domain and dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_DOMAIN_INFO_CAPS.value[0]:
+        elif dump_ctx.domain and dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_DOMAIN_INFO_CAPS:
             dump_ctx.domain.add_caps(dr_obj)
 
-        elif dump_ctx.domain and dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_DOMAIN_SEND_RING.value[0]:
+        elif dump_ctx.domain and dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_DOMAIN_SEND_RING:
             dump_ctx.domain.add_send_ring(dr_obj)
 
         # update Table objects
-        elif dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_TABLE.value[0]:
+        elif dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_TABLE:
             dump_ctx.table = dr_obj
             dump_ctx.domain.add_table(dr_obj)
 
-        elif dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_TABLE_RX.value[0] or \
-                dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_TABLE_TX.value[0]:
+        elif dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_TABLE_RX or \
+                dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_TABLE_TX:
             dump_ctx.table.add_table_rx_tx(dr_obj)
 
         # update Matcher objects
-        elif dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_MATCHER.value[0]:
+        elif dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_MATCHER:
             dump_ctx.matcher = dr_obj
             dump_ctx.table.add_matcher(dr_obj)
 
-        elif dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_MATCHER_MASK.value[0]:
+        elif dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_MATCHER_MASK:
             dump_ctx.matcher.add_mask(dr_obj)
 
-        elif dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_MATCHER_RX.value[0] or \
-                dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_MATCHER_RX.value[0]:
+        elif dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_MATCHER_RX or \
+                dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_MATCHER_RX:
             dump_ctx.matcher.add_matcher_rx_tx(dr_obj)
 
-        elif dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_MATCHER_BUILDER.value[0]:
+        elif dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_MATCHER_BUILDER:
             dump_ctx.matcher.add_builder(dr_obj)
 
         # update Rule objects
-        elif dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_RULE.value[0]:
+        elif dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_RULE:
             dump_ctx.rule = dr_obj
             dump_ctx.matcher.add_rule(dr_obj)
 
-        elif dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_RULE_RX_ENTRY.value[0] \
-                or dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_RULE_TX_ENTRY.value[0]:
+        elif dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_RULE_RX_ENTRY \
+                or dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_RULE_TX_ENTRY:
             dump_ctx.rule.add_rule_entry(dr_obj)
 
         # update Action objects

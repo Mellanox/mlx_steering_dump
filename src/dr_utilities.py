@@ -29,72 +29,73 @@
 # SOFTWARE.
 
 import sys
-from enum import Enum
 
 # sw steering dump tool version
 g_version = "1.0.1"
 g_indent = 0
 TAB = "   "
 
-class dr_dump_view(Enum):
+class dr_dump_view():
     DR_DUMP_VIEW_RULE = 0,
     DR_DUMP_VIEW_TREE = 1,
 
 
 # Enum of csv records types that can be parsed, same enum as in rdma-core providers/mlx5/dr_dbg.c
-class dr_dump_rec_type(Enum):
-    DR_DUMP_REC_TYPE_DOMAIN = 3000,
-    DR_DUMP_REC_TYPE_DOMAIN_INFO_FLEX_PARSER = 3001,
-    DR_DUMP_REC_TYPE_DOMAIN_INFO_DEV_ATTR = 3002,
-    DR_DUMP_REC_TYPE_DOMAIN_INFO_VPORT = 3003,
-    DR_DUMP_REC_TYPE_DOMAIN_INFO_CAPS = 3004,
-    DR_DUMP_REC_TYPE_DOMAIN_SEND_RING = 3005,
+class dr_dump_rec_type():
+  DR_DUMP_REC_TYPE_DOMAIN = 3000
+  DR_DUMP_REC_TYPE_DOMAIN_INFO_FLEX_PARSER = 3001
+  DR_DUMP_REC_TYPE_DOMAIN_INFO_DEV_ATTR = 3002
+  DR_DUMP_REC_TYPE_DOMAIN_INFO_VPORT = 3003
+  DR_DUMP_REC_TYPE_DOMAIN_INFO_CAPS = 3004
+  DR_DUMP_REC_TYPE_DOMAIN_SEND_RING = 3005
 
-    DR_DUMP_REC_TYPE_TABLE = 3100,
-    DR_DUMP_REC_TYPE_TABLE_RX = 3101,
-    DR_DUMP_REC_TYPE_TABLE_TX = 3102,
+  DR_DUMP_REC_TYPE_TABLE = 3100
+  DR_DUMP_REC_TYPE_TABLE_RX = 3101
+  DR_DUMP_REC_TYPE_TABLE_TX = 3102
 
-    DR_DUMP_REC_TYPE_MATCHER = 3200,
-    DR_DUMP_REC_TYPE_MATCHER_MASK = 3201,
-    DR_DUMP_REC_TYPE_MATCHER_RX = 3202,
-    DR_DUMP_REC_TYPE_MATCHER_TX = 3203,
-    DR_DUMP_REC_TYPE_MATCHER_BUILDER = 3204,
+  DR_DUMP_REC_TYPE_MATCHER = 3200
+  DR_DUMP_REC_TYPE_MATCHER_MASK = 3201
+  DR_DUMP_REC_TYPE_MATCHER_RX = 3202
+  DR_DUMP_REC_TYPE_MATCHER_TX = 3203
+  DR_DUMP_REC_TYPE_MATCHER_BUILDER = 3204
 
-    DR_DUMP_REC_TYPE_RULE = 3300,
-    DR_DUMP_REC_TYPE_RULE_RX_ENTRY = 3301,
-    DR_DUMP_REC_TYPE_RULE_TX_ENTRY = 3302,
+  DR_DUMP_REC_TYPE_RULE = 3300
+  DR_DUMP_REC_TYPE_RULE_RX_ENTRY = 3301
+  DR_DUMP_REC_TYPE_RULE_TX_ENTRY = 3302
 
-    DR_DUMP_REC_TYPE_ACTION_ENCAP_L2 = 3400,
-    DR_DUMP_REC_TYPE_ACTION_ENCAP_L3 = 3401,
-    DR_DUMP_REC_TYPE_ACTION_MODIFY_HDR = 3402,
-    DR_DUMP_REC_TYPE_ACTION_DROP = 3403,
-    DR_DUMP_REC_TYPE_ACTION_QP = 3404,
-    DR_DUMP_REC_TYPE_ACTION_FT = 3405,
-    DR_DUMP_REC_TYPE_ACTION_CTR = 3406,
-    DR_DUMP_REC_TYPE_ACTION_TAG = 3407,
-    DR_DUMP_REC_TYPE_ACTION_VPORT = 3408,
-    DR_DUMP_REC_TYPE_ACTION_DECAP_L2 = 3409,
-    DR_DUMP_REC_TYPE_ACTION_DECAP_L3 = 3410,
-    DR_DUMP_REC_TYPE_ACTION_DEVX_TIR = 3411,
-    DR_DUMP_REC_TYPE_ACTION_PUSH_VLAN = 3412,
-    DR_DUMP_REC_TYPE_ACTION_POP_VLAN = 3413,
-    DR_DUMP_REC_TYPE_ACTION_METER = 3414,
+  DR_DUMP_REC_TYPE_ACTION_ENCAP_L2 = 3400
+  DR_DUMP_REC_TYPE_ACTION_ENCAP_L3 = 3401
+  DR_DUMP_REC_TYPE_ACTION_MODIFY_HDR = 3402
+  DR_DUMP_REC_TYPE_ACTION_DROP = 3403
+  DR_DUMP_REC_TYPE_ACTION_QP = 3404
+  DR_DUMP_REC_TYPE_ACTION_FT = 3405
+  DR_DUMP_REC_TYPE_ACTION_CTR = 3406
+  DR_DUMP_REC_TYPE_ACTION_TAG = 3407
+  DR_DUMP_REC_TYPE_ACTION_VPORT = 3408
+  DR_DUMP_REC_TYPE_ACTION_DECAP_L2 = 3409
+  DR_DUMP_REC_TYPE_ACTION_DECAP_L3 = 3410
+  DR_DUMP_REC_TYPE_ACTION_DEVX_TIR = 3411
+  DR_DUMP_REC_TYPE_ACTION_PUSH_VLAN = 3412
+  DR_DUMP_REC_TYPE_ACTION_POP_VLAN = 3413
+  DR_DUMP_REC_TYPE_ACTION_METER = 3414
 
-    @classmethod
-    def find_name(self, index):
-        index = int(index)
-        for x in dr_dump_rec_type:
-            val = x.value[0]
-            if (val == index):
-                return x.name
-        return None
 
-    @classmethod
-    def find_index(self, name):
-        for x in dr_dump_rec_type:
-            if (x.name == name):
-                return x.value[0]
-        return None
+  @classmethod
+  def find_name(self, index):
+    index = int(index)
+    for attr, value in dr_dump_rec_type.__dict__.items():
+      if attr.startswith("DR"):
+        if (value == index):
+            return attr
+    return None
+
+
+  @classmethod
+  def find_index(self, name):
+    for attr, value in dr_dump_rec_type.__dict__.items():
+      if attr == name:
+        return value
+    return None
 
 
 def _srd(cur_dict, key):
