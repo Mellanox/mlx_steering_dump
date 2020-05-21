@@ -74,7 +74,7 @@ class dr_dump_matcher(dr_obj):
         self.builders = builder
 
     def add_matcher_rx_tx(self, matcher_rx_tx):
-        if matcher_rx_tx.data['dr_dump_rec_type'] == dr_dump_rec_type.DR_DUMP_REC_TYPE_MATCHER_RX.value[0]:
+        if matcher_rx_tx.data['dr_dump_rec_type'] == dr_dump_rec_type.DR_DUMP_REC_TYPE_MATCHER_RX:
             self.matcher_rx = matcher_rx_tx
         else:
             self.matcher_tx = matcher_rx_tx

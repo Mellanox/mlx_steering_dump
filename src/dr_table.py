@@ -99,7 +99,7 @@ class dr_dump_table(dr_obj):
 
     def add_table_rx_tx(self, table_rx_tx):
         anchor_type = int(table_rx_tx.data['dr_dump_rec_type'])
-        if anchor_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_TABLE_RX.value[0]:
+        if anchor_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_TABLE_RX:
             self.table_rx = table_rx_tx
         else:
             self.table_tx = table_rx_tx
