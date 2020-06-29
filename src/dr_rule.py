@@ -28,7 +28,6 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from src.parsers import dr_hw_ste_parser
 from dr_utilities import _srd
 from dr_utilities import dec_indent
 from dr_utilities import dict_join_str
@@ -36,8 +35,9 @@ from dr_utilities import dr_dump_rec_type
 from dr_utilities import dr_obj
 from dr_utilities import get_indent_str
 from dr_utilities import inc_indent
+from dr_utilities import mlx5_ifc_steering_format_version
 from dr_utilities import print_dr
-
+from src.parsers.dr_ste_parser import mlx5_hw_ste_parser
 
 class dr_dump_rule(dr_obj):
     def __init__(self, data):
@@ -104,14 +104,22 @@ class dr_dump_rule_entry_rx_tx(dr_obj):
         self.data = dict(zip(keys, data))
 
     def dump_str(self, verbose, raw):
-        parsed_ste = dr_hw_ste_parser.mlx5_hw_ste_parser(self.data['ste_data'], raw)
+        nic_version = None
+        if int(self.data['dr_dump_rec_type']) in [dr_dump_rec_type.DR_DUMP_REC_TYPE_RULE_RX_ENTRY_V1.value[0],
+                                                  dr_dump_rec_type.DR_DUMP_REC_TYPE_RULE_TX_ENTRY_V1.value[0]]:
+            nic_version = mlx5_ifc_steering_format_version.MLX5_HW_CONNECTX_6DX
+        else :
+            nic_version = mlx5_ifc_steering_format_version.MLX5_HW_CONNECTX_5
+
+        parsed_ste = mlx5_hw_ste_parser(nic_version, self.data['ste_data'], raw, verbose)
         if "tag" not in parsed_ste.keys():
             return ""
 
         if verbose == 0:
             return "%s" % dict_join_str(parsed_ste["tag"])
         else:
-            if int(self.data['dr_dump_rec_type']) == dr_dump_rec_type.DR_DUMP_REC_TYPE_RULE_RX_ENTRY.value[0]:
+            if int(self.data['dr_dump_rec_type']) in [dr_dump_rec_type.DR_DUMP_REC_TYPE_RULE_RX_ENTRY_V0.value[0],
+                                                      dr_dump_rec_type.DR_DUMP_REC_TYPE_RULE_RX_ENTRY_V1.value[0]]:
                 rx_tx = "RX"
             else:
                 rx_tx = "TX"

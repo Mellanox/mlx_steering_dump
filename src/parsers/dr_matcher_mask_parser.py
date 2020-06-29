@@ -29,24 +29,12 @@
 # SOFTWARE.
 
 from socket import ntohl
-
 from src import dr_prettify
-
+from src.dr_utilities import hex_2_bin
 
 def little_endian_32(hex_str):
     l_e_32 = ntohl(int(hex_str, 16))
     return "{:08x}".format(l_e_32)
-
-
-def hex_2_bin(hex_str):
-    arr = {"0": "0000", "1": "0001", "2": "0010", "3": "0011",
-           "4": "0100", "5": "0101", "6": "0110", "7": "0111",
-           "8": "1000", "9": "1001", "a": "1010", "b": "1011",
-           "c": "1100", "d": "1101", "e": "1110", "f": "1111"}
-    bin_str = ""
-    for i in range(0, len(hex_str)):
-        bin_str += arr[hex_str[i]]
-    return bin_str
 
 
 def get_bits_at(data, i, j, m, n):
