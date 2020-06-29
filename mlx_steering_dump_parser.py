@@ -66,7 +66,9 @@ def dr_csv_rec_type_parser(rec_type):
         dr_dump_rec_type.DR_DUMP_REC_TYPE_RULE.value[0]: dr_dump_rule,
         dr_dump_rec_type.DR_DUMP_REC_TYPE_RULE_RX_ENTRY.value[0]: dr_dump_rule_entry_rx_tx,
         dr_dump_rec_type.DR_DUMP_REC_TYPE_RULE_TX_ENTRY.value[0]: dr_dump_rule_entry_rx_tx,
-
+	dr_dump_rec_type.DR_DUMP_REC_TYPE_CX6DX_RULE_RX_ENTRY.value[0]: dr_dump_rule_entry_rx_tx,
+	dr_dump_rec_type.DR_DUMP_REC_TYPE_CX6DX_RULE_TX_ENTRY.value[0]: dr_dump_rule_entry_rx_tx,
+ 
         dr_dump_rec_type.DR_DUMP_REC_TYPE_ACTION_ENCAP_L2.value[0]: dr_dump_action_encup_l2,
         dr_dump_rec_type.DR_DUMP_REC_TYPE_ACTION_ENCAP_L3.value[0]: dr_dump_action_encup_l2,
         dr_dump_rec_type.DR_DUMP_REC_TYPE_ACTION_MODIFY_HDR.value[0]: dr_dump_action_modify_header,
@@ -183,9 +185,10 @@ def parse_domain(csv_reader, domain_obj=None):
         elif dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_RULE.value[0]:
             dump_ctx.rule = dr_obj
             dump_ctx.matcher.add_rule(dr_obj)
-
-        elif dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_RULE_RX_ENTRY.value[0] \
-                or dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_RULE_TX_ENTRY.value[0]:
+        elif dr_rec_type in [ dr_dump_rec_type.DR_DUMP_REC_TYPE_RULE_RX_ENTRY.value[0],
+			      dr_dump_rec_type.DR_DUMP_REC_TYPE_RULE_TX_ENTRY.value[0],
+   			      dr_dump_rec_type.DR_DUMP_REC_TYPE_CX6DX_RULE_RX_ENTRY.value[0],
+ 			      dr_dump_rec_type.DR_DUMP_REC_TYPE_CX6DX_RULE_RX_ENTRY.value[0] ]:
             dump_ctx.rule.add_rule_entry(dr_obj)
 
         # update Action objects

@@ -32,6 +32,9 @@ from src import dr_prettify
 from src.dr_domain import dr_matcher_supp_flex_parser_geneve
 from src.dr_domain import dr_matcher_supp_flex_parser_vxlan_gpe
 from src.dr_domain import dr_matcher_supp_flex_parser_gtpu
+from src.dr_utilities import mlx5_ifc_steering_format_version
+from src.dr_utilities import dr_ste_entry_format
+from src.dr_utilities import dr_ste_v1_lu_type
 
 def conv_ip_version(version):
     if eval(version) == 1:
@@ -603,6 +606,305 @@ def mlx5_tag_parser(lookup_type, tag, raw, flex_parser_caps):
     return parsed_tag
 
 
+def mlx5_ifc_ste_eth_l2_src_v1_bits_tag_parser(bin_str) :
+    ret = {}
+    ret["reserved_at_0"] = _val(bin_str[0: 1])
+    ret["sx_sniffer"] = _val(bin_str[1: 2])
+    ret["functional_loopback"] = _val(bin_str[2: 3])
+    ret["ip_fragmented"] = _val(bin_str[3: 4])
+    ret["qp_type"] = _val(bin_str[4: 6])
+    ret["encapsulation_type"] = _val(bin_str[6: 8])
+    ret["port"] = _val(bin_str[8: 10])
+    ret["l3_type"] = _val(bin_str[10: 12])
+    ret["l4_type"] = _val(bin_str[12: 14])
+    ret["first_vlan_qualifier"] = _val(bin_str[14: 16])
+    ret["first_priority"] = _val(bin_str[16: 19])
+    ret["first_cfi"] = _val(bin_str[19: 20])
+    ret["first_vlan_id"] = _val(bin_str[20: 32])
+    ret["smac_47_16"] = _val(bin_str[32: 64])
+    ret["smac_15_0"] = _val(bin_str[64: 80])
+    ret["l3_ethertype"] = _val(bin_str[80: 96])
+    ret["reserved_at_60"] = _val(bin_str[96: 102])
+    ret["tcp_syn"] = _val(bin_str[102: 103])
+    ret["reserved_at_67"] = _val(bin_str[103: 106])
+    ret["force_loopback"] = _val(bin_str[106: 107])
+    ret["l2_ok"] = _val(bin_str[107: 108])
+    ret["l3_ok"] = _val(bin_str[108: 109])
+    ret["l4_ok"] = _val(bin_str[109: 110])
+    ret["second_vlan_qualifier"] = _val(bin_str[110: 112])
+    ret["second_priority"] = _val(bin_str[112: 115])
+    ret["second_cfi"] = _val(bin_str[115: 116])
+    ret["second_vlan_id"] = _val(bin_str[116: 128])
+    return ret
+
+def mlx5_ifc_ste_eth_l2_dst_v1_bits_tag_parser(bin_str) :
+    ret = {}
+    ret["reserved_at_0"] = _val(bin_str[0: 1])
+    ret["sx_sniffer"] = _val(bin_str[1: 2])
+    ret["functional_lb"] = _val(bin_str[2: 3])
+    ret["ip_fragmented"] = _val(bin_str[3: 4])
+    ret["qp_type"] = _val(bin_str[4: 6])
+    ret["encapsulation_type"] = _val(bin_str[6: 8])
+    ret["port"] = _val(bin_str[8: 10])
+    ret["l3_type"] = _val(bin_str[10: 12])
+    ret["l4_type"] = _val(bin_str[12: 14])
+    ret["first_vlan_qualifier"] = _val(bin_str[14: 16])
+    ret["first_priority"] = _val(bin_str[16: 19])
+    ret["first_cfi"] = _val(bin_str[19: 20])
+    ret["first_vlan_id"] = _val(bin_str[20: 32])
+    ret["dmac_47_16"] = _val(bin_str[32: 64])
+    ret["dmac_15_0"] = _val(bin_str[64: 80])
+    ret["l3_ethertype"] = _val(bin_str[80: 96])
+    ret["reserved_at_60"] = _val(bin_str[96: 102])
+    ret["tcp_syn"] = _val(bin_str[102: 103])
+    ret["reserved_at_67"] = _val(bin_str[103: 106])
+    ret["force_lb"] = _val(bin_str[106: 107])
+    ret["l2_ok"] = _val(bin_str[107: 108])
+    ret["l3_ok"] = _val(bin_str[108: 109])
+    ret["l4_ok"] = _val(bin_str[109: 110])
+    ret["second_vlan_qualifier"] = _val(bin_str[110: 112])
+    ret["second_priority"] = _val(bin_str[112: 115])
+    ret["second_cfi"] = _val(bin_str[115: 116])
+    ret["second_vlan_id"] = _val(bin_str[116: 128])
+    return ret
+
+
+def mlx5_ifc_ste_eth_l2_src_dst_v1_bits_tag_parser(bin_str) :
+	ret = {}
+	ret["dmac_47_16"] = _val(bin_str[0: 32])
+	ret["smac_47_16"] = _val(bin_str[32: 64])
+	ret["dmac_15_0"] = _val(bin_str[64: 80])
+	ret["reserved_at_50"] = _val(bin_str[80: 82])
+	ret["functional_lb"] = _val(bin_str[82: 83])
+	ret["reserved_at_53"] = _val(bin_str[83: 88])
+	ret["port"] = _val(bin_str[88: 90])
+	ret["l3_type"] = _val(bin_str[90: 92])
+	ret["reserved_at_5c"] = _val(bin_str[92: 94])
+	ret["first_vlan_qualifier"] = _val(bin_str[94: 96])
+	ret["first_priority"] = _val(bin_str[96: 99])
+	ret["first_cfi"] = _val(bin_str[99: 100])
+	ret["first_vlan_id"] = _val(bin_str[100: 112])
+	ret["smac_15_0"] = _val(bin_str[112: 128])
+	return ret
+
+
+def mlx5_ifc_ste_eth_l3_ipv4_5_tuple_v1_bits_tag_parser(bin_str) :
+	ret = {}
+	ret["source_address"] = _val(bin_str[0: 32])
+	ret["destination_address"] = _val(bin_str[32: 64])
+	ret["source_port"] = _val(bin_str[64: 80])
+	ret["destination_port"] = _val(bin_str[80: 96])
+	ret["reserved_at_60"] = _val(bin_str[96: 100])
+	ret["l4_ok"] = _val(bin_str[100: 101])
+	ret["l3_ok"] = _val(bin_str[101: 102])
+	ret["fragmented"] = _val(bin_str[102: 103])
+	ret["tcp_ns"] = _val(bin_str[103: 104])
+	ret["tcp_cwr"] = _val(bin_str[104: 105])
+	ret["tcp_ece"] = _val(bin_str[105: 106])
+	ret["tcp_urg"] = _val(bin_str[106: 107])
+	ret["tcp_ack"] = _val(bin_str[107: 108])
+	ret["tcp_psh"] = _val(bin_str[108: 109])
+	ret["tcp_rst"] = _val(bin_str[109: 110])
+	ret["tcp_syn"] = _val(bin_str[110: 111])
+	ret["tcp_fin"] = _val(bin_str[111: 112])
+	ret["dscp"] = _val(bin_str[112: 118])
+	ret["ecn"] = _val(bin_str[118: 120])
+	ret["protocol"] = _val(bin_str[120: 128])
+	return ret
+
+
+def mlx5_ifc_ste_eth_l2_tnl_v1_bits_tag_parser(bin_str) :
+	ret = {}
+	ret["l2_tunneling_network_id"] = _val(bin_str[0: 32])
+	ret["dmac_47_16"] = _val(bin_str[32: 64])
+	ret["dmac_15_0"] = _val(bin_str[64: 80])
+	ret["l3_ethertype"] = _val(bin_str[80: 96])
+	ret["reserved_at_60"] = _val(bin_str[96: 99])
+	ret["ip_fragmented"] = _val(bin_str[99: 100])
+	ret["reserved_at_64"] = _val(bin_str[100: 102])
+	ret["encp_type"] = _val(bin_str[102: 104])
+	ret["reserved_at_68"] = _val(bin_str[104: 106])
+	ret["l3_type"] = _val(bin_str[106: 108])
+	ret["l4_type"] = _val(bin_str[108: 110])
+	ret["first_vlan_qualifier"] = _val(bin_str[110: 112])
+	ret["first_priority"] = _val(bin_str[112: 115])
+	ret["first_cfi"] = _val(bin_str[115: 116])
+	ret["first_vlan_id"] = _val(bin_str[116: 128])
+	return ret
+
+
+def mlx5_ifc_ste_eth_l3_ipv4_misc_v1_bits_tag_parser(bin_str) :
+	ret = {}
+	ret["identification"] = _val(bin_str[0: 16])
+	ret["flags"] = _val(bin_str[16: 19])
+	ret["fragment_offset"] = _val(bin_str[19: 32])
+	ret["total_length"] = _val(bin_str[32: 48])
+	ret["checksum"] = _val(bin_str[48: 64])
+	ret["version"] = _val(bin_str[64: 68])
+	ret["ihl"] = _val(bin_str[68: 72])
+	ret["time_to_live"] = _val(bin_str[72: 80])
+	ret["reserved_at_50"] = _val(bin_str[80: 96])
+	ret["reserved_at_60"] = _val(bin_str[96: 124])
+	ret["voq_internal_prio"] = _val(bin_str[124: 128])
+	return ret
+
+
+def mlx5_ifc_ste_eth_l4_v1_bits_tag_parser(bin_str) :
+	ret = {}
+	ret["ipv6_version"] = _val(bin_str[0: 4])
+	ret["reserved_at_4"] = _val(bin_str[4: 8])
+	ret["dscp"] = _val(bin_str[8: 14])
+	ret["ecn"] = _val(bin_str[14: 16])
+	ret["ipv6_hop_limit"] = _val(bin_str[16: 24])
+	ret["protocol"] = _val(bin_str[24: 32])
+	ret["src_port"] = _val(bin_str[32: 48])
+	ret["dst_port"] = _val(bin_str[48: 64])
+	ret["first_fragment"] = _val(bin_str[64: 65])
+	ret["reserved_at_41"] = _val(bin_str[65: 76])
+	ret["flow_label"] = _val(bin_str[76: 96])
+	ret["tcp_data_offset"] = _val(bin_str[96: 100])
+	ret["l4_ok"] = _val(bin_str[100: 101])
+	ret["l3_ok"] = _val(bin_str[101: 102])
+	ret["fragmented"] = _val(bin_str[102: 103])
+	ret["tcp_ns"] = _val(bin_str[103: 104])
+	ret["tcp_cwr"] = _val(bin_str[104: 105])
+	ret["tcp_ece"] = _val(bin_str[105: 106])
+	ret["tcp_urg"] = _val(bin_str[106: 107])
+	ret["tcp_ack"] = _val(bin_str[107: 108])
+	ret["tcp_psh"] = _val(bin_str[108: 109])
+	ret["tcp_rst"] = _val(bin_str[109: 110])
+	ret["tcp_syn"] = _val(bin_str[110: 111])
+	ret["tcp_fin"] = _val(bin_str[111: 112])
+	ret["ipv6_paylen"] = _val(bin_str[112: 128])
+	return ret
+
+
+def mlx5_ifc_ste_eth_l4_misc_v1_bits_tag_parser(bin_str) :
+	ret = {}
+	ret["window_size"] = _val(bin_str[0: 16])
+	ret["urgent_pointer"] = _val(bin_str[16: 32])
+	ret["ack_num"] = _val(bin_str[32: 64])
+	ret["seq_num"] = _val(bin_str[64: 96])
+	ret["length"] = _val(bin_str[96: 112])
+	ret["checksum"] = _val(bin_str[112: 128])
+	return ret
+
+
+def mlx5_ifc_ste_mpls_v1_bits_tag_parser(bin_str) :
+	ret = {}
+	ret["reserved_at_0"] = _val(bin_str[0: 21])
+	ret["mpls_ok"] = _val(bin_str[21: 22])
+	ret["mpls4_s_bit"] = _val(bin_str[22: 23])
+	ret["mpls4_qualifier"] = _val(bin_str[23: 24])
+	ret["mpls3_s_bit"] = _val(bin_str[24: 25])
+	ret["mpls3_qualifier"] = _val(bin_str[25: 26])
+	ret["mpls2_s_bit"] = _val(bin_str[26: 27])
+	ret["mpls2_qualifier"] = _val(bin_str[27: 28])
+	ret["mpls1_s_bit"] = _val(bin_str[28: 29])
+	ret["mpls1_qualifier"] = _val(bin_str[29: 30])
+	ret["mpls0_s_bit"] = _val(bin_str[30: 31])
+	ret["mpls0_qualifier"] = _val(bin_str[31: 32])
+	ret["mpls0_label"] = _val(bin_str[32: 52])
+	ret["mpls0_exp"] = _val(bin_str[52: 55])
+	ret["mpls0_s_bos"] = _val(bin_str[55: 56])
+	ret["mpls0_ttl"] = _val(bin_str[56: 64])
+	ret["mpls1_label"] = _val(bin_str[64: 96])
+	ret["mpls2_label"] = _val(bin_str[96: 128])
+	return ret
+
+
+def mlx5_ifc_ste_gre_v1_bits_tag_parser(bin_str):
+	ret = {}
+	ret["gre_c_present"] = _val(bin_str[0: 1])
+	ret["reserved_at_1"] = _val(bin_str[1: 2])
+	ret["gre_k_present"] = _val(bin_str[2: 3])
+	ret["gre_s_present"] = _val(bin_str[3: 4])
+	ret["strict_src_route"] = _val(bin_str[4: 5])
+	ret["recur"] = _val(bin_str[5: 8])
+	ret["flags"] = _val(bin_str[8: 13])
+	ret["version"] = _val(bin_str[13: 16])
+	ret["gre_protocol"] = _val(bin_str[16: 32])
+	ret["reserved_at_20"] = _val(bin_str[32: 64])
+	ret["gre_key_h"] = _val(bin_str[64: 88])
+	ret["gre_key_l"] = _val(bin_str[88: 96])
+	ret["reserved_at_60"] = _val(bin_str[96: 128])
+	return ret
+
+
+def mlx5_ifc_ste_src_gvmi_qp_v1_bits_tag_parser(bin_str):
+	ret = {}
+	ret["loopback_synd"] = _val(bin_str[0: 8])
+	ret["reserved_at_8"] = _val(bin_str[8: 15])
+	ret["defal_lb"] = _val(bin_str[15: 16])
+	ret["source_gvmi"] = _val(bin_str[16: 32])
+	ret["force_lb"] = _val(bin_str[32: 33])
+	ret["reserved_at_21"] = _val(bin_str[33: 34])
+	ret["source_is_requestor"] = _val(bin_str[34: 35])
+	ret["reserved_at_23"] = _val(bin_str[35: 40])
+	ret["source_qp"] = _val(bin_str[40: 64])
+	ret["reserved_at_40"] = _val(bin_str[64: 96])
+	ret["reserved_at_60"] = _val(bin_str[96: 128])
+	return ret
+
+
+def mlx5_ifc_ste_icmp_v1_bits_tag_parser(bin_str):
+	ret = {};
+	ret["icmp_payload_data"] = _val(bin_str[0: 32]);
+	ret["icmp_header_data"] = _val(bin_str[32: 64]);
+	ret["icmp_type"] = _val(bin_str[64: 72]);
+	ret["icmp_code"] = _val(bin_str[72: 80]);
+	ret["reserved_at_50"] = _val(bin_str[80: 96]);
+	ret["reserved_at_60"] = _val(bin_str[96: 128]);
+	return ret;
+
+
+def mlx6dx_tag_parser(entry_format, tag, raw):
+    switch = {
+        dr_ste_v1_lu_type.DR_STE_V1_LU_TYPE_ETHL2_SRC_DST_I.value[0]: [mlx5_ifc_ste_eth_l2_dst_v1_bits_tag_parser, True],
+        dr_ste_v1_lu_type.DR_STE_V1_LU_TYPE_ETHL2_SRC_DST_I.value[0]: [mlx5_ifc_ste_eth_l2_src_dst_v1_bits_tag_parser, True],
+        dr_ste_v1_lu_type.DR_STE_V1_LU_TYPE_ETHL2_SRC_DST_O.value[0]: [mlx5_ifc_ste_eth_l2_dst_v1_bits_tag_parser, False],
+        dr_ste_v1_lu_type.DR_STE_V1_LU_TYPE_ETHL2_SRC_DST_O.value[0]: [mlx5_ifc_ste_eth_l2_src_dst_v1_bits_tag_parser, False],
+        dr_ste_v1_lu_type.DR_STE_V1_LU_TYPE_ETHL2_SRC_I.value[0]: [mlx5_ifc_ste_eth_l2_src_v1_bits_tag_parser, True],
+        dr_ste_v1_lu_type.DR_STE_V1_LU_TYPE_ETHL2_SRC_O.value[0]: [mlx5_ifc_ste_eth_l2_src_v1_bits_tag_parser, False],
+        dr_ste_v1_lu_type.DR_STE_V1_LU_TYPE_ETHL2_TNL.value[0]: [mlx5_ifc_ste_eth_l2_tnl_v1_bits_tag_parser, True],
+        dr_ste_v1_lu_type.DR_STE_V1_LU_TYPE_ETHL3_IPV4_5_TUPLE_I.value[0]: [mlx5_ifc_ste_eth_l3_ipv4_5_tuple_v1_bits_tag_parser, True],
+        dr_ste_v1_lu_type.DR_STE_V1_LU_TYPE_ETHL3_IPV4_5_TUPLE_O.value[0]: [mlx5_ifc_ste_eth_l3_ipv4_5_tuple_v1_bits_tag_parser, False],
+        dr_ste_v1_lu_type.DR_STE_V1_LU_TYPE_ETHL3_IPV4_MISC_I.value[0]: [mlx5_ifc_ste_eth_l3_ipv4_misc_v1_bits_tag_parser, True],
+        dr_ste_v1_lu_type.DR_STE_V1_LU_TYPE_ETHL3_IPV4_MISC_O.value[0]: [mlx5_ifc_ste_eth_l3_ipv4_misc_v1_bits_tag_parser, False],
+        dr_ste_v1_lu_type.DR_STE_V1_LU_TYPE_ETHL4_I.value[0]: [mlx5_ifc_ste_eth_l4_v1_bits_tag_parser, False],
+        dr_ste_v1_lu_type.DR_STE_V1_LU_TYPE_ETHL4_MISC_I.value[0]: [mlx5_ifc_ste_eth_l4_v1_bits_tag_parser, True],
+        dr_ste_v1_lu_type.DR_STE_V1_LU_TYPE_ETHL4_MISC_O.value[0]: [mlx5_ifc_ste_eth_l4_misc_v1_bits_tag_parser, False],
+        dr_ste_v1_lu_type.DR_STE_V1_LU_TYPE_ETHL4_O.value[0]: [mlx5_ifc_ste_eth_l4_v1_bits_tag_parser, False],
+        dr_ste_v1_lu_type.DR_STE_V1_LU_TYPE_FLEX_PARSER_0.value[0]: [mlx5_ifc_ste_flex_parser_0_bits_tag_parser, False],
+        dr_ste_v1_lu_type.DR_STE_V1_LU_TYPE_FLEX_PARSER_1.value[0]: [mlx5_ifc_ste_flex_parser_1_bits_tag_parser, False],
+        dr_ste_v1_lu_type.DR_STE_V1_LU_TYPE_GENERAL_PURPOSE.value[0]: [mlx5_ifc_ste_general_purpose_bits_tag_parser, False],
+        dr_ste_v1_lu_type.DR_STE_V1_LU_TYPE_GRE.value[0]: [mlx5_ifc_ste_gre_v1_bits_tag_parser, False],
+        dr_ste_v1_lu_type.DR_STE_V1_LU_TYPE_IPV6_DES_I.value[0]: [mlx5_ifc_ste_eth_l3_ipv6_dst_bits_tag_parser_p, True],
+        dr_ste_v1_lu_type.DR_STE_V1_LU_TYPE_IPV6_DES_O.value[0]: [mlx5_ifc_ste_eth_l3_ipv6_dst_bits_tag_parser_p, False],
+        dr_ste_v1_lu_type.DR_STE_V1_LU_TYPE_IPV6_SRC_I.value[0]: [mlx5_ifc_ste_eth_l3_ipv6_src_bits_tag_parser_p, True],
+        dr_ste_v1_lu_type.DR_STE_V1_LU_TYPE_IPV6_SRC_O.value[0]: [mlx5_ifc_ste_eth_l3_ipv6_src_bits_tag_parser_p, False],
+        dr_ste_v1_lu_type.DR_STE_V1_LU_TYPE_MPLS_I.value[0]: [mlx5_ifc_ste_mpls_bits_tag_parser, True],
+        dr_ste_v1_lu_type.DR_STE_V1_LU_TYPE_MPLS_O.value[0]: [mlx5_ifc_ste_mpls_bits_tag_parser, False],
+        dr_ste_v1_lu_type.DR_STE_V1_LU_TYPE_SRC_QP_GVMI.value[0]: [mlx5_ifc_ste_src_gvmi_qp_v1_bits_tag_parser, False],
+        dr_ste_v1_lu_type.DR_STE_V1_LU_TYPE_STEERING_REGISTERS_0.value[0]: [mlx5_ifc_ste_register_0_bits_tag_parser, False],
+        dr_ste_v1_lu_type.DR_STE_V1_LU_TYPE_STEERING_REGISTERS_1.value[0]: [mlx5_ifc_ste_register_1_bits_tag_parser, False],
+    }
+
+    if entry_format not in switch.keys():
+        # Silent fail lookup type is not supported
+        return {}
+
+    func, inner = switch[entry_format]
+    parsed_tag = func(tag)
+
+    if not raw:
+        parsed_tag = dr_prettify.prettify_tag(parsed_tag)
+
+    if inner:
+        add_inner_to_key(parsed_tag)
+
+    return parsed_tag
+
 # HW_STE parsing funcs
 def mlx5_ifc_ste_rx_steering_mult_bits_parser(bin_str, raw, flex_parser_caps):
     ret = {}
@@ -718,7 +1020,98 @@ def mlx5_ifc_ste_modify_packet_bits_parser(bin_str, raw, flex_parser_caps):
     return ret
 
 
-def mlx5_hw_ste_parser(hex_str, raw, flex_parser_caps):
+def mlx6dx_ifc_ste_match_bwc_byte_bits_parser(bin_str, raw) :
+    ret = {}
+    ret["entry_format"] = hex(int(bin_str[0 : 8], 2))
+    ret["counter_id"] = hex(int(bin_str[8 : 32], 2))
+
+    ret["miss_address_63_48"] = hex(int(bin_str[32 : 48], 2))
+    ret["match_definer_ctx_idx"] = hex(int(bin_str[48 : 56], 2))
+    ret["miss_address_39_32"] = hex(int(bin_str[56 : 64], 2))
+
+    ret["miss_address_31_6"] = hex(int(bin_str[64 : 90], 2))
+    ret["reserved_at_5a"] = hex(int(bin_str[90 : 91], 2))
+    ret["match_polarity"] = hex(int(bin_str[91 : 92], 2))
+    ret["reparse"] = hex(int(bin_str[92 : 93], 2))
+    ret["reserved_at_5d"] = hex(int(bin_str[93 : 96], 2))
+
+    ret["next_table_base_63_48"] = hex(int(bin_str[96 : 112], 2))
+    ret["hash_definer_ctx_idx"] = hex(int(bin_str[112 : 120], 2))
+    ret["next_table_base_39_32_size"] = hex(int(bin_str[120 : 128], 2))
+
+    ret["next_table_base_31_5_size"] = hex(int(bin_str[128 : 155], 2))
+    ret["hash_type"] = hex(int(bin_str[155 : 157], 2))
+    ret["hash_after_actions"] = hex(int(bin_str[157 : 158], 2))
+    ret["reserved_at_9e"] = hex(int(bin_str[158 : 160], 2))
+
+    ret["byte_mask"] = hex(int(bin_str[160 : 176], 2))
+    ret["next_entry_format"] = hex(int(bin_str[176 : 177], 2))
+    ret["mask_mode"] = hex(int(bin_str[177 : 178], 2))
+    ret["gvmi"] = hex(int(bin_str[178 : 192], 2))
+
+    ret["action0"] = hex(int(bin_str[192 : 224], 2))
+    ret["action1"] = hex(int(bin_str[224: 256], 2))
+
+    tag = bin_str[256 : 384]
+    lookup_type = int(bin_str[0 : 8] + bin_str[48 : 56], 2)
+    ret["tag"] = mlx6dx_tag_parser(lookup_type, tag, raw)
+    return ret
+
+def mlx6dx_ifc_ste_match_bwc_dw_bits_parser(bin_str, raw) :
+    ret = {}
+    ret["entry_format"] = hex(int(bin_str[0 : 8], 2))
+    ret["counter_id"] = hex(int(bin_str[8 : 32], 2))
+
+    ret["miss_address_63_48"] = hex(int(bin_str[32 : 48], 2))
+    ret["match_definer_ctx_idx"] = hex(int(bin_str[48 : 56], 2))
+    ret["miss_address_39_32"] = hex(int(bin_str[56 : 64], 2))
+
+    ret["miss_address_31_6"] = hex(int(bin_str[64 : 90], 2))
+    ret["reserved_at_5a"] = hex(int(bin_str[90 : 91], 2))
+    ret["match_polarity"] = hex(int(bin_str[91 : 92], 2))
+    ret["reparse"] = hex(int(bin_str[92 : 93], 2))
+    ret["reserved_at_5d"] = hex(int(bin_str[93 : 96], 2))
+
+    ret["next_table_base_63_48"] = hex(int(bin_str[96 : 112], 2))
+    ret["hash_definer_ctx_idx"] = hex(int(bin_str[112 : 120], 2))
+    ret["next_table_base_39_32_size"] = hex(int(bin_str[120 : 128], 2))
+
+    ret["next_table_base_31_5_size"] = hex(int(bin_str[128 : 155], 2))
+    ret["hash_type"] = hex(int(bin_str[155 : 157], 2))
+    ret["hash_after_actions"] = hex(int(bin_str[157 : 158], 2))
+    ret["reserved_at_9e"] = hex(int(bin_str[158 : 160], 2))
+
+    ret["action0"] = hex(int(bin_str[160 : 192], 2))
+
+    ret["action1"] = hex(int(bin_str[192: 224], 2))
+
+    ret["action2"] = hex(int(bin_str[224: 256], 2))
+
+    tag = bin_str[256 : 384]
+    lookup_type = int(bin_str[0: 8] + bin_str[48: 56], 2)
+    ret["tag"] = mlx6dx_tag_parser(lookup_type, tag, raw)
+    return ret
+
+def mlx5_cx5_hw_ste_parser(bin_str, raw, flex_parser_caps) :
+	entry_type = int(bin_str[0: 4], 2)
+	switch = { 1 : mlx5_ifc_ste_sx_transmit_bits_parser,
+			   2 : mlx5_ifc_ste_rx_steering_mult_bits_parser,
+			   6 : mlx5_ifc_ste_modify_packet_bits_parser
+	}
+
+	return switch[entry_type](bin_str, raw, flex_parser_caps)
+
+def mlx5_cx6dx_hw_ste_parser(bin_str, raw, flex_parser_caps):
+    entry_type = int(bin_str[0: 8], 2)
+    switch = {
+        dr_ste_entry_format.DR_STE_TYPE_BWC_BYTE.value[0] : mlx6dx_ifc_ste_match_bwc_byte_bits_parser,
+        dr_ste_entry_format.DR_STE_TYPE_BWC_DW.value[0] : mlx6dx_ifc_ste_match_bwc_byte_bits_parser,
+        dr_ste_entry_format.DR_STE_TYPE_MATCH.value[0] : mlx6dx_ifc_ste_match_bwc_dw_bits_parser,
+    }
+    return switch[entry_type](bin_str, raw)
+
+
+def mlx5_hw_ste_parser(nic_version, hex_str, raw, flex_parser_caps):
     arr = {
         "0": "0000", "1": "0001", "2": "0010", "3": "0011",
         "4": "0100", "5": "0101", "6": "0110", "7": "0111",
@@ -727,14 +1120,12 @@ def mlx5_hw_ste_parser(hex_str, raw, flex_parser_caps):
     }
 
     bin_str = ""
-
     for i in range(0, len(hex_str)):
         bin_str += arr[hex_str[i]]
 
-    entry_type = int(bin_str[0: 4], 2)
-    switch = {1: mlx5_ifc_ste_sx_transmit_bits_parser,
-              2: mlx5_ifc_ste_rx_steering_mult_bits_parser,
-              6: mlx5_ifc_ste_modify_packet_bits_parser
-              }
-
-    return switch[entry_type](bin_str, raw, flex_parser_caps)
+    if nic_version == mlx5_ifc_steering_format_version.MLX5_HW_CONNECTX_5.value[0]:
+        return mlx5_cx5_hw_ste_parser(bin_str, raw, flex_parser_caps)
+    elif nic_version == mlx5_ifc_steering_format_version.MLX5_HW_CONNECTX_6DX.value[0]:
+        return mlx5_cx6dx_hw_ste_parser(bin_str, raw, flex_parser_caps)
+    else:
+        print("Unsupported Nic version, currently supporting CX5 and CX6DX")

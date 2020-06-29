@@ -37,6 +37,7 @@ from dr_utilities import dr_obj
 from dr_utilities import get_indent_str
 from dr_utilities import inc_indent
 from dr_utilities import print_dr
+from dr_utilities import mlx5_ifc_steering_format_version
 
 
 class dr_dump_rule(dr_obj):
@@ -108,7 +109,13 @@ class dr_dump_rule_entry_rx_tx(dr_obj):
         for fp in dump_ctx.domain.flex_parsers:
             flex_parser_caps |= int(fp.data["value"], 16)
 
-        parsed_ste = dr_hw_ste_parser.mlx5_hw_ste_parser(self.data['ste_data'], raw, flex_parser_caps)
+        nic_version = mlx5_ifc_steering_format_version.MLX5_HW_CONNECTX_5.value[0]
+        if int(self.data['dr_dump_rec_type']) in [dr_dump_rec_type.DR_DUMP_REC_TYPE_CX6DX_RULE_RX_ENTRY.value[0],
+                                             dr_dump_rec_type.DR_DUMP_REC_TYPE_CX6DX_RULE_TX_ENTRY.value[0]]:
+            nic_version = mlx5_ifc_steering_format_version.MLX5_HW_CONNECTX_6DX.value[0]
+
+        parsed_ste = dr_hw_ste_parser.mlx5_hw_ste_parser(nic_version, self.data['ste_data'], raw, flex_parser_caps)
+ 
         if "tag" not in parsed_ste.keys():
             return ""
 
