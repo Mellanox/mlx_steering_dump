@@ -241,11 +241,8 @@ def add_inner_to_key(in_dict):
 
 
 def hex_2_bin(hex_str):
-    arr = {"0": "0000", "1": "0001", "2": "0010", "3": "0011",
-           "4": "0100", "5": "0101", "6": "0110", "7": "0111",
-           "8": "1000", "9": "1001", "a": "1010", "b": "1011",
-           "c": "1100", "d": "1101", "e": "1110", "f": "1111"}
-    bin_str = ""
-    for i in range(0, len(hex_str)):
-        bin_str += arr[hex_str[i]]
+    #To save the first zeroes from being compressed by 'bin'
+    hex_str = 'f' + hex_str
+    #convert to binary and remove "0b1111"
+    bin_str = bin(int(hex_str, 16))[6:]
     return bin_str
