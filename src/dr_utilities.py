@@ -35,7 +35,7 @@ from enum import Enum
 g_version = "1.0.1"
 g_indent = 0
 TAB = "   "
-
+COLORED_PRINTS = False
 
 class mlx5_ifc_steering_format_version():
     MLX5_HW_CONNECTX_5 = 0x0
@@ -204,12 +204,44 @@ def get_indent_str():
     return TAB * g_indent
 
 
+def set_colored_prints():
+    global COLORED_PRINTS
+    COLORED_PRINTS = True
 
-def print_dr(*args):
+
+class dr_print_color():
+    color = {
+    'darkwhite':  "\033[0;37m",
+    'darkyellow': "\033[0;33m",
+    'darkgreen':  "\033[1;32m",
+    'darkblue':   "\033[1;34m",
+    'darkcyan':   "\033[1;36m",
+    'darkred':    "\033[2;31m",
+    'darkmagenta':"\033[0;35m",
+    'off':        "\033[0;0m"
+    }
+
+    DOMAIN = color["darkwhite"]
+    TABLE = color["darkyellow"]
+    MATCHER = color["darkblue"]
+    MATCHER_MASK = color["darkblue"]
+    RULE = color["darkgreen"]
+    RULE_MATCH = color["darkgreen"]
+    RULE_ACTIONS = color["darkgreen"]
+    RESET = color["off"]
+
+
+def print_dr(color, *args):
     global g_indent
     tab = TAB * g_indent
     str_ = tab + " ".join(map(str, args))
+
+    if COLORED_PRINTS == True:
+        sys.stdout.write(color)
+
     sys.stdout.write(str_)
+    if COLORED_PRINTS == True:
+        sys.stdout.write(dr_print_color.RESET)
 
 
 def dict_join_str(in_dict):

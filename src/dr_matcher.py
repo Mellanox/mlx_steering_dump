@@ -31,7 +31,7 @@
 from src.parsers import dr_matcher_mask_parser
 import dr_prettify
 from dr_utilities import _srd, dict_join_str, print_dr, dr_obj, inc_indent, dec_indent, dr_dump_rec_type
-
+from dr_utilities import dr_print_color
 
 class dr_dump_matcher(dr_obj):
     def __init__(self, data):
@@ -48,9 +48,9 @@ class dr_dump_matcher(dr_obj):
             _srd(self.data, "priority"))
 
     def print_tree_view(self, dump_ctx, verbose, raw):
-        print_dr(self.dump_str())
+        print_dr(dr_print_color.MATCHER, self.dump_str())
         inc_indent()
-        print_dr(self.mask.dump_str())
+        print_dr(dr_print_color.MATCHER_MASK, self.mask.dump_str())
         dec_indent()
 
         inc_indent()

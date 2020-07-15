@@ -95,7 +95,7 @@ def dr_csv_get_obj(line):
     parser = dr_csv_rec_type_parser(rec_type)
     return parser(line)
 
-def print_ctx(dump_ctx, view, verbose, raw):
+def print_ctx(dump_ctx, view, verbose, raw, colored):
     dr_obj = None
     if dump_ctx.domain:
         dr_obj = dump_ctx.domain
@@ -105,6 +105,9 @@ def print_ctx(dump_ctx, view, verbose, raw):
         dr_obj = dump_ctx.matcher
     elif dump_ctx.rule:
         dr_obj = dump_ctx.rule
+
+    if colored:
+        set_colored_prints()
 
     if view == dr_dump_view.DR_DUMP_VIEW_TREE:
         dr_obj.print_tree_view(dump_ctx, verbose, raw)
@@ -205,6 +208,7 @@ def parse_args():
     parser.add_argument('-t', action='store_true', default=False, dest='tree_view', help='tree view (default is rule view)')
     parser.add_argument("-v", action="count", dest='verbose', default=0, help="increase output verbosity")
     parser.add_argument('-r', action='store_true', default=False, dest='raw', help='raw output')
+    parser.add_argument('-c', action='store_true', default=False, dest='colored', help='colored output')
     parser.add_argument('-version', action='store_true', default=False, dest='version', help='show version')
     return parser.parse_args()
 
@@ -230,6 +234,6 @@ if __name__ == '__main__':
             dump_ctx, domain_obj = parse_domain(csv_reader, domain_obj)
             print_ctx(dump_ctx, dr_dump_view.DR_DUMP_VIEW_TREE if args.tree_view
                       else dr_dump_view.DR_DUMP_VIEW_RULE, args.verbose,
-                      args.raw)
+                      args.raw, args.colored)
 
     sys.exit(0)

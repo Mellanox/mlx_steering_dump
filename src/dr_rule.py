@@ -37,6 +37,7 @@ from dr_utilities import get_indent_str
 from dr_utilities import inc_indent
 from dr_utilities import mlx5_ifc_steering_format_version
 from dr_utilities import print_dr
+from dr_utilities import dr_print_color 
 from src.parsers.dr_ste_parser import mlx5_hw_ste_parser
 
 class dr_dump_rule(dr_obj):
@@ -78,10 +79,10 @@ class dr_dump_rule(dr_obj):
         return action_str + "\n"
 
     def print_tree_view(self, dump_ctx, verbose, raw):
-        print_dr(self.dump_str())
+        print_dr(dr_print_color.RULE, self.dump_str())
         inc_indent()
-        print_dr(self.dump_match_str(verbose, raw))
-        print_dr(self.dump_actions_str(verbose))
+        print_dr(dr_print_color.RULE_MATCH, self.dump_match_str(verbose, raw))
+        print_dr(dr_print_color.RULE_ACTIONS, self.dump_actions_str(verbose))
         dec_indent()
 
     def print_rule_view(self, dump_ctx, verbose, raw):
@@ -89,10 +90,14 @@ class dr_dump_rule(dr_obj):
         tbl_str = "table %s, " % (_srd(dump_ctx.table.data, "id"))
         matcher_str = "matcher %s, " % (_srd(dump_ctx.matcher.data, "id"))
 
-        print_dr(dmn_str + tbl_str + matcher_str + self.dump_str())
+        print_dr(dr_print_color.DOMAIN, dmn_str)
+        print_dr(dr_print_color.TABLE, tbl_str)
+        print_dr(dr_print_color.MATCHER, matcher_str)
+        print_dr(dr_print_color.RULE, self.dump_str())
+
         inc_indent()
-        print_dr(self.dump_match_str(verbose, raw))
-        print_dr(self.dump_actions_str(verbose))
+        print_dr(dr_print_color.RULE_MATCH, self.dump_match_str(verbose, raw))
+        print_dr(dr_print_color.RULE_ACTIONS, self.dump_actions_str(verbose))
         dec_indent()
 
     def add_rule_entry(self, rule_mem):

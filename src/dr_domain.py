@@ -33,7 +33,7 @@ from dr_utilities import dec_indent
 from dr_utilities import dr_obj
 from dr_utilities import inc_indent
 from dr_utilities import print_dr
-
+from dr_utilities import dr_print_color
 
 def domain_type_str(type_str):
     switch = {"0": "NIC_RX",
@@ -65,22 +65,22 @@ class dr_dump_domain(dr_obj):
                _srd(self.data, "package_version"))
 
     def print_tree_view(self, dump_ctx, verbose, raw):
-        print_dr(self.dump_str())
+        print_dr(dr_print_color.DOMAIN, self.dump_str())
         inc_indent()
         if verbose > 1:
             if self.dev_attr:
-                print_dr(self.dev_attr.dump_string())
+                print_dr(dr_print_color.DOMAIN, self.dev_attr.dump_string())
             if self.caps:
-                print_dr(self.caps.dump_string())
+                print_dr(dr_print_color.DOMAIN, self.caps.dump_string())
             if self.send_ring:
-                print_dr(self.send_ring.dump_string())
+                print_dr(dr_print_color.DOMAIN, self.send_ring.dump_string())
         if verbose > 2:
             if len(self.flex_parsers) > 0:
                 for f_p in self.flex_parsers:
-                    print_dr(f_p.dump_string())
+                    print_dr(dr_print_color.DOMAIN, f_p.dump_string())
             if len(self.vports) > 0:
                 for vport in self.vports:
-                    print_dr(vport.dump_string())
+                    print_dr(dr_print_color.DOMAIN, vport.dump_string())
 
         inc_indent()
         for t in self.table_list:

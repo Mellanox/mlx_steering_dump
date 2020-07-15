@@ -30,6 +30,7 @@ Running syntax
 | -p <DPDK PID> | Trigger DPDK app           |
 | -v  | Verbose view               |
 | -vv | Extra verbose view      |
+| -c  | show colored prints |
 
 Running examples
 ================

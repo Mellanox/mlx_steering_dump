@@ -29,7 +29,7 @@
 # SOFTWARE.
 
 from dr_utilities import _srd, print_dr, dr_obj, inc_indent, dec_indent, dr_dump_rec_type
-
+from dr_utilities import dr_print_color
 
 class dr_dump_table(dr_obj):
     def __init__(self, data):
@@ -63,7 +63,7 @@ class dr_dump_table(dr_obj):
                 tx_s_anchor)
 
     def print_tree_view(self, dump_ctx, verbose, raw):
-        print_dr(self.dump_str(verbose))
+        print_dr(dr_print_color.TABLE, self.dump_str(verbose))
         inc_indent()
 
         for m in self.matcher_list:
