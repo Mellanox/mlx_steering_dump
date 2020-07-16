@@ -188,7 +188,7 @@ def parse_domain(csv_reader, domain_obj=None):
         elif dr_rec_type in [dr_dump_rec_type.DR_DUMP_REC_TYPE_RULE_RX_ENTRY_V0.value[0],
                              dr_dump_rec_type.DR_DUMP_REC_TYPE_RULE_TX_ENTRY_V0.value[0],
                              dr_dump_rec_type.DR_DUMP_REC_TYPE_RULE_RX_ENTRY_V1.value[0],
-                             dr_dump_rec_type.DR_DUMP_REC_TYPE_RULE_RX_ENTRY_V1.value[0]]:
+                             dr_dump_rec_type.DR_DUMP_REC_TYPE_RULE_TX_ENTRY_V1.value[0]]:
             dump_ctx.rule.add_rule_entry(dr_obj)
 
         # update Action objects

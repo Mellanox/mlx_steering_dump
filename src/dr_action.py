@@ -50,7 +50,7 @@ class dr_dump_action_ft(dr_obj):
     def dump_str(self):
         action_type_str = dr_dump_rec_type.find_name(self.data["dr_dump_rec_type"])
         i = action_type_str.find("ACTION") + len("ACTION") + 1
-        return action_type_str[i:] + " FW id %s, dest_ft %s" % (
+        return action_type_str[i:] + " devx id %s, dest_ft %s" % (
             _srd(self.data, "table_devx_id"),
             _srd(self.data, "dest_ft"))
 

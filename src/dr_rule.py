@@ -61,15 +61,19 @@ class dr_dump_rule(dr_obj):
 
         return match_str + "\n"
 
-    def dump_actions_str(self):
+    def dump_actions_str(self, verbose):
         ACTION = "action: "
         action_str = ACTION
+	delem = " & "
+
+	if verbose > 0:
+		delem = "\n"+ len(ACTION) * " " + get_indent_str()
 
         for i in range(0, len(self.rule_action_list)):
             action = self.rule_action_list[i]
             action_str += action.dump_str()
             if i != (len(self.rule_action_list) - 1):
-                action_str += " & "
+                action_str += delem
 
         return action_str + "\n"
 
@@ -77,7 +81,7 @@ class dr_dump_rule(dr_obj):
         print_dr(self.dump_str())
         inc_indent()
         print_dr(self.dump_match_str(verbose, raw))
-        print_dr(self.dump_actions_str())
+        print_dr(self.dump_actions_str(verbose))
         dec_indent()
 
     def print_rule_view(self, dump_ctx, verbose, raw):
@@ -88,7 +92,7 @@ class dr_dump_rule(dr_obj):
         print_dr(dmn_str + tbl_str + matcher_str + self.dump_str())
         inc_indent()
         print_dr(self.dump_match_str(verbose, raw))
-        print_dr(self.dump_actions_str())
+        print_dr(self.dump_actions_str(verbose))
         dec_indent()
 
     def add_rule_entry(self, rule_mem):
