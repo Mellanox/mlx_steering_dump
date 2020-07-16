@@ -255,7 +255,9 @@ def mlx5_ifc_ste_src_gvmi_qp_v1_bits_tag_parser(bin_str):
 def mlx5_ste_v1_tag_parser(entry_format, tag, raw):
 	switch = {
         dr_ste_v1_lu_type.DR_STE_V1_LU_TYPE_ETHL2_SRC_DST_I: [mlx5_ifc_ste_eth_l2_src_dst_v1_bits_tag_parser_p, True],
-        dr_ste_v1_lu_type.DR_STE_V1_LU_TYPE_ETHL2_SRC_DST_O: [mlx5_ifc_ste_eth_l2_dst_v1_bits_tag_parser_p, False],
+        dr_ste_v1_lu_type.DR_STE_V1_LU_TYPE_ETHL2_SRC_DST_O: [mlx5_ifc_ste_eth_l2_src_dst_v1_bits_tag_parser_p, False],
+        dr_ste_v1_lu_type.DR_STE_V1_LU_TYPE_ETHL2_I:  [mlx5_ifc_ste_eth_l2_dst_v1_bits_tag_parser_p, True],
+        dr_ste_v1_lu_type.DR_STE_V1_LU_TYPE_ETHL2_O:  [mlx5_ifc_ste_eth_l2_dst_v1_bits_tag_parser_p, False],
         dr_ste_v1_lu_type.DR_STE_V1_LU_TYPE_ETHL2_SRC_I: [mlx5_ifc_ste_eth_l2_src_v1_bits_tag_parser_p, True],
         dr_ste_v1_lu_type.DR_STE_V1_LU_TYPE_ETHL2_SRC_O: [mlx5_ifc_ste_eth_l2_src_v1_bits_tag_parser_p, False],
         dr_ste_v1_lu_type.DR_STE_V1_LU_TYPE_ETHL2_TNL: [mlx5_ifc_ste_eth_l2_tnl_v1_bits_tag_parser_p, True],
