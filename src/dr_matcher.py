@@ -43,9 +43,20 @@ class dr_dump_matcher(dr_obj):
         self.matcher_tx = None
 
     def dump_str(self):
-        return "matcher %s: priority: %s\n" % (
+        rx_tx_e_anchor = ""
+
+        if self.matcher_rx:
+            rx_tx_e_anchor += "rx e_anchor %s" % (_srd(self.matcher_rx.data, "e_anchor"))
+
+        if self.matcher_tx:
+            if self.matcher_rx:
+                rx_tx_e_anchor += ", "
+            rx_tx_e_anchor += "tx e_anchor %s" % (_srd(self.matcher_tx.data, "e_anchor"))
+
+        return "matcher %s: priority %s, %s\n" % (
             _srd(self.data, "id"),
-            _srd(self.data, "priority"))
+            _srd(self.data, "priority"),
+	    rx_tx_e_anchor)
 
     def print_tree_view(self, dump_ctx, verbose, raw):
         print_dr(dr_print_color.MATCHER, self.dump_str())
@@ -74,11 +85,11 @@ class dr_dump_matcher(dr_obj):
         self.builders = builder
 
     def add_matcher_rx_tx(self, matcher_rx_tx):
-        if matcher_rx_tx.data['dr_dump_rec_type'] == dr_dump_rec_type.DR_DUMP_REC_TYPE_MATCHER_RX.value[0]:
+        if int(matcher_rx_tx.data['dr_dump_rec_type']) == dr_dump_rec_type.DR_DUMP_REC_TYPE_MATCHER_RX.value[0]:
             self.matcher_rx = matcher_rx_tx
         else:
             self.matcher_tx = matcher_rx_tx
-
+	
 
 class dr_dump_matcher_mask(dr_obj):
     def __init__(self, data):

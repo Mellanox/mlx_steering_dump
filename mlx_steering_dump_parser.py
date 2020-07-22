@@ -178,7 +178,7 @@ def parse_domain(csv_reader, domain_obj=None):
             dump_ctx.matcher.add_mask(dr_obj)
 
         elif dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_MATCHER_RX.value[0] or \
-                dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_MATCHER_RX.value[0]:
+                dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_MATCHER_TX.value[0]:
             dump_ctx.matcher.add_matcher_rx_tx(dr_obj)
 
         elif dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_MATCHER_BUILDER.value[0]:
