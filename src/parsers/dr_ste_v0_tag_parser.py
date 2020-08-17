@@ -260,48 +260,48 @@ def mlx5_ifc_ste_v0_src_gvmi_qp_bits_tag_parser(bin_str):
     ret["reserved_at_60"] = _val(bin_str[96: 128])
     return ret
 
+switch_tag_parser = {
+    "0x05": [mlx5_ifc_ste_v0_src_gvmi_qp_bits_tag_parser, False],
+    "0x0a": [mlx5_ifc_ste_v0_eth_l2_tnl_bits_tag_parser_p, True],
+    "0x06": [mlx5_ifc_ste_v0_eth_l2_dst_bits_tag_parser_p, False],
+    "0x07": [mlx5_ifc_ste_v0_eth_l2_dst_bits_tag_parser_p, True],
+    "0x1b": [mlx5_ifc_ste_v0_eth_l2_dst_bits_tag_parser_p, False],
+    "0x08": [mlx5_ifc_ste_v0_eth_l2_src_bits_tag_parser_p, False],
+    "0x09": [mlx5_ifc_ste_v0_eth_l2_src_bits_tag_parser_p, True],
+    "0x1c": [mlx5_ifc_ste_v0_eth_l2_src_bits_tag_parser_p, False],
+    "0x36": [mlx5_ifc_ste_v0_eth_l2_src_dst_bits_tag_parser_p, False],
+    "0x37": [mlx5_ifc_ste_v0_eth_l2_src_dst_bits_tag_parser_p, True],
+    "0x38": [mlx5_ifc_ste_v0_eth_l2_src_dst_bits_tag_parser_p, False],
+    "0x0d": [mlx5_ifc_ste_v0_eth_l3_ipv6_dst_bits_tag_parser_p, False],
+    "0x0e": [mlx5_ifc_ste_v0_eth_l3_ipv6_dst_bits_tag_parser_p, True],
+    "0x1e": [mlx5_ifc_ste_v0_eth_l3_ipv6_dst_bits_tag_parser_p, False],
+    "0x0f": [mlx5_ifc_ste_v0_eth_l3_ipv6_src_bits_tag_parser_p, False],
+    "0x10": [mlx5_ifc_ste_v0_eth_l3_ipv6_src_bits_tag_parser_p, True],
+    "0x1f": [mlx5_ifc_ste_v0_eth_l3_ipv6_src_bits_tag_parser_p, False],
+    "0x11": [mlx5_ifc_ste_v0_eth_l3_ipv4_5_tuple_bits_tag_parser_p, False],
+    "0x12": [mlx5_ifc_ste_v0_eth_l3_ipv4_5_tuple_bits_tag_parser_p, True],
+    "0x20": [mlx5_ifc_ste_v0_eth_l3_ipv4_5_tuple_bits_tag_parser_p, False],
+    "0x29": [mlx5_ifc_ste_v0_eth_l3_ipv4_misc_bits_tag_parser_p, False],
+    "0x2a": [mlx5_ifc_ste_v0_eth_l3_ipv4_misc_bits_tag_parser_p, True],
+    "0x2b": [mlx5_ifc_ste_v0_eth_l3_ipv4_misc_bits_tag_parser_p, False],
+    "0x2c": [mlx5_ifc_ste_v0_eth_l4_misc_bits_tag_parser, False],
+    "0x2d": [mlx5_ifc_ste_v0_eth_l4_misc_bits_tag_parser, True],
+    "0x2e": [mlx5_ifc_ste_v0_eth_l4_misc_bits_tag_parser, False],
+    "0x15": [mlx5_ifc_ste_v0_mpls_bits_tag_parser, False],
+    "0x24": [mlx5_ifc_ste_v0_mpls_bits_tag_parser, True],
+    "0x25": [mlx5_ifc_ste_v0_mpls_bits_tag_parser, False],
+    "0x16": [mlx5_ifc_ste_v0_gre_bits_tag_parser, False],
+    "0x18": [mlx5_ifc_ste_v0_general_purpose_bits_tag_parser, False],
+    "0x2f": [mlx5_ifc_ste_v0_register_0_bits_tag_parser, False],
+    "0x30": [mlx5_ifc_ste_v0_register_1_bits_tag_parser, False],
+}
 
 def mlx5_ste_v0_tag_parser(lookup_type, tag, raw):
-    switch = {"0x05": [mlx5_ifc_ste_v0_src_gvmi_qp_bits_tag_parser, False],
-              "0x0a": [mlx5_ifc_ste_v0_eth_l2_tnl_bits_tag_parser_p, True],
-              "0x06": [mlx5_ifc_ste_v0_eth_l2_dst_bits_tag_parser_p, False],
-              "0x07": [mlx5_ifc_ste_v0_eth_l2_dst_bits_tag_parser_p, True],
-              "0x1b": [mlx5_ifc_ste_v0_eth_l2_dst_bits_tag_parser_p, False],
-              "0x08": [mlx5_ifc_ste_v0_eth_l2_src_bits_tag_parser_p, False],
-              "0x09": [mlx5_ifc_ste_v0_eth_l2_src_bits_tag_parser_p, True],
-              "0x1c": [mlx5_ifc_ste_v0_eth_l2_src_bits_tag_parser_p, False],
-              "0x36": [mlx5_ifc_ste_v0_eth_l2_src_dst_bits_tag_parser_p, False],
-              "0x37": [mlx5_ifc_ste_v0_eth_l2_src_dst_bits_tag_parser_p, True],
-              "0x38": [mlx5_ifc_ste_v0_eth_l2_src_dst_bits_tag_parser_p, False],
-              "0x0d": [mlx5_ifc_ste_v0_eth_l3_ipv6_dst_bits_tag_parser_p, False],
-              "0x0e": [mlx5_ifc_ste_v0_eth_l3_ipv6_dst_bits_tag_parser_p, True],
-              "0x1e": [mlx5_ifc_ste_v0_eth_l3_ipv6_dst_bits_tag_parser_p, False],
-              "0x0f": [mlx5_ifc_ste_v0_eth_l3_ipv6_src_bits_tag_parser_p, False],
-              "0x10": [mlx5_ifc_ste_v0_eth_l3_ipv6_src_bits_tag_parser_p, True],
-              "0x1f": [mlx5_ifc_ste_v0_eth_l3_ipv6_src_bits_tag_parser_p, False],
-              "0x11": [mlx5_ifc_ste_v0_eth_l3_ipv4_5_tuple_bits_tag_parser_p, False],
-              "0x12": [mlx5_ifc_ste_v0_eth_l3_ipv4_5_tuple_bits_tag_parser_p, True],
-              "0x20": [mlx5_ifc_ste_v0_eth_l3_ipv4_5_tuple_bits_tag_parser_p, False],
-              "0x29": [mlx5_ifc_ste_v0_eth_l3_ipv4_misc_bits_tag_parser_p, False],
-              "0x2a": [mlx5_ifc_ste_v0_eth_l3_ipv4_misc_bits_tag_parser_p, True],
-              "0x2b": [mlx5_ifc_ste_v0_eth_l3_ipv4_misc_bits_tag_parser_p, False],
-              "0x2c": [mlx5_ifc_ste_v0_eth_l4_misc_bits_tag_parser, False],
-              "0x2d": [mlx5_ifc_ste_v0_eth_l4_misc_bits_tag_parser, True],
-              "0x2e": [mlx5_ifc_ste_v0_eth_l4_misc_bits_tag_parser, False],
-              "0x15": [mlx5_ifc_ste_v0_mpls_bits_tag_parser, False],
-              "0x24": [mlx5_ifc_ste_v0_mpls_bits_tag_parser, True],
-              "0x25": [mlx5_ifc_ste_v0_mpls_bits_tag_parser, False],
-              "0x16": [mlx5_ifc_ste_v0_gre_bits_tag_parser, False],
-              "0x18": [mlx5_ifc_ste_v0_general_purpose_bits_tag_parser, False],
-              "0x2f": [mlx5_ifc_ste_v0_register_0_bits_tag_parser, False],
-              "0x30": [mlx5_ifc_ste_v0_register_1_bits_tag_parser, False],
-              }
-
-    if lookup_type not in switch.keys():
+    if lookup_type not in switch_tag_parser.keys():
         # Silent fail lookup type is not supported
         return {}
 
-    func, inner = switch[lookup_type]
+    func, inner = switch_tag_parser[lookup_type]
     parsed_tag = func(tag)
 
     if not raw:

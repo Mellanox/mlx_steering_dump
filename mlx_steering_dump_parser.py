@@ -44,8 +44,7 @@ from src.dr_utilities import *
 
 
 # mapping csv records types to it's relevant parser function
-def dr_csv_rec_type_parser(rec_type):
-    switch = {
+switch_csv_rec_type = {
         dr_dump_rec_type.DR_DUMP_REC_TYPE_DOMAIN.value[0]: dr_dump_domain,
         dr_dump_rec_type.DR_DUMP_REC_TYPE_DOMAIN_INFO_DEV_ATTR.value[0]: dr_dump_domain_info_dev_attr,
         dr_dump_rec_type.DR_DUMP_REC_TYPE_DOMAIN_INFO_CAPS.value[0]: dr_dump_domain_info_caps,
@@ -86,13 +85,11 @@ def dr_csv_rec_type_parser(rec_type):
         dr_dump_rec_type.DR_DUMP_REC_TYPE_ACTION_METER.value[0]: dr_dump_action_meter,
     }
 
-    return switch[rec_type]
-
 
 # parse csv record according to type and return parsed object (like dr_domain, dr_table, dr_rule ...)
 def dr_csv_get_obj(line):
     rec_type = int(line[0])
-    parser = dr_csv_rec_type_parser(rec_type)
+    parser = switch_csv_rec_type[rec_type]
     return parser(line)
 
 def print_ctx(dump_ctx, view, verbose, raw, colored):

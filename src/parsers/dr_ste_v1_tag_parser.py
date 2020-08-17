@@ -251,9 +251,7 @@ def mlx5_ifc_ste_src_gvmi_qp_v1_bits_tag_parser(bin_str):
 	ret["reserved_at_60"] = _val(bin_str[96: 128])
 	return ret
 
-
-def mlx5_ste_v1_tag_parser(entry_format, tag, raw):
-	switch = {
+switch_tag_parser = {
         dr_ste_v1_lu_type.DR_STE_V1_LU_TYPE_ETHL2_SRC_DST_I: [mlx5_ifc_ste_eth_l2_src_dst_v1_bits_tag_parser_p, True],
         dr_ste_v1_lu_type.DR_STE_V1_LU_TYPE_ETHL2_SRC_DST_O: [mlx5_ifc_ste_eth_l2_src_dst_v1_bits_tag_parser_p, False],
         dr_ste_v1_lu_type.DR_STE_V1_LU_TYPE_ETHL2_I:  [mlx5_ifc_ste_eth_l2_dst_v1_bits_tag_parser_p, True],
@@ -282,11 +280,14 @@ def mlx5_ste_v1_tag_parser(entry_format, tag, raw):
         dr_ste_v1_lu_type.DR_STE_V1_LU_TYPE_STEERING_REGISTERS_1: [mlx5_ifc_ste_v0_register_1_bits_tag_parser, False],
     }
 
-	if entry_format not in switch.keys():
+
+def mlx5_ste_v1_tag_parser(entry_format, tag, raw):
+
+	if entry_format not in switch_tag_parser.keys():
 		# Silent fail lookup type is not supported
 		return {}
 
-	func, inner = switch[entry_format]
+	func, inner = switch_tag_parser[entry_format]
 	parsed_tag = func(tag)
 
 	if not raw:

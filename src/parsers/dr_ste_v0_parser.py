@@ -139,13 +139,14 @@ def mlx5_ifc_ste_v0_modify_packet_bits_parser(bin_str, raw):
     ret["tag"] = mlx5_ste_v0_tag_parser(ret["entry_sub_type"], bin_str[256: 384], raw)
     return ret
 
+
+switch_ste_type = {
+    1 : mlx5_ifc_ste_v0_sx_transmit_bits_parser,
+    2 : mlx5_ifc_ste_v0_rx_steering_mult_bits_parser,
+    6 : mlx5_ifc_ste_v0_modify_packet_bits_parser
+}
+
+
 def mlx5_hw_ste_v0_parser(bin_str, raw):
-	entry_type = int(bin_str[0: 4], 2)
-	switch = {
-        1 : mlx5_ifc_ste_v0_sx_transmit_bits_parser,
-        2 : mlx5_ifc_ste_v0_rx_steering_mult_bits_parser,
-        6 : mlx5_ifc_ste_v0_modify_packet_bits_parser
-    }
-
-	return switch[entry_type](bin_str, raw)
-
+    entry_type = int(bin_str[0: 4], 2)
+    return switch_ste_type[entry_type](bin_str, raw)
