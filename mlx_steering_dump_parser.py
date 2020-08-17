@@ -136,8 +136,49 @@ def parse_domain(csv_reader, domain_obj=None):
     for line in csv_reader:
         dr_obj = dr_csv_get_obj(line)
         dr_rec_type = int(line[0])
+
+        # update Rule entry objects
+        if dr_rec_type in [dr_dump_rec_type.DR_DUMP_REC_TYPE_RULE_RX_ENTRY_V0.value[0],
+                           dr_dump_rec_type.DR_DUMP_REC_TYPE_RULE_TX_ENTRY_V0.value[0],
+                           dr_dump_rec_type.DR_DUMP_REC_TYPE_RULE_RX_ENTRY_V1.value[0],
+                           dr_dump_rec_type.DR_DUMP_REC_TYPE_RULE_TX_ENTRY_V1.value[0]]:
+            dump_ctx.rule.add_rule_entry(dr_obj)
+
+        # update Action objects
+        elif dr_dump_rec_type.find_name(dr_rec_type).startswith('DR_DUMP_REC_TYPE_ACTION_'):
+            dump_ctx.rule.add_action(dr_obj)
+
+        # update Rule objects
+        elif dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_RULE.value[0]:
+            dump_ctx.rule = dr_obj
+            dump_ctx.matcher.add_rule(dr_obj)
+
+        # update Matcher objects
+        elif dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_MATCHER_BUILDER.value[0]:
+            dump_ctx.matcher.add_builder(dr_obj)
+
+        elif dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_MATCHER_RX.value[0] or \
+                dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_MATCHER_TX.value[0]:
+            dump_ctx.matcher.add_matcher_rx_tx(dr_obj)
+
+        elif dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_MATCHER_MASK.value[0]:
+            dump_ctx.matcher.add_mask(dr_obj)
+
+        elif dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_MATCHER.value[0]:
+            dump_ctx.matcher = dr_obj
+            dump_ctx.table.add_matcher(dr_obj)
+
+        # update Table objects
+        elif dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_TABLE_RX.value[0] or \
+                dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_TABLE_TX.value[0]:
+            dump_ctx.table.add_table_rx_tx(dr_obj)
+
+        elif dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_TABLE.value[0]:
+            dump_ctx.table = dr_obj
+            dump_ctx.domain.add_table(dr_obj)
+
         # update Domain objects
-        if dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_DOMAIN.value[0]:
+        elif dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_DOMAIN.value[0]:
             # If parsing reached the next domain we return the parsed object to
             # use it for the next function call since we can't re-parse this
             # line again
@@ -159,44 +200,6 @@ def parse_domain(csv_reader, domain_obj=None):
 
         elif dump_ctx.domain and dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_DOMAIN_SEND_RING.value[0]:
             dump_ctx.domain.add_send_ring(dr_obj)
-
-        # update Table objects
-        elif dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_TABLE.value[0]:
-            dump_ctx.table = dr_obj
-            dump_ctx.domain.add_table(dr_obj)
-
-        elif dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_TABLE_RX.value[0] or \
-                dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_TABLE_TX.value[0]:
-            dump_ctx.table.add_table_rx_tx(dr_obj)
-
-        # update Matcher objects
-        elif dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_MATCHER.value[0]:
-            dump_ctx.matcher = dr_obj
-            dump_ctx.table.add_matcher(dr_obj)
-
-        elif dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_MATCHER_MASK.value[0]:
-            dump_ctx.matcher.add_mask(dr_obj)
-
-        elif dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_MATCHER_RX.value[0] or \
-                dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_MATCHER_TX.value[0]:
-            dump_ctx.matcher.add_matcher_rx_tx(dr_obj)
-
-        elif dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_MATCHER_BUILDER.value[0]:
-            dump_ctx.matcher.add_builder(dr_obj)
-
-        # update Rule objects
-        elif dr_rec_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_RULE.value[0]:
-            dump_ctx.rule = dr_obj
-            dump_ctx.matcher.add_rule(dr_obj)
-        elif dr_rec_type in [dr_dump_rec_type.DR_DUMP_REC_TYPE_RULE_RX_ENTRY_V0.value[0],
-                             dr_dump_rec_type.DR_DUMP_REC_TYPE_RULE_TX_ENTRY_V0.value[0],
-                             dr_dump_rec_type.DR_DUMP_REC_TYPE_RULE_RX_ENTRY_V1.value[0],
-                             dr_dump_rec_type.DR_DUMP_REC_TYPE_RULE_TX_ENTRY_V1.value[0]]:
-            dump_ctx.rule.add_rule_entry(dr_obj)
-
-        # update Action objects
-        elif dr_dump_rec_type.find_name(dr_rec_type).startswith('DR_DUMP_REC_TYPE_ACTION_'):
-            dump_ctx.rule.add_action(dr_obj)
 
     return dump_ctx, LAST_OBJ
 
