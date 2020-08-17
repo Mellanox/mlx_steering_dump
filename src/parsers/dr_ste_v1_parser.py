@@ -29,7 +29,7 @@
 # SOFTWARE.
 
 from src.parsers.dr_ste_v1_tag_parser import mlx5_ste_v1_tag_parser
-from src.dr_utilities import dr_ste_entry_format
+from src.dr_constants import *
 
 
 def mlx5_ifc_ste_v1_match_bwc_bits_parser(bin_str, raw) :
@@ -109,14 +109,14 @@ def mlx5_ifc_ste_v1_match_bits_parser(bin_str, raw) :
 def mlx5_hw_ste_v1_parser(bin_str, raw, verbose):
     entry_type = int(bin_str[0: 8], 2)
     switch = {
-        dr_ste_entry_format.DR_STE_TYPE_BWC_BYTE : mlx5_ifc_ste_v1_match_bwc_bits_parser,
-        dr_ste_entry_format.DR_STE_TYPE_BWC_DW : mlx5_ifc_ste_v1_match_bwc_bits_parser,
-        dr_ste_entry_format.DR_STE_TYPE_MATCH : mlx5_ifc_ste_v1_match_bits_parser,
+        DR_STE_TYPE_BWC_BYTE : mlx5_ifc_ste_v1_match_bwc_bits_parser,
+        DR_STE_TYPE_BWC_DW : mlx5_ifc_ste_v1_match_bwc_bits_parser,
+        DR_STE_TYPE_MATCH : mlx5_ifc_ste_v1_match_bits_parser,
     }
 
     parsed_ste = switch[entry_type](bin_str, raw)
 
-    if entry_type is dr_ste_entry_format.DR_STE_TYPE_MATCH and not verbose:
+    if entry_type is DR_STE_TYPE_MATCH and not verbose:
         parsed_ste["tag"] = {}
         
     return parsed_ste

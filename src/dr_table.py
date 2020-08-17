@@ -28,8 +28,10 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from dr_utilities import _srd, print_dr, dr_obj, inc_indent, dec_indent, dr_dump_rec_type
+from dr_utilities import _srd, print_dr, dr_obj, inc_indent, dec_indent
 from dr_utilities import dr_print_color
+from dr_constants import *
+
 
 class dr_dump_table(dr_obj):
     def __init__(self, data):
@@ -98,8 +100,8 @@ class dr_dump_table(dr_obj):
         self.matcher_list.append(matcher)
 
     def add_table_rx_tx(self, table_rx_tx):
-        anchor_type = int(table_rx_tx.data['dr_dump_rec_type'])
-        if anchor_type == dr_dump_rec_type.DR_DUMP_REC_TYPE_TABLE_RX.value[0]:
+        anchor_type = table_rx_tx.data['dr_dump_rec_type']
+        if anchor_type == DR_DUMP_REC_TYPE_TABLE_RX:
             self.table_rx = table_rx_tx
         else:
             self.table_tx = table_rx_tx

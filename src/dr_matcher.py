@@ -30,8 +30,8 @@
 
 from src.parsers import dr_matcher_mask_parser
 import dr_prettify
-from dr_utilities import _srd, dict_join_str, print_dr, dr_obj, inc_indent, dec_indent, dr_dump_rec_type
-from dr_utilities import dr_print_color
+from dr_utilities import _srd, dict_join_str, print_dr, dr_obj, inc_indent, dec_indent, dr_print_color
+from dr_constants import *
 
 class dr_dump_matcher(dr_obj):
     def __init__(self, data):
@@ -85,7 +85,7 @@ class dr_dump_matcher(dr_obj):
         self.builders = builder
 
     def add_matcher_rx_tx(self, matcher_rx_tx):
-        if int(matcher_rx_tx.data['dr_dump_rec_type']) == dr_dump_rec_type.DR_DUMP_REC_TYPE_MATCHER_RX.value[0]:
+        if matcher_rx_tx.data['dr_dump_rec_type'] == DR_DUMP_REC_TYPE_MATCHER_RX:
             self.matcher_rx = matcher_rx_tx
         else:
             self.matcher_tx = matcher_rx_tx

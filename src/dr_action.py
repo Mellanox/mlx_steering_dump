@@ -28,7 +28,13 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from dr_utilities import _srd, dr_obj, dr_dump_rec_type, print_dr
+from dr_utilities import _srd, dr_obj, print_dr
+from dr_constants import DR_DUMP_REC_TYPE_ACTIONS
+
+def dr_rec_type_is_action(rec_type):
+    if rec_type.startswith(DR_DUMP_REC_TYPE_ACTIONS):
+        return True
+    return False
 
 
 class dr_dump_action_drop(dr_obj):
@@ -37,9 +43,7 @@ class dr_dump_action_drop(dr_obj):
         self.data = dict(zip(keys, data))
 
     def dump_str(self):
-        action_type_str = dr_dump_rec_type.find_name(self.data["dr_dump_rec_type"])
-        i = action_type_str.find("ACTION") + len("ACTION") + 1
-        return action_type_str[i:] + " "
+        return "DROP"
 
 
 class dr_dump_action_ft(dr_obj):
@@ -48,9 +52,7 @@ class dr_dump_action_ft(dr_obj):
         self.data = dict(zip(keys, data))
 
     def dump_str(self):
-        action_type_str = dr_dump_rec_type.find_name(self.data["dr_dump_rec_type"])
-        i = action_type_str.find("ACTION") + len("ACTION") + 1
-        return action_type_str[i:] + " devx id %s, dest_ft %s" % (
+        return "FT devx id %s, dest_ft %s" % (
             _srd(self.data, "table_devx_id"),
             _srd(self.data, "dest_ft"))
 
@@ -61,9 +63,7 @@ class dr_dump_action_qp(dr_obj):
         self.data = dict(zip(keys, data))
 
     def dump_str(self):
-        action_type_str = dr_dump_rec_type.find_name(self.data["dr_dump_rec_type"])
-        i = action_type_str.find("ACTION") + len("ACTION") + 1
-        return action_type_str[i:] + " num %s" % (_srd(self.data, "qp_num"))
+        return "QP num %s" % (_srd(self.data, "qp_num"))
 
 
 class dr_dump_action_devx_tir(dr_obj):
@@ -72,9 +72,7 @@ class dr_dump_action_devx_tir(dr_obj):
         self.data = dict(zip(keys, data))
 
     def dump_str(self):
-        action_type_str = dr_dump_rec_type.find_name(self.data["dr_dump_rec_type"])
-        i = action_type_str.find("ACTION") + len("ACTION") + 1
-        return action_type_str[i:] + ", ICM addr %s" % (_srd(self.data, "icm_addr"))
+        return "DEVX_TIR, ICM addr %s" % (_srd(self.data, "icm_addr"))
 
 
 class dr_dump_action_ctr(dr_obj):
@@ -83,9 +81,7 @@ class dr_dump_action_ctr(dr_obj):
         self.data = dict(zip(keys, data))
 
     def dump_str(self):
-        action_type_str = dr_dump_rec_type.find_name(self.data["dr_dump_rec_type"])
-        i = action_type_str.find("ACTION") + len("ACTION") + 1
-        return action_type_str[i:] + ", index %s" % (_srd(self.data, "ctr_index"))
+        return "CTR, index %s" % (_srd(self.data, "ctr_index"))
 
 
 class dr_dump_action_tag(dr_obj):
@@ -94,9 +90,7 @@ class dr_dump_action_tag(dr_obj):
         self.data = dict(zip(keys, data))
 
     def dump_str(self):
-        action_type_str = dr_dump_rec_type.find_name(self.data["dr_dump_rec_type"])
-        i = action_type_str.find("ACTION") + len("ACTION") + 1
-        return action_type_str[i:] + ", value %s" % (_srd(self.data, "tag"))
+        return "TAG, value %s" % (_srd(self.data, "tag"))
 
 
 class dr_dump_action_modify_header(dr_obj):
@@ -105,9 +99,7 @@ class dr_dump_action_modify_header(dr_obj):
         self.data = dict(zip(keys, data))
 
     def dump_str(self):
-        action_type_str = dr_dump_rec_type.find_name(self.data["dr_dump_rec_type"])
-        i = action_type_str.find("ACTION") + len("ACTION") + 1
-        return action_type_str[i:] + ", rewrite index %s" % (_srd(self.data, "rewrite_index"))
+        return "MODIFY_HDR, rewrite index %s" % (_srd(self.data, "rewrite_index"))
 
 
 class dr_dump_action_vport(dr_obj):
@@ -116,42 +108,34 @@ class dr_dump_action_vport(dr_obj):
         self.data = dict(zip(keys, data))
 
     def dump_str(self):
-        action_type_str = dr_dump_rec_type.find_name(self.data["dr_dump_rec_type"])
-        i = action_type_str.find("ACTION") + len("ACTION") + 1
-        return action_type_str[i:] + ", num %s" % (_srd(self.data, "vport_num"))
+        return "VPORT, num %s" % (_srd(self.data, "vport_num"))
 
 
-class dr_dump_action_decup_l2(dr_obj):
+class dr_dump_action_decap_l2(dr_obj):
     def __init__(self, data):
         keys = ["dr_dump_rec_type", "id", "rule_id"]
         self.data = dict(zip(keys, data))
 
     def dump_str(self):
-        action_type_str = dr_dump_rec_type.find_name(self.data["dr_dump_rec_type"])
-        i = action_type_str.find("ACTION") + len("ACTION") + 1
-        return action_type_str[i:] + " "
+        return "DECAP_L2 "
 
 
-class dr_dump_action_decup_l3(dr_obj):
+class dr_dump_action_decap_l3(dr_obj):
     def __init__(self, data):
         keys = ["dr_dump_rec_type", "id", "rule_id", "rewrite_index"]
         self.data = dict(zip(keys, data))
 
     def dump_str(self):
-        action_type_str = dr_dump_rec_type.find_name(self.data["dr_dump_rec_type"])
-        i = action_type_str.find("ACTION") + len("ACTION") + 1
-        return action_type_str[i:] + ", rewrite index %s" % (_srd(self.data, "rewrite_index"))
+        return "DECAP_L3, rewrite index %s" % (_srd(self.data, "rewrite_index"))
 
 
-class dr_dump_action_encup_l2(dr_obj):
+class dr_dump_action_encap_l2(dr_obj):
     def __init__(self, data):
         keys = ["dr_dump_rec_type", "id", "rule_id", "devx_obj_id"]
         self.data = dict(zip(keys, data))
 
     def dump_str(self):
-        action_type_str = dr_dump_rec_type.find_name(self.data["dr_dump_rec_type"])
-        i = action_type_str.find("ACTION") + len("ACTION") + 1
-        return action_type_str[i:] + ", devx obj id %s" % (_srd(self.data, "devx_obj_id"))
+        return "ENCAP_L2, devx obj id %s" % (_srd(self.data, "devx_obj_id"))
 
 
 class dr_dump_action_pop_vlan(dr_obj):
@@ -160,9 +144,7 @@ class dr_dump_action_pop_vlan(dr_obj):
         self.data = dict(zip(keys, data))
 
     def dump_str(self):
-        action_type_str = dr_dump_rec_type.find_name(self.data["dr_dump_rec_type"])
-        i = action_type_str.find("ACTION") + len("ACTION") + 1
-        return action_type_str[i:] + " "
+        return "POP_VLAN"
 
 
 class dr_dump_action_push_vlan(dr_obj):
@@ -171,9 +153,7 @@ class dr_dump_action_push_vlan(dr_obj):
         self.data = dict(zip(keys, data))
 
     def dump_str(self):
-        action_type_str = dr_dump_rec_type.find_name(self.data["dr_dump_rec_type"])
-        i = action_type_str.find("ACTION") + len("ACTION") + 1
-        return action_type_str[i:] + ", vlan id %s" % (_srd(self.data, "vlan_id"))
+        return "PUSH_VLAN, vlan id %s" % (_srd(self.data, "vlan_id"))
 
 
 class dr_dump_action_meter(dr_obj):
@@ -182,9 +162,7 @@ class dr_dump_action_meter(dr_obj):
         self.data = dict(zip(keys, data))
 
     def dump_str(self):
-        action_type_str = dr_dump_rec_type.find_name(self.data["dr_dump_rec_type"])
-        i = action_type_str.find("ACTION") + len("ACTION") + 1
-        return action_type_str[i:] + ", next flow table %s, devx obj id %s, rx_icm_addr %s rx_icm_addr %s" %(
+        return "METER, next flow table %s, devx obj id %s, rx_icm_addr %s rx_icm_addr %s" %(
             _srd(self.data, "next_ft"),
             _srd(self.data, "devx_id"),
             _srd(self.data, "rx_icm_addr"),
