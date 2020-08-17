@@ -31,13 +31,12 @@
 from dr_utilities import _srd
 from dr_utilities import dec_indent
 from dr_utilities import dict_join_str
-from dr_utilities import dr_dump_rec_type
 from dr_utilities import dr_obj
 from dr_utilities import get_indent_str
 from dr_utilities import inc_indent
-from dr_utilities import mlx5_ifc_steering_format_version
 from dr_utilities import print_dr
-from dr_utilities import dr_print_color 
+from dr_constants import *
+from dr_utilities import dr_print_color
 from src.parsers.dr_ste_parser import mlx5_hw_ste_parser
 
 class dr_dump_rule(dr_obj):
@@ -114,11 +113,11 @@ class dr_dump_rule_entry_rx_tx(dr_obj):
 
     def dump_str(self, verbose, raw):
         nic_version = None
-        if int(self.data['dr_dump_rec_type']) in [dr_dump_rec_type.DR_DUMP_REC_TYPE_RULE_RX_ENTRY_V1.value[0],
-                                                  dr_dump_rec_type.DR_DUMP_REC_TYPE_RULE_TX_ENTRY_V1.value[0]]:
-            nic_version = mlx5_ifc_steering_format_version.MLX5_HW_CONNECTX_6DX
+        if self.data['dr_dump_rec_type'] in [DR_DUMP_REC_TYPE_RULE_RX_ENTRY_V1,
+                                                  DR_DUMP_REC_TYPE_RULE_TX_ENTRY_V1]:
+            nic_version = MLX5_HW_CONNECTX_6DX
         else :
-            nic_version = mlx5_ifc_steering_format_version.MLX5_HW_CONNECTX_5
+            nic_version = MLX5_HW_CONNECTX_5
 
         parsed_ste = mlx5_hw_ste_parser(nic_version, self.data['ste_data'], raw, verbose)
         if "tag" not in parsed_ste.keys():
@@ -127,8 +126,8 @@ class dr_dump_rule_entry_rx_tx(dr_obj):
         if verbose == 0:
             return "%s" % dict_join_str(parsed_ste["tag"])
         else:
-            if int(self.data['dr_dump_rec_type']) in [dr_dump_rec_type.DR_DUMP_REC_TYPE_RULE_RX_ENTRY_V0.value[0],
-                                                      dr_dump_rec_type.DR_DUMP_REC_TYPE_RULE_RX_ENTRY_V1.value[0]]:
+            if self.data['dr_dump_rec_type'] in [DR_DUMP_REC_TYPE_RULE_RX_ENTRY_V0,
+                                                      DR_DUMP_REC_TYPE_RULE_RX_ENTRY_V1]:
                 rx_tx = "RX"
             else:
                 rx_tx = "TX"

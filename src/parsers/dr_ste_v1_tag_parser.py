@@ -28,7 +28,7 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from src.dr_utilities import dr_ste_v1_lu_type
+from src.dr_constants import *
 from src.dr_utilities import _val
 from src.dr_utilities import add_inner_to_key
 import src.dr_prettify as dr_prettify
@@ -252,32 +252,32 @@ def mlx5_ifc_ste_src_gvmi_qp_v1_bits_tag_parser(bin_str):
 	return ret
 
 switch_tag_parser = {
-        dr_ste_v1_lu_type.DR_STE_V1_LU_TYPE_ETHL2_SRC_DST_I: [mlx5_ifc_ste_eth_l2_src_dst_v1_bits_tag_parser_p, True],
-        dr_ste_v1_lu_type.DR_STE_V1_LU_TYPE_ETHL2_SRC_DST_O: [mlx5_ifc_ste_eth_l2_src_dst_v1_bits_tag_parser_p, False],
-        dr_ste_v1_lu_type.DR_STE_V1_LU_TYPE_ETHL2_I:  [mlx5_ifc_ste_eth_l2_dst_v1_bits_tag_parser_p, True],
-        dr_ste_v1_lu_type.DR_STE_V1_LU_TYPE_ETHL2_O:  [mlx5_ifc_ste_eth_l2_dst_v1_bits_tag_parser_p, False],
-        dr_ste_v1_lu_type.DR_STE_V1_LU_TYPE_ETHL2_SRC_I: [mlx5_ifc_ste_eth_l2_src_v1_bits_tag_parser_p, True],
-        dr_ste_v1_lu_type.DR_STE_V1_LU_TYPE_ETHL2_SRC_O: [mlx5_ifc_ste_eth_l2_src_v1_bits_tag_parser_p, False],
-        dr_ste_v1_lu_type.DR_STE_V1_LU_TYPE_ETHL2_TNL: [mlx5_ifc_ste_eth_l2_tnl_v1_bits_tag_parser_p, True],
-        dr_ste_v1_lu_type.DR_STE_V1_LU_TYPE_ETHL3_IPV4_5_TUPLE_I: [mlx5_ifc_ste_eth_l3_ipv4_5_tuple_v1_bits_tag_parser_p, True],
-        dr_ste_v1_lu_type.DR_STE_V1_LU_TYPE_ETHL3_IPV4_5_TUPLE_O: [mlx5_ifc_ste_eth_l3_ipv4_5_tuple_v1_bits_tag_parser_p, False],
-        dr_ste_v1_lu_type.DR_STE_V1_LU_TYPE_ETHL3_IPV4_MISC_I: [mlx5_ifc_ste_eth_l3_ipv4_misc_v1_bits_tag_parser, True],
-        dr_ste_v1_lu_type.DR_STE_V1_LU_TYPE_ETHL3_IPV4_MISC_O: [mlx5_ifc_ste_eth_l3_ipv4_misc_v1_bits_tag_parser, False],
-        dr_ste_v1_lu_type.DR_STE_V1_LU_TYPE_ETHL4_I: [mlx5_ifc_ste_eth_l4_v1_bits_tag_parser, True],
-        dr_ste_v1_lu_type.DR_STE_V1_LU_TYPE_ETHL4_MISC_I: [mlx5_ifc_ste_eth_l4_v1_bits_tag_parser, True],
-        dr_ste_v1_lu_type.DR_STE_V1_LU_TYPE_ETHL4_MISC_O: [mlx5_ifc_ste_eth_l4_misc_v1_bits_tag_parser, False],
-        dr_ste_v1_lu_type.DR_STE_V1_LU_TYPE_ETHL4_O: [mlx5_ifc_ste_eth_l4_v1_bits_tag_parser, False],
-        dr_ste_v1_lu_type.DR_STE_V1_LU_TYPE_GENERAL_PURPOSE: [mlx5_ifc_ste_v0_general_purpose_bits_tag_parser, False],
-        dr_ste_v1_lu_type.DR_STE_V1_LU_TYPE_GRE: [mlx5_ifc_ste_gre_v1_bits_tag_parser, False],
-        dr_ste_v1_lu_type.DR_STE_V1_LU_TYPE_IPV6_DES_I: [mlx5_ifc_ste_v0_eth_l3_ipv6_dst_bits_tag_parser_p, True],
-        dr_ste_v1_lu_type.DR_STE_V1_LU_TYPE_IPV6_DES_O: [mlx5_ifc_ste_v0_eth_l3_ipv6_dst_bits_tag_parser_p, False],
-        dr_ste_v1_lu_type.DR_STE_V1_LU_TYPE_IPV6_SRC_I: [mlx5_ifc_ste_v0_eth_l3_ipv6_src_bits_tag_parser_p, True],
-        dr_ste_v1_lu_type.DR_STE_V1_LU_TYPE_IPV6_SRC_O: [mlx5_ifc_ste_v0_eth_l3_ipv6_src_bits_tag_parser_p, False],
-        dr_ste_v1_lu_type.DR_STE_V1_LU_TYPE_MPLS_I: [mlx5_ifc_ste_v0_mpls_bits_tag_parser, True],
-        dr_ste_v1_lu_type.DR_STE_V1_LU_TYPE_MPLS_O: [mlx5_ifc_ste_v0_mpls_bits_tag_parser, False],
-        dr_ste_v1_lu_type.DR_STE_V1_LU_TYPE_SRC_QP_GVMI: [mlx5_ifc_ste_src_gvmi_qp_v1_bits_tag_parser, False],
-        dr_ste_v1_lu_type.DR_STE_V1_LU_TYPE_STEERING_REGISTERS_0: [mlx5_ifc_ste_v0_register_0_bits_tag_parser, False],
-        dr_ste_v1_lu_type.DR_STE_V1_LU_TYPE_STEERING_REGISTERS_1: [mlx5_ifc_ste_v0_register_1_bits_tag_parser, False],
+        DR_STE_V1_LU_TYPE_ETHL2_SRC_DST_I: [mlx5_ifc_ste_eth_l2_src_dst_v1_bits_tag_parser_p, True],
+        DR_STE_V1_LU_TYPE_ETHL2_SRC_DST_O: [mlx5_ifc_ste_eth_l2_src_dst_v1_bits_tag_parser_p, False],
+        DR_STE_V1_LU_TYPE_ETHL2_I:  [mlx5_ifc_ste_eth_l2_dst_v1_bits_tag_parser_p, True],
+        DR_STE_V1_LU_TYPE_ETHL2_O:  [mlx5_ifc_ste_eth_l2_dst_v1_bits_tag_parser_p, False],
+        DR_STE_V1_LU_TYPE_ETHL2_SRC_I: [mlx5_ifc_ste_eth_l2_src_v1_bits_tag_parser_p, True],
+        DR_STE_V1_LU_TYPE_ETHL2_SRC_O: [mlx5_ifc_ste_eth_l2_src_v1_bits_tag_parser_p, False],
+        DR_STE_V1_LU_TYPE_ETHL2_TNL: [mlx5_ifc_ste_eth_l2_tnl_v1_bits_tag_parser_p, True],
+        DR_STE_V1_LU_TYPE_ETHL3_IPV4_5_TUPLE_I: [mlx5_ifc_ste_eth_l3_ipv4_5_tuple_v1_bits_tag_parser_p, True],
+        DR_STE_V1_LU_TYPE_ETHL3_IPV4_5_TUPLE_O: [mlx5_ifc_ste_eth_l3_ipv4_5_tuple_v1_bits_tag_parser_p, False],
+        DR_STE_V1_LU_TYPE_ETHL3_IPV4_MISC_I: [mlx5_ifc_ste_eth_l3_ipv4_misc_v1_bits_tag_parser, True],
+        DR_STE_V1_LU_TYPE_ETHL3_IPV4_MISC_O: [mlx5_ifc_ste_eth_l3_ipv4_misc_v1_bits_tag_parser, False],
+        DR_STE_V1_LU_TYPE_ETHL4_I: [mlx5_ifc_ste_eth_l4_v1_bits_tag_parser, True],
+        DR_STE_V1_LU_TYPE_ETHL4_MISC_I: [mlx5_ifc_ste_eth_l4_v1_bits_tag_parser, True],
+        DR_STE_V1_LU_TYPE_ETHL4_MISC_O: [mlx5_ifc_ste_eth_l4_misc_v1_bits_tag_parser, False],
+        DR_STE_V1_LU_TYPE_ETHL4_O: [mlx5_ifc_ste_eth_l4_v1_bits_tag_parser, False],
+        DR_STE_V1_LU_TYPE_GENERAL_PURPOSE: [mlx5_ifc_ste_v0_general_purpose_bits_tag_parser, False],
+        DR_STE_V1_LU_TYPE_GRE: [mlx5_ifc_ste_gre_v1_bits_tag_parser, False],
+        DR_STE_V1_LU_TYPE_IPV6_DES_I: [mlx5_ifc_ste_v0_eth_l3_ipv6_dst_bits_tag_parser_p, True],
+        DR_STE_V1_LU_TYPE_IPV6_DES_O: [mlx5_ifc_ste_v0_eth_l3_ipv6_dst_bits_tag_parser_p, False],
+        DR_STE_V1_LU_TYPE_IPV6_SRC_I: [mlx5_ifc_ste_v0_eth_l3_ipv6_src_bits_tag_parser_p, True],
+        DR_STE_V1_LU_TYPE_IPV6_SRC_O: [mlx5_ifc_ste_v0_eth_l3_ipv6_src_bits_tag_parser_p, False],
+        DR_STE_V1_LU_TYPE_MPLS_I: [mlx5_ifc_ste_v0_mpls_bits_tag_parser, True],
+        DR_STE_V1_LU_TYPE_MPLS_O: [mlx5_ifc_ste_v0_mpls_bits_tag_parser, False],
+        DR_STE_V1_LU_TYPE_SRC_QP_GVMI: [mlx5_ifc_ste_src_gvmi_qp_v1_bits_tag_parser, False],
+        DR_STE_V1_LU_TYPE_STEERING_REGISTERS_0: [mlx5_ifc_ste_v0_register_0_bits_tag_parser, False],
+        DR_STE_V1_LU_TYPE_STEERING_REGISTERS_1: [mlx5_ifc_ste_v0_register_1_bits_tag_parser, False],
     }
 
 
