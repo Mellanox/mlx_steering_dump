@@ -217,11 +217,12 @@ if __name__ == '__main__':
     DPDK_PORT = 0
     args = parse_args()
     if (args.version):
-        print_dr("Version %s\n" % g_version)
+        print_dr(dr_print_color.RESET, "Version %s\n" % g_version)
         sys.exit(0)
 
     if (args.FILEPATH == ""):
-        print_dr("No input steering dump file provided (-f FILEPATH)\n")
+        set_colored_prints()
+        print_dr(dr_print_color.ERROR, "No input steering dump file provided (-f FILEPATH)\n")
         sys.exit(0)
 
     if (args.dpdk_pid > 0):
