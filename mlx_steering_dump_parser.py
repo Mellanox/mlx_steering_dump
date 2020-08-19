@@ -70,7 +70,7 @@ switch_csv_rec_type = {
         DR_DUMP_REC_TYPE_RULE_TX_ENTRY_V1: dr_dump_rule_entry_rx_tx,
  
         DR_DUMP_REC_TYPE_ACTION_ENCAP_L2: dr_dump_action_encap_l2,
-        DR_DUMP_REC_TYPE_ACTION_ENCAP_L3: dr_dump_action_encap_l2,
+        DR_DUMP_REC_TYPE_ACTION_ENCAP_L3: dr_dump_action_encap_l3,
         DR_DUMP_REC_TYPE_ACTION_MODIFY_HDR: dr_dump_action_modify_header,
         DR_DUMP_REC_TYPE_ACTION_DROP: dr_dump_action_drop,
         DR_DUMP_REC_TYPE_ACTION_QP: dr_dump_action_qp,
