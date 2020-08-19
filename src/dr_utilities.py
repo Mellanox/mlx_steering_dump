@@ -65,10 +65,10 @@ class dr_obj(object):
         self.data[field_name] = value
 
     def print_tree_view(self, dump_ctx, verbose, raw):
-        print_dr(self.dump_str())
+        print_dr(dr_print_color.RESET, self.dump_str())
 
     def print_rule_view(self, dump_ctx, verbose, raw):
-        print_dr(self.dump_str())
+        print_dr(dr_print_color.RESET, self.dump_str())
 
 
 def inc_indent():
@@ -114,6 +114,7 @@ class dr_print_color():
     RULE = color["darkgreen"]
     RULE_MATCH = color["darkgreen"]
     RULE_ACTIONS = color["darkgreen"]
+    ERROR = color["darkred"]
     RESET = color["off"]
 
 
