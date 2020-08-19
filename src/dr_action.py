@@ -138,6 +138,15 @@ class dr_dump_action_encap_l2(dr_obj):
         return "ENCAP_L2, devx obj id %s" % (_srd(self.data, "devx_obj_id"))
 
 
+class dr_dump_action_encap_l3(dr_obj):
+    def __init__(self, data):
+        keys = ["dr_dump_rec_type", "id", "rule_id", "devx_obj_id"]
+        self.data = dict(zip(keys, data))
+
+    def dump_str(self):
+        return "ENCAP_L3, devx obj id %s" % (_srd(self.data, "devx_obj_id"))
+
+
 class dr_dump_action_pop_vlan(dr_obj):
     def __init__(self, data):
         keys = ["dr_dump_rec_type", "id", "rule_id"]
