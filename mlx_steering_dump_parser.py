@@ -209,12 +209,12 @@ def parse_args():
     parser.add_argument("-v", action="count", dest='verbose', default=0, help="increase output verbosity")
     parser.add_argument('-r', action='store_true', default=False, dest='raw', help='raw output')
     parser.add_argument('-c', action='store_true', default=False, dest='colored', help='colored output')
+    parser.add_argument('-port', dest="dpdk_port", type=int, default=0, help='Trigger DPDK app <PORT> (must provide PID with -p)')
     parser.add_argument('-version', action='store_true', default=False, dest='version', help='show version')
     return parser.parse_args()
 
 
 if __name__ == '__main__':
-    DPDK_PORT = 0
     args = parse_args()
     if (args.version):
         print_dr(dr_print_color.RESET, "Version %s\n" % g_version)
@@ -226,7 +226,7 @@ if __name__ == '__main__':
         sys.exit(0)
 
     if (args.dpdk_pid > 0):
-        if dr_trigger.trigger_dump(args.dpdk_pid, DPDK_PORT, args.FILEPATH) is None:
+        if dr_trigger.trigger_dump(args.dpdk_pid, args.dpdk_port, args.FILEPATH) is None:
             sys.exit(-1)
     domain_obj = None
     with open(args.FILEPATH) as csv_file:
