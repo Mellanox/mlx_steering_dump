@@ -28,10 +28,11 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from src.dr_utilities import _srd, dict_join_str, print_dr, dr_obj,\
+                             inc_indent, dec_indent, dr_print_color
 from src.parsers import dr_matcher_mask_parser
-import dr_prettify
-from dr_utilities import _srd, dict_join_str, print_dr, dr_obj, inc_indent, dec_indent, dr_print_color
-from dr_constants import *
+from src.dr_constants import *
+import src.dr_prettify
 
 class dr_dump_matcher(dr_obj):
     def __init__(self, data):

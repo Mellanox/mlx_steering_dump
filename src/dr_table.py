@@ -28,9 +28,9 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from dr_utilities import _srd, print_dr, dr_obj, inc_indent, dec_indent
-from dr_utilities import dr_print_color
-from dr_constants import *
+from src.dr_utilities import _srd, print_dr, dr_obj, inc_indent, dec_indent,\
+                             dr_print_color
+from src.dr_constants import *
 
 
 class dr_dump_table(dr_obj):

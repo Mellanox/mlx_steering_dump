@@ -28,16 +28,11 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from dr_utilities import _srd
-from dr_utilities import dec_indent
-from dr_utilities import dict_join_str
-from dr_utilities import dr_obj
-from dr_utilities import get_indent_str
-from dr_utilities import inc_indent
-from dr_utilities import print_dr
-from dr_constants import *
-from dr_utilities import dr_print_color
+from src.dr_utilities import _srd, dec_indent, dict_join_str, dr_obj,\
+                             get_indent_str, inc_indent, print_dr,\
+                             dr_print_color
 from src.parsers.dr_ste_parser import mlx5_hw_ste_parser
+from src.dr_constants import *
 
 class dr_dump_rule(dr_obj):
     def __init__(self, data):
@@ -64,10 +59,10 @@ class dr_dump_rule(dr_obj):
     def dump_actions_str(self, verbose):
         ACTION = "action: "
         action_str = ACTION
-	delem = " & "
+        delem = " & "
 
-	if verbose > 0:
-		delem = "\n"+ len(ACTION) * " " + get_indent_str()
+        if verbose > 0:
+            delem = "\n"+ len(ACTION) * " " + get_indent_str()
 
         for i in range(0, len(self.rule_action_list)):
             action = self.rule_action_list[i]

@@ -28,12 +28,7 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from dr_utilities import _srd
-from dr_utilities import dec_indent
-from dr_utilities import dr_obj
-from dr_utilities import inc_indent
-from dr_utilities import print_dr
-from dr_utilities import dr_print_color
+from src.dr_utilities import _srd, dec_indent, dr_obj, inc_indent, print_dr, dr_print_color
 
 def domain_type_str(type_str):
     switch = {"0": "NIC_RX",

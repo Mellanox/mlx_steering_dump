@@ -28,8 +28,8 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from dr_utilities import _srd, dr_obj, print_dr
-from dr_constants import DR_DUMP_REC_TYPE_ACTIONS
+from src.dr_utilities import _srd, dr_obj, print_dr
+from src.dr_constants import DR_DUMP_REC_TYPE_ACTIONS
 
 def dr_rec_type_is_action(rec_type):
     if rec_type.startswith(DR_DUMP_REC_TYPE_ACTIONS):
