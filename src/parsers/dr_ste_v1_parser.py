@@ -114,7 +114,10 @@ def mlx5_hw_ste_v1_parser(bin_str, raw, verbose):
         DR_STE_TYPE_MATCH : mlx5_ifc_ste_v1_match_bits_parser,
     }
 
-    parsed_ste = switch[entry_type](bin_str, raw)
+    if entry_type in switch.keys():
+        parsed_ste = switch[entry_type](bin_str, raw)
+    else:
+        print("Err: Unsupported STEv1 type")
 
     if entry_type is DR_STE_TYPE_MATCH and not verbose:
         parsed_ste["tag"] = {}

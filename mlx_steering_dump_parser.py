@@ -89,6 +89,11 @@ switch_csv_rec_type = {
 
 # parse csv record according to type and return parsed object (like dr_domain, dr_table, dr_rule ...)
 def dr_csv_get_obj(line):
+    rec_type = line[0]
+    if rec_type not in switch_csv_rec_type.keys():
+        print("Err: Unsupported object: %s" %(rec_type))
+        exit(-1)
+
     parser = switch_csv_rec_type[line[0]]
     return parser(line)
 

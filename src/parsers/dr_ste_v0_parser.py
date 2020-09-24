@@ -149,4 +149,9 @@ switch_ste_type = {
 
 def mlx5_hw_ste_v0_parser(bin_str, raw):
     entry_type = int(bin_str[0: 4], 2)
-    return switch_ste_type[entry_type](bin_str, raw)
+    if entry_type in switch_ste_type.keys():
+        return switch_ste_type[entry_type](bin_str, raw)
+    else:
+        print("Err: Usupported STEv0 type")
+        exit(-1)
+

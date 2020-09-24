@@ -301,6 +301,9 @@ def mlx5_ste_v0_tag_parser(lookup_type, tag, raw):
         # Silent fail lookup type is not supported
         return {}
 
+    if lookup_type not in switch_tag_parser.keys():
+        print("Err: Unsupported STEv0 tag format")
+
     func, inner = switch_tag_parser[lookup_type]
     parsed_tag = func(tag)
 

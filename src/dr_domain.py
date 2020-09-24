@@ -35,6 +35,9 @@ def domain_type_str(type_str):
               "1": "NIC_TX",
               "2": "FDB",
               }
+    if type_str not in switch.keys():
+        print("Err: Unsupported domain type")
+        exit(-1)
     return switch[type_str]
 
 
