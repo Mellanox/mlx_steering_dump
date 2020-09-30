@@ -176,3 +176,13 @@ class dr_dump_action_meter(dr_obj):
             _srd(self.data, "devx_id"),
             _srd(self.data, "rx_icm_addr"),
             _srd(self.data, "tx_icm_addr"))
+
+class dr_dump_action_aso(dr_obj):
+    def __init__(self, data):
+        keys = ["dr_dump_rec_type", "id", "rule_id", "flow_hit_aso"]
+        self.data = dict(zip(keys, data))
+
+    def dump_str(self):
+        return "ASO, flow_hit_aso %s" %(
+            _srd(self.data, "flow_hit_aso"))
+
