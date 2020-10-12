@@ -84,6 +84,7 @@ switch_csv_rec_type = {
         DR_DUMP_REC_TYPE_ACTION_POP_VLAN: dr_dump_action_pop_vlan,
         DR_DUMP_REC_TYPE_ACTION_PUSH_VLAN: dr_dump_action_push_vlan,
         DR_DUMP_REC_TYPE_ACTION_METER: dr_dump_action_meter,
+        DR_DUMP_REC_TYPE_ACTION_SAMPLER: dr_dump_action_sampler,
     }
 
 
