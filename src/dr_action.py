@@ -177,6 +177,30 @@ class dr_dump_action_meter(dr_obj):
             _srd(self.data, "rx_icm_addr"),
             _srd(self.data, "tx_icm_addr"))
 
+class dr_dump_action_sampler(dr_obj):
+    def __init__(self, data):
+        keys = ["dr_dump_rec_type", "id", "rule_id", "next_ft", "sample_tbl_devx_id", "devx_id", "rx_icm_addr", "tx_icm_addr"]
+        self.data = dict(zip(keys, data))
+
+    def dump_str(self):
+        return "SAMPLER, next flow table %s, sample table devx obj id %s, sampler devx obj id %s, rx_icm_addr %s rx_icm_addr %s" %(
+            _srd(self.data, "next_ft"),
+            _srd(self.data, "sample_tbl_devx_id"),
+            _srd(self.data, "devx_id"),
+            _srd(self.data, "rx_icm_addr"),
+            _srd(self.data, "tx_icm_addr"))
+
+class dr_dump_action_dest_array(dr_obj):
+    def __init__(self, data):
+        keys = ["dr_dump_rec_type", "id", "rule_id", "devx_id", "rx_icm_addr", "tx_icm_addr"]
+        self.data = dict(zip(keys, data))
+
+    def dump_str(self):
+        return "DEST_ARRAY, devx obj id %s, rx_icm_addr %s rx_icm_addr %s" %(
+            _srd(self.data, "devx_id"),
+            _srd(self.data, "rx_icm_addr"),
+            _srd(self.data, "tx_icm_addr"))
+
 class dr_dump_action_aso(dr_obj):
     def __init__(self, data):
         keys = ["dr_dump_rec_type", "id", "rule_id", "flow_hit_aso"]
