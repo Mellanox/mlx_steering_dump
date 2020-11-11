@@ -30,6 +30,7 @@
 
 from src.parsers.dr_ste_v1_tag_parser import mlx5_ste_v1_tag_parser
 from src.dr_constants import *
+from src.parsers.dr_ste_v1_actions_parser import mlx5_ifc_ste_v1_action_bits_parser
 
 
 def mlx5_ifc_ste_v1_match_bwc_bits_parser(bin_str, raw) :
@@ -63,7 +64,7 @@ def mlx5_ifc_ste_v1_match_bwc_bits_parser(bin_str, raw) :
 
     ret["action0"] = hex(int(bin_str[192 : 224], 2))
     ret["action1"] = hex(int(bin_str[224: 256], 2))
-
+    ret["actions"] = mlx5_ifc_ste_v1_action_bits_parser([ret["action0"],ret["action1"]])
     tag = bin_str[256 : 384]
     lookup_type = int(bin_str[0 : 8] + bin_str[48 : 56], 2)
     ret["tag"] = mlx5_ste_v1_tag_parser(lookup_type, tag, raw)
@@ -101,6 +102,8 @@ def mlx5_ifc_ste_v1_match_bits_parser(bin_str, raw) :
 
     ret["action2"] = hex(int(bin_str[224: 256], 2))
 
+    ret["actions"] = mlx5_ifc_ste_v1_action_bits_parser([ret["action0"],ret["action1"],ret["action2"]])
+
     ret["tag"] = {"info" : "STE only contains actions"}
 
     return ret
@@ -123,4 +126,3 @@ def mlx5_hw_ste_v1_parser(bin_str, raw, verbose):
         parsed_ste["tag"] = {}
         
     return parsed_ste
-
