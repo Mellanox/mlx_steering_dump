@@ -87,6 +87,7 @@ switch_csv_rec_type = {
         DR_DUMP_REC_TYPE_ACTION_SAMPLER: dr_dump_action_sampler,
         DR_DUMP_REC_TYPE_ACTION_DEST_ARRAY: dr_dump_action_dest_array,
         DR_DUMP_REC_TYPE_ACTION_ASO: dr_dump_action_aso,
+        DR_DUMP_REC_TYPE_ACTION_MISS: dr_dump_action_default_miss,
     }
 
 
