@@ -204,3 +204,27 @@ def dr_mask_misc3_parser(mask, raw):
         ret = dr_prettify.prettify_mask(ret)
 
     return ret
+
+
+def dr_mask_misc4_parser(mask, raw):
+    ret = {}
+    data = ""
+
+    for i in range(0, len(mask), 8):
+        tmp = little_endian_32(mask[i: i + 8])
+        data += tmp
+
+    ret["prog_sample_field_value_0"] = _val(data[0: 8])
+    ret["prog_sample_field_id_0"] = _val(data[8: 16])
+    ret["prog_sample_field_value_0"] = _val(data[16: 24])
+    ret["prog_sample_field_id_0"] = _val(data[24: 32])
+    ret["prog_sample_field_value_0"] = _val(data[32: 40])
+    ret["prog_sample_field_id_0"] = _val(data[40: 48])
+    ret["prog_sample_field_value_0"] = _val(data[48: 56])
+    ret["prog_sample_field_id_0"] = _val(data[56: 64])
+
+    if not raw:
+        ret = dr_prettify.prettify_mask(ret)
+
+    return ret
+
