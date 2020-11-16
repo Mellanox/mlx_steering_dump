@@ -103,7 +103,7 @@ class dr_dump_matcher_mask(dr_obj):
                      "inner": dr_matcher_mask_parser.dr_mask_spec_parser,
                      "misc": dr_matcher_mask_parser.dr_mask_misc_parser,
                      "misc2": dr_matcher_mask_parser.dr_mask_misc2_parser,
-                     "misc3": dr_matcher_mask_parser.dr_mask_misc3_parser
+                     "misc3": dr_matcher_mask_parser.dr_mask_misc3_parser,
                      "misc4": dr_matcher_mask_parser.dr_mask_misc4_parser
                      }
 
