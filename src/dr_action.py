@@ -95,10 +95,13 @@ class dr_dump_action_tag(dr_obj):
 
 class dr_dump_action_modify_header(dr_obj):
     def __init__(self, data):
-        keys = ["dr_dump_rec_type", "id", "rule_id", "rewrite_index"]
+        keys = ["dr_dump_rec_type", "id", "rule_id", "rewrite_index", "single_action_opt"]
         self.data = dict(zip(keys, data))
 
     def dump_str(self):
+        if "single_action_opt" in self.data.keys():
+	    if int(self.data["single_action_opt"], 16) == 1:
+	        return "MODIFY_HDR, single modify action optimized"
         return "MODIFY_HDR, rewrite index %s" % (_srd(self.data, "rewrite_index"))
 
 
