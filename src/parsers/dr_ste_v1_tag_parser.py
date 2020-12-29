@@ -251,6 +251,13 @@ def mlx5_ifc_ste_src_gvmi_qp_v1_bits_tag_parser(bin_str):
 	ret["reserved_at_60"] = _val(bin_str[96: 128])
 	return ret
 
+
+def mlx5_ifc_ste_v0_flex_parser_bits_tag_parser(bin_str):
+    ret = {}
+    ret["flex_parser"] = "can't parse fields"
+    return ret
+
+
 switch_tag_parser = {
         DR_STE_V1_LU_TYPE_ETHL2_SRC_DST_I: [mlx5_ifc_ste_eth_l2_src_dst_v1_bits_tag_parser_p, True],
         DR_STE_V1_LU_TYPE_ETHL2_SRC_DST_O: [mlx5_ifc_ste_eth_l2_src_dst_v1_bits_tag_parser_p, False],
@@ -278,6 +285,8 @@ switch_tag_parser = {
         DR_STE_V1_LU_TYPE_SRC_QP_GVMI: [mlx5_ifc_ste_src_gvmi_qp_v1_bits_tag_parser, False],
         DR_STE_V1_LU_TYPE_STEERING_REGISTERS_0: [mlx5_ifc_ste_v0_register_0_bits_tag_parser, False],
         DR_STE_V1_LU_TYPE_STEERING_REGISTERS_1: [mlx5_ifc_ste_v0_register_1_bits_tag_parser, False],
+        DR_STE_V1_LU_TYPE_FLEX_PARSER_0: [mlx5_ifc_ste_v0_flex_parser_bits_tag_parser, False],
+        DR_STE_V1_LU_TYPE_FLEX_PARSER_1: [mlx5_ifc_ste_v0_flex_parser_bits_tag_parser, False],
     }
 
 
@@ -290,7 +299,8 @@ def mlx5_ste_v1_tag_parser(entry_format, tag, raw):
 	func, inner = switch_tag_parser[entry_format]
 	parsed_tag = func(tag)
 
-	if not raw:
+        if not raw and (entry_format not in [DR_STE_V1_LU_TYPE_FLEX_PARSER_0,\
+                                             DR_STE_V1_LU_TYPE_FLEX_PARSER_0]):
 		parsed_tag = dr_prettify.prettify_tag(parsed_tag)
 
 	if inner:

@@ -260,6 +260,13 @@ def mlx5_ifc_ste_v0_src_gvmi_qp_bits_tag_parser(bin_str):
     ret["reserved_at_60"] = _val(bin_str[96: 128])
     return ret
 
+
+def mlx5_ifc_ste_v0_flex_parser_bits_tag_parser(bin_str):
+    ret = {}
+    ret["flex_parser"] = "can't parse fields"
+    return ret
+
+
 switch_tag_parser = {
     "0x05": [mlx5_ifc_ste_v0_src_gvmi_qp_bits_tag_parser, False],
     "0x0a": [mlx5_ifc_ste_v0_eth_l2_tnl_bits_tag_parser_p, True],
@@ -294,6 +301,8 @@ switch_tag_parser = {
     "0x18": [mlx5_ifc_ste_v0_general_purpose_bits_tag_parser, False],
     "0x2f": [mlx5_ifc_ste_v0_register_0_bits_tag_parser, False],
     "0x30": [mlx5_ifc_ste_v0_register_1_bits_tag_parser, False],
+    "0x22": [mlx5_ifc_ste_v0_flex_parser_bits_tag_parser, False],
+    "0x23": [mlx5_ifc_ste_v0_flex_parser_bits_tag_parser, False],
 }
 
 def mlx5_ste_v0_tag_parser(lookup_type, tag, raw):
@@ -307,7 +316,7 @@ def mlx5_ste_v0_tag_parser(lookup_type, tag, raw):
     func, inner = switch_tag_parser[lookup_type]
     parsed_tag = func(tag)
 
-    if not raw:
+    if not raw and (lookup_type not in ["0x22", 0x23]):
         parsed_tag = dr_prettify.prettify_tag(parsed_tag)
 
     if inner:
