@@ -3,6 +3,7 @@ import sys
 import os
 import struct
 from ctypes import *
+import binascii
 
 # struct iovec {
 #    void  *iov_base;    /* Starting address */
@@ -50,12 +51,28 @@ def CMSG_LEN(c_len):
     return c_size_t(sizeof(cmsghdr) + c_len)
 
 
-def fd_msg(fd, port, prevent_py_gc):
+def fd_msg(flow_ptr,fd, port, prevent_py_gc):
     fd = c_int(fd)
-    port = bytearray(chr(port), 'utf-8') + bytearray('\0', 'utf-8')
+   
+    if (flow_ptr != 0):      
+	if (flow_ptr > 0xFFFFFFFF):
+	    print('too large flow ptr ,exit!')
+	    sys.exit(1)
+
+	b = hex(flow_ptr) 
+    	b = b[2:] 
+ 	count=len(b)
+	while (count < 16) :
+		b ='0'+ b
+		count = count + 1	
+
+	c = binascii.a2b_hex(b)   
+	port = bytearray(chr(port), 'utf-8') + c  + bytearray('\0', 'utf-8')
+    else:
+	port = bytearray(chr(port), 'utf-8') + bytearray('\0', 'utf-8')
 
     # create c bytes buffer of size iov_len that contains the port as string
-    iov_len = c_int * 20
+    iov_len = c_int * 40
     iov_base = iov_len(*port)
 
     ptr_iovec = POINTER(iovec)
@@ -83,7 +100,7 @@ def connect_to_server(server_pid):
         sys.exit(1)
     return sock
 
-def request_dump(sock, port, dump_file):
+def request_dump(sock, port, dump_file, flow_ptr):
     try:
         #link to c code of sendmsg
         libc = CDLL('libc.so.6')
@@ -99,7 +116,7 @@ def request_dump(sock, port, dump_file):
     prevent_py_gc = {}
 
     sock_num = c_int(sock.fileno())
-    msg = fd_msg(dump_file.fileno(), port, prevent_py_gc)
+    msg = fd_msg(flow_ptr,dump_file.fileno(), port, prevent_py_gc)
 
     ret = c_sendmsg(sock_num, msg, 0)
     if ret == -1:
@@ -107,12 +124,14 @@ def request_dump(sock, port, dump_file):
 
     sock.recv(1024)
 
-def trigger_dump(s_pid, s_port, path):
+def trigger_dump(s_pid, s_port, path, s_flow_ptr):
     global port
     global server_pid
-
+    global flow_ptr
+   
     port = s_port
     server_pid = s_pid
+    flow_ptr = s_flow_ptr
 
     try:
         dump_file = open(path , 'w')
@@ -121,7 +140,7 @@ def trigger_dump(s_pid, s_port, path):
         sys.exit(1)
 
     sock = connect_to_server(server_pid)
-    request_dump(sock, port, dump_file)
+    request_dump(sock, port, dump_file, flow_ptr)
     dump_file.close() 
     sock.close()
     return path 
