@@ -219,6 +219,7 @@ def parse_args():
     parser.add_argument('-r', action='store_true', default=False, dest='raw', help='raw output')
     parser.add_argument('-c', action='store_true', default=False, dest='colored', help='colored output')
     parser.add_argument('-port', dest="dpdk_port", type=int, default=0, help='Trigger DPDK app <PORT> (must provide PID with -p)')
+    parser.add_argument('-flowptr', dest="flow_ptr",type=int, default=0,help='dump single rule by rte_flow_pointer')
     parser.add_argument('-version', action='store_true', default=False, dest='version', help='show version')
     return parser.parse_args()
 
@@ -235,7 +236,7 @@ if __name__ == '__main__':
         sys.exit(0)
 
     if (args.dpdk_pid > 0):
-        if dr_trigger.trigger_dump(args.dpdk_pid, args.dpdk_port, args.FILEPATH) is None:
+        if dr_trigger.trigger_dump(args.dpdk_pid, args.dpdk_port, args.FILEPATH, args.flow_ptr) is None:
             sys.exit(-1)
     domain_obj = None
     with open(args.FILEPATH) as csv_file:
