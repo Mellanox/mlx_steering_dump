@@ -33,11 +33,11 @@ from src.parsers.dr_ste_v0_parser import mlx5_hw_ste_v0_parser
 from src.parsers.dr_ste_v1_parser import mlx5_hw_ste_v1_parser
 from src.dr_utilities import hex_2_bin
 
-def mlx5_hw_ste_parser(nic_version, hex_str, raw, verbose):
-    bin_str = hex_2_bin(hex_str)
+def mlx5_hw_ste_parser(nic_version, ste_hex_str, definer_id, raw, verbose):
+    bin_str = hex_2_bin(ste_hex_str)
     if nic_version == MLX5_HW_CONNECTX_5:
         return mlx5_hw_ste_v0_parser(bin_str, raw)
     elif nic_version == MLX5_HW_CONNECTX_6DX:
-        return mlx5_hw_ste_v1_parser(bin_str, raw, verbose)
+        return mlx5_hw_ste_v1_parser(bin_str, definer_id, raw, verbose)
     else:
         print("Unsupported device, currently supporting CX5 and CX6DX")

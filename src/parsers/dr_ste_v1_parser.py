@@ -33,7 +33,7 @@ from src.dr_constants import *
 from src.parsers.dr_ste_v1_actions_parser import mlx5_ifc_ste_v1_action_bits_parser
 
 
-def mlx5_ifc_ste_v1_match_bwc_bits_parser(bin_str, raw) :
+def mlx5_ifc_ste_v1_match_bwc_bits_parser(bin_str, definer_id, raw) :
     ret = {}
     ret["entry_format"] = hex(int(bin_str[0 : 8], 2))
     ret["counter_id"] = hex(int(bin_str[8 : 32], 2))
@@ -67,12 +67,12 @@ def mlx5_ifc_ste_v1_match_bwc_bits_parser(bin_str, raw) :
     ret["actions"] = mlx5_ifc_ste_v1_action_bits_parser([ret["action0"],ret["action1"]])
     tag = bin_str[256 : 384]
     lookup_type = int(bin_str[0 : 8] + bin_str[48 : 56], 2)
-    ret["tag"] = mlx5_ste_v1_tag_parser(lookup_type, tag, raw)
+    ret["tag"] = mlx5_ste_v1_tag_parser(lookup_type, definer_id, tag, raw)
 
     return ret
 
 
-def mlx5_ifc_ste_v1_match_bits_parser(bin_str, raw) :
+def mlx5_ifc_ste_v1_match_bits_parser(bin_str, definer_id, raw):
     ret = {}
     ret["entry_format"] = hex(int(bin_str[0 : 8], 2))
     ret["counter_id"] = hex(int(bin_str[8 : 32], 2))
@@ -103,14 +103,20 @@ def mlx5_ifc_ste_v1_match_bits_parser(bin_str, raw) :
     ret["action2"] = hex(int(bin_str[224: 256], 2))
 
     ret["actions"] = mlx5_ifc_ste_v1_action_bits_parser([ret["action0"],ret["action1"],ret["action2"]])
-
-    ret["tag"] = {"info" : "STE only contains actions"}
-
+  
+    if len(bin_str) == 512:
+        tag = bin_str[256 : 512]
+        lookup_type = int(bin_str[0 : 8] + bin_str[48 : 56], 2)
+        ret["tag"] = mlx5_ste_v1_tag_parser(lookup_type, definer_id, tag, raw)
+    else:
+        ret["tag"] = {"Tag": "Failed to parse STE due to wrong size"}
+    
     return ret
 
 
-def mlx5_hw_ste_v1_parser(bin_str, raw, verbose):
+def mlx5_hw_ste_v1_parser(bin_str, definer_id, raw, verbose):
     entry_type = int(bin_str[0: 8], 2)
+
     switch = {
         DR_STE_TYPE_BWC_BYTE : mlx5_ifc_ste_v1_match_bwc_bits_parser,
         DR_STE_TYPE_BWC_DW : mlx5_ifc_ste_v1_match_bwc_bits_parser,
@@ -118,11 +124,8 @@ def mlx5_hw_ste_v1_parser(bin_str, raw, verbose):
     }
 
     if entry_type in switch.keys():
-        parsed_ste = switch[entry_type](bin_str, raw)
+        parsed_ste = switch[entry_type](bin_str, definer_id, raw)
     else:
         print("Err: Unsupported STEv1 type")
 
-    if entry_type is DR_STE_TYPE_MATCH and not verbose:
-        parsed_ste["tag"] = {}
-        
     return parsed_ste

@@ -103,7 +103,7 @@ class dr_dump_rule(dr_obj):
 
 class dr_dump_rule_entry_rx_tx(dr_obj):
     def __init__(self, data):
-        keys = ["dr_dump_rec_type", "ste_icm_addr", "rule_id", "ste_data"]
+        keys = ["dr_dump_rec_type", "ste_icm_addr", "rule_id", "ste_data", "definer_id"]
         self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
 
     def dump_str(self, verbose, raw):
@@ -114,7 +114,7 @@ class dr_dump_rule_entry_rx_tx(dr_obj):
         else :
             nic_version = MLX5_HW_CONNECTX_5
 
-        parsed_ste = mlx5_hw_ste_parser(nic_version, self.data['ste_data'], raw, verbose)
+        parsed_ste = mlx5_hw_ste_parser(nic_version, self.data['ste_data'], self.data['definer_id'], raw, verbose)
         if "tag" not in parsed_ste.keys():
             return ""
 
