@@ -258,6 +258,58 @@ def mlx5_ifc_ste_v0_flex_parser_bits_tag_parser(bin_str):
     return ret
 
 
+def mlx5_ifc_ste_def24_v1_bits_tag_parser(bin_str):
+        ret = {};
+        ret["metadata_reg_c_2"] = _val(bin_str[0: 32])
+        ret["metadata_reg_c_3"] = _val(bin_str[32: 64])
+        ret["metadata_reg_c_0"] = _val(bin_str[64: 96])
+        ret["metadata_reg_c_1"] = _val(bin_str[96: 128])
+        ret["outer_ip_src_addr"] = _val(bin_str[128: 160])
+        ret["outer_ip_dst_addr"] = _val(bin_str[160: 192])
+        ret["outer_l4_sport"] = _val(bin_str[192: 208])
+        ret["outer_l4_dport"] = _val(bin_str[208: 224])
+        ret["inner_ip_protocol"] = _val(bin_str[224: 232])
+        ret["inner_l3_type"] = _val(bin_str[232: 234])
+        ret["inner_l4_type"] = _val(bin_str[234: 236])
+        ret["inner_first_vlan_type"] = _val(bin_str[236: 238])
+        ret["inner_ip_frag"] = _val(bin_str[238: 239])
+        ret["functional_lb"] = _val(bin_str[239: 240])
+        ret["outer_ip_protocol"] = _val(bin_str[240: 248])
+        ret["outer_l3_type"] = _val(bin_str[248: 250])
+        ret["outer_l4_type"] = _val(bin_str[250: 252])
+        ret["outer_first_vlan_type"] = _val(bin_str[252: 254])
+        ret["outer_ip_frag"] = _val(bin_str[254: 255])
+        ret["functional_lb_dup"] = _val(bin_str[255: 256])
+        return ret;
+
+
+def mlx5_ifc_ste_def22_v1_bits_tag_parser(bin_str):
+        ret = {};
+        ret["outer_ip_src_addr"] = _val(bin_str[0: 32])
+        ret["outer_ip_dst_addr"] = _val(bin_str[32: 64])
+        ret["outer_l4_sport"] = _val(bin_str[64: 80])
+        ret["outer_l4_dport"] = _val(bin_str[80: 96])
+        ret["reserved_at_40"] = _val(bin_str[96: 97])
+        ret["sx_sniffer"] = _val(bin_str[97: 98])
+        ret["functional_loopback"] = _val(bin_str[98: 99])
+        ret["outer_ip_frag"] = _val(bin_str[99: 100])
+        ret["qp_type"] = _val(bin_str[100: 102])
+        ret["encapsulation_type"] = _val(bin_str[102: 104])
+        ret["port"] = _val(bin_str[104: 106])
+        ret["outer_l3_type"] = _val(bin_str[106: 108])
+        ret["outer_l4_type"] = _val(bin_str[108: 110])
+        ret["first_vlan_qualifier"] = _val(bin_str[110: 112])
+        ret["first_priority"] = _val(bin_str[112: 115])
+        ret["first_cfi"] = _val(bin_str[115: 116])
+        ret["first_vlan_id"] = _val(bin_str[116: 128])
+        ret["metadata_reg_c_0"] = _val(bin_str[128: 160])
+        ret["outer_dmac_47_16"] = _val(bin_str[160: 192])
+        ret["outer_smac_47_16"] = _val(bin_str[192: 224])
+        ret["outer_smac_15_0"] = _val(bin_str[224: 240])
+        ret["outer_dmac_15_0"] = _val(bin_str[240: 256])
+        return ret;
+
+
 switch_tag_parser = {
         DR_STE_V1_LU_TYPE_ETHL2_SRC_DST_I: [mlx5_ifc_ste_eth_l2_src_dst_v1_bits_tag_parser_p, True],
         DR_STE_V1_LU_TYPE_ETHL2_SRC_DST_O: [mlx5_ifc_ste_eth_l2_src_dst_v1_bits_tag_parser_p, False],
@@ -290,20 +342,30 @@ switch_tag_parser = {
     }
 
 
-def mlx5_ste_v1_tag_parser(entry_format, tag, raw):
+switch_definer_parser = {
+    0x22: mlx5_ifc_ste_def22_v1_bits_tag_parser,
+    0x24: mlx5_ifc_ste_def24_v1_bits_tag_parser,
+}
 
-	if entry_format not in switch_tag_parser.keys():
-		print("Err: Unsupported STEv1 tag format")
-		return {}
+def mlx5_ste_v1_tag_parser(lookup_type, definer_id, tag, raw):
+        func, inner = None, None
 
-	func, inner = switch_tag_parser[entry_format]
-	parsed_tag = func(tag)
+        if lookup_type in switch_tag_parser.keys():
+            func, inner = switch_tag_parser[lookup_type]
+        # The default value for definer_id is None, and value -1 means definer not supported.
+        elif definer_id not in [None, "-1"] and int(definer_id, 16) in switch_definer_parser.keys():
+            func = switch_definer_parser[int(definer_id, 16)]
+        else:
+            print("Err: Unsupported STEv1 tag format, lookup_type=%s, definer_id=%s" %(lookup_type, definer_id))
+            return {}
 
-        if not raw and (entry_format not in [DR_STE_V1_LU_TYPE_FLEX_PARSER_0,\
-                                             DR_STE_V1_LU_TYPE_FLEX_PARSER_0]):
+        parsed_tag = func(tag)
+
+        if not raw and (lookup_type not in [DR_STE_V1_LU_TYPE_FLEX_PARSER_0,\
+                                            DR_STE_V1_LU_TYPE_FLEX_PARSER_0]):
 		parsed_tag = dr_prettify.prettify_tag(parsed_tag)
+        if inner:
+            add_inner_to_key(parsed_tag)
 
-	if inner:
-		add_inner_to_key(parsed_tag)
+        return parsed_tag
 
-	return parsed_tag

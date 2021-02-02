@@ -5,7 +5,7 @@ import sys
 import math
 from src.parsers.dr_ste_parser import mlx5_hw_ste_parser
 
-ste = mlx5_hw_ste_parser(int(sys.argv[1], 16), sys.argv[2], 1, 0)
+ste = mlx5_hw_ste_parser(int(sys.argv[1], 16), sys.argv[2], -1, 1, 0)
 
 next_table_base_31_5_size = 0
 
