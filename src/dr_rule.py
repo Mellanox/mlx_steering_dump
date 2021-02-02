@@ -37,7 +37,7 @@ from src.dr_constants import *
 class dr_dump_rule(dr_obj):
     def __init__(self, data):
         keys = ["dr_dump_rec_type", "id", "matcher_id"]
-        self.data = dict(zip(keys, data))
+        self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
         self.rule_entry_list = []
         self.rule_action_list = []
 
@@ -104,7 +104,7 @@ class dr_dump_rule(dr_obj):
 class dr_dump_rule_entry_rx_tx(dr_obj):
     def __init__(self, data):
         keys = ["dr_dump_rec_type", "ste_icm_addr", "rule_id", "ste_data"]
-        self.data = dict(zip(keys, data))
+        self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
 
     def dump_str(self, verbose, raw):
         nic_version = None

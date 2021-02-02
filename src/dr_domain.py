@@ -44,7 +44,7 @@ def domain_type_str(type_str):
 class dr_dump_domain(dr_obj):
     def __init__(self, data):
         keys = ["dr_dump_rec_type", "id", "type", "gvmi", "support_sw_steering", "package_version", "dev_name"]
-        self.data = dict(zip(keys, data))
+        self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
         self.fix_data()
         self.table_list = []
         self.dev_attr = None
@@ -124,7 +124,7 @@ class dr_dump_domain(dr_obj):
 class dr_dump_domain_info_dev_attr(dr_obj):
     def __init__(self, data):
         keys = ["dr_dump_rec_type", "domain_id", "ports_num", "fw_version"]
-        self.data = dict(zip(keys, data))
+        self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
 
     def dump_string(self):
         return "device: ports_num %s, FW version %s\n" % (
@@ -135,7 +135,7 @@ class dr_dump_domain_info_dev_attr(dr_obj):
 class dr_dump_domain_info_flex_parser(dr_obj):
     def __init__(self, data):
         keys = ["dr_dump_rec_type", "domain_id", "name", "value"]
-        self.data = dict(zip(keys, data))
+        self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
 
     def dump_string(self):
         return "flex parser: name %s, value %s\n" % (
@@ -147,7 +147,7 @@ class dr_dump_domain_info_caps(dr_obj):
     def __init__(self, data):
         keys = ["dr_dump_rec_type", "domain_id", "gvmi", "nic_rx_drop_address", "nic_tx_drop_address", "flex_protocols",
                 "num_vports", "eswitch_manager"]
-        self.data = dict(zip(keys, data))
+        self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
 
     def dump_string(self):
         flex_str = felx_parser_dump_string(int(self.data["flex_protocols"], 16))
@@ -163,7 +163,7 @@ class dr_dump_domain_info_caps(dr_obj):
 class dr_dump_domain_info_vport(dr_obj):
     def __init__(self, data):
         keys = ["dr_dump_rec_type", "domain_id", "index", "gvmi", "icm_addr_rx", "icm_addr_tx"]
-        self.data = dict(zip(keys, data))
+        self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
 
     def dump_string(self):
         return "vport: index %s, gvmi %s, icm_addr_rx %s, icm_addr_tx %s\n" % (
@@ -176,7 +176,7 @@ class dr_dump_domain_info_vport(dr_obj):
 class dr_dump_domain_send_ring(dr_obj):
     def __init__(self, data):
         keys = ["dr_dump_rec_type", "id", "domain_id", "cq_num", "qp_num"]
-        self.data = dict(zip(keys, data))
+        self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
 
     def dump_string(self):
         return "send ring: CQ num %s, QP num %s\n" % (

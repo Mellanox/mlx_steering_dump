@@ -40,7 +40,7 @@ def dr_rec_type_is_action(rec_type):
 class dr_dump_action_drop(dr_obj):
     def __init__(self, data):
         keys = ["dr_dump_rec_type", "id", "rule_id"]
-        self.data = dict(zip(keys, data))
+        self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
 
     def dump_str(self):
         return "DROP"
@@ -49,7 +49,7 @@ class dr_dump_action_drop(dr_obj):
 class dr_dump_action_ft(dr_obj):
     def __init__(self, data):
         keys = ["dr_dump_rec_type", "id", "rule_id", "table_devx_id", "dest_ft"]
-        self.data = dict(zip(keys, data))
+        self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
 
     def dump_str(self):
         return "FT devx id %s, dest_ft %s" % (
@@ -60,7 +60,7 @@ class dr_dump_action_ft(dr_obj):
 class dr_dump_action_qp(dr_obj):
     def __init__(self, data):
         keys = ["dr_dump_rec_type", "id", "rule_id", "qp_num"]
-        self.data = dict(zip(keys, data))
+        self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
 
     def dump_str(self):
         return "QP num %s" % (_srd(self.data, "qp_num"))
@@ -69,7 +69,7 @@ class dr_dump_action_qp(dr_obj):
 class dr_dump_action_devx_tir(dr_obj):
     def __init__(self, data):
         keys = ["dr_dump_rec_type", "id", "rule_id", "icm_addr"]
-        self.data = dict(zip(keys, data))
+        self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
 
     def dump_str(self):
         return "DEVX_TIR, ICM addr %s" % (_srd(self.data, "icm_addr"))
@@ -78,7 +78,7 @@ class dr_dump_action_devx_tir(dr_obj):
 class dr_dump_action_ctr(dr_obj):
     def __init__(self, data):
         keys = ["dr_dump_rec_type", "id", "rule_id", "ctr_index"]
-        self.data = dict(zip(keys, data))
+        self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
 
     def dump_str(self):
         return "CTR, index %s" % (_srd(self.data, "ctr_index"))
@@ -87,7 +87,7 @@ class dr_dump_action_ctr(dr_obj):
 class dr_dump_action_tag(dr_obj):
     def __init__(self, data):
         keys = ["dr_dump_rec_type", "id", "rule_id", "tag"]
-        self.data = dict(zip(keys, data))
+        self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
 
     def dump_str(self):
         return "TAG, value %s" % (_srd(self.data, "tag"))
@@ -96,10 +96,10 @@ class dr_dump_action_tag(dr_obj):
 class dr_dump_action_modify_header(dr_obj):
     def __init__(self, data):
         keys = ["dr_dump_rec_type", "id", "rule_id", "rewrite_index", "single_action_opt"]
-        self.data = dict(zip(keys, data))
+        self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
 
     def dump_str(self):
-        if "single_action_opt" in self.data.keys():
+        if self.data["single_action_opt"]:
 	    if int(self.data["single_action_opt"], 16) == 1:
 	        return "MODIFY_HDR, single modify action optimized"
         return "MODIFY_HDR, rewrite index %s" % (_srd(self.data, "rewrite_index"))
@@ -108,7 +108,7 @@ class dr_dump_action_modify_header(dr_obj):
 class dr_dump_action_vport(dr_obj):
     def __init__(self, data):
         keys = ["dr_dump_rec_type", "id", "rule_id", "vport_num"]
-        self.data = dict(zip(keys, data))
+        self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
 
     def dump_str(self):
         return "VPORT, num %s" % (_srd(self.data, "vport_num"))
@@ -117,7 +117,7 @@ class dr_dump_action_vport(dr_obj):
 class dr_dump_action_decap_l2(dr_obj):
     def __init__(self, data):
         keys = ["dr_dump_rec_type", "id", "rule_id"]
-        self.data = dict(zip(keys, data))
+        self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
 
     def dump_str(self):
         return "DECAP_L2 "
@@ -126,7 +126,7 @@ class dr_dump_action_decap_l2(dr_obj):
 class dr_dump_action_decap_l3(dr_obj):
     def __init__(self, data):
         keys = ["dr_dump_rec_type", "id", "rule_id", "rewrite_index"]
-        self.data = dict(zip(keys, data))
+        self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
 
     def dump_str(self):
         return "DECAP_L3, rewrite index %s" % (_srd(self.data, "rewrite_index"))
@@ -135,7 +135,7 @@ class dr_dump_action_decap_l3(dr_obj):
 class dr_dump_action_encap_l2(dr_obj):
     def __init__(self, data):
         keys = ["dr_dump_rec_type", "id", "rule_id", "devx_obj_id"]
-        self.data = dict(zip(keys, data))
+        self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
 
     def dump_str(self):
         return "ENCAP_L2, devx obj id %s" % (_srd(self.data, "devx_obj_id"))
@@ -144,7 +144,7 @@ class dr_dump_action_encap_l2(dr_obj):
 class dr_dump_action_encap_l3(dr_obj):
     def __init__(self, data):
         keys = ["dr_dump_rec_type", "id", "rule_id", "devx_obj_id"]
-        self.data = dict(zip(keys, data))
+        self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
 
     def dump_str(self):
         return "ENCAP_L3, devx obj id %s" % (_srd(self.data, "devx_obj_id"))
@@ -153,7 +153,7 @@ class dr_dump_action_encap_l3(dr_obj):
 class dr_dump_action_pop_vlan(dr_obj):
     def __init__(self, data):
         keys = ["dr_dump_rec_type", "id", "rule_id"]
-        self.data = dict(zip(keys, data))
+        self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
 
     def dump_str(self):
         return "POP_VLAN"
@@ -162,7 +162,7 @@ class dr_dump_action_pop_vlan(dr_obj):
 class dr_dump_action_push_vlan(dr_obj):
     def __init__(self, data):
         keys = ["dr_dump_rec_type", "id", "rule_id", "vlan_id"]
-        self.data = dict(zip(keys, data))
+        self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
 
     def dump_str(self):
         return "PUSH_VLAN, vlan id %s" % (_srd(self.data, "vlan_id"))
@@ -171,7 +171,7 @@ class dr_dump_action_push_vlan(dr_obj):
 class dr_dump_action_meter(dr_obj):
     def __init__(self, data):
         keys = ["dr_dump_rec_type", "id", "rule_id", "next_ft", "devx_id", "rx_icm_addr", "tx_icm_addr"]
-        self.data = dict(zip(keys, data))
+        self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
 
     def dump_str(self):
         return "METER, next flow table %s, devx obj id %s, rx_icm_addr %s rx_icm_addr %s" %(
@@ -183,7 +183,7 @@ class dr_dump_action_meter(dr_obj):
 class dr_dump_action_sampler(dr_obj):
     def __init__(self, data):
         keys = ["dr_dump_rec_type", "id", "rule_id", "next_ft", "sample_tbl_devx_id", "devx_id", "rx_icm_addr", "tx_icm_addr"]
-        self.data = dict(zip(keys, data))
+        self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
 
     def dump_str(self):
         return "SAMPLER, next flow table %s, sample table devx obj id %s, sampler devx obj id %s, rx_icm_addr %s rx_icm_addr %s" %(
@@ -196,7 +196,7 @@ class dr_dump_action_sampler(dr_obj):
 class dr_dump_action_dest_array(dr_obj):
     def __init__(self, data):
         keys = ["dr_dump_rec_type", "id", "rule_id", "devx_id", "rx_icm_addr", "tx_icm_addr"]
-        self.data = dict(zip(keys, data))
+        self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
 
     def dump_str(self):
         return "DEST_ARRAY, devx obj id %s, rx_icm_addr %s rx_icm_addr %s" %(
@@ -207,7 +207,7 @@ class dr_dump_action_dest_array(dr_obj):
 class dr_dump_action_aso_flow_hit(dr_obj):
     def __init__(self, data):
         keys = ["dr_dump_rec_type", "id", "rule_id", "flow_hit_aso"]
-        self.data = dict(zip(keys, data))
+        self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
 
     def dump_str(self):
         return "ASO, flow_hit_aso %s" %(
@@ -216,7 +216,7 @@ class dr_dump_action_aso_flow_hit(dr_obj):
 class dr_dump_action_aso_flow_meter(dr_obj):
     def __init__(self, data):
         keys = ["dr_dump_rec_type", "id", "rule_id", "flow_meter_aso"]
-        self.data = dict(zip(keys, data))
+        self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
 
     def dump_str(self):
         return "ASO, flow_meter_aso %s" %(
@@ -225,7 +225,7 @@ class dr_dump_action_aso_flow_meter(dr_obj):
 class dr_dump_action_default_miss(dr_obj):
     def __init__(self, data):
         keys = ["dr_dump_rec_type", "id", "rule_id"]
-        self.data = dict(zip(keys, data))
+        self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
 
     def dump_str(self):
         return "DEFAULT MISS"

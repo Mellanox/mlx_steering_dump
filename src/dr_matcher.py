@@ -37,7 +37,7 @@ import src.dr_prettify
 class dr_dump_matcher(dr_obj):
     def __init__(self, data):
         keys = ["dr_dump_rec_type", "id", "table_id", "priority"]
-        self.data = dict(zip(keys, data))
+        self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
         self.rule_list = []
         self.builders = []
         self.matcher_rx = None
@@ -95,7 +95,7 @@ class dr_dump_matcher(dr_obj):
 class dr_dump_matcher_mask(dr_obj):
     def __init__(self, data):
         keys = ["dr_dump_rec_type", "matcher_id", "outer", "inner", "misc", "misc2", "misc3", "misc4"]
-        self.data = dict(zip(keys, data))
+        self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
 
     def dump_str(self):
         parsed_mask_final = {}
@@ -126,7 +126,7 @@ class dr_dump_matcher_mask(dr_obj):
 class dr_dump_matcher_rx_tx(dr_obj):
     def __init__(self, data):
         keys = ["dr_dump_rec_type", "id", "matcher_id", "num_of_builders", "s_htbl", "e_anchor"]
-        self.data = dict(zip(keys, data))
+        self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
 
     def dump_string(self):
         return "rx_builder_num: %s, rx_s_htbl_idx: %s, rx_e_anchor_idx: %s\n" % (
@@ -138,7 +138,7 @@ class dr_dump_matcher_rx_tx(dr_obj):
 class dr_dump_matcher_builder(dr_obj):
     def __init__(self, data):
         keys = ["dr_dump_rec_type", "matcher_id", "index", "is_rx", "lu_type"]
-        self.data = dict(zip(keys, data))
+        self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
 
     def dump_string(self):
         rx_tx_type = "rx"
