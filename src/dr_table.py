@@ -36,7 +36,7 @@ from src.dr_constants import *
 class dr_dump_table(dr_obj):
     def __init__(self, data):
         keys = ["dr_dump_rec_type", "id", "domain_id", "type", "level"]
-        self.data = dict(zip(keys, data))
+        self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
         self.fix_data()
         self.matcher_list = []
         self.table_rx = None
@@ -110,7 +110,7 @@ class dr_dump_table(dr_obj):
 class dr_dump_table_rx_tx(dr_obj):
     def __init__(self, data):
         keys = ["dr_dump_rec_type", "table_id", "s_anchor"]
-        self.data = dict(zip(keys, data))
+        self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
 
     def dump_str(self):
         return "%s" % (_srd(self.data, "s_anchor"))
