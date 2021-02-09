@@ -55,6 +55,8 @@ def mlx5_ifc_ste_v1_action_aso_parser(actions):
         result["ctx_num"] = int(actions[0], 16) & 0x00ffffff
 	result["dest_reg_id"] = ((int(actions[1], 16) & 0b11000000000000000000000000000000) >> 30) * 2 + 1
 	result["ctx_type"] = (int(actions[1], 16) & 0x0f000000) >> 24
+	if result["ctx_type"] == 0x1:
+		result["direction"] = int(actions[1], 16) & 0b00000000000000000000000000000001
 	if result["ctx_type"] == 0x2:
 		result["initial_color"] = (int(actions[1], 16) & 0b00000000000000000000000000000110) >> 1
 		result["line_id"] = int(actions[1], 16) & 0b00000000000000000000000000000001
