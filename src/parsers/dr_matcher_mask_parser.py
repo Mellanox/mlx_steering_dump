@@ -50,6 +50,10 @@ def _val(field_str):
 def dr_mask_spec_parser(mask, raw):
     ret = {}
     data = ""
+
+    if not mask:
+        return ret
+
     for i in range(0, len(mask), 8):
         tmp = little_endian_32(mask[i: i + 8])
         data += tmp
@@ -93,6 +97,10 @@ def dr_mask_spec_parser(mask, raw):
 def dr_mask_misc_parser(mask, raw):
     ret = {}
     data = ""
+
+    if not mask:
+        return ret
+
     for i in range(0, len(mask), 8):
         tmp = little_endian_32(mask[i: i + 8])
         data += tmp
@@ -142,6 +150,10 @@ def dr_mask_misc_parser(mask, raw):
 def dr_mask_misc2_parser(mask, raw):
     ret = {}
     data = ""
+
+    if not mask:
+        return ret
+
     for i in range(0, len(mask), 8):
         tmp = little_endian_32(mask[i: i + 8])
         data += tmp
@@ -181,6 +193,10 @@ def dr_mask_misc2_parser(mask, raw):
 def dr_mask_misc3_parser(mask, raw):
     ret = {}
     data = ""
+
+    if not mask:
+        return ret
+
     for i in range(0, len(mask), 8):
         tmp = little_endian_32(mask[i: i + 8])
         data += tmp
@@ -209,6 +225,9 @@ def dr_mask_misc3_parser(mask, raw):
 def dr_mask_misc4_parser(mask, raw):
     ret = {}
     data = ""
+
+    if not mask:
+        return ret
 
     for i in range(0, len(mask), 8):
         tmp = little_endian_32(mask[i: i + 8])
