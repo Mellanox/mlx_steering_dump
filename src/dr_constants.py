@@ -58,6 +58,7 @@ MLX5_HW_CONNECTX_6DX = 0x1
 DR_STE_TYPE_BWC_BYTE = 0x0
 DR_STE_TYPE_BWC_DW = 0x1
 DR_STE_TYPE_MATCH = 0x4
+DR_STE_TYPE_MATCH_OLD = 0x2
 
 
 # STE V1 Lookup type is built from 2B: [ Definer mode 1B ][ Definer index 1B ]

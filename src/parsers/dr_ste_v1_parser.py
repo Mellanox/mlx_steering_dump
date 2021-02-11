@@ -121,11 +121,14 @@ def mlx5_hw_ste_v1_parser(bin_str, definer_id, raw, verbose):
         DR_STE_TYPE_BWC_BYTE : mlx5_ifc_ste_v1_match_bwc_bits_parser,
         DR_STE_TYPE_BWC_DW : mlx5_ifc_ste_v1_match_bwc_bits_parser,
         DR_STE_TYPE_MATCH : mlx5_ifc_ste_v1_match_bits_parser,
+        # This fake ste type is temporary, in order to not break older dump generators
+        DR_STE_TYPE_MATCH_OLD : mlx5_ifc_ste_v1_match_bits_parser,
     }
 
     if entry_type in switch.keys():
         parsed_ste = switch[entry_type](bin_str, definer_id, raw)
     else:
         print("Err: Unsupported STEv1 type")
+        exit(1)
 
     return parsed_ste
