@@ -83,7 +83,7 @@ class dr_dump_matcher(dr_obj):
         self.mask = mask
 
     def add_builder(self, builder):
-        self.builders = builder
+        self.builders.append(builder)
 
     def add_matcher_rx_tx(self, matcher_rx_tx):
         if matcher_rx_tx.data['dr_dump_rec_type'] == DR_DUMP_REC_TYPE_MATCHER_RX:
@@ -137,7 +137,7 @@ class dr_dump_matcher_rx_tx(dr_obj):
 
 class dr_dump_matcher_builder(dr_obj):
     def __init__(self, data):
-        keys = ["dr_dump_rec_type", "matcher_id", "index", "is_rx", "lu_type"]
+        keys = ["dr_dump_rec_type", "matcher_id", "is_rx", "lu_type", "definer_id"]
         self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
 
     def dump_string(self):
