@@ -303,10 +303,8 @@ def mlx5_ifc_ste_def22_v1_bits_tag_parser(bin_str):
         ret["first_cfi"] = _val(bin_str[115: 116])
         ret["first_vlan_id"] = _val(bin_str[116: 128])
         ret["metadata_reg_c_0"] = _val(bin_str[128: 160])
-        ret["outer_dmac_47_16"] = _val(bin_str[160: 192])
-        ret["outer_smac_47_16"] = _val(bin_str[192: 224])
-        ret["outer_smac_15_0"] = _val(bin_str[224: 240])
-        ret["outer_dmac_15_0"] = _val(bin_str[240: 256])
+        ret["dmac"] = _val(bin_str[160: 192] + bin_str[240: 256])
+        ret["smac"] = _val(bin_str[192: 224] + bin_str[224: 240])
         return ret;
 
 
