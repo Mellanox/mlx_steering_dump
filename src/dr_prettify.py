@@ -68,7 +68,7 @@ def prettify_fields(dic):
         if "ip_protocol" in j:
             dic[j] = pretty_ip_protocol(dic[j])
             continue
-        if "src_ip" in j or "dst_ip" in j:
+        if "ip" in j and ("dst" in j or "src" in j):
             dic[j] = pretty_ip(dic[j])
 
         if "smac" in j or "dmac" in j:
