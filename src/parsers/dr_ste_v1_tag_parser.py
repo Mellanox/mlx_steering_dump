@@ -308,6 +308,111 @@ def mlx5_ifc_ste_def22_v1_bits_tag_parser(bin_str):
         return ret;
 
 
+def mlx5_ifc_ste_def25_v1_bits_parser(bin_str):
+        ret = {}
+
+        ret["inner_ip_src_addr"] = _val(bin_str[0: 32])
+        ret["inner_ip_dst_addr"] = _val(bin_str[32: 64])
+        ret["inner_l4_sport"] = _val(bin_str[64: 80])
+        ret["inner_l4_dport"] = _val(bin_str[80: 96])
+        ret["tunnel_header_0"] = _val(bin_str[96: 128])
+        ret["tunnel_header_1"] = _val(bin_str[128: 160])
+        ret["reserved_at_a0"] = _val(bin_str[160: 192])
+        ret["port_number_dup"] = _val(bin_str[192: 194])
+        ret["inner_l3_type"] = _val(bin_str[194: 196])
+        ret["inner_l4_type"] = _val(bin_str[196: 198])
+        ret["inner_first_vlan_type"] = _val(bin_str[198: 200])
+        ret["port_number"] = _val(bin_str[200: 202])
+        ret["outer_l3_type"] = _val(bin_str[202: 204])
+        ret["outer_l4_type"] = _val(bin_str[204: 206])
+        ret["outer_first_vlan_type"] = _val(bin_str[206: 208])
+        ret["outer_l4_dport"] = _val(bin_str[208: 224])
+        ret["reserved_at_e0"] = _val(bin_str[224: 256])
+        return ret;
+
+
+def mlx5_ifc_ste_def26_v1_bits_parser(bin_str):
+        ret = {}
+    
+        ret["inner_ip_src_addr"] = _val(bin_str[0: 32])
+        ret["inner_ip_dst_addr"] = _val(bin_str[32: 64])
+        ret["inner_l4_sport"] = _val(bin_str[64: 80])
+        ret["inner_l4_dport"] = _val(bin_str[80: 96])
+        ret["tunnel_header_0"] = _val(bin_str[96: 128])
+        ret["tunnel_header_1"] = _val(bin_str[128: 160])
+        ret["reserved_at_a0"] = _val(bin_str[160: 192])
+        ret["port_number_dup"] = _val(bin_str[192: 194])
+        ret["inner_l3_type"] = _val(bin_str[194: 196])
+        ret["inner_l4_type"] = _val(bin_str[196: 198])
+        ret["inner_first_vlan_type"] = _val(bin_str[198: 200])
+        ret["port_number"] = _val(bin_str[200: 202])
+        ret["outer_l3_type"] = _val(bin_str[202: 204])
+        ret["outer_l4_type"] = _val(bin_str[204: 206])
+        ret["outer_first_vlan_type"] = _val(bin_str[206: 208])
+        ret["outer_l4_dport"] = _val(bin_str[208: 224])
+        ret["reserved_at_e0"] = _val(bin_str[224: 256])
+        ret["src_ipv6_127_96"] = _val(bin_str[256: 288])
+        ret["src_ipv6_95_64"] = _val(bin_str[288: 320])
+        ret["src_ipv6_63_32"] = _val(bin_str[320: 352])
+        ret["src_ipv6_31_0"] = _val(bin_str[352: 384])
+        ret["reserved_at_80"] = _val(bin_str[384: 387])
+        ret["ip_frag"] = _val(bin_str[387: 388])
+        ret["reserved_at_84"] = _val(bin_str[388: 394])
+        ret["l3_type"] = _val(bin_str[394: 396])
+        ret["l4_type"] = _val(bin_str[396: 398])
+        ret["first_vlan_type"] = _val(bin_str[398: 400])
+        ret["first_priority"] = _val(bin_str[400: 403])
+        ret["first_cfi"] = _val(bin_str[403: 404])
+        ret["first_vlan_id"] = _val(bin_str[404: 416])
+        ret["reserved_at_a0"] = _val(bin_str[416: 427])
+        ret["l2_ok"] = _val(bin_str[427: 428])
+        ret["l3_ok"] = _val(bin_str[428: 429])
+        ret["l4_ok"] = _val(bin_str[429: 430])
+        ret["second_vlan_type"] = _val(bin_str[430: 432])
+        ret["second_priority"] = _val(bin_str[432: 435])
+        ret["second_cfi"] = _val(bin_str[435: 436])
+        ret["second_vlan_id"] = _val(bin_str[436: 448])
+        ret["smac_47_16"] = _val(bin_str[448: 480])
+        ret["smac_15_0"] = _val(bin_str[480: 496])
+        ret["ip_porotcol"] = _val(bin_str[496: 504])
+        ret["tcp_cwr"] = _val(bin_str[504: 505])
+        ret["tcp_ece"] = _val(bin_str[505: 506])
+        ret["tcp_urg"] = _val(bin_str[506: 507])
+        ret["tcp_ack"] = _val(bin_str[507: 508])
+        ret["tcp_psh"] = _val(bin_str[508: 509])
+        ret["tcp_rst"] = _val(bin_str[509: 510])
+        ret["tcp_syn"] = _val(bin_str[510: 511])
+        ret["tcp_fin"] = _val(bin_str[511: 512])
+        return ret;
+
+
+def mlx5_ifc_ste_def6_v1_bits_parser(bin_str):
+        ret = {}
+        
+        ret["dst_ipv6_127_96"] = _val(bin_str[0: 32])
+        ret["dst_ipv6_95_64"] = _val(bin_str[32: 64])
+        ret["dst_ipv6_63_32"] = _val(bin_str[64: 96])
+        ret["dst_ipv6_31_0"] = _val(bin_str[96: 128])
+        ret["reserved_at_80"] = _val(bin_str[128: 192])
+        ret["outer_l4_sport"] = _val(bin_str[192: 208])
+        ret["outer_l4_dport"] = _val(bin_str[208: 224])
+        ret["reserved_e0"] = _val(bin_str[224: 228])
+        ret["l4_ok"] = _val(bin_str[228: 229])
+        ret["l3_ok"] = _val(bin_str[229: 230])
+        ret["ip_frag"] = _val(bin_str[230: 231])
+        ret["tcp_ns"] = _val(bin_str[231: 232])
+        ret["tcp_cwr"] = _val(bin_str[232: 233])
+        ret["tcp_ece"] = _val(bin_str[233: 234])
+        ret["tcp_urg"] = _val(bin_str[234: 235])
+        ret["tcp_ack"] = _val(bin_str[235: 236])
+        ret["tcp_psh"] = _val(bin_str[236: 237])
+        ret["tcp_rst"] = _val(bin_str[237: 238])
+        ret["tcp_syn"] = _val(bin_str[238: 239])
+        ret["tcp_fin"] = _val(bin_str[239: 240])
+        ret["reserved_f0"] = _val(bin_str[240: 256])
+        return ret;
+
+
 switch_tag_parser = {
         DR_STE_V1_LU_TYPE_ETHL2_SRC_DST_I: [mlx5_ifc_ste_eth_l2_src_dst_v1_bits_tag_parser_p, True],
         DR_STE_V1_LU_TYPE_ETHL2_SRC_DST_O: [mlx5_ifc_ste_eth_l2_src_dst_v1_bits_tag_parser_p, False],
@@ -343,6 +448,9 @@ switch_tag_parser = {
 switch_definer_parser = {
     0x22: mlx5_ifc_ste_def22_v1_bits_tag_parser,
     0x24: mlx5_ifc_ste_def24_v1_bits_tag_parser,
+    0x25: mlx5_ifc_ste_def25_v1_bits_parser,
+    0x26: mlx5_ifc_ste_def26_v1_bits_parser,
+    0x6:  mlx5_ifc_ste_def6_v1_bits_parser,
 }
 
 def mlx5_ste_v1_tag_parser(lookup_type, definer_id, tag, raw):
