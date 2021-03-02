@@ -89,6 +89,7 @@ switch_csv_rec_type = {
         DR_DUMP_REC_TYPE_ACTION_ASO_FIRST_HIT: dr_dump_action_aso_flow_hit,
         DR_DUMP_REC_TYPE_ACTION_ASO_FLOW_METER: dr_dump_action_aso_flow_meter,
         DR_DUMP_REC_TYPE_ACTION_MISS: dr_dump_action_default_miss,
+        DR_DUMP_REC_TYPE_ACTION_ASO_CT: dr_dump_action_aso_ct,
     }
 
 

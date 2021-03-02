@@ -230,3 +230,10 @@ class dr_dump_action_default_miss(dr_obj):
     def dump_str(self):
         return "DEFAULT MISS"
 
+class dr_dump_action_aso_ct(dr_obj):
+    def __init__(self, data):
+        keys = ["dr_dump_rec_type", "id", "rule_id", "devx_id"]
+        self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
+
+    def dump_str(self):
+        return "ASO CT devx_id %s" %(_srd(self.data, "devx_id"))
