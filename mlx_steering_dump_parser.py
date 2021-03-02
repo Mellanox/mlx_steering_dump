@@ -93,12 +93,30 @@ switch_csv_rec_type = {
     }
 
 
+def dr_report_unsupported_object(dump_ctx, line):
+    dr_rec_type = line[0]
+    if dr_rec_type_is_domain(dr_rec_type):
+        print("Err: Unsupported domain related object: ", rec_type)
+    elif dr_rec_type_is_table(dr_rec_type):
+        print("Err: Unsupported table related object: ", rec_type)
+    elif dr_rec_type_is_matcher(dr_rec_type):
+        print("Err: Unsupported matcher related object: ", rec_type)
+    elif dr_rec_type_is_rule(dr_rec_type):
+        print("Err: Unsupported rule related object: ", rec_type)
+    elif dr_rec_type_is_action(dr_rec_type):
+        if dump_ctx.rule:
+            action = dr_dump_action_unsupported(line)
+            dump_ctx.rule.add_action(action)
+        else:
+            print("Err: Unsupported domain related object: ", rec_type)
+    else:
+        print("Unsupported object")
+
 # parse csv record according to type and return parsed object (like dr_domain, dr_table, dr_rule ...)
 def dr_csv_get_obj(line):
     rec_type = line[0]
     if rec_type not in switch_csv_rec_type.keys():
-        print("Err: Unsupported object: %s" %(rec_type))
-        exit(-1)
+        return None
 
     parser = switch_csv_rec_type[line[0]]
     return parser(line)
@@ -144,6 +162,11 @@ def parse_domain(csv_reader, domain_obj=None):
     for line in csv_reader:
         dr_obj = dr_csv_get_obj(line)
         dr_rec_type = line[0]
+
+        # report unsupported object
+        if dr_obj is None:
+            dr_report_unsupported_object(dump_ctx, line)
+            continue
 
         # update Rule entry objects
         if dr_rec_type in [DR_DUMP_REC_TYPE_RULE_RX_ENTRY_V0,

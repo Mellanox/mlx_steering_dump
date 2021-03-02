@@ -37,6 +37,10 @@ from src.parsers.dr_ste_v0_tag_parser import mlx5_ifc_ste_v0_general_purpose_bit
 	mlx5_ifc_ste_v0_register_0_bits_tag_parser, mlx5_ifc_ste_v0_register_1_bits_tag_parser,\
 	mlx5_ifc_ste_v0_eth_l3_ipv6_src_bits_tag_parser_p
 
+def mlx5_ifc_ste_v1_unsupported_tag():
+    ret = {}
+    ret["UNSUPPORTED_FIELDS"] = 0
+    return ret
 
 def mlx5_ifc_ste_eth_l2_src_v1_bits_tag_parser_p(bin_str):
 	ret = {}
@@ -508,8 +512,7 @@ def mlx5_ste_v1_tag_parser(lookup_type, definer_id, tag, raw):
         elif definer_id not in [None, "-1"] and int(definer_id, 16) in switch_definer_parser.keys():
             func = switch_definer_parser[int(definer_id, 16)]
         else:
-            print("Err: Unsupported STEv1 tag format, lookup_type=%s, definer_id=%s" %(lookup_type, definer_id))
-            return {}
+            return mlx5_ifc_ste_v1_unsupported_tag()
 
         parsed_tag = func(tag)
 

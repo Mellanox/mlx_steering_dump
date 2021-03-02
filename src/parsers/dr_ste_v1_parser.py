@@ -33,6 +33,12 @@ from src.dr_constants import *
 from src.parsers.dr_ste_v1_actions_parser import mlx5_ifc_ste_v1_action_bits_parser
 
 
+def mlx5_ifc_ste_v1_unsupported_ste():
+    ret = {}
+    ret["tag"] = {"UNSUPPORTED_FIELDS": 0x0}
+    return ret
+
+
 def mlx5_ifc_ste_v1_match_bwc_bits_parser(bin_str, definer_id, raw) :
     ret = {}
     ret["entry_format"] = hex(int(bin_str[0 : 8], 2))
@@ -126,9 +132,7 @@ def mlx5_hw_ste_v1_parser(bin_str, definer_id, raw, verbose):
     }
 
     if entry_type in switch.keys():
-        parsed_ste = switch[entry_type](bin_str, definer_id, raw)
+        return switch[entry_type](bin_str, definer_id, raw)
     else:
-        print("Err: Unsupported STEv1 type")
-        exit(1)
+        return mlx5_ifc_ste_v1_unsupported_ste()
 
-    return parsed_ste
