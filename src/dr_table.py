@@ -33,6 +33,11 @@ from src.dr_utilities import _srd, print_dr, dr_obj, inc_indent, dec_indent,\
 from src.dr_constants import *
 
 
+def dr_rec_type_is_table(rec_type):
+    if rec_type.startswith(DR_DUMP_REC_TYPE_TABLE_OBJS):
+        return True
+    return False
+
 class dr_dump_table(dr_obj):
     def __init__(self, data):
         keys = ["dr_dump_rec_type", "id", "domain_id", "type", "level"]

@@ -34,6 +34,11 @@ from src.parsers import dr_matcher_mask_parser
 from src.dr_constants import *
 import src.dr_prettify
 
+def dr_rec_type_is_matcher(rec_type):
+    if rec_type.startswith(DR_DUMP_REC_TYPE_MATCHER_OBJS):
+        return True
+    return False
+
 class dr_dump_matcher(dr_obj):
     def __init__(self, data):
         keys = ["dr_dump_rec_type", "id", "table_id", "priority"]

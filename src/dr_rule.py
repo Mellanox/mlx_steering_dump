@@ -34,6 +34,11 @@ from src.dr_utilities import _srd, dec_indent, dict_join_str, dr_obj,\
 from src.parsers.dr_ste_parser import mlx5_hw_ste_parser
 from src.dr_constants import *
 
+def dr_rec_type_is_rule(rec_type):
+    if rec_type.startswith(DR_DUMP_REC_TYPE_RULE_OBJS):
+        return True
+    return False
+
 class dr_dump_rule(dr_obj):
     def __init__(self, data):
         keys = ["dr_dump_rec_type", "id", "matcher_id"]

@@ -32,6 +32,11 @@ from src.parsers.dr_ste_v0_tag_parser import mlx5_ste_v0_tag_parser
 from src.dr_utilities import _val
 
 # HW_STE parsing funcs
+def mlx5_ifc_ste_v0_unsupported_ste():
+    ret = {}
+    ret["tag"] = {"UNSUPPORTED_FIELDS": 0x0}
+    return ret
+
 def mlx5_ifc_ste_v0_rx_steering_mult_bits_parser(bin_str, raw):
     ret = {}
     ret["entry_type"] = _val(bin_str[0: 4])
@@ -152,6 +157,5 @@ def mlx5_hw_ste_v0_parser(bin_str, raw):
     if entry_type in switch_ste_type.keys():
         return switch_ste_type[entry_type](bin_str, raw)
     else:
-        print("Err: Usupported STEv0 type")
-        exit(-1)
+        return mlx5_ifc_ste_v0_unsupported_ste()
 

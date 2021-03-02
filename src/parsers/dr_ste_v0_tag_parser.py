@@ -33,6 +33,11 @@ from src.dr_utilities import conv_ip_version
 from src.dr_utilities import _val
 from src.dr_utilities import add_inner_to_key
 
+def mlx5_ifc_ste_v0_unsupported_tag():
+    ret = {}
+    ret["UNSUPPORTED_FIELDS"] = 0
+    return ret
+
 def mlx5_ifc_ste_v0_eth_l2_src_bits_tag_parser_p(bin_str):
     ret = {}
     ret["smac"] = _val(bin_str[0: 48])
@@ -311,7 +316,7 @@ def mlx5_ste_v0_tag_parser(lookup_type, tag, raw):
         return {}
 
     if lookup_type not in switch_tag_parser.keys():
-        print("Err: Unsupported STEv0 tag format")
+        return mlx5_ifc_ste_v0_unsupported_tag()
 
     func, inner = switch_tag_parser[lookup_type]
     parsed_tag = func(tag)

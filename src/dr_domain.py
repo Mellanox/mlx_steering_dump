@@ -29,6 +29,14 @@
 # SOFTWARE.
 
 from src.dr_utilities import _srd, dec_indent, dr_obj, inc_indent, print_dr, dr_print_color
+from src.dr_constants import DR_DUMP_REC_TYPE_DOMAIN_OBJS
+
+
+def dr_rec_type_is_domain(rec_type):
+    if rec_type.startswith(DR_DUMP_REC_TYPE_DOMAIN_OBJS):
+        return True
+    return False
+
 
 def domain_type_str(type_str):
     switch = {"0": "NIC_RX",

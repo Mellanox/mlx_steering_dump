@@ -29,13 +29,20 @@
 # SOFTWARE.
 
 from src.dr_utilities import _srd, dr_obj, print_dr
-from src.dr_constants import DR_DUMP_REC_TYPE_ACTIONS
+from src.dr_constants import DR_DUMP_REC_TYPE_ACTION_OBJS
 
 def dr_rec_type_is_action(rec_type):
-    if rec_type.startswith(DR_DUMP_REC_TYPE_ACTIONS):
+    if rec_type.startswith(DR_DUMP_REC_TYPE_ACTION_OBJS):
         return True
     return False
 
+class dr_dump_action_unsupported(dr_obj):
+    def __init__(self, data):
+        keys = ["dr_dump_rec_type", "id", "rule_id"]
+        self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
+
+    def dump_str(self):
+        return "UNSUPPORTED_ACTION"
 
 class dr_dump_action_drop(dr_obj):
     def __init__(self, data):
