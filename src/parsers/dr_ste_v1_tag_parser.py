@@ -102,8 +102,8 @@ def mlx5_ifc_ste_eth_l2_dst_v1_bits_tag_parser_p(bin_str):
 
 def mlx5_ifc_ste_eth_l2_src_dst_v1_bits_tag_parser_p(bin_str):
 	ret = {}
-	ret["dmac_47_16"] = _val(bin_str[0: 32] + bin_str[64: 80])
-	ret["smac_47_16"] = _val(bin_str[32: 64] + bin_str[112: 128])
+	ret["dmac"] = _val(bin_str[0: 32] + bin_str[64: 80])
+	ret["smac"] = _val(bin_str[32: 64] + bin_str[112: 128])
 	ret["reserved_at_50"] = _val(bin_str[80: 82])
 	ret["functional_lb"] = _val(bin_str[82: 83])
 	ret["reserved_at_53"] = _val(bin_str[83: 88])
@@ -304,7 +304,7 @@ def mlx5_ifc_ste_def22_v1_bits_tag_parser(bin_str):
         ret["first_vlan_id"] = _val(bin_str[116: 128])
         ret["metadata_reg_c_0"] = _val(bin_str[128: 160])
         ret["dmac"] = _val(bin_str[160: 192] + bin_str[240: 256])
-        ret["smac"] = _val(bin_str[192: 224] + bin_str[224: 240])
+        ret["smac"] = _val(bin_str[192: 240])
         return ret;
 
 
@@ -372,8 +372,7 @@ def mlx5_ifc_ste_def26_v1_bits_parser(bin_str):
         ret["second_priority"] = _val(bin_str[432: 435])
         ret["second_cfi"] = _val(bin_str[435: 436])
         ret["second_vlan_id"] = _val(bin_str[436: 448])
-        ret["smac_47_16"] = _val(bin_str[448: 480])
-        ret["smac_15_0"] = _val(bin_str[480: 496])
+        ret["smac"] = _val(bin_str[448: 496])
         ret["ip_porotcol"] = _val(bin_str[496: 504])
         ret["tcp_cwr"] = _val(bin_str[504: 505])
         ret["tcp_ece"] = _val(bin_str[505: 506])
@@ -417,8 +416,7 @@ def mlx5_ifc_ste_def0_v1_bits_parser(bin_str):
     ret = {}
     ret["metadata_reg_c_0"] = _val(bin_str[0: 32])
     ret["metadata_reg_c_1"] = _val(bin_str[32: 64])
-    ret["dmac_47_16"] = _val(bin_str[64: 96])
-    ret["dmac_15_0"] = _val(bin_str[96: 112])
+    ret["dmac"] = _val(bin_str[64: 112])
     ret["ethertype"] = _val(bin_str[112: 128])
     ret["reserved_at_60"] = _val(bin_str[128: 129])
     ret["sx_sniffer"] = _val(bin_str[129: 130])
@@ -440,8 +438,7 @@ def mlx5_ifc_ste_def0_v1_bits_parser(bin_str):
     ret["second_priority"] = _val(bin_str[176: 179])
     ret["second_cfi"] = _val(bin_str[179: 180])
     ret["second_vlan_id"] = _val(bin_str[180: 192])
-    ret["smac_47_16"] = _val(bin_str[192: 224])
-    ret["smac_15_0"] = _val(bin_str[224: 240])
+    ret["smac"] = _val(bin_str[192: 240])
     ret["inner_ipv4_checksum_ok"] = _val(bin_str[240: 241])
     ret["inner_l4_checksum_ok"] = _val(bin_str[241: 242])
     ret["outer_ipv4_checksum_ok"] = _val(bin_str[242: 243])

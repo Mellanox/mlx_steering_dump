@@ -57,9 +57,9 @@ def dr_mask_spec_parser(mask, raw):
     for i in range(0, len(mask), 8):
         tmp = little_endian_32(mask[i: i + 8])
         data += tmp
-    ret["smac"] = _val(data[0: 8] + data[8: 12])
+    ret["smac"] = _val(data[0: 12])
     ret["ethertype"] = _val(data[12: 16])
-    ret["dmac"] = _val(data[16: 24] + data[24: 28])
+    ret["dmac"] = _val(data[16: 28])
     ret["first_vid"] = get_bits_at(data, 24, 32, 20, 32)
     ret["first_cfi"] = get_bits_at(data, 24, 32, 19, 20)
     ret["first_prio"] = get_bits_at(data, 24, 32, 16, 19)
