@@ -53,23 +53,23 @@ def CMSG_LEN(c_len):
 
 def fd_msg(flow_ptr,fd, port, prevent_py_gc):
     fd = c_int(fd)
-   
-    if (flow_ptr != 0):      
-	if (flow_ptr > 0xFFFFFFFF):
-	    print('too large flow ptr ,exit!')
-	    sys.exit(1)
 
-	b = hex(flow_ptr) 
-    	b = b[2:] 
- 	count=len(b)
-	while (count < 16) :
-		b ='0'+ b
-		count = count + 1	
+    if (flow_ptr != 0):
+        if (flow_ptr > 0xFFFFFFFF):
+            print('too large flow ptr ,exit!')
+            sys.exit(1)
 
-	c = binascii.a2b_hex(b)   
-	port = bytearray(chr(port), 'utf-8') + c  + bytearray('\0', 'utf-8')
+        b = hex(flow_ptr)
+        b = b[2:]
+        count=len(b)
+        while (count < 16):
+            b ='0'+ b
+            count = count + 1
+
+        c = binascii.a2b_hex(b)
+        port = bytearray(chr(port), 'utf-8') + c  + bytearray('\0', 'utf-8')
     else:
-	port = bytearray(chr(port), 'utf-8') + bytearray('\0', 'utf-8')
+        port = bytearray(chr(port), 'utf-8') + bytearray('\0', 'utf-8')
 
     # create c bytes buffer of size iov_len that contains the port as string
     iov_len = c_int * 40
