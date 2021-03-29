@@ -1,0 +1,40 @@
+############## STE DUMPER ##################
+
+Disclaimer: this tool is for internal use for NVIDIA developers.
+This tool is used to dump the steering data from the relevant device.
+This tool will present raw data and has the ability to parse some of the data.
+
+Usage:
+  ./ste_dumper.sh -d <mst_dev> -g <gvmi> -i <index> <resource types> [--raw|-r] [--mft|--mcra] [-h] [--verbose|-v]
+
+Example:
+  Usage for dumping flow counter:
+          ./ste_dumper.sh -d /dev/mst/mt4119_pciconf0 --counter  -i 104 -g 0 --mft
+  Usage for dumping STE:
+          /ste_dumper.sh -d /dev/mst/mt4119_pciconf0 --ste -i 0xe0000000 --raw
+
+Required flags:
+  -d <mst_dev>
+  -g <gvmi>
+  -i <index>
+  
+Resource types:
+  --encap                   dump encap header
+  --rewrite                 dump header rewrite
+  --pattern                 dump pattern
+  --argument                dump argument
+  --counter                 dump counter
+  --ste                     dump ste
+
+Optional:
+  --mft       use commands just via mft tools
+  --mcra      use commands just via mcra interface
+  For --mft or --mcra if not specified will use automaticlly whats available
+
+  --raw | -r   print the raw data
+
+  --verbose | -v  output extra prints
+
+  -h output help
+
+##########################################

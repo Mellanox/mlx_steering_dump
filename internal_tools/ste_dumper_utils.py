@@ -3,6 +3,7 @@
 
 import sys
 import math
+sys.path.insert(0,'..')
 from src.parsers.dr_ste_parser import mlx5_hw_ste_parser
 
 ste = mlx5_hw_ste_parser(int(sys.argv[1], 16), sys.argv[2], -1, 1, 0)

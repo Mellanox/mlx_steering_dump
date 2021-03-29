@@ -14,7 +14,7 @@ pretty=0
 res_dump_supp=0
 port="0"
 tool=""
-parsing="raw"
+parsing="parsed"
 verbosity="0"
 ste_version="" #CONNECTX_5=0x0, CONNECTX_6DX=0x1
 
@@ -32,7 +32,7 @@ icmd_index_lo_addr="0x204c.0:32"
 function ste_parser {
 	local ste_raw=$1
 
-	python ste_dumper_python.py $ste_version $ste_raw $index $verbosity
+	python ste_dumper_utils.py $ste_version $ste_raw $index $verbosity
 }	
 
 ###### read_res_icmd
@@ -150,32 +150,49 @@ function read_res_icmd_and_print {
 	local i
 
 	if [ "$action" == "counter" ]; then
-		local icmd_start_addr="0x2000"
-		for i in {0..15} ; do
-			mcra $mst_dev $((icmd_start_addr + i*4)) 0x0
-		done
-
-		rx_counter=`get_gvmi_counter $mst_dev $port $gvmi 1 $index`
-		sx_counter=`get_gvmi_counter $mst_dev $port $gvmi 0 $index`
-
-		if [ "$parsing" == "parsed" ]; then
-			rx_p=`echo $rx_counter | awk '{print $6}'`
-			rx_b=`echo $rx_counter | awk '{print $8}'`
-			sx_p=`echo $sx_counter | awk '{print $6}'`
-			sx_b=`echo $sx_counter | awk '{print $8}'`
-			total_p=`printf "0x%x" $(( rx_p + sx_p ))`
-			total_b=`printf "0x%x" $(( rx_b + sx_b ))`
-			echo "                           :     Packets        |      Bytes         "
-			echo "-----------------------------------------------------------------------"
-			echo $rx_counter
-			echo "-----------------------------------------------------------------------"
-			echo $sx_counter
-			echo "-----------------------------------------------------------------------"
-			printf "TOTAL                      : 0x%.16x | 0x%.16x\n" $total_p $total_b
-			echo
+		if [ "$tool" == "mft" ]; then
+			txt=`resourcedump dump -d $mst_dev --segment FLOW_COUNTER --index1 $index`
+			if [ "$parsing" == "parsed" ]; then
+				txt=`echo "$txt" | awk '/Segment Type\: 0x1318/{nr[NR + 4];}; NR in nr' | sed 's/0x//g'`
+				local p_a=`echo "$txt" | awk '/ /{print $1}'`
+				local p_b=`echo "$txt" | awk '/ /{print $2}'`
+				local p_c=$((( 16#$p_a << 32 ) + 16#$p_b ))
+				local b_a=`echo "$txt" | awk '/ /{print $3}'`
+				local b_b=`echo "$txt" | awk '/ /{print $4}'`
+				local b_c=$((( 16#$b_a << 32 ) + 16#$b_b ))
+				printf "Packets counter: 0x%x\n" $(( p_c ))
+				printf "Octets counter: 0x%x\n" $(( b_c ))
+			else
+				resourcedump dump -d $mst_dev --segment FLOW_COUNTER --index1 $index
+			fi
 		else
-			echo $rx_counter
-			echo $sx_counter
+			local icmd_start_addr="0x2000"
+			for i in {0..15} ; do
+				mcra $mst_dev $((icmd_start_addr + i*4)) 0x0
+			done
+
+			rx_counter=`get_gvmi_counter $mst_dev $port $gvmi 1 $index`
+			sx_counter=`get_gvmi_counter $mst_dev $port $gvmi 0 $index`
+
+			if [ "$parsing" == "parsed" ]; then
+				rx_p=`echo $rx_counter | awk '{print $6}'`
+				rx_b=`echo $rx_counter | awk '{print $8}'`
+				sx_p=`echo $sx_counter | awk '{print $6}'`
+				sx_b=`echo $sx_counter | awk '{print $8}'`
+				total_p=`printf "0x%x" $(( rx_p + sx_p ))`
+				total_b=`printf "0x%x" $(( rx_b + sx_b ))`
+				echo "                           :     Packets        |      Bytes         "
+				echo "-----------------------------------------------------------------------"
+				echo $rx_counter
+				echo "-----------------------------------------------------------------------"
+				echo $sx_counter
+				echo "-----------------------------------------------------------------------"
+				printf "TOTAL                      : 0x%.16x | 0x%.16x\n" $total_p $total_b
+				echo
+			else
+				echo $rx_counter
+				echo $sx_counter
+			fi
 		fi
 		exit
 	fi
@@ -200,6 +217,18 @@ function read_res_icmd_and_print {
 		exit
 	fi
 
+	if [ "$action" == "encap" ] && [ "$tool" == "mft" ] ; then
+		if [ "$parsing" == "parsed" ]; then
+			txt=`resourcedump dump -d $mst_dev --segment PKT_REFORMAT --index1 $index`
+			txt=`echo "$txt" | awk '/Segment Type\: 0x1320/{nr[NR + 4]; nr[NR + 5]; nr[NR + 6]; nr[NR + 7]; nr[NR + 8]; nr[NR + 9]; nr[NR + 10]; nr[NR + 11];}; NR in nr' | sed 's/0x//g'`
+			echo $txt
+			exit
+		else
+			resourcedump dump -d $mst_dev --segment PKT_REFORMAT --index1 $index
+		fi
+		exit
+	fi
+
 	read_res_icmd $mst_dev $gvmi $res_type $(( index >> 1 ))
 
 	for i in {0..32} ; do
@@ -219,8 +248,14 @@ do
 			echo "This tool is used to dump the steering data from the relevant device."
 			echo "This tool will present raw data and has the ability to parse some of the data."
 			echo
-			echo  Usage:
-			echo "	./ste_dumper.sh -d <mst_dev> -g <gvmi> -i <index> <resource types> [--parsed|-p] [--mft|--mcra] [-h] [--verbose|-v]"
+			echo "Usage:"
+			echo "	./ste_dumper.sh -d <mst_dev> -g <gvmi> -i <index> <resource types> [--raw|-r] [--mft|--mcra] [-h] [--verbose|-v]"
+			echo
+			echo "Example:"
+			echo "	Usage for dumping flow counter:"
+			echo "		./ste_dumper.sh -d /dev/mst/mt4119_pciconf0 --counter  -i 104 -g 0 --mft"
+			echo "	Usage for dumping STE:"
+			echo "		/ste_dumper.sh -d /dev/mst/mt4119_pciconf0 --ste -i 0xe0000000 --raw"
 			echo
 			echo "Required flags:"
 			echo "	-d <mst_dev> "
@@ -240,7 +275,7 @@ do
 			echo "	--mcra      use commands just via mcra interface"
 			echo "	For --mft or --mcra if not specified will use automaticlly whats available"
 			echo
-			echo "	--parsed | -p   parse the ste raw data, for now this supported just for counter parsing and STE"
+			echo "	--raw | -r   print the raw data"
 			echo
 			echo "	--verbose | -v  output extra prints"
 			echo
@@ -261,7 +296,7 @@ do
 		--ste) action="ste" ;		res_type=0x41  ;;
 		--mft) tool="mft" ;;
 		--mcra) tool="mcra" ;;
-		--parsed|-p) parsing="parsed" ;;
+		--raw|-r) parsing="raw" ;;
 		--verbose|-v) verbosity="1";;
 		 *) case $p_arg in
 			i) index="$arg" ; p_arg=""  ;;
@@ -308,14 +343,13 @@ if [ "$tool" == "mcra" ] && [ "$action" == "ste" ] ; then
         exit 1;
 fi
 
-if [[ "$tool" == "mft" && "$action" != "ste" && "$action" != "rewrite" ]] ; then
+if [[ "$tool" == "mft" && "$action" != "rewrite" && "$action" != "counter" && "$action" != "encap" ]] ; then
         echo  ERROR: $action dumping is not supported via mft;
         exit 1;
 fi
 
-if [[ "$parsing" == "parsed" && "$action" != "counter" && "$action" != "ste" ]] ; then
-	echo  ERROR: parsed mode is not supported for $action;
-	exit 1;
+if [[ "$action" != "counter" && "$action" != "ste" && "$action" != "encap" ]] ; then
+	parsing="raw"
 fi
 
 if [ -x "$(command -v resourcedump)" ]; then
