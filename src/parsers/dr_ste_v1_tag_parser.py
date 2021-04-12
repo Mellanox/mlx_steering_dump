@@ -462,6 +462,52 @@ def mlx5_ifc_ste_def0_v1_bits_parser(bin_str):
     return ret;
 
 
+def mlx5_ifc_ste_def2_v1_bits_parser(bin_str):
+    ret = {}
+    ret["metadata_reg_a"] = _val(bin_str[0: 32])
+    ret["outer_ip_version"] = _val(bin_str[32: 36])
+    ret["outer_ip_ihl"] = _val(bin_str[36: 40])
+    ret["outer_ip_dscp"] = _val(bin_str[40: 46])
+    ret["outer_ip_ecn"] = _val(bin_str[46: 48])
+    ret["outer_ip_ttl"] = _val(bin_str[48: 56])
+    ret["outer_ip_protocol"] = _val(bin_str[56: 64])
+    ret["outer_ip_identification"] = _val(bin_str[64: 80])
+    ret["outer_ip_flags"] = _val(bin_str[80: 83])
+    ret["outer_ip_fragment_offset"] = _val(bin_str[83: 96])
+    ret["outer_ip_total_length"] = _val(bin_str[96: 112])
+    ret["outer_ip_checksum"] = _val(bin_str[112: 128])
+    ret["reserved_180"] = _val(bin_str[128: 140])
+    ret["outer_ip_flow_label"] = _val(bin_str[140: 160])
+    ret["outer_eth_packet_length"] = _val(bin_str[160: 176])
+    ret["outer_ip_payload_length"] = _val(bin_str[176: 192])
+    ret["outer_l4_sport"] = _val(bin_str[192: 208])
+    ret["outer_l4_dport"] = _val(bin_str[208: 224])
+    ret["outer_data_offset"] = _val(bin_str[224: 228])
+    ret["reserved_1e4"] = _val(bin_str[228: 229])
+    ret["reserved_1e5"] = _val(bin_str[229: 230])
+    ret["outer_ip_frag"] = _val(bin_str[230: 231])
+    ret["tcp_ns"] = _val(bin_str[231: 232])
+    ret["tcp_cwr"] = _val(bin_str[232: 233])
+    ret["tcp_ece"] = _val(bin_str[233: 234])
+    ret["tcp_urg"] = _val(bin_str[234: 235])
+    ret["tcp_ack"] = _val(bin_str[235: 236])
+    ret["tcp_psh"] = _val(bin_str[236: 237])
+    ret["tcp_rst"] = _val(bin_str[237: 238])
+    ret["tcp_syn"] = _val(bin_str[238: 239])
+    ret["tcp_fin"] = _val(bin_str[239: 240])
+    ret["outer_ip_frag_first"] = _val(bin_str[240: 241])
+    ret["reserved_1f0"] = _val(bin_str[241: 248])
+    ret["inner_ipv4_checksum_ok"] = _val(bin_str[248: 249])
+    ret["inner_l4_checksum_ok"] = _val(bin_str[249: 250])
+    ret["outer_ipv4_checksum_ok"] = _val(bin_str[250: 251])
+    ret["outer_l4_checksum_ok"] = _val(bin_str[251: 252])
+    ret["inner_l3_ok"] = _val(bin_str[252: 253])
+    ret["inner_l4_ok"] = _val(bin_str[253: 254])
+    ret["outer_l3_ok"] = _val(bin_str[254: 255])
+    ret["outer_l4_ok"] = _val(bin_str[255: 256])
+    return ret
+
+
 switch_tag_parser = {
         DR_STE_V1_LU_TYPE_ETHL2_SRC_DST_I: [mlx5_ifc_ste_eth_l2_src_dst_v1_bits_tag_parser_p, True],
         DR_STE_V1_LU_TYPE_ETHL2_SRC_DST_O: [mlx5_ifc_ste_eth_l2_src_dst_v1_bits_tag_parser_p, False],
@@ -501,6 +547,7 @@ switch_definer_parser = {
     0x26: mlx5_ifc_ste_def26_v1_bits_parser,
     0x6:  mlx5_ifc_ste_def6_v1_bits_parser,
     0x0: mlx5_ifc_ste_def0_v1_bits_parser,
+    0x2: mlx5_ifc_ste_def2_v1_bits_parser
 }
 
 def mlx5_ste_v1_tag_parser(lookup_type, definer_id, tag, raw):
