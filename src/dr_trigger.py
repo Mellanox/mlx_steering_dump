@@ -10,7 +10,7 @@ import binascii
 #    size_t iov_len;     /* Number of bytes to transfer */
 # };
 class iovec(Structure):
-    _fields_ = [('iov_base', c_void_p), ('iov_len', c_size_t)]
+    _fields_ = [('iov_base', c_char_p), ('iov_len', c_size_t)]
 
 # struct msghdr {
 # 	void		*msg_name;	/* ptr to socket address structure */
@@ -58,27 +58,17 @@ def fd_msg(flow_ptr,fd, port, prevent_py_gc):
         if (flow_ptr > 0xFFFFFFFF):
             print('too large flow ptr ,exit!')
             sys.exit(1)
-
-        b = hex(flow_ptr)
-        b = b[2:]
-        count=len(b)
-        while (count < 16):
-            b ='0'+ b
-            count = count + 1
-
-        c = binascii.a2b_hex(b)
-        port = bytearray(chr(port), 'utf-8') + c  + bytearray('\0', 'utf-8')
-    else:
-        port = bytearray(chr(port), 'utf-8') + bytearray('\0', 'utf-8')
-
-    # create c bytes buffer of size iov_len that contains the port as string
-    iov_len = c_int * 40
-    iov_base = iov_len(*port)
-
+    # Dump single/all flow(s): struct { uint32_t port_id; uint64_t flow_ptr; }
+    # Native endian format can used, all exchange is within the same host
+    # Unified mesaage format - previous DPDK versions did not check the message length
+    # The newer ones check the flow_ptr field for the NULL
+    iop = struct.pack('=LQ', port, flow_ptr)
+    iob = c_char_p(bytes(iop))
     ptr_iovec = POINTER(iovec)
-    iov = iovec(addressof(iov_base),c_size_t(sizeof(iov_base)))
+    iov = iovec(iob, c_size_t(len(iop)))
+    prevent_py_gc['iop'] = iop
+    prevent_py_gc['iob'] = iob
     prevent_py_gc['iov'] = iov
-    prevent_py_gc['iov_base'] = iov_base
 
     SCM_RIGHTS = 0x01
     struct_cmsghdr = cmsghdr.create(CMSG_LEN(sizeof(fd)), socket.SOL_SOCKET, SCM_RIGHTS, fd)
