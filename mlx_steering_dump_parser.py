@@ -160,6 +160,9 @@ def parse_domain(csv_reader, domain_obj=None):
         dump_ctx.domain = domain_obj
 
     for line in csv_reader:
+        if len(line) <= 0:
+            continue
+
         dr_obj = dr_csv_get_obj(line)
         dr_rec_type = line[0]
 
