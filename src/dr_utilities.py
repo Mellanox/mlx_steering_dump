@@ -97,14 +97,14 @@ def set_colored_prints():
 
 class dr_print_color():
     color = {
-    'darkwhite':  "\033[0;37m",
-    'darkyellow': "\033[0;33m",
-    'darkgreen':  "\033[1;32m",
-    'darkblue':   "\033[1;34m",
-    'darkcyan':   "\033[1;36m",
-    'darkred':    "\033[2;31m",
-    'darkmagenta':"\033[0;35m",
-    'off':        "\033[0;0m"
+        'darkwhite': "\033[0;37m",
+        'darkyellow': "\033[0;33m",
+        'darkgreen': "\033[1;32m",
+        'darkblue': "\033[1;34m",
+        'darkcyan': "\033[1;36m",
+        'darkred': "\033[2;31m",
+        'darkmagenta': "\033[0;35m",
+        'off': "\033[0;0m"
     }
 
     DOMAIN = color["darkwhite"]
@@ -160,8 +160,8 @@ def add_inner_to_key(in_dict):
 
 
 def hex_2_bin(hex_str):
-    #To save the first zeroes from being compressed by 'bin'
+    # To save the first zeroes from being compressed by 'bin'
     hex_str = 'f' + hex_str
-    #convert to binary and remove "0b1111"
+    # convert to binary and remove "0b1111"
     bin_str = bin(int(hex_str, 16))[6:]
     return bin_str

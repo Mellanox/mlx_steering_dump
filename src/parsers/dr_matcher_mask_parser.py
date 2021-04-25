@@ -32,6 +32,7 @@ from socket import ntohl
 from src import dr_prettify
 from src.dr_utilities import hex_2_bin
 
+
 def little_endian_32(hex_str):
     l_e_32 = ntohl(int(hex_str, 16))
     return "{:08x}".format(l_e_32)
@@ -246,4 +247,3 @@ def dr_mask_misc4_parser(mask, raw):
         ret = dr_prettify.prettify_mask(ret)
 
     return ret
-

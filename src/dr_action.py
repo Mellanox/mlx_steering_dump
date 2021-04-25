@@ -28,13 +28,15 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from src.dr_utilities import _srd, dr_obj, print_dr
+from src.dr_utilities import _srd, dr_obj
 from src.dr_constants import DR_DUMP_REC_TYPE_ACTION_OBJS
+
 
 def dr_rec_type_is_action(rec_type):
     if rec_type.startswith(DR_DUMP_REC_TYPE_ACTION_OBJS):
         return True
     return False
+
 
 class dr_dump_action_unsupported(dr_obj):
     def __init__(self, data):
@@ -43,6 +45,7 @@ class dr_dump_action_unsupported(dr_obj):
 
     def dump_str(self):
         return "UNSUPPORTED_ACTION"
+
 
 class dr_dump_action_drop(dr_obj):
     def __init__(self, data):
@@ -107,8 +110,8 @@ class dr_dump_action_modify_header(dr_obj):
 
     def dump_str(self):
         if self.data["single_action_opt"]:
-	    if int(self.data["single_action_opt"], 16) == 1:
-	        return "MODIFY_HDR, single modify action optimized"
+            if int(self.data["single_action_opt"], 16) == 1:
+                return "MODIFY_HDR, single modify action optimized"
         return "MODIFY_HDR, rewrite index %s" % (_srd(self.data, "rewrite_index"))
 
 
@@ -181,24 +184,28 @@ class dr_dump_action_meter(dr_obj):
         self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
 
     def dump_str(self):
-        return "METER, next flow table %s, devx obj id %s, rx_icm_addr %s rx_icm_addr %s" %(
+        return "METER, next flow table %s, devx obj id %s, rx_icm_addr %s rx_icm_addr %s" % (
             _srd(self.data, "next_ft"),
             _srd(self.data, "devx_id"),
             _srd(self.data, "rx_icm_addr"),
             _srd(self.data, "tx_icm_addr"))
 
+
 class dr_dump_action_sampler(dr_obj):
     def __init__(self, data):
-        keys = ["dr_dump_rec_type", "id", "rule_id", "next_ft", "sample_tbl_devx_id", "devx_id", "rx_icm_addr", "tx_icm_addr"]
+        keys = ["dr_dump_rec_type", "id", "rule_id", "next_ft", "sample_tbl_devx_id", "devx_id", "rx_icm_addr",
+                "tx_icm_addr"]
         self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
 
     def dump_str(self):
-        return "SAMPLER, next flow table %s, sample table devx obj id %s, sampler devx obj id %s, rx_icm_addr %s rx_icm_addr %s" %(
+        return "SAMPLER, next flow table %s, sample table devx obj id %s, sampler devx obj id %s, rx_icm_addr %s " \
+               "rx_icm_addr %s" % (
             _srd(self.data, "next_ft"),
             _srd(self.data, "sample_tbl_devx_id"),
             _srd(self.data, "devx_id"),
             _srd(self.data, "rx_icm_addr"),
             _srd(self.data, "tx_icm_addr"))
+
 
 class dr_dump_action_dest_array(dr_obj):
     def __init__(self, data):
@@ -206,10 +213,11 @@ class dr_dump_action_dest_array(dr_obj):
         self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
 
     def dump_str(self):
-        return "DEST_ARRAY, devx obj id %s, rx_icm_addr %s rx_icm_addr %s" %(
+        return "DEST_ARRAY, devx obj id %s, rx_icm_addr %s rx_icm_addr %s" % (
             _srd(self.data, "devx_id"),
             _srd(self.data, "rx_icm_addr"),
             _srd(self.data, "tx_icm_addr"))
+
 
 class dr_dump_action_aso_flow_hit(dr_obj):
     def __init__(self, data):
@@ -217,8 +225,9 @@ class dr_dump_action_aso_flow_hit(dr_obj):
         self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
 
     def dump_str(self):
-        return "ASO, flow_hit_aso %s" %(
+        return "ASO, flow_hit_aso %s" % (
             _srd(self.data, "flow_hit_aso"))
+
 
 class dr_dump_action_aso_flow_meter(dr_obj):
     def __init__(self, data):
@@ -226,8 +235,9 @@ class dr_dump_action_aso_flow_meter(dr_obj):
         self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
 
     def dump_str(self):
-        return "ASO, flow_meter_aso %s" %(
+        return "ASO, flow_meter_aso %s" % (
             _srd(self.data, "flow_meter_aso"))
+
 
 class dr_dump_action_default_miss(dr_obj):
     def __init__(self, data):
@@ -237,10 +247,11 @@ class dr_dump_action_default_miss(dr_obj):
     def dump_str(self):
         return "DEFAULT MISS"
 
+
 class dr_dump_action_aso_ct(dr_obj):
     def __init__(self, data):
         keys = ["dr_dump_rec_type", "id", "rule_id", "devx_id"]
         self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
 
     def dump_str(self):
-        return "ASO CT devx_id %s" %(_srd(self.data, "devx_id"))
+        return "ASO CT devx_id %s" % (_srd(self.data, "devx_id"))

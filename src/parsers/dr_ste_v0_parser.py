@@ -31,11 +31,13 @@
 from src.parsers.dr_ste_v0_tag_parser import mlx5_ste_v0_tag_parser
 from src.dr_utilities import _val
 
+
 # HW_STE parsing funcs
 def mlx5_ifc_ste_v0_unsupported_ste():
     ret = {}
     ret["tag"] = {"UNSUPPORTED_FIELDS": 0x0}
     return ret
+
 
 def mlx5_ifc_ste_v0_rx_steering_mult_bits_parser(bin_str, raw):
     ret = {}
@@ -146,9 +148,9 @@ def mlx5_ifc_ste_v0_modify_packet_bits_parser(bin_str, raw):
 
 
 switch_ste_type = {
-    1 : mlx5_ifc_ste_v0_sx_transmit_bits_parser,
-    2 : mlx5_ifc_ste_v0_rx_steering_mult_bits_parser,
-    6 : mlx5_ifc_ste_v0_modify_packet_bits_parser
+    1: mlx5_ifc_ste_v0_sx_transmit_bits_parser,
+    2: mlx5_ifc_ste_v0_rx_steering_mult_bits_parser,
+    6: mlx5_ifc_ste_v0_modify_packet_bits_parser
 }
 
 
@@ -158,4 +160,3 @@ def mlx5_hw_ste_v0_parser(bin_str, raw):
         return switch_ste_type[entry_type](bin_str, raw)
     else:
         return mlx5_ifc_ste_v0_unsupported_ste()
-

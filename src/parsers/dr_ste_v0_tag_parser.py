@@ -33,10 +33,12 @@ from src.dr_utilities import conv_ip_version
 from src.dr_utilities import _val
 from src.dr_utilities import add_inner_to_key
 
+
 def mlx5_ifc_ste_v0_unsupported_tag():
     ret = {}
     ret["UNSUPPORTED_FIELDS"] = 0
     return ret
+
 
 def mlx5_ifc_ste_v0_eth_l2_src_bits_tag_parser_p(bin_str):
     ret = {}
@@ -309,6 +311,7 @@ switch_tag_parser = {
     "0x22": [mlx5_ifc_ste_v0_flex_parser_bits_tag_parser, False],
     "0x23": [mlx5_ifc_ste_v0_flex_parser_bits_tag_parser, False],
 }
+
 
 def mlx5_ste_v0_tag_parser(lookup_type, tag, raw):
     if lookup_type not in switch_tag_parser.keys():
