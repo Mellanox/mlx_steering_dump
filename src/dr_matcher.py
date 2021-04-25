@@ -31,6 +31,7 @@
 from src.dr_utilities import _srd, dict_join_str, print_dr, dr_obj, \
     inc_indent, dec_indent, dr_print_color
 from src.parsers import dr_matcher_mask_parser
+from src.parsers import mlx5_ifc_parser
 from src.dr_constants import *
 from src import dr_prettify
 
@@ -106,13 +107,24 @@ class dr_dump_matcher_mask(dr_obj):
 
     def dump_str(self):
         parsed_mask_final = {}
-        sub_masks = {"outer": dr_matcher_mask_parser.dr_mask_spec_parser,
-                     "inner": dr_matcher_mask_parser.dr_mask_spec_parser,
-                     "misc": dr_matcher_mask_parser.dr_mask_misc_parser,
-                     "misc2": dr_matcher_mask_parser.dr_mask_misc2_parser,
-                     "misc3": dr_matcher_mask_parser.dr_mask_misc3_parser,
-                     "misc4": dr_matcher_mask_parser.dr_mask_misc4_parser
-                     }
+        sub_masks = {}
+
+        if self.data["dr_dump_rec_type"] == DR_DUMP_REC_TYPE_MATCHER_MASK:
+            sub_masks = {"outer": dr_matcher_mask_parser.dr_mask_spec_parser,
+                         "inner": dr_matcher_mask_parser.dr_mask_spec_parser,
+                         "misc": dr_matcher_mask_parser.dr_mask_misc_parser,
+                         "misc2": dr_matcher_mask_parser.dr_mask_misc2_parser,
+                         "misc3": dr_matcher_mask_parser.dr_mask_misc3_parser,
+                         "misc4": dr_matcher_mask_parser.dr_mask_misc4_parser
+                         }
+        else:
+            sub_masks = {"outer": mlx5_ifc_parser.mlx5_ifc_dr_match_spec_bits_parser,
+                         "inner": mlx5_ifc_parser.mlx5_ifc_dr_match_spec_bits_parser,
+                         "misc": mlx5_ifc_parser.mlx5_ifc_dr_match_set_misc_bits_parser,
+                         "misc2": mlx5_ifc_parser.mlx5_ifc_dr_match_set_misc2_bits_parser,
+                         "misc3": mlx5_ifc_parser.mlx5_ifc_dr_match_set_misc3_bits_parser,
+                         "misc4": mlx5_ifc_parser.mlx5_ifc_dr_match_set_misc4_bits_parser
+                         }
 
         for sub_mask_name, sub_mask_parser in sub_masks.items():
             if self.data[sub_mask_name] == "":

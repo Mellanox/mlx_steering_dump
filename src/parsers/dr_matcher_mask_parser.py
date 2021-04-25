@@ -34,7 +34,7 @@ from src.dr_utilities import hex_2_bin
 
 
 def little_endian_32(hex_str):
-    l_e_32 = ntohl(int(hex_str, 16))
+    l_e_32 = hex_str[6:8]+hex_str[4:6]+hex_str[2:4]+hex_str[0:2] #ntohl(int(hex_str, 16))
     return "{:08x}".format(l_e_32)
 
 
@@ -58,12 +58,19 @@ def dr_mask_spec_parser(mask, raw):
     for i in range(0, len(mask), 8):
         tmp = little_endian_32(mask[i: i + 8])
         data += tmp
-    ret["smac"] = _val(data[0: 12])
-    ret["ethertype"] = _val(data[12: 16])
-    ret["dmac"] = _val(data[16: 28])
-    ret["first_vid"] = get_bits_at(data, 24, 32, 20, 32)
-    ret["first_cfi"] = get_bits_at(data, 24, 32, 19, 20)
-    ret["first_prio"] = get_bits_at(data, 24, 32, 16, 19)
+
+    ret["smac"] = _val(data[0: 8])
+    ret["smac_l"] = _val(data[12: 16])
+    ret["ethertype"] = _val(data[8: 12])
+
+    ret["dmac"] = _val(data[16: 24])
+
+    print("-------------------"+_val(data[24: 32]))
+    ret["first_vid"] = get_bits_at(data, 24, 32, 0, 12)
+    ret["first_cfi"] = get_bits_at(data, 24, 32, 12, 13)
+    ret["first_prio"] = get_bits_at(data, 24, 32, 13, 16)
+    ret["dmac"] = get_bits_at(data, 24, 32, 16, 32)
+
     ret["tcp_flags"] = get_bits_at(data, 32, 40, 23, 32)
     ret["ip_version"] = get_bits_at(data, 32, 40, 19, 23)
     ret["frag"] = get_bits_at(data, 32, 40, 18, 19)

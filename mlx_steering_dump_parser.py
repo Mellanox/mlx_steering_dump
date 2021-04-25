@@ -58,6 +58,7 @@ switch_csv_rec_type = {
 
     DR_DUMP_REC_TYPE_MATCHER: dr_dump_matcher,
     DR_DUMP_REC_TYPE_MATCHER_MASK: dr_dump_matcher_mask,
+    DR_DUMP_REC_TYPE_MATCHER_MASK_WITH_RESERVED: dr_dump_matcher_mask,
     DR_DUMP_REC_TYPE_MATCHER_RX: dr_dump_matcher_rx_tx,
     DR_DUMP_REC_TYPE_MATCHER_TX: dr_dump_matcher_rx_tx,
     DR_DUMP_REC_TYPE_MATCHER_BUILDER: dr_dump_matcher_builder,
@@ -199,7 +200,8 @@ def parse_domain(csv_reader, domain_obj=None):
                 dr_rec_type == DR_DUMP_REC_TYPE_MATCHER_TX:
             dump_ctx.matcher.add_matcher_rx_tx(dr_obj)
 
-        elif dr_rec_type == DR_DUMP_REC_TYPE_MATCHER_MASK:
+        elif dr_rec_type in [DR_DUMP_REC_TYPE_MATCHER_MASK,
+                             DR_DUMP_REC_TYPE_MATCHER_MASK_WITH_RESERVED]:
             dump_ctx.matcher.add_mask(dr_obj)
 
         elif dr_rec_type == DR_DUMP_REC_TYPE_MATCHER:
