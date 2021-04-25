@@ -5,12 +5,14 @@ import struct
 from ctypes import *
 import binascii
 
+
 # struct iovec {
 #    void  *iov_base;    /* Starting address */
 #    size_t iov_len;     /* Number of bytes to transfer */
 # };
 class iovec(Structure):
     _fields_ = [('iov_base', c_char_p), ('iov_len', c_size_t)]
+
 
 # struct msghdr {
 # 	void		*msg_name;	/* ptr to socket address structure */
@@ -24,6 +26,7 @@ class iovec(Structure):
 class msghdr(Structure):
     _fields_ = [('msg_name', c_void_p), ('msg_namelen', c_uint), ('msg_iov', POINTER(iovec)), ('msg_iovlen', c_size_t),
                 ('msg_control', c_void_p), ('msg_controllen', c_size_t), ('msg_flags', c_int)]
+
 
 # struct cmsghdr {
 #    size_t cmsg_len;    /* Data byte count, including header
@@ -44,14 +47,15 @@ class cmsghdr(Structure):
         class cmsghdr_with_data(Structure):
             _fields_ = cls._fields_ + [('cmsg_data', CHAR_ARRAY)]
 
-        return cmsghdr_with_data(cmsg_len, cmsg_level, cmsg_type,cmsg_data)
+        return cmsghdr_with_data(cmsg_len, cmsg_level, cmsg_type, cmsg_data)
 
-#define CMSG_LEN(len) (sizeof(struct cmsghdr) + (len))
+
+# define CMSG_LEN(len) (sizeof(struct cmsghdr) + (len))
 def CMSG_LEN(c_len):
     return c_size_t(sizeof(cmsghdr) + c_len)
 
 
-def fd_msg(flow_ptr,fd, port, prevent_py_gc):
+def fd_msg(flow_ptr, fd, port, prevent_py_gc):
     fd = c_int(fd)
 
     if (flow_ptr != 0):
@@ -76,9 +80,10 @@ def fd_msg(flow_ptr,fd, port, prevent_py_gc):
 
     return msghdr(None, 0, ptr_iovec(iov), 1, addressof(struct_cmsghdr), c_size_t(sizeof(struct_cmsghdr)))
 
+
 def connect_to_server(server_pid):
     path = "/var/tmp/dpdk_net_mlx5_%d" % server_pid
-    if(os.path.exists(path) == False):                                      
+    if (os.path.exists(path) == False):
         print("DPDK doesn't support steering dump trigger")
         sys.exit(1)
 
@@ -90,9 +95,10 @@ def connect_to_server(server_pid):
         sys.exit(1)
     return sock
 
+
 def request_dump(sock, port, dump_file, flow_ptr):
     try:
-        #link to c code of sendmsg
+        # link to c code of sendmsg
         libc = CDLL('libc.so.6')
     except:
         print("failed to link function sendmsg from libc.so.6")
@@ -102,11 +108,11 @@ def request_dump(sock, port, dump_file, flow_ptr):
     c_sendmsg.argtypes = [c_int, POINTER(msghdr), c_int]
     c_sendmsg.restype = c_int
 
-    #this variable used to prevent python garbage collector from disposing some resources.
+    # this variable used to prevent python garbage collector from disposing some resources.
     prevent_py_gc = {}
 
     sock_num = c_int(sock.fileno())
-    msg = fd_msg(flow_ptr,dump_file.fileno(), port, prevent_py_gc)
+    msg = fd_msg(flow_ptr, dump_file.fileno(), port, prevent_py_gc)
 
     ret = c_sendmsg(sock_num, msg, 0)
     if ret == -1:
@@ -114,23 +120,24 @@ def request_dump(sock, port, dump_file, flow_ptr):
 
     sock.recv(1024)
 
+
 def trigger_dump(s_pid, s_port, path, s_flow_ptr):
     global port
     global server_pid
     global flow_ptr
-   
+
     port = s_port
     server_pid = s_pid
     flow_ptr = s_flow_ptr
 
     try:
-        dump_file = open(path , 'w')
+        dump_file = open(path, 'w')
     except IOError as msg:
         print("failed to open dump file: %s" % msg)
         sys.exit(1)
 
     sock = connect_to_server(server_pid)
     request_dump(sock, port, dump_file, flow_ptr)
-    dump_file.close() 
+    dump_file.close()
     sock.close()
-    return path 
+    return path

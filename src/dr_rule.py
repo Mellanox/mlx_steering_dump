@@ -28,16 +28,18 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from src.dr_utilities import _srd, dec_indent, dict_join_str, dr_obj,\
-                             get_indent_str, inc_indent, print_dr,\
-                             dr_print_color
+from src.dr_utilities import _srd, dec_indent, dict_join_str, dr_obj, \
+    get_indent_str, inc_indent, print_dr, \
+    dr_print_color
 from src.parsers.dr_ste_parser import mlx5_hw_ste_parser
 from src.dr_constants import *
+
 
 def dr_rec_type_is_rule(rec_type):
     if rec_type.startswith(DR_DUMP_REC_TYPE_RULE_OBJS):
         return True
     return False
+
 
 class dr_dump_rule(dr_obj):
     def __init__(self, data):
@@ -67,7 +69,7 @@ class dr_dump_rule(dr_obj):
         delem = " & "
 
         if verbose > 0:
-            delem = "\n"+ len(ACTION) * " " + get_indent_str()
+            delem = "\n" + len(ACTION) * " " + get_indent_str()
 
         for i in range(0, len(self.rule_action_list)):
             action = self.rule_action_list[i]
@@ -114,9 +116,9 @@ class dr_dump_rule_entry_rx_tx(dr_obj):
     def dump_str(self, verbose, raw):
         nic_version = None
         if self.data['dr_dump_rec_type'] in [DR_DUMP_REC_TYPE_RULE_RX_ENTRY_V1,
-                                                  DR_DUMP_REC_TYPE_RULE_TX_ENTRY_V1]:
+                                             DR_DUMP_REC_TYPE_RULE_TX_ENTRY_V1]:
             nic_version = MLX5_HW_CONNECTX_6DX
-        else :
+        else:
             nic_version = MLX5_HW_CONNECTX_5
 
         parsed_ste = mlx5_hw_ste_parser(nic_version, self.data['ste_data'], self.data['definer_id'], raw, verbose)
@@ -127,15 +129,15 @@ class dr_dump_rule_entry_rx_tx(dr_obj):
             return "%s" % dict_join_str(parsed_ste["tag"])
         else:
             if self.data['dr_dump_rec_type'] in [DR_DUMP_REC_TYPE_RULE_RX_ENTRY_V0,
-                                                      DR_DUMP_REC_TYPE_RULE_RX_ENTRY_V1]:
+                                                 DR_DUMP_REC_TYPE_RULE_RX_ENTRY_V1]:
                 rx_tx = "RX"
             else:
                 rx_tx = "TX"
 
             if verbose == 1:
                 return "(%s STE, icm_idx %s): %s" % (
-                       rx_tx, _srd(self.data, "ste_icm_addr"),
-                       dict_join_str(parsed_ste["tag"]))
+                    rx_tx, _srd(self.data, "ste_icm_addr"),
+                    dict_join_str(parsed_ste["tag"]))
             elif verbose >= 2:
                 return "(%s STE, icm_idx %s): %s (%s)" % (
                     rx_tx, _srd(self.data, "ste_icm_addr"),

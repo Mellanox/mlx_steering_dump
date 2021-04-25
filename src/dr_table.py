@@ -28,8 +28,8 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from src.dr_utilities import _srd, print_dr, dr_obj, inc_indent, dec_indent,\
-                             dr_print_color
+from src.dr_utilities import _srd, print_dr, dr_obj, inc_indent, dec_indent, \
+    dr_print_color
 from src.dr_constants import *
 
 
@@ -37,6 +37,7 @@ def dr_rec_type_is_table(rec_type):
     if rec_type.startswith(DR_DUMP_REC_TYPE_TABLE_OBJS):
         return True
     return False
+
 
 class dr_dump_table(dr_obj):
     def __init__(self, data):
@@ -58,9 +59,9 @@ class dr_dump_table(dr_obj):
             tx_s_anchor = ""
 
             if self.table_rx:
-                rx_s_anchor = "rx s_anchor %s," %(self.table_rx.dump_str())
+                rx_s_anchor = "rx s_anchor %s," % (self.table_rx.dump_str())
             if self.table_tx:
-                tx_s_anchor = "tx s_anchor %s" %(self.table_tx.dump_str())
+                tx_s_anchor = "tx s_anchor %s" % (self.table_tx.dump_str())
 
             return "table %s: level: %s, type: %s, %s %s\n" % (
                 _srd(self.data, "id"),
@@ -88,14 +89,14 @@ class dr_dump_table(dr_obj):
 
     def fix_data(self):
         type = int(self.data["type"])
-        switch = { 0x0 : "NIC_RX",
-                   0x1 : "NIC_TX",
-                   0x2 : "ESW_EGRESS_ACL",
-                   0x3 : "ESW_INGRESS_ACL",
-                   0X4 : "FDB",
-                   0X5 : "SNIFFER_RX",
-                   0X6 : "SNIFFER_TX"
-                 }
+        switch = {0x0: "NIC_RX",
+                  0x1: "NIC_TX",
+                  0x2: "ESW_EGRESS_ACL",
+                  0x3: "ESW_INGRESS_ACL",
+                  0X4: "FDB",
+                  0X5: "SNIFFER_RX",
+                  0X6: "SNIFFER_TX"
+                  }
         if int(self.data["level"]) == 0:
             self.data["type"] = "ROOT"
         else:

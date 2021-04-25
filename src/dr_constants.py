@@ -53,18 +53,15 @@ DR_DUMP_REC_TYPE_ACTION_MISS = "3423"
 DR_DUMP_VIEW_RULE = 0,
 DR_DUMP_VIEW_TREE = 1,
 
-
-#steering format version
+# steering format version
 MLX5_HW_CONNECTX_5 = 0x0
 MLX5_HW_CONNECTX_6DX = 0x1
-
 
 # STE V1 format
 DR_STE_TYPE_BWC_BYTE = 0x0
 DR_STE_TYPE_BWC_DW = 0x1
 DR_STE_TYPE_MATCH = 0x4
 DR_STE_TYPE_MATCH_OLD = 0x2
-
 
 # STE V1 Lookup type is built from 2B: [ Definer mode 1B ][ Definer index 1B ]
 DR_STE_V1_LU_TYPE_DONT_CARE = 0x000f

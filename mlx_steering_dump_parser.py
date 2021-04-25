@@ -43,54 +43,53 @@ from src.dr_table import *
 from src.dr_utilities import *
 from src.dr_constants import *
 
-
 # mapping csv records types to it's relevant parser function
 switch_csv_rec_type = {
-        DR_DUMP_REC_TYPE_DOMAIN: dr_dump_domain,
-        DR_DUMP_REC_TYPE_DOMAIN_INFO_DEV_ATTR: dr_dump_domain_info_dev_attr,
-        DR_DUMP_REC_TYPE_DOMAIN_INFO_CAPS: dr_dump_domain_info_caps,
-        DR_DUMP_REC_TYPE_DOMAIN_INFO_VPORT: dr_dump_domain_info_vport,
-        DR_DUMP_REC_TYPE_DOMAIN_SEND_RING: dr_dump_domain_send_ring,
-        DR_DUMP_REC_TYPE_DOMAIN_INFO_FLEX_PARSER: dr_dump_domain_info_flex_parser,
+    DR_DUMP_REC_TYPE_DOMAIN: dr_dump_domain,
+    DR_DUMP_REC_TYPE_DOMAIN_INFO_DEV_ATTR: dr_dump_domain_info_dev_attr,
+    DR_DUMP_REC_TYPE_DOMAIN_INFO_CAPS: dr_dump_domain_info_caps,
+    DR_DUMP_REC_TYPE_DOMAIN_INFO_VPORT: dr_dump_domain_info_vport,
+    DR_DUMP_REC_TYPE_DOMAIN_SEND_RING: dr_dump_domain_send_ring,
+    DR_DUMP_REC_TYPE_DOMAIN_INFO_FLEX_PARSER: dr_dump_domain_info_flex_parser,
 
-        DR_DUMP_REC_TYPE_TABLE: dr_dump_table,
-        DR_DUMP_REC_TYPE_TABLE_RX: dr_dump_table_rx_tx,
-        DR_DUMP_REC_TYPE_TABLE_TX: dr_dump_table_rx_tx,
+    DR_DUMP_REC_TYPE_TABLE: dr_dump_table,
+    DR_DUMP_REC_TYPE_TABLE_RX: dr_dump_table_rx_tx,
+    DR_DUMP_REC_TYPE_TABLE_TX: dr_dump_table_rx_tx,
 
-        DR_DUMP_REC_TYPE_MATCHER: dr_dump_matcher,
-        DR_DUMP_REC_TYPE_MATCHER_MASK: dr_dump_matcher_mask,
-        DR_DUMP_REC_TYPE_MATCHER_RX: dr_dump_matcher_rx_tx,
-        DR_DUMP_REC_TYPE_MATCHER_TX: dr_dump_matcher_rx_tx,
-        DR_DUMP_REC_TYPE_MATCHER_BUILDER: dr_dump_matcher_builder,
+    DR_DUMP_REC_TYPE_MATCHER: dr_dump_matcher,
+    DR_DUMP_REC_TYPE_MATCHER_MASK: dr_dump_matcher_mask,
+    DR_DUMP_REC_TYPE_MATCHER_RX: dr_dump_matcher_rx_tx,
+    DR_DUMP_REC_TYPE_MATCHER_TX: dr_dump_matcher_rx_tx,
+    DR_DUMP_REC_TYPE_MATCHER_BUILDER: dr_dump_matcher_builder,
 
-        DR_DUMP_REC_TYPE_RULE: dr_dump_rule,
-        DR_DUMP_REC_TYPE_RULE_RX_ENTRY_V0: dr_dump_rule_entry_rx_tx,
-        DR_DUMP_REC_TYPE_RULE_TX_ENTRY_V0: dr_dump_rule_entry_rx_tx,
-        DR_DUMP_REC_TYPE_RULE_RX_ENTRY_V1: dr_dump_rule_entry_rx_tx,
-        DR_DUMP_REC_TYPE_RULE_TX_ENTRY_V1: dr_dump_rule_entry_rx_tx,
- 
-        DR_DUMP_REC_TYPE_ACTION_ENCAP_L2: dr_dump_action_encap_l2,
-        DR_DUMP_REC_TYPE_ACTION_ENCAP_L3: dr_dump_action_encap_l3,
-        DR_DUMP_REC_TYPE_ACTION_MODIFY_HDR: dr_dump_action_modify_header,
-        DR_DUMP_REC_TYPE_ACTION_DROP: dr_dump_action_drop,
-        DR_DUMP_REC_TYPE_ACTION_QP: dr_dump_action_qp,
-        DR_DUMP_REC_TYPE_ACTION_FT: dr_dump_action_ft,
-        DR_DUMP_REC_TYPE_ACTION_CTR: dr_dump_action_ctr,
-        DR_DUMP_REC_TYPE_ACTION_TAG: dr_dump_action_tag,
-        DR_DUMP_REC_TYPE_ACTION_VPORT: dr_dump_action_vport,
-        DR_DUMP_REC_TYPE_ACTION_DECAP_L2: dr_dump_action_decap_l2,
-        DR_DUMP_REC_TYPE_ACTION_DECAP_L3: dr_dump_action_decap_l3,
-        DR_DUMP_REC_TYPE_ACTION_DEVX_TIR: dr_dump_action_devx_tir,
-        DR_DUMP_REC_TYPE_ACTION_POP_VLAN: dr_dump_action_pop_vlan,
-        DR_DUMP_REC_TYPE_ACTION_PUSH_VLAN: dr_dump_action_push_vlan,
-        DR_DUMP_REC_TYPE_ACTION_METER: dr_dump_action_meter,
-        DR_DUMP_REC_TYPE_ACTION_SAMPLER: dr_dump_action_sampler,
-        DR_DUMP_REC_TYPE_ACTION_DEST_ARRAY: dr_dump_action_dest_array,
-        DR_DUMP_REC_TYPE_ACTION_ASO_FIRST_HIT: dr_dump_action_aso_flow_hit,
-        DR_DUMP_REC_TYPE_ACTION_ASO_FLOW_METER: dr_dump_action_aso_flow_meter,
-        DR_DUMP_REC_TYPE_ACTION_MISS: dr_dump_action_default_miss,
-        DR_DUMP_REC_TYPE_ACTION_ASO_CT: dr_dump_action_aso_ct,
-    }
+    DR_DUMP_REC_TYPE_RULE: dr_dump_rule,
+    DR_DUMP_REC_TYPE_RULE_RX_ENTRY_V0: dr_dump_rule_entry_rx_tx,
+    DR_DUMP_REC_TYPE_RULE_TX_ENTRY_V0: dr_dump_rule_entry_rx_tx,
+    DR_DUMP_REC_TYPE_RULE_RX_ENTRY_V1: dr_dump_rule_entry_rx_tx,
+    DR_DUMP_REC_TYPE_RULE_TX_ENTRY_V1: dr_dump_rule_entry_rx_tx,
+
+    DR_DUMP_REC_TYPE_ACTION_ENCAP_L2: dr_dump_action_encap_l2,
+    DR_DUMP_REC_TYPE_ACTION_ENCAP_L3: dr_dump_action_encap_l3,
+    DR_DUMP_REC_TYPE_ACTION_MODIFY_HDR: dr_dump_action_modify_header,
+    DR_DUMP_REC_TYPE_ACTION_DROP: dr_dump_action_drop,
+    DR_DUMP_REC_TYPE_ACTION_QP: dr_dump_action_qp,
+    DR_DUMP_REC_TYPE_ACTION_FT: dr_dump_action_ft,
+    DR_DUMP_REC_TYPE_ACTION_CTR: dr_dump_action_ctr,
+    DR_DUMP_REC_TYPE_ACTION_TAG: dr_dump_action_tag,
+    DR_DUMP_REC_TYPE_ACTION_VPORT: dr_dump_action_vport,
+    DR_DUMP_REC_TYPE_ACTION_DECAP_L2: dr_dump_action_decap_l2,
+    DR_DUMP_REC_TYPE_ACTION_DECAP_L3: dr_dump_action_decap_l3,
+    DR_DUMP_REC_TYPE_ACTION_DEVX_TIR: dr_dump_action_devx_tir,
+    DR_DUMP_REC_TYPE_ACTION_POP_VLAN: dr_dump_action_pop_vlan,
+    DR_DUMP_REC_TYPE_ACTION_PUSH_VLAN: dr_dump_action_push_vlan,
+    DR_DUMP_REC_TYPE_ACTION_METER: dr_dump_action_meter,
+    DR_DUMP_REC_TYPE_ACTION_SAMPLER: dr_dump_action_sampler,
+    DR_DUMP_REC_TYPE_ACTION_DEST_ARRAY: dr_dump_action_dest_array,
+    DR_DUMP_REC_TYPE_ACTION_ASO_FIRST_HIT: dr_dump_action_aso_flow_hit,
+    DR_DUMP_REC_TYPE_ACTION_ASO_FLOW_METER: dr_dump_action_aso_flow_meter,
+    DR_DUMP_REC_TYPE_ACTION_MISS: dr_dump_action_default_miss,
+    DR_DUMP_REC_TYPE_ACTION_ASO_CT: dr_dump_action_aso_ct,
+}
 
 
 def dr_report_unsupported_object(dump_ctx, line):
@@ -112,6 +111,7 @@ def dr_report_unsupported_object(dump_ctx, line):
     else:
         print("Unsupported object")
 
+
 # parse csv record according to type and return parsed object (like dr_domain, dr_table, dr_rule ...)
 def dr_csv_get_obj(line):
     rec_type = line[0]
@@ -120,6 +120,7 @@ def dr_csv_get_obj(line):
 
     parser = switch_csv_rec_type[line[0]]
     return parser(line)
+
 
 def print_ctx(dump_ctx, view, verbose, raw, colored):
     dr_obj = None
@@ -178,7 +179,7 @@ def parse_domain(csv_reader, domain_obj=None):
                            DR_DUMP_REC_TYPE_RULE_TX_ENTRY_V1]:
 
             dr_obj.data["definer_id"] = \
-                    dump_ctx.matcher.builders[-1].data["definer_id"]
+                dump_ctx.matcher.builders[-1].data["definer_id"]
             dump_ctx.rule.add_rule_entry(dr_obj)
 
         # update Action objects
@@ -244,13 +245,16 @@ def parse_domain(csv_reader, domain_obj=None):
 def parse_args():
     parser = argparse.ArgumentParser(description='''mlx_steering_dump.py - Steering dump tool''')
     parser.add_argument('-f', dest="FILEPATH", default="", help='input steering dump file path')
-    parser.add_argument('-p', dest="dpdk_pid", type=int, default=-1, help='Trigger DPDK app to generate CSV dump file (-p <APP PID>)')
-    parser.add_argument('-t', action='store_true', default=False, dest='tree_view', help='tree view (default is rule view)')
+    parser.add_argument('-p', dest="dpdk_pid", type=int, default=-1,
+                        help='Trigger DPDK app to generate CSV dump file (-p <APP PID>)')
+    parser.add_argument('-t', action='store_true', default=False, dest='tree_view',
+                        help='tree view (default is rule view)')
     parser.add_argument("-v", action="count", dest='verbose', default=0, help="increase output verbosity")
     parser.add_argument('-r', action='store_true', default=False, dest='raw', help='raw output')
     parser.add_argument('-c', action='store_true', default=False, dest='colored', help='colored output')
-    parser.add_argument('-port', dest="dpdk_port", type=int, default=0, help='Trigger DPDK app <PORT> (must provide PID with -p)')
-    parser.add_argument('-flowptr', dest="flow_ptr",type=int, default=0,help='dump single rule by rte_flow_pointer')
+    parser.add_argument('-port', dest="dpdk_port", type=int, default=0,
+                        help='Trigger DPDK app <PORT> (must provide PID with -p)')
+    parser.add_argument('-flowptr', dest="flow_ptr", type=int, default=0, help='dump single rule by rte_flow_pointer')
     parser.add_argument('-version', action='store_true', default=False, dest='version', help='show version')
     return parser.parse_args()
 
@@ -275,7 +279,7 @@ if __name__ == '__main__':
         while domain_obj != LAST_OBJ:
             dump_ctx, domain_obj = parse_domain(csv_reader, domain_obj)
             print_ctx(dump_ctx, DR_DUMP_VIEW_TREE if args.tree_view
-                      else DR_DUMP_VIEW_RULE, args.verbose,
+            else DR_DUMP_VIEW_RULE, args.verbose,
                       args.raw, args.colored)
 
     sys.exit(0)

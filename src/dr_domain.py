@@ -63,12 +63,12 @@ class dr_dump_domain(dr_obj):
 
     def dump_str(self):
         return "domain %s: type: %s, gvmi: %s, support_sw_steering %s, dev_name %s, package_version %s\n" % (
-               _srd(self.data, "id"),
-               _srd(self.data, "type"),
-               _srd(self.data, "gvmi"),
-               _srd(self.data, "support_sw_steering"),
-               _srd(self.data, "dev_name"),
-               _srd(self.data, "package_version"))
+            _srd(self.data, "id"),
+            _srd(self.data, "type"),
+            _srd(self.data, "gvmi"),
+            _srd(self.data, "support_sw_steering"),
+            _srd(self.data, "dev_name"),
+            _srd(self.data, "package_version"))
 
     def print_tree_view(self, dump_ctx, verbose, raw):
         print_dr(dr_print_color.DOMAIN, self.dump_str())
@@ -136,8 +136,8 @@ class dr_dump_domain_info_dev_attr(dr_obj):
 
     def dump_string(self):
         return "device: ports_num %s, FW version %s\n" % (
-               _srd(self.data, "ports_num"),
-               _srd(self.data, "fw_version"))
+            _srd(self.data, "ports_num"),
+            _srd(self.data, "fw_version"))
 
 
 class dr_dump_domain_info_flex_parser(dr_obj):
@@ -147,8 +147,8 @@ class dr_dump_domain_info_flex_parser(dr_obj):
 
     def dump_string(self):
         return "flex parser: name %s, value %s\n" % (
-               _srd(self.data, "name"),
-               _srd(self.data, "value"))
+            _srd(self.data, "name"),
+            _srd(self.data, "value"))
 
 
 class dr_dump_domain_info_caps(dr_obj):
@@ -160,12 +160,13 @@ class dr_dump_domain_info_caps(dr_obj):
     def dump_string(self):
         flex_str = felx_parser_dump_string(int(self.data["flex_protocols"], 16))
 
-        return "caps: eswitch_manager %s, num_vports %s, flex_protocols: %s, nic_rx_drop_address %s, nic_tx_drop_address %s\n" % (
-               _srd(self.data, "eswitch_manager"),
-               _srd(self.data, "num_vports"),
-               flex_str,
-               _srd(self.data, "nic_rx_drop_address"),
-               _srd(self.data, "nic_tx_drop_address"))
+        return "caps: eswitch_manager %s, num_vports %s, flex_protocols: %s, nic_rx_drop_address %s, " \
+               "nic_tx_drop_address %s\n" % (
+            _srd(self.data, "eswitch_manager"),
+            _srd(self.data, "num_vports"),
+            flex_str,
+            _srd(self.data, "nic_rx_drop_address"),
+            _srd(self.data, "nic_tx_drop_address"))
 
 
 class dr_dump_domain_info_vport(dr_obj):
@@ -188,8 +189,8 @@ class dr_dump_domain_send_ring(dr_obj):
 
     def dump_string(self):
         return "send ring: CQ num %s, QP num %s\n" % (
-               _srd(self.data, "cq_num"),
-               _srd(self.data, "qp_num"))
+            _srd(self.data, "cq_num"),
+            _srd(self.data, "qp_num"))
 
 
 def dr_matcher_supp_flex_parser_vxlan_gpe(flex_protocols):

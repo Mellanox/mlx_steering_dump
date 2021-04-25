@@ -30,6 +30,7 @@
 import socket
 import struct
 
+
 def pretty_ip(ip):
     if len(ip) < 34:
         # IPv4

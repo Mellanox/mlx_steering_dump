@@ -28,16 +28,18 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from src.dr_utilities import _srd, dict_join_str, print_dr, dr_obj,\
-                             inc_indent, dec_indent, dr_print_color
+from src.dr_utilities import _srd, dict_join_str, print_dr, dr_obj, \
+    inc_indent, dec_indent, dr_print_color
 from src.parsers import dr_matcher_mask_parser
 from src.dr_constants import *
-import src.dr_prettify
+from src import dr_prettify
+
 
 def dr_rec_type_is_matcher(rec_type):
     if rec_type.startswith(DR_DUMP_REC_TYPE_MATCHER_OBJS):
         return True
     return False
+
 
 class dr_dump_matcher(dr_obj):
     def __init__(self, data):
@@ -62,7 +64,7 @@ class dr_dump_matcher(dr_obj):
         return "matcher %s: priority %s, %s\n" % (
             _srd(self.data, "id"),
             _srd(self.data, "priority"),
-	    rx_tx_e_anchor)
+            rx_tx_e_anchor)
 
     def print_tree_view(self, dump_ctx, verbose, raw):
         print_dr(dr_print_color.MATCHER, self.dump_str())
@@ -95,7 +97,7 @@ class dr_dump_matcher(dr_obj):
             self.matcher_rx = matcher_rx_tx
         else:
             self.matcher_tx = matcher_rx_tx
-	
+
 
 class dr_dump_matcher_mask(dr_obj):
     def __init__(self, data):
@@ -135,9 +137,9 @@ class dr_dump_matcher_rx_tx(dr_obj):
 
     def dump_string(self):
         return "rx_builder_num: %s, rx_s_htbl_idx: %s, rx_e_anchor_idx: %s\n" % (
-               _srd(self.data, "num_of_builders"),
-               _srd(self.data, "s_htbl"),
-               _srd(self.data, "e_anchor"))
+            _srd(self.data, "num_of_builders"),
+            _srd(self.data, "s_htbl"),
+            _srd(self.data, "e_anchor"))
 
 
 class dr_dump_matcher_builder(dr_obj):
