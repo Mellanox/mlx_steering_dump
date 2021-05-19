@@ -402,6 +402,31 @@ def mlx5_ifc_ste_def6_v1_bits_parser(bin_str):
     return ret
 
 
+def mlx5_ifc_ste_def16_v1_bits_parser(bin_str):
+    ret = {}
+
+    ret["tunnel_header_0"] = _val(bin_str[0: 32])
+    ret["tunnel_header_1"] = _val(bin_str[32: 64])
+    ret["tunnel_header_2"] = _val(bin_str[64: 96])
+    ret["tunnel_header_3"] = _val(bin_str[96: 128])
+    ret["reserved_30"] = _val(bin_str[128: 144])
+    ret["random_number"] = _val(bin_str[144: 160])
+    ret["metadata_reg_a"] = _val(bin_str[160: 192])
+    ret["source_gvmi"] = _val(bin_str[192: 208])
+    ret["functional_lb"] = _val(bin_str[208: 209])
+    ret["reserved_3a"] = _val(bin_str[209: 210])
+    ret["outer_first_vlan_type"] = _val(bin_str[210: 212])
+    ret["outer_l4_type"] = _val(bin_str[212: 214])
+    ret["outer_l3_type"] = _val(bin_str[214: 216])
+    ret["reserved_3b"] = _val(bin_str[216: 224])
+    ret["source_sqn"] = _val(bin_str[224: 248])
+    ret["reserved_3f"] = _val(bin_str[248: 253])
+    ret["source_is_requester"] = _val(bin_str[253: 254])
+    ret["outer_ip_frag"] = _val(bin_str[254: 255])
+    ret["force_lb"] = _val(bin_str[255: 256])
+    return ret
+
+
 def mlx5_ifc_ste_def0_v1_bits_parser(bin_str):
     ret = {}
     ret["metadata_reg_c_0"] = _val(bin_str[0: 32])
@@ -530,6 +555,7 @@ switch_definer_parser = {
     0x24: mlx5_ifc_ste_def24_v1_bits_tag_parser,
     0x25: mlx5_ifc_ste_def25_v1_bits_parser,
     0x26: mlx5_ifc_ste_def26_v1_bits_parser,
+    0x16: mlx5_ifc_ste_def16_v1_bits_parser,
     0x6: mlx5_ifc_ste_def6_v1_bits_parser,
     0x0: mlx5_ifc_ste_def0_v1_bits_parser,
     0x2: mlx5_ifc_ste_def2_v1_bits_parser
