@@ -29,6 +29,10 @@
 # SOFTWARE.
 
 import sys
+import ctypes
+import re
+from  enum import Enum
+from src.dr_prettify import pretty_ip, pretty_mac
 
 # sw steering dump tool version
 g_version = "1.0.1"
@@ -50,6 +54,9 @@ class dr_dump_ctx(object):
     table = None
     matcher = None
     rule = None
+    counter = {}
+    encap_decap = {}
+    modify_hdr = {}
 
 
 # Base class for all SW steering object that will be read from a CSV dump file.
@@ -165,3 +172,5 @@ def hex_2_bin(hex_str):
     # convert to binary and remove "0b1111"
     bin_str = bin(int(hex_str, 16))[6:]
     return bin_str
+
+
