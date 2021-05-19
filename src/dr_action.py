@@ -28,9 +28,12 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from src.dr_utilities import _srd, dr_obj
+from src.dr_utilities import _srd, dr_obj, print_dr
 from src.dr_constants import DR_DUMP_REC_TYPE_ACTION_OBJS
-
+from src.dr_prettify import pretty_ip,pretty_mac
+from src.dr_utilities import _val
+from src.parsers.mlx5_ifc_parser import mlx5_ifc_encap_decap, mlx5_ifc_modify_hdr
+from src.dr_utilities import dr_dump_ctx
 
 def dr_rec_type_is_action(rec_type):
     if rec_type.startswith(DR_DUMP_REC_TYPE_ACTION_OBJS):
@@ -90,8 +93,15 @@ class dr_dump_action_ctr(dr_obj):
         keys = ["dr_dump_rec_type", "id", "rule_id", "ctr_index"]
         self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
 
+    def add_dump_ctx(self, dump_ctx):
+        self.dump_ctx = dump_ctx
+
     def dump_str(self):
-        return "CTR, index %s" % (_srd(self.data, "ctr_index"))
+        if ( (_srd(self.data, "id")) in self.dump_ctx.counter.keys()):
+            out_str = self.dump_ctx.counter[(_srd(self.data, "id"))]
+        else:
+            out_str = "counter"
+        return "CTR(%s), index %s" % (out_str, _srd(self.data, "ctr_index"))
 
 
 class dr_dump_action_tag(dr_obj):
@@ -108,11 +118,19 @@ class dr_dump_action_modify_header(dr_obj):
         keys = ["dr_dump_rec_type", "id", "rule_id", "rewrite_index", "single_action_opt"]
         self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
 
+    def add_dump_ctx(self, dump_ctx):
+        self.dump_ctx = dump_ctx
+
     def dump_str(self):
         if self.data["single_action_opt"]:
             if int(self.data["single_action_opt"], 16) == 1:
                 return "MODIFY_HDR, single modify action optimized"
-        return "MODIFY_HDR, rewrite index %s" % (_srd(self.data, "rewrite_index"))
+
+        if ( (_srd(self.data, "id")) in self.dump_ctx.modify_hdr.keys()):
+            out_str = self.dump_ctx.modify_hdr[(_srd(self.data, "id"))].lstrip(',')
+            return "MODIFY_HDR(hdr(%s)), rewrite index %s" % (out_str, (_srd(self.data, "rewrite_index")))
+        else:
+            return "MODIFY_HDR, rewrite index %s" % (_srd(self.data, "rewrite_index"))
 
 
 class dr_dump_action_vport(dr_obj):
@@ -147,8 +165,15 @@ class dr_dump_action_encap_l2(dr_obj):
         keys = ["dr_dump_rec_type", "id", "rule_id", "devx_obj_id"]
         self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
 
+    def add_dump_ctx(self, dump_ctx):
+        self.dump_ctx = dump_ctx
+
     def dump_str(self):
-        return "ENCAP_L2, devx obj id %s" % (_srd(self.data, "devx_obj_id"))
+        if ( (_srd(self.data, "id")) in self.dump_ctx.encap_decap.keys()):
+           out_str = self.dump_ctx.encap_decap[(_srd(self.data, "id"))]
+        else:
+           out_str = "parse vxlan en/decap error!"
+        return "ENCAP_L2(%s), devx obj id %s" % (out_str, _srd(self.data, "devx_obj_id"))
 
 
 class dr_dump_action_encap_l3(dr_obj):
@@ -156,9 +181,15 @@ class dr_dump_action_encap_l3(dr_obj):
         keys = ["dr_dump_rec_type", "id", "rule_id", "devx_obj_id"]
         self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
 
-    def dump_str(self):
-        return "ENCAP_L3, devx obj id %s" % (_srd(self.data, "devx_obj_id"))
+    def add_dump_ctx(self, dump_ctx):
+        self.dump_ctx = dump_ctx
 
+    def dump_str(self):
+        if ( (_srd(self.data, "id")) in self.dump_ctx.encap_decap.keys()):
+            out_str = self.dump_ctx.encap_decap[(_srd(self.data, "id"))]
+        else:
+            out_str = "parse vxlan en/decap error!"
+        return "ENCAP_L3(%s), devx obj id %s" % (out_str, _srd(self.data, "devx_obj_id"))
 
 class dr_dump_action_pop_vlan(dr_obj):
     def __init__(self, data):
@@ -255,3 +286,50 @@ class dr_dump_action_aso_ct(dr_obj):
 
     def dump_str(self):
         return "ASO CT devx_id %s" % (_srd(self.data, "devx_id"))
+
+
+class dr_dump_counter(dr_obj):
+    def __init__(self, data):
+        keys = ["dr_dump_rec_type","id", "hits", "bytes"]
+        self.data = dict(zip(keys, data))
+        self.hits = str(self.data["hits"])
+        self.bytes = str(self.data["bytes"])
+        counter_str = "hits(%s), bytes(%s)" % (self.hits, self.bytes)
+
+        self.data.pop("hits")
+        self.data.pop("bytes")
+        self.id = str(self.data["id"])
+        self.data = counter_str
+
+    def add_dump_ctx(self, dump_ctx):
+        self.dump_ctx = dump_ctx
+
+    def dump_str(self):
+        return "counter"
+
+
+class dr_dump_encap_decap(dr_obj):
+    def __init__(self, data):
+        keys = ["dr_dump_rec_type", "id", "buf"]
+        self.data = dict(zip(keys, data))
+        str = mlx5_ifc_encap_decap(self.data["buf"])
+        self.data.pop("buf")
+        self.id = self.data["id"]
+        self.data = str
+
+    def dump_str(self):
+       return "encap_decap"
+
+
+class dr_dump_modify_hdr(dr_obj):
+    def __init__(self, data):
+        keys = ["dr_dump_rec_type", "id",  "num", "buf"]
+        self.data = dict(zip(keys, data))
+        hdr_str = mlx5_ifc_modify_hdr(self.data["num"], self.data["buf"])
+        self.data.pop("buf")
+        self.data.pop("num")
+        self.id = str(self.data["id"])
+        self.data = hdr_str
+
+    def dump_str(self):
+        return "modify_hdr"
