@@ -90,6 +90,9 @@ switch_csv_rec_type = {
     DR_DUMP_REC_TYPE_ACTION_ASO_FLOW_METER: dr_dump_action_aso_flow_meter,
     DR_DUMP_REC_TYPE_ACTION_MISS: dr_dump_action_default_miss,
     DR_DUMP_REC_TYPE_ACTION_ASO_CT: dr_dump_action_aso_ct,
+    DR_DUMP_REC_TYPE_PMD_ACTION_PKT_REFORMAT: dr_dump_encap_decap,
+    DR_DUMP_REC_TYPE_PMD_ACTION_COUNTER: dr_dump_counter,
+    DR_DUMP_REC_TYPE_PMD_ACTION_MODIFY_HDR: dr_dump_modify_hdr,
 }
 
 unsupported_obj_list = []
@@ -193,6 +196,11 @@ def parse_domain(csv_reader, domain_obj=None):
         # update Action objects
         elif dr_rec_type_is_action(dr_rec_type):
             dump_ctx.rule.add_action(dr_obj)
+            if dr_rec_type in [DR_DUMP_REC_TYPE_ACTION_ENCAP_L2,
+                               DR_DUMP_REC_TYPE_ACTION_ENCAP_L3,
+                               DR_DUMP_REC_TYPE_ACTION_CTR,
+                               DR_DUMP_REC_TYPE_ACTION_MODIFY_HDR]:
+               dr_obj.add_dump_ctx(dump_ctx)
 
         # update Rule objects
         elif dr_rec_type == DR_DUMP_REC_TYPE_RULE:
@@ -247,6 +255,18 @@ def parse_domain(csv_reader, domain_obj=None):
 
         elif dump_ctx.domain and dr_rec_type == DR_DUMP_REC_TYPE_DOMAIN_SEND_RING:
             dump_ctx.domain.add_send_ring(dr_obj)
+
+        elif dr_rec_type == DR_DUMP_REC_TYPE_PMD_ACTION_PKT_REFORMAT:
+            if dr_obj.id and dr_obj.data:
+                dump_ctx.encap_decap[dr_obj.id] = dr_obj.data
+
+        elif dr_rec_type == DR_DUMP_REC_TYPE_PMD_ACTION_COUNTER:
+            if dr_obj.id and dr_obj.data:
+                dump_ctx.counter[dr_obj.id] = dr_obj.data
+
+        elif dr_rec_type == DR_DUMP_REC_TYPE_PMD_ACTION_MODIFY_HDR:
+            if dr_obj.id and dr_obj.data:
+                dump_ctx.modify_hdr[dr_obj.id] = dr_obj.data
 
     return dump_ctx, LAST_OBJ
 
