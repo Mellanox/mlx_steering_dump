@@ -273,6 +273,12 @@ def mlx5_ifc_ste_v0_flex_parser_bits_tag_parser(bin_str):
     ret["flex_parser"] = "can't parse fields"
     return ret
 
+def mlx5_ifc_ste_tunnel_header_v0_bits_parser(bin_str):
+    ret = {}
+    ret["tunnel_header_dw0"] = _val(bin_str[0: 32])
+    ret["tunnel_header_dw1"] = _val(bin_str[32: 64])
+    return ret
+
 
 switch_tag_parser = {
     "0x05": [mlx5_ifc_ste_v0_src_gvmi_qp_bits_tag_parser, False],
@@ -310,8 +316,8 @@ switch_tag_parser = {
     "0x30": [mlx5_ifc_ste_v0_register_1_bits_tag_parser, False],
     "0x22": [mlx5_ifc_ste_v0_flex_parser_bits_tag_parser, False],
     "0x23": [mlx5_ifc_ste_v0_flex_parser_bits_tag_parser, False],
+    "0x34": [mlx5_ifc_ste_tunnel_header_v0_bits_parser, False],
 }
-
 
 def mlx5_ste_v0_tag_parser(lookup_type, tag, raw):
     if lookup_type not in switch_tag_parser.keys():
