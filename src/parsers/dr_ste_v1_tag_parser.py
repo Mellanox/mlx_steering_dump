@@ -526,6 +526,32 @@ def mlx5_ifc_ste_def2_v1_bits_parser(bin_str):
     return ret
 
 
+def mlx5_ifc_ste_def28_v1_bits_parser(bin_str):
+    ret = {}
+    ret["inner_l4_sport"] = _val(bin_str[0: 16])
+    ret["inner_l4_dport"] = _val(bin_str[16: 32])
+    ret["flex_gtpu_teid"] = _val(bin_str[32: 64])
+    ret["inner_ip_src_addr"] = _val(bin_str[64: 96])
+    ret["inner_ip_dst_addr"] = _val(bin_str[96: 128])
+    ret["outer_ip_src_addr"] = _val(bin_str[128: 160])
+    ret["outer_ip_dst_addr"] = _val(bin_str[160: 192])
+    ret["outer_l4_sport"] = _val(bin_str[192: 208])
+    ret["outer_l4_dport"] = _val(bin_str[208: 224])
+    ret["inner_ip_protocol"] = _val(bin_str[224: 232])
+    ret["inner_l3_type"] = _val(bin_str[232: 234])
+    ret["inner_l4_type"] = _val(bin_str[234: 236])
+    ret["inner_first_vlan_type"] = _val(bin_str[236: 238])
+    ret["inner_ip_frag"] = _val(bin_str[238: 239])
+    ret["functional_lb"] = _val(bin_str[239: 240])
+    ret["outer_ip_protocol"] = _val(bin_str[240: 248])
+    ret["outer_l3_type"] = _val(bin_str[248: 250])
+    ret["outer_l4_type"] = _val(bin_str[250: 252])
+    ret["outer_first_vlan_type"] = _val(bin_str[252: 254])
+    ret["outer_ip_frag"] = _val(bin_str[254: 255])
+    ret["functional_lb_dup"] = _val(bin_str[255: 256])
+    return ret
+
+
 switch_tag_parser = {
     DR_STE_V1_LU_TYPE_ETHL2_SRC_DST_I: [mlx5_ifc_ste_eth_l2_src_dst_v1_bits_tag_parser_p, True],
     DR_STE_V1_LU_TYPE_ETHL2_SRC_DST_O: [mlx5_ifc_ste_eth_l2_src_dst_v1_bits_tag_parser_p, False],
@@ -566,7 +592,8 @@ switch_definer_parser = {
     0x16: mlx5_ifc_ste_def16_v1_bits_parser,
     0x6: mlx5_ifc_ste_def6_v1_bits_parser,
     0x0: mlx5_ifc_ste_def0_v1_bits_parser,
-    0x2: mlx5_ifc_ste_def2_v1_bits_parser
+    0x2: mlx5_ifc_ste_def2_v1_bits_parser,
+    0x28: mlx5_ifc_ste_def28_v1_bits_parser
 }
 
 
