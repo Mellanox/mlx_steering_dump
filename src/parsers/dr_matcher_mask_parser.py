@@ -247,3 +247,30 @@ def dr_mask_misc4_parser(mask, raw):
         ret = dr_prettify.prettify_mask(ret)
 
     return ret
+
+
+def dr_mask_misc5_parser(mask, raw):
+    ret = {}
+    data = ""
+
+    if not mask:
+        return ret
+
+    for i in range(0, len(mask), 8):
+        tmp = little_endian_32(mask[i: i + 8])
+        data += tmp
+
+    ret["macsec_tag_0"] = _val(data[0: 8])
+    ret["macsec_tag_1"] = _val(data[8: 16])
+    ret["macsec_tag_2"] = _val(data[16: 24])
+    ret["macsec_tag_3"] = _val(data[24: 32])
+    ret["tunnel_header_0"] = _val(data[32: 40])
+    ret["tunnel_header_1"] = _val(data[40: 48])
+    ret["tunnel_header_2"] = _val(data[48: 56])
+    ret["tunnel_header_3"] = _val(data[56: 64])
+    ret["reserved"] = _val(data[64: 128])
+
+    if not raw:
+        ret = dr_prettify.prettify_mask(ret)
+
+    return ret

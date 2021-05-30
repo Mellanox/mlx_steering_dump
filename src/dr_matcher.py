@@ -101,7 +101,7 @@ class dr_dump_matcher(dr_obj):
 
 class dr_dump_matcher_mask(dr_obj):
     def __init__(self, data):
-        keys = ["dr_dump_rec_type", "matcher_id", "outer", "inner", "misc", "misc2", "misc3", "misc4"]
+        keys = ["dr_dump_rec_type", "matcher_id", "outer", "inner", "misc", "misc2", "misc3", "misc4", "misc5"]
         self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
 
     def dump_str(self):
@@ -111,7 +111,8 @@ class dr_dump_matcher_mask(dr_obj):
                      "misc": dr_matcher_mask_parser.dr_mask_misc_parser,
                      "misc2": dr_matcher_mask_parser.dr_mask_misc2_parser,
                      "misc3": dr_matcher_mask_parser.dr_mask_misc3_parser,
-                     "misc4": dr_matcher_mask_parser.dr_mask_misc4_parser
+                     "misc4": dr_matcher_mask_parser.dr_mask_misc4_parser,
+                     "misc5": dr_matcher_mask_parser.dr_mask_misc5_parser
                      }
 
         for sub_mask_name, sub_mask_parser in sub_masks.items():
