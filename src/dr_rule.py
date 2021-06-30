@@ -91,9 +91,10 @@ class dr_dump_rule(dr_obj):
         tbl_str = "table %s, " % (_srd(dump_ctx.table.data, "id"))
         matcher_str = "matcher %s, " % (_srd(dump_ctx.matcher.data, "id"))
 
-        print_dr(dr_print_color.DOMAIN, dmn_str)
-        print_dr(dr_print_color.TABLE, tbl_str)
-        print_dr(dr_print_color.MATCHER, matcher_str)
+        if verbose > 0:
+            print_dr(dr_print_color.DOMAIN, dmn_str)
+            print_dr(dr_print_color.TABLE, tbl_str)
+            print_dr(dr_print_color.MATCHER, matcher_str)
         print_dr(dr_print_color.RULE, self.dump_str())
 
         inc_indent()

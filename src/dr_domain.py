@@ -99,7 +99,10 @@ class dr_dump_domain(dr_obj):
         dec_indent()
 
     def print_rule_view(self, dump_ctx, verbose, raw):
+        def_table = ["65534","65533"]
         for t in self.table_list:
+            if verbose == 0 and t.data["level"] in def_table:
+                continue
             dump_ctx.table = t
             dump_ctx.matcher = None
             dump_ctx.rule = None
