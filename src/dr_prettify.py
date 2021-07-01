@@ -55,6 +55,7 @@ def pretty_ip_protocol(p):
               0x11: "UDP",
               0x2f: "GRE",
               0x33: "IPSEC",
+              0x01: "ICMP",
               }
 
     protcol = int(p, 16)
@@ -63,10 +64,28 @@ def pretty_ip_protocol(p):
     else:
         return p
 
+def pretty_source_vport(regc0):
+    source_vport = (int(regc0, 16) >> 16) - 1
+    source_vport = "(0x%x)," % (source_vport-1 if source_vport != 0 else source_vport)
+    return source_vport
+
+def pretty_l3_type(t):
+    switch = {0x1: "IPv4",
+              0x2: "IPv6",
+              }
+
+    l3type = int(t, 16)
+    if l3type in switch.keys():
+        return switch[l3type]
+    else:
+        return t
 
 def prettify_fields(dic):
     for j in dic.keys():
-        if "ip_protocol" in j:
+        if ( 
+            "ip_protocol" in j or
+            "protocol" in j
+        ): 
             dic[j] = pretty_ip_protocol(dic[j])
             continue
         if "ip" in j and ("dst" in j or "src" in j):
@@ -75,6 +94,12 @@ def prettify_fields(dic):
         if "smac" in j or "dmac" in j:
             dic[j] = pretty_mac(dic[j])
 
+        if "metadata_reg_c_0" in j:
+            dic[j] = pretty_source_vport(dic[j])
+            dic.update({'in_port':dic.pop("metadata_reg_c_0")})
+
+        if "l3_type" in j:
+            dic[j] = pretty_l3_type(dic[j])
 
 def prettify_tag(tag):
     clean_tag = dict(filter(lambda elem: eval(elem[1]) != 0, tag.items()))
