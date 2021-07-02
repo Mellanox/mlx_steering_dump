@@ -115,7 +115,8 @@ def mlx5_ifc_ste_v1_match_bits_parser(bin_str, definer_id, raw):
         lookup_type = int(bin_str[0: 8] + bin_str[48: 56], 2)
         ret["tag"] = mlx5_ste_v1_tag_parser(lookup_type, definer_id, tag, raw)
     else:
-        ret["tag"] = {"Tag": "STE only contains actions"}
+        if raw:
+            ret["tag"] = {"Tag": "STE only contains actions"}
 
     return ret
 
