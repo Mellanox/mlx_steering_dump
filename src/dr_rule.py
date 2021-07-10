@@ -52,7 +52,11 @@ class dr_dump_rule(dr_obj):
         return "rule %s\n" % (_srd(self.data, "id"))
 
     def dump_match_str(self, verbose, raw):
-        MATCH = "key: "
+        if raw or verbose:
+            MATCH = "match: "
+        else:
+            MATCH = "key: "
+
         match_str = MATCH
 
         for i in range(0, len(self.rule_entry_list)):
