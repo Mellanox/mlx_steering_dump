@@ -179,8 +179,15 @@ def parse_domain(csv_reader, domain_obj=None):
                            DR_DUMP_REC_TYPE_RULE_RX_ENTRY_V1,
                            DR_DUMP_REC_TYPE_RULE_TX_ENTRY_V1]:
 
-            dr_obj.data["definer_id"] = \
-                dump_ctx.matcher.builders[-1].data["definer_id"]
+            definer_id = '-1'
+            for builder in dump_ctx.matcher.builders[::-1]:
+                if ((int(builder.data["is_rx"]) and dr_rec_type in [DR_DUMP_REC_TYPE_RULE_RX_ENTRY_V0, \
+                                                                    DR_DUMP_REC_TYPE_RULE_RX_ENTRY_V1]) or \
+                    ((not int(builder.data["is_rx"]) and dr_rec_type in [DR_DUMP_REC_TYPE_RULE_TX_ENTRY_V0, \
+                                                                         DR_DUMP_REC_TYPE_RULE_TX_ENTRY_V1]))):
+                    definer_id = builder.data["definer_id"]
+
+            dr_obj.data["definer_id"] = definer_id
             dump_ctx.rule.add_rule_entry(dr_obj)
 
         # update Action objects
