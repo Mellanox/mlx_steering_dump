@@ -64,9 +64,10 @@ def pretty_ip_protocol(p):
     else:
         return p
 
-def check_reg0_match(dict):
-    if (int(dict["metadata_reg_c_0"], 16) & 0xffff) == 0:
-        dict.pop("metadata_reg_c_0")
+def pretty_source_vport(regc0):
+    source_vport = (int(regc0, 16) >> 16) - 1
+    source_vport = "(0x%x)," % (source_vport-1 if source_vport != 0 else source_vport)
+    return source_vport
 
 def pretty_l3_type(t):
     switch = {0x1: "800",#"IPv4",
@@ -104,10 +105,13 @@ def prettify_fields(dic):
         if "smac" in j or "dmac" in j:
             dic[j] = pretty_mac(dic[j])
 
+        if "metadata_reg_c_0" in j:
+            dic[j] = pretty_source_vport(dic[j])
+            dic.update({'in_port':dic.pop("metadata_reg_c_0")})
+
         if "l3_type" in j:
             dic[j] = pretty_l3_type(dic[j])
-
-        if ip_protocol == "ICMP":
+        if ip_protocol == "ICMP" or ip_protocol != "TCP" :
             if "seq_num" in j:
                 dic[j] = pretty_seq_num(dic[j])
                 dic.update({'icmp_type':dic.pop("seq_num")})
@@ -117,10 +121,7 @@ def prettify_fields(dic):
 
 def prettify_tag(tag):
     clean_tag = dict(filter(lambda elem: eval(elem[1]) != 0, tag.items()))
-    if "metadata_reg_c_0" in clean_tag:
-        check_reg0_match(clean_tag)
-    if len(clean_tag):
-        prettify_fields(clean_tag)
+    prettify_fields(clean_tag)
     return clean_tag
 
 

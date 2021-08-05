@@ -35,6 +35,8 @@ from src.dr_utilities import _val
 from src.parsers.mlx5_ifc_parser import mlx5_ifc_encap_decap, mlx5_ifc_modify_hdr
 from src.dr_utilities import dr_dump_ctx
 
+simple_output=True
+
 def dr_rec_type_is_action(rec_type):
     if rec_type.startswith(DR_DUMP_REC_TYPE_ACTION_OBJS):
         return True
@@ -65,10 +67,12 @@ class dr_dump_action_ft(dr_obj):
         self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
 
     def dump_str(self):
-        return "FlowTable index %s, dest_ft %s" % (
-            _srd(self.data, "table_devx_id"),
-            _srd(self.data, "dest_ft"))
-
+        if not simple_output:
+            return "FlowTable index %s, dest_ft %s" % (
+                _srd(self.data, "table_devx_id"),
+                _srd(self.data, "dest_ft"))
+        else:
+            return "JUMP"
 
 class dr_dump_action_qp(dr_obj):
     def __init__(self, data):
@@ -101,7 +105,10 @@ class dr_dump_action_ctr(dr_obj):
             out_str = self.dump_ctx.counter[(_srd(self.data, "id"))]
         else:
             out_str = "counter"
-        return "counter(%s), index %s" % (out_str, _srd(self.data, "ctr_index"))
+        if not simple_output:
+            return "counter(%s), index %s" % (out_str, _srd(self.data, "ctr_index"))
+        else:
+            return "counter(%s)" % (out_str)
 
 
 class dr_dump_action_tag(dr_obj):
@@ -128,10 +135,15 @@ class dr_dump_action_modify_header(dr_obj):
 
         if ( (_srd(self.data, "id")) in self.dump_ctx.modify_hdr.keys()):
             out_str = self.dump_ctx.modify_hdr[(_srd(self.data, "id"))].lstrip(',')
-            return "MODIFY_HDR(hdr(%s)), rewrite index %s" % (out_str, (_srd(self.data, "rewrite_index")))
+            if not simple_output:
+                return "MODIFY_HDR(hdr(%s)), rewrite index %s" % (out_str, (_srd(self.data, "rewrite_index")))
+            else:
+                return "MODIFY_HDR(hdr(%s))" % (out_str)
         else:
-            return "MODIFY_HDR, rewrite index %s" % (_srd(self.data, "rewrite_index"))
-
+            if not simple_output:
+                return "MODIFY_HDR, rewrite index %s" % (_srd(self.data, "rewrite_index"))
+            else:
+                return "MODIFY_HDR"
 
 class dr_dump_action_vport(dr_obj):
     def __init__(self, data):
@@ -167,8 +179,10 @@ class dr_dump_action_decap_l3(dr_obj):
         self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
 
     def dump_str(self):
-        return "DECAP_L3, rewrite index %s" % (_srd(self.data, "rewrite_index"))
-
+        if not simple_output:
+            return "DECAP_L3, rewrite index %s" % (_srd(self.data, "rewrite_index"))
+        else:
+            return "DECAP_L3"
 
 class dr_dump_action_encap_l2(dr_obj):
     def __init__(self, data):
@@ -183,7 +197,10 @@ class dr_dump_action_encap_l2(dr_obj):
            out_str = self.dump_ctx.encap_decap[(_srd(self.data, "id"))]
         else:
            out_str = "parse vxlan en/decap error!"
-        return "ENCAP(%s), index %s" % (out_str, _srd(self.data, "devx_obj_id"))
+        if not simple_output:
+            return "ENCAP(%s), index %s" % (out_str, _srd(self.data, "devx_obj_id"))
+        else:
+            return "ENCAP(%s)" % (out_str)
 
 
 class dr_dump_action_encap_l3(dr_obj):
@@ -199,7 +216,11 @@ class dr_dump_action_encap_l3(dr_obj):
             out_str = self.dump_ctx.encap_decap[(_srd(self.data, "id"))]
         else:
             out_str = "parse vxlan en/decap error!"
-        return "ENCAP_L3(%s), index %s" % (out_str, _srd(self.data, "devx_obj_id"))
+        if not simple_output:
+            return "ENCAP_L3(%s), index %s" % (out_str, _srd(self.data, "devx_obj_id"))
+        else:
+            return "ENCAP_L3(%s)" % (out_str)
+
 
 class dr_dump_action_pop_vlan(dr_obj):
     def __init__(self, data):
@@ -225,12 +246,14 @@ class dr_dump_action_meter(dr_obj):
         self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
 
     def dump_str(self):
-        return "METER, next flow table %s, index %s, rx_icm_addr %s rx_icm_addr %s" % (
-            _srd(self.data, "next_ft"),
-            _srd(self.data, "devx_id"),
-            _srd(self.data, "rx_icm_addr"),
-            _srd(self.data, "tx_icm_addr"))
-
+        if not simple_output:
+            return "METER, next flow table %s, index %s, rx_icm_addr %s rx_icm_addr %s" % (
+                _srd(self.data, "next_ft"),
+                _srd(self.data, "devx_id"),
+                _srd(self.data, "rx_icm_addr"),
+                _srd(self.data, "tx_icm_addr"))
+        else:
+            return "LEGACY METER"
 
 class dr_dump_action_sampler(dr_obj):
     def __init__(self, data):
@@ -239,14 +262,16 @@ class dr_dump_action_sampler(dr_obj):
         self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
 
     def dump_str(self):
-        return "SAMPLER, next flow table %s, sample table index %s, sampler index %s, rx_icm_addr %s " \
-               "rx_icm_addr %s" % (
-            _srd(self.data, "next_ft"),
-            _srd(self.data, "sample_tbl_devx_id"),
-            _srd(self.data, "devx_id"),
-            _srd(self.data, "rx_icm_addr"),
-            _srd(self.data, "tx_icm_addr"))
-
+        if not simple_output:
+            return "SAMPLER, next flow table %s, sample table index %s, sampler index %s, rx_icm_addr %s " \
+                "rx_icm_addr %s" % (
+                _srd(self.data, "next_ft"),
+                _srd(self.data, "sample_tbl_devx_id"),
+                _srd(self.data, "devx_id"),
+                _srd(self.data, "rx_icm_addr"),
+                _srd(self.data, "tx_icm_addr"))
+        else:
+            return "SAMPLER"
 
 class dr_dump_action_dest_array(dr_obj):
     def __init__(self, data):
@@ -254,11 +279,13 @@ class dr_dump_action_dest_array(dr_obj):
         self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
 
     def dump_str(self):
-        return "DEST_ARRAY, index %s, rx_icm_addr %s rx_icm_addr %s" % (
-            _srd(self.data, "devx_id"),
-            _srd(self.data, "rx_icm_addr"),
-            _srd(self.data, "tx_icm_addr"))
-
+        if not simple_output:
+            return "DEST_ARRAY, index %s, rx_icm_addr %s rx_icm_addr %s" % (
+                _srd(self.data, "devx_id"),
+                _srd(self.data, "rx_icm_addr"),
+                _srd(self.data, "tx_icm_addr"))
+        else:
+            return "MIRROR"
 
 class dr_dump_action_aso_flow_hit(dr_obj):
     def __init__(self, data):
@@ -266,9 +293,11 @@ class dr_dump_action_aso_flow_hit(dr_obj):
         self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
 
     def dump_str(self):
-        return "ASO, flow_hit_aso %s" % (
-            _srd(self.data, "flow_hit_aso"))
-
+        if not simple_output:
+            return "ASO, flow_hit_aso %s" % (
+                _srd(self.data, "flow_hit_aso"))
+        else:
+            return "AGE"
 
 class dr_dump_action_aso_flow_meter(dr_obj):
     def __init__(self, data):
@@ -276,9 +305,11 @@ class dr_dump_action_aso_flow_meter(dr_obj):
         self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
 
     def dump_str(self):
-        return "ASO, flow_meter_aso %s" % (
-            _srd(self.data, "flow_meter_aso"))
-
+        if not simple_output:
+            return "ASO, flow_meter_aso %s" % (
+                _srd(self.data, "flow_meter_aso"))
+        else:
+            return "METER"
 
 class dr_dump_action_default_miss(dr_obj):
     def __init__(self, data):
