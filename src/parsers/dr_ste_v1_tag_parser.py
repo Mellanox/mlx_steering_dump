@@ -552,6 +552,43 @@ def mlx5_ifc_ste_def28_v1_bits_parser(bin_str):
     return ret
 
 
+def mlx5_ifc_ste_def33_v1_bits_parser(hex_str):
+        ret = {}
+        ret["outer_ip_src_addr"] = _val(data[0: 32])
+        ret["outer_ip_dst_addr"] = _val(data[32: 64])
+        ret["outer_l4_sport"] = get_bits_at(data, 64, 96 ,0, 16)
+        ret["outer_l4_dport"] = get_bits_at(data, 64, 96 ,16, 32)
+        ret["reserved_at_60"] = get_bits_at(data, 96, 128 ,0, 1)
+        ret["sx_sniffer"] = get_bits_at(data, 96, 128 ,1, 2)
+        ret["functional_loopback"] = get_bits_at(data, 96, 128 ,2, 3)
+        ret["outer_ip_frag"] = get_bits_at(data, 96, 128 ,3, 4)
+        ret["qp_type"] = get_bits_at(data, 96, 128 ,4, 6)
+        ret["encapsulation_type"] = get_bits_at(data, 96, 128 ,6, 8)
+        ret["port"] = get_bits_at(data, 96, 128 ,8, 10)
+        ret["outer_l3_type"] = get_bits_at(data, 96, 128 ,10, 12)
+        ret["outer_l4_type"] = get_bits_at(data, 96, 128 ,12, 14)
+        ret["outer_first_vlan_type"] = get_bits_at(data, 96, 128 ,14, 16)
+        ret["outer_first_vlan_prio"] = get_bits_at(data, 96, 128 ,16, 19)
+        ret["outer_first_vlan_cfi"] = get_bits_at(data, 96, 128 ,19, 20)
+        ret["outer_first_vlan_vid"] = get_bits_at(data, 96, 128 ,20, 32)
+        ret["reserved_at_80"] = _val(data[128: 160])
+        ret["reserved_at_a0"] = _val(data[160: 192])
+        ret["reserved_at_c0"] = _val(data[192: 224])
+        ret["outer_ip_version"] = get_bits_at(data, 224, 256 ,0, 4)
+        ret["outer_ip_ihl"] = get_bits_at(data, 224, 256 ,4, 8)
+        ret["inner_ipv4_checksum_ok"] = get_bits_at(data, 224, 256 ,8, 9)
+        ret["inner_l4_checksum_ok"] = get_bits_at(data, 224, 256 ,9, 10)
+        ret["outer_ipv4_checksum_ok"] = get_bits_at(data, 224, 256 ,10, 11)
+        ret["outer_l4_checksum_ok"] = get_bits_at(data, 224, 256 ,11, 12)
+        ret["inner_l3_ok"] = get_bits_at(data, 224, 256 ,12, 13)
+        ret["inner_l4_ok"] = get_bits_at(data, 224, 256 ,13, 14)
+        ret["outer_l3_ok"] = get_bits_at(data, 224, 256 ,14, 15)
+        ret["outer_l4_ok"] = get_bits_at(data, 224, 256 ,15, 16)
+        ret["outer_ip_ttl"] = get_bits_at(data, 224, 256 ,16, 24)
+        ret["outer_ip_protocol"] = get_bits_at(data, 224, 256 ,24, 32)
+        return ret
+
+
 switch_tag_parser = {
     DR_STE_V1_LU_TYPE_ETHL2_SRC_DST_I: [mlx5_ifc_ste_eth_l2_src_dst_v1_bits_tag_parser_p, True],
     DR_STE_V1_LU_TYPE_ETHL2_SRC_DST_O: [mlx5_ifc_ste_eth_l2_src_dst_v1_bits_tag_parser_p, False],
@@ -593,7 +630,8 @@ switch_definer_parser = {
     24: mlx5_ifc_ste_def24_v1_bits_tag_parser,
     25: mlx5_ifc_ste_def25_v1_bits_parser,
     26: mlx5_ifc_ste_def26_v1_bits_parser,
-    28: mlx5_ifc_ste_def28_v1_bits_parser
+    28: mlx5_ifc_ste_def28_v1_bits_parser,
+    33: mlx5_ifc_ste_def33_v1_bits_parser,
 }
 
 
