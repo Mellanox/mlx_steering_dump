@@ -271,169 +271,6 @@ def mlx5_ifc_ste_tunnel_header_v1_bits_tag_parser(bin_str):
     return ret
 
 
-def mlx5_ifc_ste_def24_v1_bits_tag_parser(bin_str):
-    ret = {}
-    ret["metadata_reg_c_2"] = _val(bin_str[0: 32])
-    ret["metadata_reg_c_3"] = _val(bin_str[32: 64])
-    ret["metadata_reg_c_0"] = _val(bin_str[64: 96])
-    ret["metadata_reg_c_1"] = _val(bin_str[96: 128])
-    ret["outer_ip_src_addr"] = _val(bin_str[128: 160])
-    ret["outer_ip_dst_addr"] = _val(bin_str[160: 192])
-    ret["outer_l4_sport"] = _val(bin_str[192: 208])
-    ret["outer_l4_dport"] = _val(bin_str[208: 224])
-    ret["inner_ip_protocol"] = _val(bin_str[224: 232])
-    ret["inner_l3_type"] = _val(bin_str[232: 234])
-    ret["inner_l4_type"] = _val(bin_str[234: 236])
-    ret["inner_first_vlan_type"] = _val(bin_str[236: 238])
-    ret["inner_ip_frag"] = _val(bin_str[238: 239])
-    ret["functional_lb"] = _val(bin_str[239: 240])
-    ret["outer_ip_protocol"] = _val(bin_str[240: 248])
-    ret["outer_l3_type"] = _val(bin_str[248: 250])
-    ret["outer_l4_type"] = _val(bin_str[250: 252])
-    ret["outer_first_vlan_type"] = _val(bin_str[252: 254])
-    ret["outer_ip_frag"] = _val(bin_str[254: 255])
-    ret["functional_lb_dup"] = _val(bin_str[255: 256])
-    return ret
-
-
-def mlx5_ifc_ste_def22_v1_bits_tag_parser(bin_str):
-    ret = {}
-    ret["outer_ip_src_addr"] = _val(bin_str[0: 32])
-    ret["outer_ip_dst_addr"] = _val(bin_str[32: 64])
-    ret["outer_l4_sport"] = _val(bin_str[64: 80])
-    ret["outer_l4_dport"] = _val(bin_str[80: 96])
-    ret["reserved_at_40"] = _val(bin_str[96: 97])
-    ret["sx_sniffer"] = _val(bin_str[97: 98])
-    ret["functional_loopback"] = _val(bin_str[98: 99])
-    ret["outer_ip_frag"] = _val(bin_str[99: 100])
-    ret["qp_type"] = _val(bin_str[100: 102])
-    ret["encapsulation_type"] = _val(bin_str[102: 104])
-    ret["port"] = _val(bin_str[104: 106])
-    ret["outer_l3_type"] = _val(bin_str[106: 108])
-    ret["outer_l4_type"] = _val(bin_str[108: 110])
-    ret["first_vlan_qualifier"] = _val(bin_str[110: 112])
-    ret["first_priority"] = _val(bin_str[112: 115])
-    ret["first_cfi"] = _val(bin_str[115: 116])
-    ret["first_vlan_id"] = _val(bin_str[116: 128])
-    ret["metadata_reg_c_0"] = _val(bin_str[128: 160])
-    ret["dmac"] = _val(bin_str[160: 192] + bin_str[240: 256])
-    ret["smac"] = _val(bin_str[192: 240])
-    return ret
-
-
-def mlx5_ifc_ste_def25_v1_bits_parser(bin_str):
-    ret = {}
-
-    ret["inner_ip_src_addr"] = _val(bin_str[0: 32])
-    ret["inner_ip_dst_addr"] = _val(bin_str[32: 64])
-    ret["inner_l4_sport"] = _val(bin_str[64: 80])
-    ret["inner_l4_dport"] = _val(bin_str[80: 96])
-    ret["tunnel_header_0"] = _val(bin_str[96: 128])
-    ret["tunnel_header_1"] = _val(bin_str[128: 160])
-    ret["reserved_at_a0"] = _val(bin_str[160: 192])
-    ret["port_number_dup"] = _val(bin_str[192: 194])
-    ret["inner_l3_type"] = _val(bin_str[194: 196])
-    ret["inner_l4_type"] = _val(bin_str[196: 198])
-    ret["inner_first_vlan_type"] = _val(bin_str[198: 200])
-    ret["port_number"] = _val(bin_str[200: 202])
-    ret["outer_l3_type"] = _val(bin_str[202: 204])
-    ret["outer_l4_type"] = _val(bin_str[204: 206])
-    ret["outer_first_vlan_type"] = _val(bin_str[206: 208])
-    ret["outer_l4_dport"] = _val(bin_str[208: 224])
-    ret["reserved_at_e0"] = _val(bin_str[224: 256])
-    return ret
-
-
-def mlx5_ifc_ste_def26_v1_bits_parser(bin_str):
-    ret = {}
-
-    ret["src_ipv6_127_96"] = _val(bin_str[0: 32])
-    ret["src_ipv6_95_64"] = _val(bin_str[32: 64])
-    ret["src_ipv6_63_32"] = _val(bin_str[64: 96])
-    ret["src_ipv6_31_0"] = _val(bin_str[96: 128])
-    ret["reserved_at_80"] = _val(bin_str[128: 131])
-    ret["ip_frag"] = _val(bin_str[131: 132])
-    ret["reserved_at_84"] = _val(bin_str[132: 138])
-    ret["l3_type"] = _val(bin_str[138: 140])
-    ret["l4_type"] = _val(bin_str[140: 142])
-    ret["first_vlan_type"] = _val(bin_str[142: 144])
-    ret["first_priority"] = _val(bin_str[144: 147])
-    ret["first_cfi"] = _val(bin_str[147: 148])
-    ret["first_vlan_id"] = _val(bin_str[148: 160])
-    ret["reserved_at_a0"] = _val(bin_str[160: 171])
-    ret["l2_ok"] = _val(bin_str[171: 172])
-    ret["l3_ok"] = _val(bin_str[172: 173])
-    ret["l4_ok"] = _val(bin_str[173: 174])
-    ret["second_vlan_type"] = _val(bin_str[174: 176])
-    ret["second_priority"] = _val(bin_str[176: 179])
-    ret["second_cfi"] = _val(bin_str[179: 180])
-    ret["second_vlan_id"] = _val(bin_str[180: 192])
-    ret["smac_47_16"] = _val(bin_str[192: 224])
-    ret["smac_15_0"] = _val(bin_str[224: 240])
-    ret["ip_porotcol"] = _val(bin_str[240: 248])
-    ret["tcp_cwr"] = _val(bin_str[248: 249])
-    ret["tcp_ece"] = _val(bin_str[249: 250])
-    ret["tcp_urg"] = _val(bin_str[250: 251])
-    ret["tcp_ack"] = _val(bin_str[251: 252])
-    ret["tcp_psh"] = _val(bin_str[252: 253])
-    ret["tcp_rst"] = _val(bin_str[253: 254])
-    ret["tcp_syn"] = _val(bin_str[254: 255])
-    ret["tcp_fin"] = _val(bin_str[255: 256])
-    return ret
-
-
-def mlx5_ifc_ste_def6_v1_bits_parser(bin_str):
-    ret = {}
-
-    ret["dst_ipv6_127_96"] = _val(bin_str[0: 32])
-    ret["dst_ipv6_95_64"] = _val(bin_str[32: 64])
-    ret["dst_ipv6_63_32"] = _val(bin_str[64: 96])
-    ret["dst_ipv6_31_0"] = _val(bin_str[96: 128])
-    ret["reserved_at_80"] = _val(bin_str[128: 192])
-    ret["outer_l4_sport"] = _val(bin_str[192: 208])
-    ret["outer_l4_dport"] = _val(bin_str[208: 224])
-    ret["reserved_e0"] = _val(bin_str[224: 228])
-    ret["l4_ok"] = _val(bin_str[228: 229])
-    ret["l3_ok"] = _val(bin_str[229: 230])
-    ret["ip_frag"] = _val(bin_str[230: 231])
-    ret["tcp_ns"] = _val(bin_str[231: 232])
-    ret["tcp_cwr"] = _val(bin_str[232: 233])
-    ret["tcp_ece"] = _val(bin_str[233: 234])
-    ret["tcp_urg"] = _val(bin_str[234: 235])
-    ret["tcp_ack"] = _val(bin_str[235: 236])
-    ret["tcp_psh"] = _val(bin_str[236: 237])
-    ret["tcp_rst"] = _val(bin_str[237: 238])
-    ret["tcp_syn"] = _val(bin_str[238: 239])
-    ret["tcp_fin"] = _val(bin_str[239: 240])
-    ret["reserved_f0"] = _val(bin_str[240: 256])
-    return ret
-
-
-def mlx5_ifc_ste_def16_v1_bits_parser(bin_str):
-    ret = {}
-
-    ret["tunnel_header_0"] = _val(bin_str[0: 32])
-    ret["tunnel_header_1"] = _val(bin_str[32: 64])
-    ret["tunnel_header_2"] = _val(bin_str[64: 96])
-    ret["tunnel_header_3"] = _val(bin_str[96: 128])
-    ret["reserved_30"] = _val(bin_str[128: 144])
-    ret["random_number"] = _val(bin_str[144: 160])
-    ret["metadata_reg_a"] = _val(bin_str[160: 192])
-    ret["source_gvmi"] = _val(bin_str[192: 208])
-    ret["functional_lb"] = _val(bin_str[208: 209])
-    ret["reserved_3a"] = _val(bin_str[209: 210])
-    ret["outer_first_vlan_type"] = _val(bin_str[210: 212])
-    ret["outer_l4_type"] = _val(bin_str[212: 214])
-    ret["outer_l3_type"] = _val(bin_str[214: 216])
-    ret["reserved_3b"] = _val(bin_str[216: 224])
-    ret["source_sqn"] = _val(bin_str[224: 248])
-    ret["reserved_3f"] = _val(bin_str[248: 253])
-    ret["source_is_requester"] = _val(bin_str[253: 254])
-    ret["outer_ip_frag"] = _val(bin_str[254: 255])
-    ret["force_lb"] = _val(bin_str[255: 256])
-    return ret
-
-
 def mlx5_ifc_ste_def0_v1_bits_parser(bin_str):
     ret = {}
     ret["metadata_reg_c_0"] = _val(bin_str[0: 32])
@@ -526,6 +363,169 @@ def mlx5_ifc_ste_def2_v1_bits_parser(bin_str):
     return ret
 
 
+def mlx5_ifc_ste_def6_v1_bits_parser(bin_str):
+    ret = {}
+
+    ret["dst_ipv6_127_96"] = _val(bin_str[0: 32])
+    ret["dst_ipv6_95_64"] = _val(bin_str[32: 64])
+    ret["dst_ipv6_63_32"] = _val(bin_str[64: 96])
+    ret["dst_ipv6_31_0"] = _val(bin_str[96: 128])
+    ret["reserved_at_80"] = _val(bin_str[128: 192])
+    ret["outer_l4_sport"] = _val(bin_str[192: 208])
+    ret["outer_l4_dport"] = _val(bin_str[208: 224])
+    ret["reserved_e0"] = _val(bin_str[224: 228])
+    ret["l4_ok"] = _val(bin_str[228: 229])
+    ret["l3_ok"] = _val(bin_str[229: 230])
+    ret["ip_frag"] = _val(bin_str[230: 231])
+    ret["tcp_ns"] = _val(bin_str[231: 232])
+    ret["tcp_cwr"] = _val(bin_str[232: 233])
+    ret["tcp_ece"] = _val(bin_str[233: 234])
+    ret["tcp_urg"] = _val(bin_str[234: 235])
+    ret["tcp_ack"] = _val(bin_str[235: 236])
+    ret["tcp_psh"] = _val(bin_str[236: 237])
+    ret["tcp_rst"] = _val(bin_str[237: 238])
+    ret["tcp_syn"] = _val(bin_str[238: 239])
+    ret["tcp_fin"] = _val(bin_str[239: 240])
+    ret["reserved_f0"] = _val(bin_str[240: 256])
+    return ret
+
+
+def mlx5_ifc_ste_def16_v1_bits_parser(bin_str):
+    ret = {}
+
+    ret["tunnel_header_0"] = _val(bin_str[0: 32])
+    ret["tunnel_header_1"] = _val(bin_str[32: 64])
+    ret["tunnel_header_2"] = _val(bin_str[64: 96])
+    ret["tunnel_header_3"] = _val(bin_str[96: 128])
+    ret["reserved_30"] = _val(bin_str[128: 144])
+    ret["random_number"] = _val(bin_str[144: 160])
+    ret["metadata_reg_a"] = _val(bin_str[160: 192])
+    ret["source_gvmi"] = _val(bin_str[192: 208])
+    ret["functional_lb"] = _val(bin_str[208: 209])
+    ret["reserved_3a"] = _val(bin_str[209: 210])
+    ret["outer_first_vlan_type"] = _val(bin_str[210: 212])
+    ret["outer_l4_type"] = _val(bin_str[212: 214])
+    ret["outer_l3_type"] = _val(bin_str[214: 216])
+    ret["reserved_3b"] = _val(bin_str[216: 224])
+    ret["source_sqn"] = _val(bin_str[224: 248])
+    ret["reserved_3f"] = _val(bin_str[248: 253])
+    ret["source_is_requester"] = _val(bin_str[253: 254])
+    ret["outer_ip_frag"] = _val(bin_str[254: 255])
+    ret["force_lb"] = _val(bin_str[255: 256])
+    return ret
+
+
+def mlx5_ifc_ste_def22_v1_bits_tag_parser(bin_str):
+    ret = {}
+    ret["outer_ip_src_addr"] = _val(bin_str[0: 32])
+    ret["outer_ip_dst_addr"] = _val(bin_str[32: 64])
+    ret["outer_l4_sport"] = _val(bin_str[64: 80])
+    ret["outer_l4_dport"] = _val(bin_str[80: 96])
+    ret["reserved_at_40"] = _val(bin_str[96: 97])
+    ret["sx_sniffer"] = _val(bin_str[97: 98])
+    ret["functional_loopback"] = _val(bin_str[98: 99])
+    ret["outer_ip_frag"] = _val(bin_str[99: 100])
+    ret["qp_type"] = _val(bin_str[100: 102])
+    ret["encapsulation_type"] = _val(bin_str[102: 104])
+    ret["port"] = _val(bin_str[104: 106])
+    ret["outer_l3_type"] = _val(bin_str[106: 108])
+    ret["outer_l4_type"] = _val(bin_str[108: 110])
+    ret["first_vlan_qualifier"] = _val(bin_str[110: 112])
+    ret["first_priority"] = _val(bin_str[112: 115])
+    ret["first_cfi"] = _val(bin_str[115: 116])
+    ret["first_vlan_id"] = _val(bin_str[116: 128])
+    ret["metadata_reg_c_0"] = _val(bin_str[128: 160])
+    ret["dmac"] = _val(bin_str[160: 192] + bin_str[240: 256])
+    ret["smac"] = _val(bin_str[192: 240])
+    return ret
+
+
+def mlx5_ifc_ste_def24_v1_bits_tag_parser(bin_str):
+    ret = {}
+    ret["metadata_reg_c_2"] = _val(bin_str[0: 32])
+    ret["metadata_reg_c_3"] = _val(bin_str[32: 64])
+    ret["metadata_reg_c_0"] = _val(bin_str[64: 96])
+    ret["metadata_reg_c_1"] = _val(bin_str[96: 128])
+    ret["outer_ip_src_addr"] = _val(bin_str[128: 160])
+    ret["outer_ip_dst_addr"] = _val(bin_str[160: 192])
+    ret["outer_l4_sport"] = _val(bin_str[192: 208])
+    ret["outer_l4_dport"] = _val(bin_str[208: 224])
+    ret["inner_ip_protocol"] = _val(bin_str[224: 232])
+    ret["inner_l3_type"] = _val(bin_str[232: 234])
+    ret["inner_l4_type"] = _val(bin_str[234: 236])
+    ret["inner_first_vlan_type"] = _val(bin_str[236: 238])
+    ret["inner_ip_frag"] = _val(bin_str[238: 239])
+    ret["functional_lb"] = _val(bin_str[239: 240])
+    ret["outer_ip_protocol"] = _val(bin_str[240: 248])
+    ret["outer_l3_type"] = _val(bin_str[248: 250])
+    ret["outer_l4_type"] = _val(bin_str[250: 252])
+    ret["outer_first_vlan_type"] = _val(bin_str[252: 254])
+    ret["outer_ip_frag"] = _val(bin_str[254: 255])
+    ret["functional_lb_dup"] = _val(bin_str[255: 256])
+    return ret
+
+
+def mlx5_ifc_ste_def25_v1_bits_parser(bin_str):
+    ret = {}
+
+    ret["inner_ip_src_addr"] = _val(bin_str[0: 32])
+    ret["inner_ip_dst_addr"] = _val(bin_str[32: 64])
+    ret["inner_l4_sport"] = _val(bin_str[64: 80])
+    ret["inner_l4_dport"] = _val(bin_str[80: 96])
+    ret["tunnel_header_0"] = _val(bin_str[96: 128])
+    ret["tunnel_header_1"] = _val(bin_str[128: 160])
+    ret["reserved_at_a0"] = _val(bin_str[160: 192])
+    ret["port_number_dup"] = _val(bin_str[192: 194])
+    ret["inner_l3_type"] = _val(bin_str[194: 196])
+    ret["inner_l4_type"] = _val(bin_str[196: 198])
+    ret["inner_first_vlan_type"] = _val(bin_str[198: 200])
+    ret["port_number"] = _val(bin_str[200: 202])
+    ret["outer_l3_type"] = _val(bin_str[202: 204])
+    ret["outer_l4_type"] = _val(bin_str[204: 206])
+    ret["outer_first_vlan_type"] = _val(bin_str[206: 208])
+    ret["outer_l4_dport"] = _val(bin_str[208: 224])
+    ret["reserved_at_e0"] = _val(bin_str[224: 256])
+    return ret
+
+
+def mlx5_ifc_ste_def26_v1_bits_parser(bin_str):
+    ret = {}
+
+    ret["src_ipv6_127_96"] = _val(bin_str[0: 32])
+    ret["src_ipv6_95_64"] = _val(bin_str[32: 64])
+    ret["src_ipv6_63_32"] = _val(bin_str[64: 96])
+    ret["src_ipv6_31_0"] = _val(bin_str[96: 128])
+    ret["reserved_at_80"] = _val(bin_str[128: 131])
+    ret["ip_frag"] = _val(bin_str[131: 132])
+    ret["reserved_at_84"] = _val(bin_str[132: 138])
+    ret["l3_type"] = _val(bin_str[138: 140])
+    ret["l4_type"] = _val(bin_str[140: 142])
+    ret["first_vlan_type"] = _val(bin_str[142: 144])
+    ret["first_priority"] = _val(bin_str[144: 147])
+    ret["first_cfi"] = _val(bin_str[147: 148])
+    ret["first_vlan_id"] = _val(bin_str[148: 160])
+    ret["reserved_at_a0"] = _val(bin_str[160: 171])
+    ret["l2_ok"] = _val(bin_str[171: 172])
+    ret["l3_ok"] = _val(bin_str[172: 173])
+    ret["l4_ok"] = _val(bin_str[173: 174])
+    ret["second_vlan_type"] = _val(bin_str[174: 176])
+    ret["second_priority"] = _val(bin_str[176: 179])
+    ret["second_cfi"] = _val(bin_str[179: 180])
+    ret["second_vlan_id"] = _val(bin_str[180: 192])
+    ret["smac_47_16"] = _val(bin_str[192: 224])
+    ret["smac_15_0"] = _val(bin_str[224: 240])
+    ret["ip_porotcol"] = _val(bin_str[240: 248])
+    ret["tcp_cwr"] = _val(bin_str[248: 249])
+    ret["tcp_ece"] = _val(bin_str[249: 250])
+    ret["tcp_urg"] = _val(bin_str[250: 251])
+    ret["tcp_ack"] = _val(bin_str[251: 252])
+    ret["tcp_psh"] = _val(bin_str[252: 253])
+    ret["tcp_rst"] = _val(bin_str[253: 254])
+    ret["tcp_syn"] = _val(bin_str[254: 255])
+    ret["tcp_fin"] = _val(bin_str[255: 256])
+    return ret
+
+
 def mlx5_ifc_ste_def28_v1_bits_parser(bin_str):
     ret = {}
     ret["inner_l4_sport"] = _val(bin_str[0: 16])
@@ -585,15 +585,15 @@ switch_tag_parser = {
 }
 
 switch_definer_parser = {
-    0x22: mlx5_ifc_ste_def22_v1_bits_tag_parser,
-    0x24: mlx5_ifc_ste_def24_v1_bits_tag_parser,
-    0x25: mlx5_ifc_ste_def25_v1_bits_parser,
-    0x26: mlx5_ifc_ste_def26_v1_bits_parser,
-    0x16: mlx5_ifc_ste_def16_v1_bits_parser,
-    0x6: mlx5_ifc_ste_def6_v1_bits_parser,
-    0x0: mlx5_ifc_ste_def0_v1_bits_parser,
-    0x2: mlx5_ifc_ste_def2_v1_bits_parser,
-    0x28: mlx5_ifc_ste_def28_v1_bits_parser
+    0: mlx5_ifc_ste_def0_v1_bits_parser,
+    2: mlx5_ifc_ste_def2_v1_bits_parser,
+    6: mlx5_ifc_ste_def6_v1_bits_parser,
+    16: mlx5_ifc_ste_def16_v1_bits_parser,
+    22: mlx5_ifc_ste_def22_v1_bits_tag_parser,
+    24: mlx5_ifc_ste_def24_v1_bits_tag_parser,
+    25: mlx5_ifc_ste_def25_v1_bits_parser,
+    26: mlx5_ifc_ste_def26_v1_bits_parser,
+    28: mlx5_ifc_ste_def28_v1_bits_parser
 }
 
 
@@ -603,8 +603,8 @@ def mlx5_ste_v1_tag_parser(lookup_type, definer_id, tag, raw):
     if lookup_type in switch_tag_parser.keys():
         func, inner = switch_tag_parser[lookup_type]
     # The default value for definer_id is None, and value -1 means definer not supported.
-    elif definer_id not in [None, "-1"] and int(definer_id, 16) in switch_definer_parser.keys():
-        func = switch_definer_parser[int(definer_id, 16)]
+    elif definer_id not in [None, "-1"] and int(definer_id) in switch_definer_parser.keys():
+        func = switch_definer_parser[int(definer_id)]
     else:
         return mlx5_ifc_ste_v1_unsupported_tag()
 
