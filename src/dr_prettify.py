@@ -107,7 +107,7 @@ def prettify_fields(dic):
             dic[j] = pretty_source_vport(dic[j])
             dic.update({'in_port':dic.pop("metadata_reg_c_0")})
 
-        if "l3_type" in j:
+        if "l3_type" in j or "inner_l3_type" in j or "outer_l3_type" in j:
             dic[j] = pretty_l3_type(dic[j])
         if ip_protocol == "ICMP" or ip_protocol != "TCP" :
             if "seq_num" in j:
