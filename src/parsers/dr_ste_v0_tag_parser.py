@@ -112,8 +112,8 @@ def mlx5_ifc_ste_v0_eth_l3_ipv4_5_tuple_bits_tag_parser_p(bin_str):
     ret = {}
     ret["dst_ip"] = _val(bin_str[0: 32])
     ret["src_ip"] = _val(bin_str[32: 64])
-    ret["src_tcp/udp_port"] = _val(bin_str[64: 80])
-    ret["dst_tcp/udp_port"] = _val(bin_str[80: 96])
+    ret["src_tcp/udp_port"] = "%d" % int(bin_str[64: 80], 2)
+    ret["dst_tcp/udp_port"] = "%d" % int(bin_str[80: 96], 2)
     ret["fragmented"] = _val(bin_str[96: 97])
     ret["first_fragment"] = _val(bin_str[97: 98])
     ret["ip_ecn"] = _val(bin_str[101: 103])
