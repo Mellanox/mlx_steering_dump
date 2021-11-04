@@ -49,7 +49,7 @@ class dr_dump_rule(dr_obj):
         self.rule_action_list = []
 
     def dump_str(self):
-        return "rule %s\n" % (_srd(self.data, "id"))
+        return "ufid %s" % (_srd(self.data, "id"))
 
     def dump_match_str(self, verbose, raw):
         if raw or verbose:
@@ -65,7 +65,7 @@ class dr_dump_rule(dr_obj):
             if verbose and i != (len(self.rule_entry_list) - 1):
                 match_str += "\n" + get_indent_str() + len(MATCH) * " "
 
-        return match_str + "\n"
+        return match_str
 
     def dump_actions_str(self, verbose):
         ACTION = "action: "
