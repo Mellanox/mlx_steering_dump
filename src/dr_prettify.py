@@ -53,8 +53,6 @@ def pretty_mac(mac):
 def pretty_ip_protocol(p):
     switch = {0x06: "TCP",
               0x11: "UDP",
-              0x2f: "GRE",
-              0x33: "IPSEC",
               0x01: "ICMP",
               }
 
@@ -70,8 +68,8 @@ def pretty_source_vport(regc0):
     return source_vport
 
 def pretty_l3_type(t):
-    switch = {0x1: "800",#"IPv4",
-              0x2: "86DD",#"IPv6",
+    switch = {0x1: "0x0800",#"IPv4",
+              0x2: "0x86DD",#"IPv6",
               }
 
     l3type = int(t, 16)
