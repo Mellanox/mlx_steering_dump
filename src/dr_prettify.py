@@ -62,9 +62,17 @@ def pretty_ip_protocol(p):
     else:
         return p
 
+# Need configue NUM_OF_VFS to 0, and the SF_BASE_INDEX starts from
+# NUM_OF_VFS + 2, here 2 is for PF and uplink.
+NUM_OF_VFS = 0
+SF_BASE_INDEX = NUM_OF_VFS + 2
+
 def pretty_source_vport(regc0):
     source_vport = (int(regc0, 16) >> 16) - 1
-    source_vport = "(0x%x)," % (source_vport-1 if source_vport != 0 else source_vport)
+    if source_vport == 0:
+        source_vport = "pf"
+    elif source_vport >= SF_BASE_INDEX:
+        source_vport = "sf%d" % (source_vport - SF_BASE_INDEX)
     return source_vport
 
 def pretty_l3_type(t):
