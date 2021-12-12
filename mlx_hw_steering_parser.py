@@ -8,6 +8,7 @@ from hw_steering_src.dr_common import *
 from hw_steering_src.dr_context import *
 from hw_steering_src.dr_table import *
 from hw_steering_src.dr_matcher import *
+from hw_steering_src.dr_definer import *
 
 
 # mapping csv records types to it's relevant parser function
@@ -23,6 +24,7 @@ switch_csv_res_type = {
     MLX5DR_DEBUG_RES_TYPE_MATCHER_NIC_RX: dr_parse_matcher_nic,
     MLX5DR_DEBUG_RES_TYPE_MATCHER_NIC_TX: dr_parse_matcher_nic,
     MLX5DR_DEBUG_RES_TYPE_MATCHER_TEMPLATE: dr_parse_matcher_template,
+    MLX5DR_DEBUG_RES_TYPE_DEFINER: dr_parse_definer,
 }
 
 unsupported_obj_list = []
@@ -46,10 +48,12 @@ def dr_csv_get_obj(line):
     return parser(line)
 
 def dr_parse_csv_file(csv_file):
+    global DEFINERS
     ctx = None
     last_table = None
     last_matcher = None
     last_send_engine = None
+    last_matcher_template = None
     csv_reader = csv.reader(csv_file)
     for line in csv_reader:
         obj = dr_csv_get_obj(line)
@@ -77,7 +81,11 @@ def dr_parse_csv_file(csv_file):
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_MATCHER_NIC_TX:
             last_matcher.add_nic_tx(obj)
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_MATCHER_TEMPLATE:
+            last_matcher_template = obj
             last_matcher.add_template(obj)
+        elif line[0] == MLX5DR_DEBUG_RES_TYPE_DEFINER:
+            last_matcher_template.add_definer(obj)
+            DEFINERS[obj.get_definer_obj_id()] = obj
         else:
             if line[0] not in unsupported_obj_list:
                 unsupported_obj_list.append(line[0])
