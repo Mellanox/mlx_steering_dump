@@ -93,11 +93,18 @@ class dr_parse_matcher_template():
     def __init__(self, data):
         keys = ["mlx5dr_debug_res_type", "id", "matcher_id", "fc_sz", "flags"]
         self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
+        self.definer = None
 
     def dump_str(self, verbosity):
+        _str = ":"
+        if self.definer != None:
+            _str = ": " + self.definer.dump_fields() + ", "
         if verbosity > 0:
             return dump_obj_str(["mlx5dr_debug_res_type", "id", "matcher_id",
-                                 "flags", "fc_sz"], self.data)
+                                "flags", "fc_sz"], self.data).replace(":", _str)
 
         return dump_obj_str(["mlx5dr_debug_res_type", "id",
-                             "matcher_id", "flags"], self.data)
+                            "matcher_id", "flags"], self.data).replace(":", _str)
+
+    def add_definer(self, definer):
+        self.definer = definer

@@ -42,6 +42,7 @@ MLX5DR_DEBUG_RES_TYPE_MATCHER_ATTR = "4201"
 MLX5DR_DEBUG_RES_TYPE_MATCHER_NIC_RX = "4202"
 MLX5DR_DEBUG_RES_TYPE_MATCHER_NIC_TX = "4203"
 MLX5DR_DEBUG_RES_TYPE_MATCHER_TEMPLATE = "4204"
+MLX5DR_DEBUG_RES_TYPE_DEFINER = "4205"
 
 
 class_name_arr = {
@@ -56,4 +57,12 @@ class_name_arr = {
     MLX5DR_DEBUG_RES_TYPE_MATCHER_NIC_RX: "Nic_RX",
     MLX5DR_DEBUG_RES_TYPE_MATCHER_NIC_TX: "Nic_TX",
     MLX5DR_DEBUG_RES_TYPE_MATCHER_TEMPLATE: "Template",
+    MLX5DR_DEBUG_RES_TYPE_DEFINER: "Definer",
 }
+
+
+def hex_to_bin_str(_n):
+    n = str(bin(int(_n, 16)))[2:]
+    z = (8 - len(n)) * "0"
+    return z + n
+
