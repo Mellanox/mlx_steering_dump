@@ -72,7 +72,8 @@ class dr_dump_action_ft(dr_obj):
                 _srd(self.data, "table_devx_id"),
                 _srd(self.data, "dest_ft"))
         else:
-            return "JUMP"
+            return "JUMP to Next Table %s" % (
+                _srd(self.data, "dest_ft"))
 
 class dr_dump_action_qp(dr_obj):
     def __init__(self, data):
