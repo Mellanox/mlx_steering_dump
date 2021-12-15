@@ -4,11 +4,15 @@
 from hw_steering_src.dr_common import *
 
 
+dr_table_type = ["NIC_RX", "NIC_TX", "FDB"]
+
+
 class dr_parse_table():
     def __init__(self, data):
         keys = ["mlx5dr_debug_res_type", "id", "ctx_id",
                 "ft_id", "type", "fw_ft_type", "level"]
         self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
+        self.fix_data()
         self.matchers = []
         self.col_matcher_ids = {}
 
@@ -32,6 +36,9 @@ class dr_parse_table():
                 self.col_matcher_ids[m.data["col_matcher_id"]] = ""
 
         return _str
+
+    def fix_data(self):
+        self.data["type"] = dr_table_type[int(self.data["type"])]
 
     def add_matcher(self, matcher):
         self.matchers.append(matcher)

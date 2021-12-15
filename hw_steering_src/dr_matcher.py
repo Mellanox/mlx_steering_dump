@@ -62,6 +62,7 @@ class dr_parse_matcher_attr():
         keys = ["mlx5dr_debug_res_type", "matcher_id", "priority",
                 "mode", "sz_row_log", "sz_col_log"]
         self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
+        self.fix_data()
 
     def dump_str(self, verbosity):
         if verbosity > 0:
@@ -71,6 +72,9 @@ class dr_parse_matcher_attr():
 
         return dump_obj_str(["mlx5dr_debug_res_type", "matcher_id",
                              "priority", "mode"], self.data)
+
+    def fix_data(self):
+        self.data["mode"] = "RULE" if self.data["mode"] == "0" else "HTABLE"
 
 
 class dr_parse_matcher_nic():
