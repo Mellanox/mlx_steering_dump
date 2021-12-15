@@ -588,23 +588,33 @@ def mlx5_ifc_modify_hdr(num_str, bin_str):
            elif cmd.data1_u.data1_struct.dst_field == MLX5_MOD_FLD.MLX5_MODI_META_REG_C_7.value:
                hdr_str += '_to_reg_c7'
        elif cmd.data0_u.data0_struct.field == MLX5_MOD_FLD.MLX5_MODI_META_DATA_REG_A.value:
-           hdr_str += ',set_reg_a=' + str(int(bin_str[i*16+8:i*16+16], 16))
+           data1 = hex(int(bin_str[i*16+8:i*16+16], 16) << int(cmd.data0_u.data0_struct.offset))
+           hdr_str += ',set_reg_a=' + str(data1)
        elif cmd.data0_u.data0_struct.field == MLX5_MOD_FLD.MLX5_MODI_META_DATA_REG_B.value:
-           hdr_str += ',set_reg_b=' + str(int(bin_str[i*16+8:i*16+16], 16))
+           data1 = hex(int(bin_str[i*16+8:i*16+16], 16) << int(cmd.data0_u.data0_struct.offset))
+           hdr_str += ',set_reg_b=' + str(data1)
        elif cmd.data0_u.data0_struct.field == MLX5_MOD_FLD.MLX5_MODI_META_REG_C_0.value:
-           hdr_str += ',set_reg_c0=' + str(int(bin_str[i*16+8:i*16+16], 16))
+           data1 = hex(int(bin_str[i*16+8:i*16+16], 16) << int(cmd.data0_u.data0_struct.offset))
+           hdr_str += ',set_reg_c0=' + str(data1)
        elif cmd.data0_u.data0_struct.field == MLX5_MOD_FLD.MLX5_MODI_META_REG_C_1.value:
-           hdr_str += ',set_reg_c1=' + str(int(bin_str[i*16+8:i*16+16], 16))
+           data1 = hex(int(bin_str[i*16+8:i*16+16], 16) << int(cmd.data0_u.data0_struct.offset))
+           hdr_str += ',set_reg_c1=' + str(data1)
        elif cmd.data0_u.data0_struct.field == MLX5_MOD_FLD.MLX5_MODI_META_REG_C_2.value:
-           hdr_str += ',set_reg_c2=' + str(int(bin_str[i*16+8:i*16+16], 16))
+           data1 = hex(int(bin_str[i*16+8:i*16+16], 16) << int(cmd.data0_u.data0_struct.offset))
+           hdr_str += ',set_reg_c2=' + str(data1)
        elif cmd.data0_u.data0_struct.field == MLX5_MOD_FLD.MLX5_MODI_META_REG_C_3.value:
-           hdr_str += ',set_reg_c3=' + str(int(bin_str[i*16+8:i*16+16], 16))
+           data1 = hex(int(bin_str[i*16+8:i*16+16], 16) << int(cmd.data0_u.data0_struct.offset))
+           hdr_str += ',set_reg_c3=' + str(data1)
        elif cmd.data0_u.data0_struct.field == MLX5_MOD_FLD.MLX5_MODI_META_REG_C_4.value:
-           hdr_str += ',set_reg_c4=' + str(int(bin_str[i*16+8:i*16+16], 16))
+           data1 = hex(int(bin_str[i*16+8:i*16+16], 16) << int(cmd.data0_u.data0_struct.offset))
+           hdr_str += ',set_reg_c4=' + str(data1)
        elif cmd.data0_u.data0_struct.field == MLX5_MOD_FLD.MLX5_MODI_META_REG_C_5.value:
-           hdr_str += ',set_reg_c5=' + str(int(bin_str[i*16+8:i*16+16], 16))
+           data1 = hex(int(bin_str[i*16+8:i*16+16], 16) << int(cmd.data0_u.data0_struct.offset))
+           hdr_str += ',set_reg_c5=' + str(data1)
        elif cmd.data0_u.data0_struct.field == MLX5_MOD_FLD.MLX5_MODI_META_REG_C_6.value:
-           hdr_str += ',set_reg_c6=' + str(int(bin_str[i*16+8:i*16+16], 16))
+           data1 = hex(int(bin_str[i*16+8:i*16+16], 16) << int(cmd.data0_u.data0_struct.offset))
+           hdr_str += ',set_reg_c6=' + str(data1)
        elif cmd.data0_u.data0_struct.field == MLX5_MOD_FLD.MLX5_MODI_META_REG_C_7.value:
-           hdr_str += ',set_reg_c7=' + str(int(bin_str[i*16+8:i*16+16], 16))
+           data1 = hex(int(bin_str[i*16+8:i*16+16], 16) << int(cmd.data0_u.data0_struct.offset))
+           hdr_str += ',set_reg_c7=' + str(data1)
    return hdr_str

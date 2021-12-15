@@ -130,21 +130,22 @@ class dr_dump_action_modify_header(dr_obj):
         self.dump_ctx = dump_ctx
 
     def dump_str(self):
+        if simple_output:
+            if ( (_srd(self.data, "id")) in self.dump_ctx.modify_hdr.keys()):
+                out_str = self.dump_ctx.modify_hdr[(_srd(self.data, "id"))].lstrip(',')
+                return "MODIFY_HDR(hdr(%s))" % (out_str)
+            else:
+                return "MODIFY_HDR"
+
         if self.data["single_action_opt"]:
             if int(self.data["single_action_opt"], 16) == 1:
                 return "MODIFY_HDR, single modify action optimized"
 
         if ( (_srd(self.data, "id")) in self.dump_ctx.modify_hdr.keys()):
             out_str = self.dump_ctx.modify_hdr[(_srd(self.data, "id"))].lstrip(',')
-            if not simple_output:
-                return "MODIFY_HDR(hdr(%s)), rewrite index %s" % (out_str, (_srd(self.data, "rewrite_index")))
-            else:
-                return "MODIFY_HDR(hdr(%s))" % (out_str)
+            return "MODIFY_HDR(hdr(%s)), rewrite index %s" % (out_str, (_srd(self.data, "rewrite_index")))
         else:
-            if not simple_output:
-                return "MODIFY_HDR, rewrite index %s" % (_srd(self.data, "rewrite_index"))
-            else:
-                return "MODIFY_HDR"
+            return "MODIFY_HDR, rewrite index %s" % (_srd(self.data, "rewrite_index"))
 
 class dr_dump_action_vport(dr_obj):
     def __init__(self, data):
