@@ -96,7 +96,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description="hw_steering_parser.py - HW Steering dump tool",
                                      epilog="Note: This parser is still under developement, so not all the args are supported yet.")
     parser.add_argument("-f", dest="FILEPATH", default="", help="Input steering dump file path")
-    parser.add_argument("-v", action="count", dest="verbose", default=0, help="Increase output verbosity - v & vv for extra verbosity")
+    parser.add_argument("-v", action="count", dest="verbose", default=0, help="Increase output verbosity - v, vv & vvv for extra verbosity")
     parser.add_argument("-hw", action="store_true", default=False, dest="dump_hw_resources",
                         help="Dump HW resources (must provide device with -d)")
     parser.add_argument("-d", dest="device", type=str, default="",
@@ -117,8 +117,8 @@ if __name__ == "__main__":
     csv_file = open(args.FILEPATH)
     obj = dr_parse_csv_file(csv_file)
     verbose = args.verbose
-    if verbose > 2:
-        verbose = 2
+    if verbose > 3:
+        verbose = 3
     print(obj.tree_print(verbose, ""))
 
     if verbose > 0:
