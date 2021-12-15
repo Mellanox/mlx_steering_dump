@@ -82,7 +82,10 @@ class dr_dump_table(dr_obj):
         dec_indent()
 
     def print_rule_view(self, dump_ctx, verbose, raw):
+        def_priority = ["65532"]
         for m in self.matcher_list:
+            if verbose == 0 and m.data["priority"] in def_priority:
+                continue
             dump_ctx.matcher = m
             dump_ctx.rule = None
             m.print_rule_view(dump_ctx, verbose, raw)
