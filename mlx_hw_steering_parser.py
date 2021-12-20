@@ -1,6 +1,7 @@
 #SPDX-License-Identifier: BSD-3-Clause
 #Copyright (c) 2021 NVIDIA CORPORATION. All rights reserved.
 
+import sys
 import argparse
 import csv
 
@@ -113,6 +114,12 @@ if __name__ == "__main__":
     args = parse_args()
     if (args.FILEPATH == ""):
         print("No input steering dump file provided (-f FILEPATH)\n")
+        sys.exit(0)
+    if (args.dump_hw_resources):
+        print("-hw is not supported yet.")
+        sys.exit(0)
+    if (args.dpdk_pid != -1):
+        print("-pid is not supported yet.")
         sys.exit(0)
     csv_file = open(args.FILEPATH)
     obj = dr_parse_csv_file(csv_file)
