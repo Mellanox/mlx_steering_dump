@@ -28,6 +28,7 @@ icmd_rw_addr="0x2040.31:1"
 icmd_ctx_type_addr="0x2044.0:16"
 icmd_index_hi_addr="0x2048.0:32"
 icmd_index_lo_addr="0x204c.0:32"
+icm_ctx_icm_num2_addr="0x2050.0:32"
 
 function ste_parser {
 	local ste_raw=$1
@@ -45,13 +46,14 @@ function read_res_icmd {
 	local res_type=$3
 	local res_num=$4
 
-	sudo mcra $mst_dev $icmd_gvmi_addr	  $gvmi
-	sudo mcra $mst_dev $icmd_rw_addr	  1
-	sudo mcra $mst_dev $icmd_ctx_type_addr	  $res_type
-	sudo mcra $mst_dev $icmd_index_hi_addr	  $(( res_num >> 32 ))
-	sudo mcra $mst_dev $icmd_index_lo_addr	  $(( res_num & 0xffffffff ))
-
-	sudo mcra $mst_dev $icmd_opcode_busy_addr 0x${opcode}0001
+	sudo mcra $mst_dev $icmd_opcode_busy_addr $opcode
+	sudo mcra $mst_dev $icmd_gvmi_addr	  $(( gvmi ))
+	sudo mcra $mst_dev $icmd_index_hi_addr $(( res_num >> 32 ))
+	sudo mcra $mst_dev $icmd_index_lo_addr $(( res_num & 0xffffffff ))
+	sudo mcra $mst_dev $icmd_ctx_type_addr $(( res_type ))
+	sudo mcra $mst_dev $icmd_rw_addr 1
+	sudo mcra $mst_dev $icm_ctx_icm_num2_addr 0
+	sudo mcra $mst_dev $icmd_busy_addr 1
 
 	sleep 0.5
 	local busy=`sudo mcra $mst_dev $icmd_busy_addr`
@@ -231,10 +233,21 @@ function read_res_icmd_and_print {
 
 	read_res_icmd $mst_dev $gvmi $res_type $(( index >> 1 ))
 
-	for i in {0..32} ; do
-		txt=`mcra $mst_dev $((0x2000 + (i*4) )) | sed 's/0x//'`
-		echo "$txt"
-	done
+	if [ "$action" == "pattern" ] || [ "$action" == "argument" ] ; then
+		for (( i=0; $((i*4)) < 64; i=$((i+1)) )) ; do
+			res_val=`mcra $mst_dev $((0x2000 + i*4 ))`
+			printf "%.8x " $res_val
+			if [ $(( ( i % 4 ) )) -eq 3 ] ; then echo ; fi
+		done > /tmp/read_res_type_form_icmd_$$
+
+		cat /tmp/read_res_type_form_icmd_$$
+	else
+		for i in {0..32} ; do
+			txt=`mcra $mst_dev $((0x2000 + (i*4) )) | sed 's/0x//'`
+			echo "$txt"
+		done
+	fi
+
 }
 
 
@@ -290,8 +303,8 @@ do
 		-g) p_arg=${arg##"-"} ;;
 		--rewrite) action="rewrite" ;   res_type=0xe9  ;;
 		--encap) action="encap" ;       res_type=0xb3  ;;
-		--pattern) action="pattern" ;   res_type=0x15d ;;
-		--argument) action="argument" ; res_type=0x15c ;;
+		--pattern) action="pattern" ;   res_type=0x73 ;;
+		--argument) action="argument" ; res_type=0x72 ;;
 		--counter) action="counter" ;	res_type=0x4fi ;;
 		--ste) action="ste" ;		res_type=0x41  ;;
 		--mft) tool="mft" ;;
