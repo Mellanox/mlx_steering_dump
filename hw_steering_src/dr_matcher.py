@@ -4,7 +4,6 @@
 from hw_steering_src.dr_common import *
 
 
-
 class dr_parse_matcher():
     def __init__(self, data):
         keys = ["mlx5dr_debug_res_type", "id", "tbl_id", "num_of_mt",
@@ -14,7 +13,6 @@ class dr_parse_matcher():
         self.nic_tx = None
         self.attr = None
         self.template = None
-
 
     def dump_str(self, verbosity):
         if verbosity == 0:
@@ -28,7 +26,6 @@ class dr_parse_matcher():
         return dump_obj_str(["mlx5dr_debug_res_type", "id", "tbl_id",
                              "num_of_mt", "end_ft_id", "col_matcher_id"],
                              self.data)
-
 
     def tree_print(self, verbosity, tabs):
         _str = tabs + self.dump_str(verbosity)

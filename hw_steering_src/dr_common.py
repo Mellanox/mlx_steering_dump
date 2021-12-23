@@ -1,6 +1,15 @@
 #SPDX-License-Identifier: BSD-3-Clause
 #Copyright (c) 2021 NVIDIA CORPORATION. All rights reserved.
 
+
+""" dump_obj_str(keys, data):
+This functions print the data dictionary acording to the keys.
+Parameters:
+keys: an array of keys to be printed from the data dictionary.
+data: a dictionary to print the data from acording to the keys.
+Return:
+Returns the output string.
+"""
 def dump_obj_str(keys, data):
     _str = ""
     length = len(keys)
@@ -65,4 +74,3 @@ def hex_to_bin_str(_n):
     n = str(bin(int(_n, 16)))[2:]
     z = (8 - len(n)) * "0"
     return z + n
-
