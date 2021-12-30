@@ -589,6 +589,50 @@ def mlx5_ifc_ste_def33_v1_bits_parser(bin_str):
     return ret
 
 
+def mlx5_ifc_ste_def35_v1_bits_parser(bin_str):
+    ret = {}
+    ret["metadata_reg_c4"] = _val(bin_str[0: 32])
+    ret["outer_ip_src_addr"] = _val(bin_str[32: 64])
+    ret["outer_ip_dst_addr"] = _val(bin_str[64: 96])
+    ret["outer_l4_sport"] = _val(bin_str[96: 112])
+    ret["outer_l4_dport"] = _val(bin_str[112: 128])
+    ret["outer_dmac_47_16"] = _val(bin_str[128: 160])
+    ret["outer_smac_47_16"] = _val(bin_str[160: 192])
+    ret["outer_smac_15_0"] = _val(bin_str[192: 208])
+    ret["outer_dmac_15_0"] = _val(bin_str[208: 224])
+    ret["reserved_at_3c"] = _val(bin_str[224: 240])
+    ret["outer_ip_dscp"] = _val(bin_str[240: 246])
+    ret["outer_ip_ecn"] = _val(bin_str[246: 248])
+    ret["outer_l3_type"] = _val(bin_str[248: 250])
+    ret["outer_l4_type"] = _val(bin_str[250: 252])
+    ret["outer_first_vlan_type"] = _val(bin_str[252: 254])
+    ret["outer_ip_frag"] = _val(bin_str[254: 255])
+    ret["functional_lb"] = _val(bin_str[255: 256])
+    return ret
+
+
+def mlx5_ifc_ste_def36_v1_bits_parser(bin_str):
+    ret = {}
+    ret["metadata_reg_c1"] = _val(bin_str[0: 32])
+    ret["outer_ip_src_addr"] = _val(bin_str[32: 64])
+    ret["outer_ip_dst_addr"] = _val(bin_str[64: 96])
+    ret["outer_l4_sport"] = _val(bin_str[96: 112])
+    ret["outer_l4_dport"] = _val(bin_str[112: 128])
+    ret["outer_dmac_47_16"] = _val(bin_str[128: 160])
+    ret["outer_smac_47_16"] = _val(bin_str[160: 192])
+    ret["outer_smac_15_0"] = _val(bin_str[192: 208])
+    ret["outer_dmac_15_0"] = _val(bin_str[208: 224])
+    ret["reserved_at_3c"] = _val(bin_str[224: 240])
+    ret["outer_ip_dscp"] = _val(bin_str[240: 246])
+    ret["outer_ip_ecn"] = _val(bin_str[246: 248])
+    ret["outer_l3_type"] = _val(bin_str[248: 250])
+    ret["outer_l4_type"] = _val(bin_str[250: 252])
+    ret["outer_first_vlan_type"] = _val(bin_str[252: 254])
+    ret["outer_ip_frag"] = _val(bin_str[254: 255])
+    ret["functional_lb"] = _val(bin_str[255: 256])
+    return ret
+
+
 switch_tag_parser = {
     DR_STE_V1_LU_TYPE_ETHL2_SRC_DST_I: [mlx5_ifc_ste_eth_l2_src_dst_v1_bits_tag_parser_p, True],
     DR_STE_V1_LU_TYPE_ETHL2_SRC_DST_O: [mlx5_ifc_ste_eth_l2_src_dst_v1_bits_tag_parser_p, False],
@@ -632,6 +676,8 @@ switch_definer_parser = {
     26: mlx5_ifc_ste_def26_v1_bits_parser,
     28: mlx5_ifc_ste_def28_v1_bits_parser,
     33: mlx5_ifc_ste_def33_v1_bits_parser,
+    35: mlx5_ifc_ste_def35_v1_bits_parser,
+    36: mlx5_ifc_ste_def36_v1_bits_parser,
 }
 
 
