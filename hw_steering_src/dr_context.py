@@ -22,7 +22,7 @@ class dr_parse_context():
 
     def tree_print(self, verbosity, tabs):
         _str = tabs + self.dump_str(verbosity)
-        tabs = tabs + "\t"
+        tabs = tabs + TAB
 
         _str = _str + tabs + self.attr.dump_str(verbosity)
 
@@ -117,7 +117,7 @@ class dr_parse_context_send_engine():
 
     def tree_print(self, verbosity, tabs):
         _str = tabs + self.dump_str(verbosity)
-        tabs = tabs + "\t"
+        tabs = tabs + TAB
 
         for sr in self.send_ring:
             _str = _str + tabs + sr.dump_str(verbosity)

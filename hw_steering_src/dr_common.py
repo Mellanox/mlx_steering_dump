@@ -74,3 +74,6 @@ def hex_to_bin_str(_n):
     n = str(bin(int(_n, 16)))[2:]
     z = (8 - len(n)) * "0"
     return z + n
+
+
+TAB = "    "

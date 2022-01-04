@@ -29,7 +29,7 @@ class dr_parse_matcher():
 
     def tree_print(self, verbosity, tabs):
         _str = tabs + self.dump_str(verbosity)
-        tabs = tabs + "\t"
+        tabs = tabs + TAB
 
         _str = _str + tabs + self.attr.dump_str(verbosity)
         if self.nic_rx != None and verbosity > 0:
@@ -83,7 +83,7 @@ class dr_parse_matcher_nic():
         if verbosity == 1:
             return dump_obj_str(["mlx5dr_debug_res_type", "matcher_id",
                                  "rtc_id"], self.data)
-        elif verbosity == 2:
+        elif verbosity > 1:
             return dump_obj_str(["mlx5dr_debug_res_type", "matcher_id",
                                  "rtc_id", "ste_obj_id"], self.data)
 

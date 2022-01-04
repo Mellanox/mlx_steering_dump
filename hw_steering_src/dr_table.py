@@ -26,7 +26,7 @@ class dr_parse_table():
 
     def tree_print(self, verbosity, tabs):
         _str = tabs + self.dump_str(verbosity)
-        tabs = tabs + "\t"
+        tabs = tabs + TAB
 
         for m in self.matchers:
             if verbosity < 2 and m.data["id"] in self.col_matcher_ids:
