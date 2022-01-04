@@ -13,6 +13,7 @@ class dr_parse_definer():
         keys = ["mlx5dr_debug_res_type", "id", "mt_id", "definer_obj_id",
                 "dw_selector_0", "dw_selector_1", "dw_selector_2",
                 "dw_selector_3", "dw_selector_4", "dw_selector_5",
+                "dw_selector_6", "dw_selector_7", "dw_selector_8",
                 "byte_selector_0", "byte_selector_1", "byte_selector_2",
                 "byte_selector_3", "byte_selector_4", "byte_selector_5",
                 "byte_selector_6", "byte_selector_7", "mask_tag_0", "mask_tag_1",
