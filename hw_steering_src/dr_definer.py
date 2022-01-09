@@ -110,7 +110,7 @@ class dr_parse_definer():
     def parse_selectors_and_mask(self):
         dw_selector_arr = self.data["dw_selectors"].split("-")
         byte_selector_arr = self.data["byte_selectors"].split("-")
-        count = 2
+        count = 0
         _len = len(dw_selector_arr)
         for i in range(_len):
             self.data["dw_selector_" + str(_len - (i + 1))] = dw_selector_arr[-(i + 1)]
