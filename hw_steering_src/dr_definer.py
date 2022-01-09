@@ -11,20 +11,8 @@ DEFINERS = {}
 class dr_parse_definer():
     def __init__(self, data):
         keys = ["mlx5dr_debug_res_type", "id", "mt_id", "definer_obj_id",
-                "dw_selector_0", "dw_selector_1", "dw_selector_2",
-                "dw_selector_3", "dw_selector_4", "dw_selector_5",
-                "dw_selector_6", "dw_selector_7", "dw_selector_8",
-                "byte_selector_0", "byte_selector_1", "byte_selector_2",
-                "byte_selector_3", "byte_selector_4", "byte_selector_5",
-                "byte_selector_6", "byte_selector_7", "mask_tag_0", "mask_tag_1",
-                "mask_tag_2", "mask_tag_3", "mask_tag_4", "mask_tag_5",
-                "mask_tag_6", "mask_tag_7", "mask_tag_8", "mask_tag_9",
-                "mask_tag_10", "mask_tag_11", "mask_tag_12", "mask_tag_13",
-                "mask_tag_14", "mask_tag_15", "mask_tag_16", "mask_tag_17",
-                "mask_tag_18", "mask_tag_19", "mask_tag_20", "mask_tag_21",
-                "mask_tag_22", "mask_tag_23", "mask_tag_24", "mask_tag_25",
-                "mask_tag_26", "mask_tag_27", "mask_tag_28", "mask_tag_29",
-                "mask_tag_30", "mask_tag_31"]
+                "definer_type", "dw_selectors", "byte_selectors",
+                "mask_tag"]
         self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
         self.dw_fields = None
         self.byte_fields = None
@@ -63,7 +51,9 @@ class dr_parse_definer():
                 continue
 
             if _key in union_fields:
-                union_fields[_key] = union_fields[_key] | int(_data, 2)
+                union_fields[_key] |= int(_data, 2)
+            elif _key in fields:
+                fields[_key] |= int(_data, 2)
             else:
                 fields[_key] = int(_data, 2)
 
@@ -95,11 +85,7 @@ class dr_parse_definer():
         for i in range(6):
             dw_selector = "dw_selector_" + str(i)
             hl_index = int(self.data[dw_selector], 16)
-            tag_index = 8 + (4 * i)
-            mask = hex_to_bin_str(self.data["mask_tag_" + str(tag_index + 3)])
-            mask += hex_to_bin_str(self.data["mask_tag_" + str(tag_index + 2)])
-            mask += hex_to_bin_str(self.data["mask_tag_" + str(tag_index + 1)])
-            mask += hex_to_bin_str(self.data["mask_tag_" + str(tag_index)])
+            mask = hex_to_bin_str(self.data["dw_mask_tag_" + str(i)], 32)
 
             fields_dic[dw_selector] = dr_hl_dw_parser(hl_index, mask)
 
@@ -113,15 +99,31 @@ class dr_parse_definer():
             hl_byte_index = int(self.data[byte_selector], 16)
             hl_dw_index = hl_byte_index / 4
             hl_byte_offset = hl_byte_index % 4
-            mask = ((3 - hl_byte_offset) * 8) * "0"
-            mask += hex_to_bin_str(self.data["mask_tag_" + str(i)])
-            mask += (hl_byte_offset * 8) * "0"
+            mask = (hl_byte_offset * 8) * "0"
+            mask += hex_to_bin_str(self.data["byte_mask_tag_" + str(i)], 8)
+            mask += ((3 - hl_byte_offset) * 8) * "0"
 
             fields_dic[byte_selector] = dr_hl_dw_parser(hl_dw_index, mask)
 
         return fields_dic
 
+    def parse_selectors_and_mask(self):
+        dw_selector_arr = self.data["dw_selectors"].split("-")
+        byte_selector_arr = self.data["byte_selectors"].split("-")
+        count = 2
+        _len = len(dw_selector_arr)
+        for i in range(_len):
+            self.data["dw_selector_" + str(_len - (i + 1))] = dw_selector_arr[-(i + 1)]
+            self.data["dw_mask_tag_" + str(_len - (i + 1))] = "0x" + self.data["mask_tag"][count: count + 8]
+            count += 8
+
+        _len = len(byte_selector_arr)
+        for i in range(_len):
+            self.data["byte_selector_" + str(_len - (i + 1))] = byte_selector_arr[-(i + 1)]
+            self.data["byte_mask_tag_" + str(_len - (i + 1))] = "0x" + self.data["mask_tag"][count: count + 2]
+            count += 2
 
     def parse_data(self):
+        self.parse_selectors_and_mask()
         self.dw_fields = self.definer_dws_parser()
         self.byte_fields = self.definer_bytes_parser()

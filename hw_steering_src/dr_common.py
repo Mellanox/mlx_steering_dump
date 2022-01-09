@@ -70,9 +70,9 @@ class_name_arr = {
 }
 
 
-def hex_to_bin_str(_n):
+def hex_to_bin_str(_n, _len):
     n = str(bin(int(_n, 16)))[2:]
-    z = (8 - len(n)) * "0"
+    z = (_len - len(n)) * "0"
     return z + n
 
 
