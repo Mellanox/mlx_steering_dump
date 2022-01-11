@@ -5,6 +5,7 @@ import sys
 import argparse
 import csv
 
+from hw_steering_src import dr_trigger
 from hw_steering_src.dr_common import *
 from hw_steering_src.dr_context import *
 from hw_steering_src.dr_table import *
@@ -118,9 +119,10 @@ if __name__ == "__main__":
     if (args.dump_hw_resources):
         print("-hw is not supported yet.")
         sys.exit(0)
-    if (args.dpdk_pid != -1):
-        print("-pid is not supported yet.")
-        sys.exit(0)
+    if (args.dpdk_pid > 0):
+        if dr_trigger.trigger_dump(args.dpdk_pid, args.dpdk_port, args.FILEPATH, 0) is None:
+            sys.exit(-1)
+
     csv_file = open(args.FILEPATH)
     obj = dr_parse_csv_file(csv_file)
     verbose = args.verbose
