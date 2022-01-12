@@ -99,7 +99,9 @@ class dr_parse_matcher_template():
     def dump_str(self, verbosity):
         _str = ":"
         if self.definer != None:
-            _str = ": " + self.definer.dump_fields() + ", "
+            definer_str = str(self.definer.dump_fields())
+            if len(definer_str) != 0:
+                _str = ": " + self.definer.dump_fields() + ", "
         if verbosity > 0:
             return dump_obj_str(["mlx5dr_debug_res_type", "id", "matcher_id",
                                 "flags", "fc_sz"], self.data).replace(":", _str)
