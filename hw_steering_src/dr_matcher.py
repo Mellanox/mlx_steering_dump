@@ -63,11 +63,11 @@ class dr_parse_matcher_attr():
 
     def dump_str(self, verbosity):
         if verbosity > 0:
-            return dump_obj_str(["mlx5dr_debug_res_type", "matcher_id",
+            return dump_obj_str(["mlx5dr_debug_res_type",
                                  "priority", "mode", "sz_row_log",
                                  "sz_col_log"], self.data)
 
-        return dump_obj_str(["mlx5dr_debug_res_type", "matcher_id",
+        return dump_obj_str(["mlx5dr_debug_res_type",
                              "priority", "mode"], self.data)
 
     def fix_data(self):
@@ -103,11 +103,11 @@ class dr_parse_matcher_template():
             if len(definer_str) != 0:
                 _str = ": " + self.definer.dump_fields() + ", "
         if verbosity > 0:
-            return dump_obj_str(["mlx5dr_debug_res_type", "id", "matcher_id",
-                                "flags", "fc_sz"], self.data).replace(":", _str)
+            return dump_obj_str(["mlx5dr_debug_res_type", "id", "flags",
+                                 "fc_sz"], self.data).replace(":", _str)
 
         return dump_obj_str(["mlx5dr_debug_res_type", "id",
-                            "matcher_id", "flags"], self.data).replace(":", _str)
+                             "flags"], self.data).replace(":", _str)
 
     def add_definer(self, definer):
         self.definer = definer

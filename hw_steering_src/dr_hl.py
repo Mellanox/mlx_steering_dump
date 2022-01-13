@@ -43,7 +43,7 @@ def dr_hl_ib_l4_parser(hl_index, mask):
 def dr_hl_eth_l4_parser(hl_index, mask):
     offset = (hl_index - 24) % 2
     dw_fields = [
-                 [('source_port', 16), ('destination_port', 16)],
+                 [('src_port', 16), ('dst_port', 16)],
                  [
                   ('data_offset', 4), ('l4_ok', 1), ('l3_ok', 1), ('ip_fragmented', 1),
                   ('tcp_ns', 1), ('tcp_cwr', 1), ('tcp_ece', 1), ('tcp_urg', 1),
@@ -120,8 +120,8 @@ def dr_hl_eth_l2_src_parser(hl_index, mask):
 def dr_hl_ipv4_src_dst_parser(hl_index, mask):
     offset = (hl_index - 64) % 2
     dw_fields = [
-                 [('source_address', 32)],
-                 [('destination_address', 32)]
+                 [('src_address', 32)],
+                 [('dst_address', 32)]
                 ]
 
     return dr_hl_dw_mask_parser(dw_fields[offset], mask)

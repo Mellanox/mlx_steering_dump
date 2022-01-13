@@ -99,14 +99,14 @@ def parse_args():
                                      epilog="Note: This parser is still under developement, so not all the args are supported yet.")
     parser.add_argument("-f", dest="FILEPATH", default="", help="Input steering dump file path")
     parser.add_argument("-v", action="count", dest="verbose", default=0, help="Increase output verbosity - v, vv & vvv for extra verbosity")
-    parser.add_argument("-hw", action="store_true", default=False, dest="dump_hw_resources",
-                        help="Dump HW resources (must provide device with -d)")
+    parser.add_argument("-skip-hw", action="store_true", default=False, dest="dump_hw_resources",
+                        help="Skip dumping HW resources")
     parser.add_argument("-d", dest="device", type=str, default="",
                         help="Provide device")
     parser.add_argument("-pid", dest="dpdk_pid", type=int, default=-1,
-                        help="Trigger DPDK app <PORT> (must provide PID with -p)")
+                        help="Trigger DPDK app <PID>)")
     parser.add_argument("-port", dest="dpdk_port", type=int, default=0,
-                        help="Trigger DPDK app <PORT> (must provide PID with -p)")
+                        help="Trigger DPDK app <PORT> (must provide PID with -pid)")
     parser.add_argument("-no-parse", action="store_true", default=False, dest="no_parse",
                         help="Skip parsing stage")
     return parser.parse_args()
