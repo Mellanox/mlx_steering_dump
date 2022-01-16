@@ -55,7 +55,7 @@ def dr_hl_eth_l4_parser(hl_index, mask):
     return dr_hl_dw_mask_parser(dw_fields[offset], mask)
 
 def dr_hl_eth_l2_parser(hl_index, mask):
-    offset = hl_index % 4
+    offset = int(hl_index % 4)
     dw_fields = [
                  [('dmac_47_16', 32)],
                  [('dmac_15_0', 16), ('l3_ethertype', 16)],
