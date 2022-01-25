@@ -63,14 +63,15 @@ def dr_hl_eth_l2_parser(hl_index, mask):
                   ('reserved_at_40', 1), ('sx_sniffer', 1), ('functional_lb', 1),
                   ('ip_fragmented', 1), ('qp_type', 2), ('encap_type', 2),
                   ('port_number', 2), ('l3_type', 2), ('l4_type_bwc', 2),
-                  ('first_vlan_qualifier', 2), ('first_priority', 3), ('first_cfi', 1),
-                  ('first_vlan_id', 12)
+                  ('first_vlan_qualifier', 2), ('first_priority', 3),
+                  ('first_cfi', 1), ('first_vlan_id', 12)
                  ],
                  [
                   ('l4_type', 4), ('reserved_at_64', 2), ('ipsec_layer', 2),
                   ('l2_type', 2), ('force_lb', 1), ('l2_ok', 1), ('l3_ok', 1),
-                  ('l4_ok', 1), ('second_vlan_qualifier', 2), ('second_priority', 3),
-                  ('second_cfi', 1), ('second_vlan_id', 12)
+                  ('l4_ok', 1), ('second_vlan_qualifier', 2),
+                  ('second_priority', 3), ('second_cfi', 1),
+                  ('second_vlan_id', 12)
                  ]
                 ]
 
@@ -96,8 +97,8 @@ def dr_hl_ib_l2_parser(hl_index, mask):
     dw_fields = [
                  [
                   ('sx_sniffer', 1), ('force_lb', 1), ('functional_lb', 1),
-                  ('reserved_at_3', 3), ('port_number', 2), ('sl', 4), ('qp_type', 2),
-                  ('lnh', 2), ('dlid', 16)
+                  ('reserved_at_3', 3), ('port_number', 2), ('sl', 4),
+                  ('qp_type', 2), ('lnh', 2), ('dlid', 16)
                  ],
                  [('vl', 4), ('lrh_packet_length', 12), ('slid', 16)]
                 ]
@@ -140,9 +141,11 @@ def dr_hl_ipv6_addr_parser(hl_index, mask):
 def dr_hl_flex_parser_parser(offset, mask):
     dw_fields = [
                  [
-                  ('version', 3), ('proto_type', 1), ('reserved1', 1), ('ext_hdr_flag', 1),
-                  ('seq_num_flag', 1), ('pdu_flag', 1), ('msg_type', 8), ('msg_len', 8),
-                  ('teid', 32), ('seq_num', 16), ('pdu_num', 8), ('next_ext_hdr_type', 8), ('len', 8)
+                  ('version', 3), ('proto_type', 1), ('reserved1', 1),
+                  ('ext_hdr_flag', 1), ('seq_num_flag', 1), ('pdu_flag', 1),
+                  ('msg_type', 8), ('msg_len', 8), ('teid', 32),
+                  ('seq_num', 16), ('pdu_num', 8), ('next_ext_hdr_type', 8),
+                  ('len', 8)
                  ]
                 ]
 
@@ -195,8 +198,8 @@ def dr_hl_src_qp_gvmi_parser(hl_index, mask):
     dw_fields = [
                  [
                   ('loopback_syndrome', 8), ('l3_type', 2), ('l4_type_bwc', 2),
-                  ('first_vlan_qualifier', 2), ('reserved_at_e', 1), ('functional_lb', 1),
-                  ('source_gvmi', 16)
+                  ('first_vlan_qualifier', 2), ('reserved_at_e', 1),
+                  ('functional_lb', 1), ('source_gvmi', 16)
                  ],
                  [
                   ('force_lb', 1), ('ip_fragmented', 1), ('source_is_requestor', 1),

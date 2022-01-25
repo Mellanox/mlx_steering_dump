@@ -1,6 +1,12 @@
 #SPDX-License-Identifier: BSD-3-Clause
 #Copyright (c) 2021 NVIDIA CORPORATION. All rights reserved.
 
+BYTE_SZ = 8
+DW_SZ = 32
+DW_SZ_IN_BYTES = 4
+
+DW_SELECTORS = 6
+BYTE_SELECTORS = 8
 
 """ dump_obj_str(keys, data):
 This functions print the data dictionary acording to the keys.
