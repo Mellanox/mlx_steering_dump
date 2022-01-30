@@ -7,7 +7,6 @@ from src import dr_prettify
 from src.dr_utilities import hex_2_bin
 import ctypes
 import re
-from  enum import Enum
 from src.dr_prettify import pretty_ip, pretty_mac
 
 
@@ -304,70 +303,72 @@ def mlx5_ifc_dr_match_set_misc5_bits_parser(mask, raw):
 
     return ret
 
-class MLX5_MOD_FLD(Enum):
-    MLX5_MODI_OUT_NONE = -1
-    MLX5_MODI_OUT_SMAC_47_16 = 1
-    MLX5_MODI_OUT_SMAC_15_0 = 2
-    MLX5_MODI_OUT_ETHERTYPE = 3
-    MLX5_MODI_OUT_DMAC_47_16 = 4
-    MLX5_MODI_OUT_DMAC_15_0 = 5
-    MLX5_MODI_OUT_IP_DSCP = 6
-    MLX5_MODI_OUT_TCP_FLAGS = 7
-    MLX5_MODI_OUT_TCP_SPORT = 8
-    MLX5_MODI_OUT_TCP_DPORT = 9
-    MLX5_MODI_OUT_IPV4_TTL = 10
-    MLX5_MODI_OUT_UDP_SPORT = 11
-    MLX5_MODI_OUT_UDP_DPORT = 12
-    MLX5_MODI_OUT_SIPV6_127_96 = 13
-    MLX5_MODI_OUT_SIPV6_95_64 = 14
-    MLX5_MODI_OUT_SIPV6_63_32 = 15
-    MLX5_MODI_OUT_SIPV6_31_0 = 16
-    MLX5_MODI_OUT_DIPV6_127_96 = 17
-    MLX5_MODI_OUT_DIPV6_95_64 = 18
-    MLX5_MODI_OUT_DIPV6_63_32 = 19
-    MLX5_MODI_OUT_DIPV6_31_0 = 20
-    MLX5_MODI_OUT_SIPV4 = 21
-    MLX5_MODI_OUT_DIPV4 = 22
-    MLX5_MODI_OUT_FIRST_VID = 23
-    MLX5_MODI_IN_SMAC_47_16 = 0x31
-    MLX5_MODI_IN_SMAC_15_0 = 0x32
-    MLX5_MODI_IN_ETHERTYPE = 0x33
-    MLX5_MODI_IN_DMAC_47_16 = 0x34
-    MLX5_MODI_IN_DMAC_15_0 = 0x35
-    MLX5_MODI_IN_IP_DSCP = 0x36
-    MLX5_MODI_IN_TCP_FLAGS = 0x37
-    MLX5_MODI_IN_TCP_SPORT = 0x38
-    MLX5_MODI_IN_TCP_DPORT = 0x39
-    MLX5_MODI_IN_IPV4_TTL = 0x3a
-    MLX5_MODI_IN_UDP_SPORT = 0x3b
-    MLX5_MODI_IN_UDP_DPORT = 0x3c
-    MLX5_MODI_IN_SIPV6_127_96 = 0x3d
-    MLX5_MODI_IN_SIPV6_95_64 = 0x3e
-    MLX5_MODI_IN_SIPV6_63_32 = 0x3f
-    MLX5_MODI_IN_SIPV6_31_0 = 0x40
-    MLX5_MODI_IN_DIPV6_127_96 = 0x41
-    MLX5_MODI_IN_DIPV6_95_64 = 0x42
-    MLX5_MODI_IN_DIPV6_63_32 = 0x43
-    MLX5_MODI_IN_DIPV6_31_0 = 0x44
-    MLX5_MODI_IN_SIPV4 = 0x45
-    MLX5_MODI_IN_DIPV4 = 0x46
-    MLX5_MODI_OUT_IPV6_HOPLIMIT = 0x47
-    MLX5_MODI_IN_IPV6_HOPLIMIT = 0x48
-    MLX5_MODI_META_DATA_REG_A = 0x49
-    MLX5_MODI_META_DATA_REG_B = 0x50
-    MLX5_MODI_META_REG_C_0 = 0x51
-    MLX5_MODI_META_REG_C_1 = 0x52
-    MLX5_MODI_META_REG_C_2 = 0x53
-    MLX5_MODI_META_REG_C_3 = 0x54
-    MLX5_MODI_META_REG_C_4 = 0x55
-    MLX5_MODI_META_REG_C_5 = 0x56
-    MLX5_MODI_META_REG_C_6 = 0x57
-    MLX5_MODI_META_REG_C_7 = 0x58
-    MLX5_MODI_OUT_TCP_SEQ_NUM = 0x59
-    MLX5_MODI_IN_TCP_SEQ_NUM = 0x5a
-    MLX5_MODI_OUT_TCP_ACK_NUM = 0x5b
-    MLX5_MODI_IN_TCP_ACK_NUM = 0x5c
-    MLX5_MODI_GTP_TEID = 0x6e
+
+# MLX5_MOD_FLD
+MLX5_MODI_OUT_NONE = -1
+MLX5_MODI_OUT_SMAC_47_16 = 1
+MLX5_MODI_OUT_SMAC_15_0 = 2
+MLX5_MODI_OUT_ETHERTYPE = 3
+MLX5_MODI_OUT_DMAC_47_16 = 4
+MLX5_MODI_OUT_DMAC_15_0 = 5
+MLX5_MODI_OUT_IP_DSCP = 6
+MLX5_MODI_OUT_TCP_FLAGS = 7
+MLX5_MODI_OUT_TCP_SPORT = 8
+MLX5_MODI_OUT_TCP_DPORT = 9
+MLX5_MODI_OUT_IPV4_TTL = 10
+MLX5_MODI_OUT_UDP_SPORT = 11
+MLX5_MODI_OUT_UDP_DPORT = 12
+MLX5_MODI_OUT_SIPV6_127_96 = 13
+MLX5_MODI_OUT_SIPV6_95_64 = 14
+MLX5_MODI_OUT_SIPV6_63_32 = 15
+MLX5_MODI_OUT_SIPV6_31_0 = 16
+MLX5_MODI_OUT_DIPV6_127_96 = 17
+MLX5_MODI_OUT_DIPV6_95_64 = 18
+MLX5_MODI_OUT_DIPV6_63_32 = 19
+MLX5_MODI_OUT_DIPV6_31_0 = 20
+MLX5_MODI_OUT_SIPV4 = 21
+MLX5_MODI_OUT_DIPV4 = 22
+MLX5_MODI_OUT_FIRST_VID = 23
+MLX5_MODI_IN_SMAC_47_16 = 0x31
+MLX5_MODI_IN_SMAC_15_0 = 0x32
+MLX5_MODI_IN_ETHERTYPE = 0x33
+MLX5_MODI_IN_DMAC_47_16 = 0x34
+MLX5_MODI_IN_DMAC_15_0 = 0x35
+MLX5_MODI_IN_IP_DSCP = 0x36
+MLX5_MODI_IN_TCP_FLAGS = 0x37
+MLX5_MODI_IN_TCP_SPORT = 0x38
+MLX5_MODI_IN_TCP_DPORT = 0x39
+MLX5_MODI_IN_IPV4_TTL = 0x3a
+MLX5_MODI_IN_UDP_SPORT = 0x3b
+MLX5_MODI_IN_UDP_DPORT = 0x3c
+MLX5_MODI_IN_SIPV6_127_96 = 0x3d
+MLX5_MODI_IN_SIPV6_95_64 = 0x3e
+MLX5_MODI_IN_SIPV6_63_32 = 0x3f
+MLX5_MODI_IN_SIPV6_31_0 = 0x40
+MLX5_MODI_IN_DIPV6_127_96 = 0x41
+MLX5_MODI_IN_DIPV6_95_64 = 0x42
+MLX5_MODI_IN_DIPV6_63_32 = 0x43
+MLX5_MODI_IN_DIPV6_31_0 = 0x44
+MLX5_MODI_IN_SIPV4 = 0x45
+MLX5_MODI_IN_DIPV4 = 0x46
+MLX5_MODI_OUT_IPV6_HOPLIMIT = 0x47
+MLX5_MODI_IN_IPV6_HOPLIMIT = 0x48
+MLX5_MODI_META_DATA_REG_A = 0x49
+MLX5_MODI_META_DATA_REG_B = 0x50
+MLX5_MODI_META_REG_C_0 = 0x51
+MLX5_MODI_META_REG_C_1 = 0x52
+MLX5_MODI_META_REG_C_2 = 0x53
+MLX5_MODI_META_REG_C_3 = 0x54
+MLX5_MODI_META_REG_C_4 = 0x55
+MLX5_MODI_META_REG_C_5 = 0x56
+MLX5_MODI_META_REG_C_6 = 0x57
+MLX5_MODI_META_REG_C_7 = 0x58
+MLX5_MODI_OUT_TCP_SEQ_NUM = 0x59
+MLX5_MODI_IN_TCP_SEQ_NUM = 0x5a
+MLX5_MODI_OUT_TCP_ACK_NUM = 0x5b
+MLX5_MODI_IN_TCP_ACK_NUM = 0x5c
+MLX5_MODI_GTP_TEID = 0x6e
+
 
 class _data0(ctypes.Structure):
     _fields_ = [('length', ctypes.c_uint32, 5),
@@ -475,71 +476,71 @@ def mlx5_ifc_modify_hdr(num_str, bin_str):
        cmd = mlx5_modification_cmd()
        cmd.data0_u.data0 = int(bin_str[i*16:i*16+8], 16)
        cmd.data1_u.data1 = int(bin_str[i*16+8:i*16+16], 16)
-       if cmd.data0_u.data0_struct.field == MLX5_MOD_FLD.MLX5_MODI_OUT_SMAC_47_16.value:
+       if cmd.data0_u.data0_struct.field == MLX5_MODI_OUT_SMAC_47_16:
            hdr_str += ',smac=' + ':'.join(pattern.findall(bin_str[i*16+8:i*16+16])) + ":"
-       elif cmd.data0_u.data0_struct.field == MLX5_MOD_FLD.MLX5_MODI_OUT_SMAC_15_0.value:
+       elif cmd.data0_u.data0_struct.field == MLX5_MODI_OUT_SMAC_15_0:
            hdr_str += ':'.join(pattern.findall(bin_str[i*16+12:i*16+16]))
-       elif cmd.data0_u.data0_struct.field == MLX5_MOD_FLD.MLX5_MODI_OUT_DMAC_47_16.value:
+       elif cmd.data0_u.data0_struct.field == MLX5_MODI_OUT_DMAC_47_16:
            hdr_str += ',dmac=' + ':'.join(pattern.findall(bin_str[i*16+8:i*16+16])) + ":"
-       elif cmd.data0_u.data0_struct.field == MLX5_MOD_FLD.MLX5_MODI_OUT_DMAC_15_0.value:
+       elif cmd.data0_u.data0_struct.field == MLX5_MODI_OUT_DMAC_15_0:
            hdr_str += ':'.join(pattern.findall(bin_str[i*16+12:i*16+16]))
-       elif cmd.data0_u.data0_struct.field == MLX5_MOD_FLD.MLX5_MODI_OUT_SIPV4.value:
+       elif cmd.data0_u.data0_struct.field == MLX5_MODI_OUT_SIPV4:
            hdr_str += ',sip4=' + pattern.sub(int_repl, bin_str[i*16+8:i*16+16]).rstrip('.')
-       elif cmd.data0_u.data0_struct.field == MLX5_MOD_FLD.MLX5_MODI_OUT_DIPV4.value:
+       elif cmd.data0_u.data0_struct.field == MLX5_MODI_OUT_DIPV4:
            hdr_str += ',dip4=' + pattern.sub(int_repl, bin_str[i*16+8:i*16+16]).rstrip('.')
-       elif cmd.data0_u.data0_struct.field == MLX5_MOD_FLD.MLX5_MODI_OUT_SIPV6_127_96.value:
+       elif cmd.data0_u.data0_struct.field == MLX5_MODI_OUT_SIPV6_127_96:
            pattern = re.compile('.{4}')
            hdr_str = ',sip6=' + pattern.sub(remove_prefix_zero, bin_str[i*16+8:i*16+16])
-       elif cmd.data0_u.data0_struct.field == MLX5_MOD_FLD.MLX5_MODI_OUT_SIPV6_95_64.value:
+       elif cmd.data0_u.data0_struct.field == MLX5_MODI_OUT_SIPV6_95_64:
            hdr_str += pattern.sub(remove_prefix_zero, bin_str[i*16+8:i*16+16])
-       elif cmd.data0_u.data0_struct.field == MLX5_MOD_FLD.MLX5_MODI_OUT_SIPV6_63_32.value:
+       elif cmd.data0_u.data0_struct.field == MLX5_MODI_OUT_SIPV6_63_32:
            hdr_str += pattern.sub(remove_prefix_zero, bin_str[i*16+8:i*16+16])
-       elif cmd.data0_u.data0_struct.field == MLX5_MOD_FLD.MLX5_MODI_OUT_SIPV6_31_0.value:
+       elif cmd.data0_u.data0_struct.field == MLX5_MODI_OUT_SIPV6_31_0:
            hdr_str += pattern.sub(remove_prefix_zero, bin_str[i*16+8:i*16+16]).rstrip(":")
            hdr_str = (re.sub('(::+)', '::', hdr_str))
-       elif cmd.data0_u.data0_struct.field == MLX5_MOD_FLD.MLX5_MODI_OUT_DIPV6_127_96.value:
+       elif cmd.data0_u.data0_struct.field == MLX5_MODI_OUT_DIPV6_127_96:
            pattern = re.compile('.{4}')
            hdr_str += ',dip6=' + pattern.sub(remove_prefix_zero, bin_str[i*16+8:i*16+16])
-       elif cmd.data0_u.data0_struct.field == MLX5_MOD_FLD.MLX5_MODI_OUT_DIPV6_95_64.value:
+       elif cmd.data0_u.data0_struct.field == MLX5_MODI_OUT_DIPV6_95_64:
            hdr_str += pattern.sub(remove_prefix_zero, bin_str[i*16+8:i*16+16])
-       elif cmd.data0_u.data0_struct.field == MLX5_MOD_FLD.MLX5_MODI_OUT_DIPV6_63_32.value:
+       elif cmd.data0_u.data0_struct.field == MLX5_MODI_OUT_DIPV6_63_32:
            hdr_str += pattern.sub(remove_prefix_zero, bin_str[i*16+8:i*16+16])
-       elif cmd.data0_u.data0_struct.field == MLX5_MOD_FLD.MLX5_MODI_OUT_DIPV6_31_0.value:
+       elif cmd.data0_u.data0_struct.field == MLX5_MODI_OUT_DIPV6_31_0:
            hdr_str += pattern.sub(remove_prefix_zero, bin_str[i*16+8:i*16+16]).rstrip(":")
            hdr_str = (re.sub('(::+)', '::', hdr_str))
-       elif cmd.data0_u.data0_struct.field == MLX5_MOD_FLD.MLX5_MODI_OUT_TCP_SPORT.value:
+       elif cmd.data0_u.data0_struct.field == MLX5_MODI_OUT_TCP_SPORT:
            hdr_str = ',tcp_sport=' + str(int(bin_str[i*16+8:i*16+16], 16))
-       elif cmd.data0_u.data0_struct.field == MLX5_MOD_FLD.MLX5_MODI_OUT_TCP_DPORT.value:
+       elif cmd.data0_u.data0_struct.field == MLX5_MODI_OUT_TCP_DPORT:
            hdr_str += ',tcp_dport=' + str(int(bin_str[i*16+8:i*16+16], 16))
-       elif cmd.data0_u.data0_struct.field == MLX5_MOD_FLD.MLX5_MODI_OUT_IP_DSCP.value:
+       elif cmd.data0_u.data0_struct.field == MLX5_MODI_OUT_IP_DSCP:
            hdr_str = ',ip_dscp=' + str(int(bin_str[i*16+8:i*16+16], 16))
-       elif cmd.data0_u.data0_struct.field == MLX5_MOD_FLD.MLX5_MODI_OUT_ETHERTYPE.value:
+       elif cmd.data0_u.data0_struct.field == MLX5_MODI_OUT_ETHERTYPE:
            #Fix ME. Contents in actions->conf
            hdr_str = ',modify_field'
-       elif cmd.data0_u.data0_struct.field == MLX5_MOD_FLD.MLX5_MODI_OUT_IPV4_TTL.value:
+       elif cmd.data0_u.data0_struct.field == MLX5_MODI_OUT_IPV4_TTL:
            if cmd.data0_u.data0_struct.action_type == 1:
                hdr_str = ',ip4_ttl=' + str(int(bin_str[i*16+8:i*16+16], 16))
            elif cmd.data0_u.data0_struct.action_type == 2:
                #Add -1
                hdr_str = ',dec_ip4_ttl'
-       elif cmd.data0_u.data0_struct.field == MLX5_MOD_FLD.MLX5_MODI_OUT_IPV6_HOPLIMIT.value:
+       elif cmd.data0_u.data0_struct.field == MLX5_MODI_OUT_IPV6_HOPLIMIT:
            if cmd.data0_u.data0_struct.action_type == 1:
                hdr_str = ',ip6_hop=' + str(int(bin_str[i*16+8:i*16+16], 16))
            elif cmd.data0_u.data0_struct.action_type == 2:
                #Add -1
                hdr_str = ',dec_ip6_hop'
-       elif cmd.data0_u.data0_struct.field == MLX5_MOD_FLD.MLX5_MODI_OUT_FIRST_VID.value:
+       elif cmd.data0_u.data0_struct.field == MLX5_MODI_OUT_FIRST_VID:
            hdr_str = ',vid=' + str(int(bin_str[i*16+8:i*16+16], 16))
-       elif cmd.data0_u.data0_struct.field == MLX5_MOD_FLD.MLX5_MODI_OUT_UDP_SPORT.value:
+       elif cmd.data0_u.data0_struct.field == MLX5_MODI_OUT_UDP_SPORT:
            hdr_str = ',udp_sport=' + str(int(bin_str[i*16+8:i*16+16], 16))
-       elif cmd.data0_u.data0_struct.field == MLX5_MOD_FLD.MLX5_MODI_OUT_UDP_DPORT.value:
+       elif cmd.data0_u.data0_struct.field == MLX5_MODI_OUT_UDP_DPORT:
            hdr_str = ',udp_dport=' + str(int(bin_str[i*16+8:i*16+16], 16))
-       elif cmd.data0_u.data0_struct.field == MLX5_MOD_FLD.MLX5_MODI_OUT_TCP_ACK_NUM.value:
+       elif cmd.data0_u.data0_struct.field == MLX5_MODI_OUT_TCP_ACK_NUM:
            if int(bin_str[i*16+8:i*16+9], 16) > 7:
                hdr_str = ',dec_tcp_ack=' + str(pow(2, 32) - int(bin_str[i*16+8:i*16+16], 16))
            else:
                hdr_str = ',add_tcp_ack=' + str(int(bin_str[i*16+8:i*16+16], 16))
-       elif cmd.data0_u.data0_struct.field == MLX5_MOD_FLD.MLX5_MODI_OUT_TCP_SEQ_NUM.value:
+       elif cmd.data0_u.data0_struct.field == MLX5_MODI_OUT_TCP_SEQ_NUM:
            if int(bin_str[i*16+8:i*16+9], 16) > 7:
                hdr_str = ',dec_tcp_seq=' + str(pow(2, 32) - int(bin_str[i*16+8:i*16+16], 16))
            else:
@@ -547,64 +548,64 @@ def mlx5_ifc_modify_hdr(num_str, bin_str):
        elif cmd.data0_u.data0_struct.action_type == 3:
            #COPY MREG
            hdr_str = ',cp_reg'
-           if cmd.data0_u.data0_struct.field == MLX5_MOD_FLD.MLX5_MODI_META_DATA_REG_A.value:
+           if cmd.data0_u.data0_struct.field == MLX5_MODI_META_DATA_REG_A:
                hdr_str += '_a'
-           elif cmd.data0_u.data0_struct.field == MLX5_MOD_FLD.MLX5_MODI_META_DATA_REG_B.value:
+           elif cmd.data0_u.data0_struct.field == MLX5_MODI_META_DATA_REG_B:
                hdr_str += '_b'
-           elif cmd.data0_u.data0_struct.field == MLX5_MOD_FLD.MLX5_MODI_META_REG_C_0.value:
+           elif cmd.data0_u.data0_struct.field == MLX5_MODI_META_REG_C_0:
                hdr_str += '_c0'
-           elif cmd.data0_u.data0_struct.field == MLX5_MOD_FLD.MLX5_MODI_META_REG_C_1.value:
+           elif cmd.data0_u.data0_struct.field == MLX5_MODI_META_REG_C_1:
                hdr_str += '_c1'
-           elif cmd.data0_u.data0_struct.field == MLX5_MOD_FLD.MLX5_MODI_META_REG_C_2.value:
+           elif cmd.data0_u.data0_struct.field == MLX5_MODI_META_REG_C_2:
                hdr_str += '_c2'
-           elif cmd.data0_u.data0_struct.field == MLX5_MOD_FLD.MLX5_MODI_META_REG_C_3.value:
+           elif cmd.data0_u.data0_struct.field == MLX5_MODI_META_REG_C_3:
                hdr_str += '_c3'
-           elif cmd.data0_u.data0_struct.field == MLX5_MOD_FLD.MLX5_MODI_META_REG_C_4.value:
+           elif cmd.data0_u.data0_struct.field == MLX5_MODI_META_REG_C_4:
                hdr_str += '_c4'
-           elif cmd.data0_u.data0_struct.field == MLX5_MOD_FLD.MLX5_MODI_META_REG_C_5.value:
+           elif cmd.data0_u.data0_struct.field == MLX5_MODI_META_REG_C_5:
                hdr_str += '_c5'
-           elif cmd.data0_u.data0_struct.field == MLX5_MOD_FLD.MLX5_MODI_META_REG_C_6.value:
+           elif cmd.data0_u.data0_struct.field == MLX5_MODI_META_REG_C_6:
                hdr_str += '_c6'
-           elif cmd.data0_u.data0_struct.field == MLX5_MOD_FLD.MLX5_MODI_META_REG_C_7.value:
+           elif cmd.data0_u.data0_struct.field == MLX5_MODI_META_REG_C_7:
                hdr_str += '_c7'
-           if cmd.data1_u.data1_struct.dst_field == MLX5_MOD_FLD.MLX5_MODI_META_DATA_REG_A.value:
+           if cmd.data1_u.data1_struct.dst_field == MLX5_MODI_META_DATA_REG_A:
                hdr_str += '_to_reg_a'
-           elif cmd.data1_u.data1_struct.dst_field == MLX5_MOD_FLD.MLX5_MODI_META_DATA_REG_B.value:
+           elif cmd.data1_u.data1_struct.dst_field == MLX5_MODI_META_DATA_REG_B:
                hdr_str = '_to_reg_b'
-           elif cmd.data1_u.data1_struct.dst_field == MLX5_MOD_FLD.MLX5_MODI_META_REG_C_0.value:
+           elif cmd.data1_u.data1_struct.dst_field == MLX5_MODI_META_REG_C_0:
                hdr_str = '_to_reg_c0'
-           elif cmd.data1_u.data1_struct.dst_field == MLX5_MOD_FLD.MLX5_MODI_META_REG_C_1.value:
+           elif cmd.data1_u.data1_struct.dst_field == MLX5_MODI_META_REG_C_1:
                hdr_str = '_to_reg_c1'
-           elif cmd.data1_u.data1_struct.dst_field == MLX5_MOD_FLD.MLX5_MODI_META_REG_C_2.value:
+           elif cmd.data1_u.data1_struct.dst_field == MLX5_MODI_META_REG_C_2:
                hdr_str = '_to_reg_c2'
-           elif cmd.data1_u.data1_struct.dst_field == MLX5_MOD_FLD.MLX5_MODI_META_REG_C_3.value:
+           elif cmd.data1_u.data1_struct.dst_field == MLX5_MODI_META_REG_C_3:
                hdr_str = '_to_reg_c3'
-           elif cmd.data1_u.data1_struct.dst_field == MLX5_MOD_FLD.MLX5_MODI_META_REG_C_4.value:
+           elif cmd.data1_u.data1_struct.dst_field == MLX5_MODI_META_REG_C_4:
                hdr_str = '_to_reg_c4'
-           elif cmd.data1_u.data1_struct.dst_field == MLX5_MOD_FLD.MLX5_MODI_META_REG_C_5.value:
+           elif cmd.data1_u.data1_struct.dst_field == MLX5_MODI_META_REG_C_5:
                hdr_str = '_to_reg_c5'
-           elif cmd.data1_u.data1_struct.dst_field == MLX5_MOD_FLD.MLX5_MODI_META_REG_C_6.value:
+           elif cmd.data1_u.data1_struct.dst_field == MLX5_MODI_META_REG_C_6:
                hdr_str = '_to_reg_c6'
-           elif cmd.data1_u.data1_struct.dst_field == MLX5_MOD_FLD.MLX5_MODI_META_REG_C_7.value:
+           elif cmd.data1_u.data1_struct.dst_field == MLX5_MODI_META_REG_C_7:
                hdr_str = '_to_reg_c7'
-       elif cmd.data0_u.data0_struct.field == MLX5_MOD_FLD.MLX5_MODI_META_DATA_REG_A.value:
+       elif cmd.data0_u.data0_struct.field == MLX5_MODI_META_DATA_REG_A:
            hdr_str = ',set_reg_a=' + str(int(bin_str[i*16+8:i*16+16], 16))
-       elif cmd.data0_u.data0_struct.field == MLX5_MOD_FLD.MLX5_MODI_META_DATA_REG_B.value:
+       elif cmd.data0_u.data0_struct.field == MLX5_MODI_META_DATA_REG_B:
            hdr_str = ',set_reg_b=' + str(int(bin_str[i*16+8:i*16+16], 16))
-       elif cmd.data0_u.data0_struct.field == MLX5_MOD_FLD.MLX5_MODI_META_REG_C_0.value:
+       elif cmd.data0_u.data0_struct.field == MLX5_MODI_META_REG_C_0:
            hdr_str = ',set_reg_c0=' + str(int(bin_str[i*16+8:i*16+16], 16))
-       elif cmd.data0_u.data0_struct.field == MLX5_MOD_FLD.MLX5_MODI_META_REG_C_1.value:
+       elif cmd.data0_u.data0_struct.field == MLX5_MODI_META_REG_C_1:
            hdr_str = ',set_reg_c1=' + str(int(bin_str[i*16+8:i*16+16], 16))
-       elif cmd.data0_u.data0_struct.field == MLX5_MOD_FLD.MLX5_MODI_META_REG_C_2.value:
+       elif cmd.data0_u.data0_struct.field == MLX5_MODI_META_REG_C_2:
            hdr_str = ',set_reg_c2=' + str(int(bin_str[i*16+8:i*16+16], 16))
-       elif cmd.data0_u.data0_struct.field == MLX5_MOD_FLD.MLX5_MODI_META_REG_C_3.value:
+       elif cmd.data0_u.data0_struct.field == MLX5_MODI_META_REG_C_3:
            hdr_str = ',set_reg_c3=' + str(int(bin_str[i*16+8:i*16+16], 16))
-       elif cmd.data0_u.data0_struct.field == MLX5_MOD_FLD.MLX5_MODI_META_REG_C_4.value:
+       elif cmd.data0_u.data0_struct.field == MLX5_MODI_META_REG_C_4:
            hdr_str = ',set_reg_c4=' + str(int(bin_str[i*16+8:i*16+16], 16))
-       elif cmd.data0_u.data0_struct.field == MLX5_MOD_FLD.MLX5_MODI_META_REG_C_5.value:
+       elif cmd.data0_u.data0_struct.field == MLX5_MODI_META_REG_C_5:
            hdr_str = ',set_reg_c5=' + str(int(bin_str[i*16+8:i*16+16], 16))
-       elif cmd.data0_u.data0_struct.field == MLX5_MOD_FLD.MLX5_MODI_META_REG_C_6.value:
+       elif cmd.data0_u.data0_struct.field == MLX5_MODI_META_REG_C_6:
            hdr_str = ',set_reg_c6=' + str(int(bin_str[i*16+8:i*16+16], 16))
-       elif cmd.data0_u.data0_struct.field == MLX5_MOD_FLD.MLX5_MODI_META_REG_C_7.value:
+       elif cmd.data0_u.data0_struct.field == MLX5_MODI_META_REG_C_7:
            hdr_str = ',set_reg_c7=' + str(int(bin_str[i*16+8:i*16+16], 16))
    return hdr_str

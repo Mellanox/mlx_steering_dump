@@ -31,7 +31,6 @@
 import sys
 import ctypes
 import re
-from  enum import Enum
 from src.dr_prettify import pretty_ip, pretty_mac
 
 # sw steering dump tool version
