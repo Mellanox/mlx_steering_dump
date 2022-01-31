@@ -7,7 +7,8 @@ from hw_steering_src.dr_common import *
 class dr_parse_matcher():
     def __init__(self, data):
         keys = ["mlx5dr_debug_res_type", "id", "tbl_id", "num_of_mt",
-                "end_ft_id", "col_matcher_id"]
+                "end_ft_id", "col_matcher_id", "rtc_0_id", "ste_0_id",
+                "rtc_1_id", "ste_1_id"]
         self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
         self.nic_rx = None
         self.nic_tx = None
