@@ -150,7 +150,7 @@ def print_ctx(dump_ctx, view, verbose, raw, colored):
 LAST_OBJ = dr_obj()
 
 
-def parse_domain(csv_reader, domain_obj=None):
+def parse_domain(csv_reader, domain_obj=None, verbose=0):
     """
     Function is parsing one domain from provided csv reader
     :param csv_reader: csv reader to parse with
@@ -166,6 +166,9 @@ def parse_domain(csv_reader, domain_obj=None):
 
     for line in csv_reader:
         if len(line) <= 0:
+            continue
+
+        if line[0][0] == '4' and verbose < 4:
             continue
 
         dr_obj = dr_csv_get_obj(line)
@@ -306,7 +309,7 @@ if __name__ == '__main__':
     with open(args.FILEPATH) as csv_file:
         csv_reader = csv.reader(csv_file)
         while domain_obj != LAST_OBJ:
-            dump_ctx, domain_obj = parse_domain(csv_reader, domain_obj)
+            dump_ctx, domain_obj = parse_domain(csv_reader, domain_obj, args.verbose)
             print_ctx(dump_ctx, DR_DUMP_VIEW_TREE if args.tree_view
             else DR_DUMP_VIEW_RULE, args.verbose,
                       args.raw, args.colored)
