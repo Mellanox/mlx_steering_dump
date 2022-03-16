@@ -366,10 +366,11 @@ def mlx5_ifc_ste_def2_v1_bits_parser(bin_str):
 def mlx5_ifc_ste_def6_v1_bits_parser(bin_str):
     ret = {}
 
-    ret["dst_ipv6_127_96"] = _val(bin_str[0: 32])
-    ret["dst_ipv6_95_64"] = _val(bin_str[32: 64])
-    ret["dst_ipv6_63_32"] = _val(bin_str[64: 96])
-    ret["dst_ipv6_31_0"] = _val(bin_str[96: 128])
+    if eval(_val(bin_str[96: 128])) == eval(_val(bin_str[0: 128])):
+        ret["dst_ip"] = _val(bin_str[96: 128])  # IPV4
+    else:
+        ret["dst_ip"] = _val(bin_str[0: 128])  # IPV6
+
     ret["reserved_at_80"] = _val(bin_str[128: 192])
     ret["outer_l4_sport"] = _val(bin_str[192: 208])
     ret["outer_l4_dport"] = _val(bin_str[208: 224])
@@ -491,10 +492,11 @@ def mlx5_ifc_ste_def25_v1_bits_parser(bin_str):
 def mlx5_ifc_ste_def26_v1_bits_parser(bin_str):
     ret = {}
 
-    ret["src_ipv6_127_96"] = _val(bin_str[0: 32])
-    ret["src_ipv6_95_64"] = _val(bin_str[32: 64])
-    ret["src_ipv6_63_32"] = _val(bin_str[64: 96])
-    ret["src_ipv6_31_0"] = _val(bin_str[96: 128])
+    if eval(_val(bin_str[96: 128])) == eval(_val(bin_str[0: 128])):
+        ret["src_ip"] = _val(bin_str[96: 128])  # IPV4
+    else:
+        ret["src_ip"] = _val(bin_str[0: 128])  # IPV6
+
     ret["reserved_at_80"] = _val(bin_str[128: 131])
     ret["ip_frag"] = _val(bin_str[131: 132])
     ret["reserved_at_84"] = _val(bin_str[132: 138])
