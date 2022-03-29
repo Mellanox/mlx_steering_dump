@@ -270,6 +270,13 @@ def mlx5_ifc_ste_tunnel_header_v1_bits_tag_parser(bin_str):
     ret["tunnel_header_1"] = _val(bin_str[32: 64])
     return ret
 
+def mlx5_ifc_ste_tunnel_header_bits_tag_parser(bin_str):
+    ret = {}
+    ret["tunnel_header_0"] = _val(bin_str[0: 32])
+    ret["tunnel_header_1"] = _val(bin_str[32: 64])
+    ret["tunnel_header_2"] = _val(bin_str[64: 96])
+    ret["tunnel_header_3"] = _val(bin_str[96: 128])
+    return ret
 
 def mlx5_ifc_ste_def0_v1_bits_parser(bin_str):
     ret = {}
@@ -665,6 +672,7 @@ switch_tag_parser = {
     DR_STE_V1_LU_TYPE_FLEX_PARSER_0: [mlx5_ifc_ste_v0_flex_parser_bits_tag_parser, False],
     DR_STE_V1_LU_TYPE_FLEX_PARSER_1: [mlx5_ifc_ste_v0_flex_parser_bits_tag_parser, False],
     DR_STE_V1_LU_TYPE_FLEX_PARSER_TNL_HEADER: [mlx5_ifc_ste_tunnel_header_v1_bits_tag_parser, False],
+    DR_STE_V1_LU_TYPE_TNL_HEADER: [mlx5_ifc_ste_tunnel_header_bits_tag_parser, False],
 }
 
 switch_definer_parser = {
