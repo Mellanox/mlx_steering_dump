@@ -1,7 +1,10 @@
+#!/usr/bin/env python3
+
 #SPDX-License-Identifier: BSD-3-Clause
 #Copyright (c) 2021 NVIDIA CORPORATION. All rights reserved.
 
 import sys
+import os
 import argparse
 import csv
 
@@ -108,7 +111,7 @@ def parse_args():
 if __name__ == "__main__":
     args = parse_args()
     if (args.FILEPATH == ""):
-        print("No input steering dump file provided (-f FILEPATH)\n")
+        print("No input steering dump file provided (-f FILEPATH)")
         sys.exit(0)
     if (args.dump_hw_resources):
         print("-hw is not supported yet.")
@@ -116,6 +119,9 @@ if __name__ == "__main__":
     if (args.dpdk_pid > 0):
         if dr_trigger.trigger_dump(args.dpdk_pid, args.dpdk_port, args.FILEPATH, 0) is None:
             sys.exit(-1)
+    if (os.stat(args.FILEPATH).st_size == 0):
+        print("Empty input file, no data to parse")
+        sys.exit(0)
 
     csv_file = open(args.FILEPATH)
     obj = dr_parse_csv_file(csv_file)
