@@ -220,6 +220,291 @@ def dr_hl_voq_parser(hl_index, mask):
 
     return dr_hl_dw_mask_parser(dw_fields[offset], mask)
 
+def dr_hl_dest_ib_l3_parser(hl_index, mask):
+    offset = hl_index - 84 % 4
+    dw_fields = [
+                 [('dgid_dw0', 32)],
+                 [('dgid_dw1', 32)],
+                 [('dgid_dw2', 32)],
+                 [('dgid_dw3', 32)]
+                ]
+
+    return dr_hl_dw_mask_parser(dw_fields[offset], mask)
+
+def dr_hl_source_ib_l3_parser(hl_index, mask):
+    offset = hl_index - 88 % 4
+    dw_fields = [
+                 [('sgid_dw0', 32)],
+                 [('sgid_dw1', 32)],
+                 [('sgid_dw2', 32)],
+                 [('sgid_dw3', 32)]
+                ]
+
+    return dr_hl_dw_mask_parser(dw_fields[offset], mask)
+
+def dr_hl_udp_misc_parser(hl_index, mask):
+    offset = hl_index - 92 % 1
+    dw_fields = [
+                 [('length', 16), ('TCP/UDP Checksum', 16)]
+                ]
+
+    return dr_hl_dw_mask_parser(dw_fields[offset], mask)
+
+def dr_hl_tcp_icmp_parser(hl_index, mask):
+    offset = hl_index - 94 % 3
+    dw_fields = [
+                 [('TCP_seq_numbuer / ICMP_DW1', 32)],
+                 [('TCP_ack_numbuer / ICMP_DW2', 32)],
+                 [('TCP_window size, TCP_urgent_pointer / ICMP_DW3', 32)]
+                ]
+
+    return dr_hl_dw_mask_parser(dw_fields[offset], mask)
+
+def dr_hl_tunnel_header_parser(hl_index, mask):
+    offset = hl_index - 97 % 4
+    dw_fields = [
+                 [('tunnel_header0', 32)],
+                 [('tunnel_header1', 32)],
+                 [('tunnel_header2', 32)],
+                 [('tunnel_header3', 32)]
+                ]
+
+    return dr_hl_dw_mask_parser(dw_fields[offset], mask)
+
+def dr_hl_mpls_parser(hl_index, mask):
+    offset = hl_index - 101 % 4
+    dw_fields = [
+                 [('mpls0', 32)],
+                 [('mpls1', 32)],
+                 [('mpls2', 32)],
+                 [('mpls3', 32)],
+                 [('mpls4', 32)]
+                ]
+
+    return dr_hl_dw_mask_parser(dw_fields[offset], mask)
+
+def dr_hl_configurable_headers_parser(hl_index, mask):
+    offset = hl_index - 111 % 4
+    dw_fields = [
+                 [
+                  ('eth_l2_config_header0_present', 1), ('reserved', 15),
+                  ('eth_l2_config_header0', 16)
+                 ],
+                 [('eth_l2_config_header0_dw', 32)],
+                 [
+                  ('eth_l2_config_header1_present', 1), ('reserved', 15),
+                  ('eth_l2_config_header1', 16)
+                 ],
+                 [('eth_l2_config_header1_dw', 32)]
+                ]
+
+    return dr_hl_dw_mask_parser(dw_fields[offset], mask)
+
+def dr_hl_random_number_parser(hl_index, mask):
+    offset = hl_index - 119 % 1
+    dw_fields = [
+                 [('random_number', 16), ('reserved', 16)]
+                ]
+
+    return dr_hl_dw_mask_parser(dw_fields[offset], mask)
+
+def dr_hl_ipsec_parser(hl_index, mask):
+    offset = hl_index - 120 % 3
+    dw_fields = [
+                 [('SPI', 32)],
+                 [('sequence_number', 32)],
+                 [
+                  ('reserved', 16), ('IPSec_syndrome', 8),
+                  ('IPSec_next_header', 8)
+                 ]
+                ]
+
+    return dr_hl_dw_mask_parser(dw_fields[offset], mask)
+
+def dr_hl_metadata_to_cqe_parser(hl_index, mask):
+    offset = hl_index - 123 % 1
+    dw_fields = [
+                 [('metadata_to_cqe', 32)]
+                ]
+
+    return dr_hl_dw_mask_parser(dw_fields[offset], mask)
+
+def dr_hl_general_purpose_field_parser(hl_index, mask):
+    offset = hl_index - 124 % 1
+    dw_fields = [
+                 [('general_purpose_lookup_field', 32)]
+                ]
+
+    return dr_hl_dw_mask_parser(dw_fields[offset], mask)
+
+def dr_hl_accumulated_hash_parser(hl_index, mask):
+    offset = hl_index - 125 % 1
+    dw_fields = [
+                 [('accumulated_hash_register', 32)]
+                ]
+
+    return dr_hl_dw_mask_parser(dw_fields[offset], mask)
+
+def dr_hl_utc_timestamp_parser(hl_index, mask):
+    offset = hl_index - 126 % 2
+    dw_fields = [
+                 [('utc_timestamp_h', 32)],
+                 [('utc_timestamp_l', 32)]
+                ]
+
+    return dr_hl_dw_mask_parser(dw_fields[offset], mask)
+
+def dr_hl_free_runing_timestamp_parser(hl_index, mask):
+    offset = hl_index - 128 % 2
+    dw_fields = [
+                 [('frc_timestamp_h', 32)],
+                 [('frc_timestamp_l', 32)]
+                ]
+
+    return dr_hl_dw_mask_parser(dw_fields[offset], mask)
+
+def dr_hl_flex_parser_parser(hl_index, mask):
+    offset = hl_index - 130 % 8
+    dw_fields = [
+                 [('flex_parser_7', 32)],
+                 [('flex_parser_6', 32)],
+                 [('flex_parser_5', 32)],
+                 [('flex_parser_4', 32)],
+                 [('flex_parser_3', 32)],
+                 [('flex_parser_2', 32)],
+                 [('flex_parser_1', 32)],
+                 [('flex_parser_0', 32)]
+                ]
+
+    return dr_hl_dw_mask_parser(dw_fields[offset], mask)
+
+def dr_hl_registers_parser(hl_index, mask):
+    offset = hl_index - 138 % 12
+    dw_fields = [
+                 [('steering_register_5_h', 32)],
+                 [('steering_register_5_l', 32)],
+                 [('steering_register_4_h', 32)],
+                 [('steering_register_4_l', 32)],
+                 [('steering_register_3_h', 32)],
+                 [('steering_register_3_l', 32)],
+                 [('steering_register_2_h', 32)],
+                 [('steering_register_2_l', 32)],
+                 [('steering_register_1_h', 32)],
+                 [('steering_register_1_l', 32)],
+                 [('steering_register_0_h', 32)],
+                 [('steering_register_0_l', 32)]
+                ]
+
+    return dr_hl_dw_mask_parser(dw_fields[offset], mask)
+
+def dr_hl_ib_l3_extended_parser(hl_index, mask):
+    offset = hl_index - 150 % 2
+    dw_fields = [
+                 [
+                  ('ip_ver', 1), ('reserved', 3), ('traffic_class', 8),
+                  ('flow_label', 20)
+                 ],
+                 [('q_key', 32)]
+                ]
+
+    return dr_hl_dw_mask_parser(dw_fields[offset], mask)
+
+def dr_hl_rwh_parser(hl_index, mask):
+    offset = hl_index - 152 % 1
+    dw_fields = [
+                 [('reserved', 16), ('rwh_ethertype', 16)]
+                ]
+
+    return dr_hl_dw_mask_parser(dw_fields[offset], mask)
+
+def dr_hl_dcceth_parser(hl_index, mask):
+    offset = hl_index - 153 % 1
+    dw_fields = [
+                 [
+                  ('dc_control_request_opcode', 4), ('dc_path_parameters', 8),
+                  ('reserved', 16)
+                 ]
+                ]
+
+    return dr_hl_dw_mask_parser(dw_fields[offset], mask)
+
+def dr_hl_dceth_parser(hl_index, mask):
+    offset = hl_index - 154 % 5
+    dw_fields = [
+                 [('dceth_dw0', 32)],
+                 [('dceth_dw1', 32)],
+                 [('dceth_dw2', 32)],
+                 [('dceth_dw3', 32)],
+                 [('dceth_dw4', 32)]
+                ]
+
+    return dr_hl_dw_mask_parser(dw_fields[offset], mask)
+
+def dr_hl_dcaeth_parser(hl_index, mask):
+    offset = hl_index - 159 % 1
+    dw_fields = [
+                 [
+                  ('dc_control_response_opcode', 4), ('reserved', 23),
+                  ('dc_control_nack_parameter', 5)
+                 ]
+                ]
+
+    return dr_hl_dw_mask_parser(dw_fields[offset], mask)
+
+def dr_hl_hro_parser(hl_index, mask):
+    offset = hl_index - 160 % 1
+    dw_fields = [
+                 [
+                  ('reserved', 10), ('header_split_anchor', 6), ('reserved', 8),
+                  ('header_split_offset_from_anchor', 8)
+                 ]
+                ]
+
+    return dr_hl_dw_mask_parser(dw_fields[offset], mask)
+
+def dr_hl_ipv6_extended_parser(hl_index, mask):
+    offset = hl_index - 161 % 1
+    dw_fields = [
+                 [
+                  ('inner_last_extension_next_header', 8),
+                  ('inner_last_extension_next_header', 8),
+                  ('outer_last_extension_next_header', 8),
+                  ('outer_header_next_header', 8)
+                 ]
+                ]
+
+    return dr_hl_dw_mask_parser(dw_fields[offset], mask)
+
+def dr_hl_macsec_parser(hl_index, mask):
+    offset = hl_index - 162 % 5
+    dw_fields = [
+                 [('macsec_dw0', 32)],
+                 [('macsec_dw1', 32)],
+                 [('macsec_dw2', 32)],
+                 [('macsec_dw3', 32)],
+                 [('reserved', 24), ('macsec_syndrome', 8)]
+                ]
+
+    return dr_hl_dw_mask_parser(dw_fields[offset], mask)
+
+def dr_hl_psp_parser(hl_index, mask):
+    offset = hl_index - 167 % 11
+    dw_fields = [
+                 [('psp_dw0', 32)],
+                 [('psp_dw1', 32)],
+                 [('psp_dw2', 32)],
+                 [('psp_dw3', 32)],
+                 [('psp_dw4', 32)],
+                 [('psp_dw5', 32)],
+                 [('psp_dw6', 32)],
+                 [('psp_dw7', 32)],
+                 [('psp_dw8', 32)],
+                 [('psp_dw9', 32)],
+                 [('reserved', 24), ('psp_syndrome', 8)]
+                ]
+
+    return dr_hl_dw_mask_parser(dw_fields[offset], mask)
+
 """ dr_hl_dw_parser(hl_index, mask):
 This function describes the header layout.
 Parameters:
@@ -253,5 +538,55 @@ def dr_hl_dw_parser(hl_index, mask):
         return dr_hl_ipv4_src_dst_parser(hl_index, mask)
     elif hl_index in range(68, 84):
         return dr_hl_ipv6_addr_parser(hl_index, mask)
+    elif hl_index in range(84, 88):
+        return dr_hl_dest_ib_l3_parser(hl_index, mask)
+    elif hl_index in range(88, 92):
+        return dr_hl_source_ib_l3_parser(hl_index, mask)
+    elif hl_index in range(92, 94):
+        return dr_hl_udp_misc_parser(hl_index, mask)
+    elif hl_index in range(94, 97):
+        return dr_hl_tcp_icmp_parser(hl_index, mask)
+    elif hl_index in range(97, 101):
+        return dr_hl_tunnel_header_parser(hl_index, mask)
+    elif hl_index in range(101, 111):
+        return dr_hl_mpls_parser(hl_index, mask)
+    elif hl_index in range(111, 119):
+        return dr_hl_configurable_headers_parser(hl_index, mask)
+    elif hl_index in range(119, 120):
+        return dr_hl_random_number_parser(hl_index, mask)
+    elif hl_index in range(120, 123):
+        return dr_hl_ipsec_parser(hl_index, mask)
+    elif hl_index in range(123, 124):
+        return dr_hl_metadata_to_cqe_parser(hl_index, mask)
+    elif hl_index in range(124, 125):
+        return dr_hl_general_purpose_field_parser(hl_index, mask)
+    elif hl_index in range(125, 126):
+        return dr_hl_accumulated_hash_parser(hl_index, mask)
+    elif hl_index in range(126, 128):
+        return dr_hl_utc_timestamp_parser(hl_index, mask)
+    elif hl_index in range(128, 130):
+        return dr_hl_free_runing_timestamp_parser(hl_index, mask)
+    elif hl_index in range(130, 138):
+        return dr_hl_flex_parser_parser(hl_index, mask)
+    elif hl_index in range(138, 150):
+        return dr_hl_registers_parser(hl_index, mask)
+    elif hl_index in range(150, 152):
+        return dr_hl_ib_l3_extended_parser(hl_index, mask)
+    elif hl_index in range(152, 153):
+        return dr_hl_rwh_parser(hl_index, mask)
+    elif hl_index in range(153, 154):
+        return dr_hl_dcceth_parser(hl_index, mask)
+    elif hl_index in range(154, 159):
+        return dr_hl_dceth_parser(hl_index, mask)
+    elif hl_index in range(159, 160):
+        return dr_hl_dcaeth_parser(hl_index, mask)
+    elif hl_index in range(160, 161):
+        return dr_hl_hro_parser(hl_index, mask)
+    elif hl_index in range(161, 162):
+        return dr_hl_ipv6_extended_parser(hl_index, mask)
+    elif hl_index in range(162, 167):
+        return dr_hl_macsec_parser(hl_index, mask)
+    elif hl_index in range(167, 178):
+        return dr_hl_psp_parser(hl_index, mask)
     else:
         return []
