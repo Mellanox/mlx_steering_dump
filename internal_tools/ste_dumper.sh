@@ -231,6 +231,51 @@ function read_res_icmd_and_print {
 		exit
 	fi
 
+	if [ "$action" == "pattern" ] && [ "$tool" == "mft" ] ; then
+		resourcedump dump -d $mst_dev --segment MODIFY_PATTERN --index1 $index
+		exit
+	fi
+
+	if [ "$action" == "argument" ] && [ "$tool" == "mft" ] ; then
+		resourcedump dump -d $mst_dev --segment MODIFY_ARGUMENT --index1 $index
+		exit
+	fi
+
+	if ["$action" == "aso_flow_hit" ] && [ "$tool" == "mft" ] ; then
+		resourcedump dump -d $mst_dev --segment ASO_FLOW_HIT --index1 $index
+		exit
+	fi
+
+	if ["$action" == "ft" ] && [ "$tool" == "mft" ] ; then
+		resourcedump dump -d $mst_dev --segment QUERY_FT --index1 $index
+		exit
+	fi
+
+	if ["$action" == "fte" ] && [ "$tool" == "mft" ] ; then
+		resourcedump dump -d $mst_dev --segment QUERY_FTE --index1 $index
+		exit
+	fi
+
+	if ["$action" == "fg" ] && [ "$tool" == "mft" ] ; then
+		resourcedump dump -d $mst_dev --segment QUERY_FG --index1 $index
+		exit
+	fi
+
+	if ["$action" == "qp" ] && [ "$tool" == "mft" ] ; then
+		resourcedump dump -d $mst_dev --segment PRM_QUERY_QP --index1 $index
+		exit
+	fi
+
+	if ["$action" == "cq" ] && [ "$tool" == "mft" ] ; then
+		resourcedump dump -d $mst_dev --segment PRM_QUERY_CQ --index1 $index
+		exit
+	fi
+
+	if ["$action" == "definer" ] && [ "$tool" == "mft" ] ; then
+		resourcedump dump -d $mst_dev --segment HW_DEFINERS --index1 $index
+		exit
+	fi
+
 	read_res_icmd $mst_dev $gvmi $res_type $(( index >> 1 ))
 
 	if [ "$action" == "pattern" ] || [ "$action" == "argument" ] ; then
@@ -307,6 +352,13 @@ do
 		--argument) action="argument" ; res_type=0x72 ;;
 		--counter) action="counter" ;	res_type=0x4fi ;;
 		--ste) action="ste" ;		res_type=0x41  ;;
+		--ft) action="ft" ;;
+		--fte) action="fte" ;;
+		--fg) action="fg" ;;
+		--qp) action="qp" ;;
+		--cq) action="cq" ;;
+		--definer) action="definer" ;;
+		--aso_flow_hit) action="aso_flow_hit" ;; 
 		--mft) tool="mft" ;;
 		--mcra) tool="mcra" ;;
 		--raw|-r) parsing="raw" ;;
