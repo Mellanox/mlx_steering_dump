@@ -21,7 +21,7 @@ def dr_hl_dw_mask_parser(dw_fields, mask):
 The following functions decribes the headers layout structs
 The functions recieve hl_index which is the DWs offset according to the headers layout and the DW mask
 The offset parameter inside the functions is the DW offset inside the specific headers layout struct
-oofset = (hl_index - "the starting offset of the hl struct") % ("hl struct size")
+offset = (hl_index - "the starting offset of the hl struct in DW") % ("hl struct size in DW")
 The dw_fields describes the specific hl struct, such that each array element in the array describes a DW and each DW described as (field name, bits size)
 Returns the masked fields as an array (by calling dr_hl_dw_mask_parser function)
 """
@@ -138,21 +138,8 @@ def dr_hl_ipv6_addr_parser(hl_index, mask):
 
     return dr_hl_dw_mask_parser(dw_fields[offset], mask)
 
-def dr_hl_flex_parser_parser(offset, mask):
-    dw_fields = [
-                 [
-                  ('version', 3), ('proto_type', 1), ('reserved1', 1),
-                  ('ext_hdr_flag', 1), ('seq_num_flag', 1), ('pdu_flag', 1),
-                  ('msg_type', 8), ('msg_len', 8), ('teid', 32),
-                  ('seq_num', 16), ('pdu_num', 8), ('next_ext_hdr_type', 8),
-                  ('len', 8)
-                 ]
-                ]
-
-    return dr_hl_dw_mask_parser(dw_fields[offset], mask)
-
 def dr_hl_oks1_parser(hl_index, mask):
-    offset = hl_index - 33
+    offset = (hl_index - 33) % 1
     dw_fields = [
                  [
                   ('second_ipv4_checksum_ok', 1), ('second_l4_checksum_ok', 1),
@@ -174,7 +161,7 @@ def dr_hl_oks1_parser(hl_index, mask):
     return dr_hl_dw_mask_parser(dw_fields[offset], mask)
 
 def dr_hl_oks2_parser(hl_index, mask):
-    offset = hl_index - 34
+    offset = (hl_index - 34) % 1
     dw_fields = [
                  [
                   ('reserved_at_0', 10), ('second_mpls_ok', 1), ('second_mpls4_s_bit', 1),
@@ -210,7 +197,7 @@ def dr_hl_src_qp_gvmi_parser(hl_index, mask):
     return dr_hl_dw_mask_parser(dw_fields[offset], mask)
 
 def dr_hl_voq_parser(hl_index, mask):
-    offset = hl_index - 36
+    offset = (hl_index - 36) % 2
     dw_fields = [
                  [
                   ('reserved_at_0', 24), ('ecn_ok', 1), ('congestion', 1),
@@ -221,7 +208,7 @@ def dr_hl_voq_parser(hl_index, mask):
     return dr_hl_dw_mask_parser(dw_fields[offset], mask)
 
 def dr_hl_dest_ib_l3_parser(hl_index, mask):
-    offset = hl_index - 84 % 4
+    offset = (hl_index - 84) % 4
     dw_fields = [
                  [('dgid_dw0', 32)],
                  [('dgid_dw1', 32)],
@@ -232,7 +219,7 @@ def dr_hl_dest_ib_l3_parser(hl_index, mask):
     return dr_hl_dw_mask_parser(dw_fields[offset], mask)
 
 def dr_hl_source_ib_l3_parser(hl_index, mask):
-    offset = hl_index - 88 % 4
+    offset = (hl_index - 88) % 4
     dw_fields = [
                  [('sgid_dw0', 32)],
                  [('sgid_dw1', 32)],
@@ -243,7 +230,7 @@ def dr_hl_source_ib_l3_parser(hl_index, mask):
     return dr_hl_dw_mask_parser(dw_fields[offset], mask)
 
 def dr_hl_udp_misc_parser(hl_index, mask):
-    offset = hl_index - 92 % 1
+    offset = (hl_index - 92) % 1
     dw_fields = [
                  [('length', 16), ('TCP/UDP Checksum', 16)]
                 ]
@@ -251,7 +238,7 @@ def dr_hl_udp_misc_parser(hl_index, mask):
     return dr_hl_dw_mask_parser(dw_fields[offset], mask)
 
 def dr_hl_tcp_icmp_parser(hl_index, mask):
-    offset = hl_index - 94 % 3
+    offset = (hl_index - 94) % 3
     dw_fields = [
                  [('TCP_seq_numbuer / ICMP_DW1', 32)],
                  [('TCP_ack_numbuer / ICMP_DW2', 32)],
@@ -261,7 +248,7 @@ def dr_hl_tcp_icmp_parser(hl_index, mask):
     return dr_hl_dw_mask_parser(dw_fields[offset], mask)
 
 def dr_hl_tunnel_header_parser(hl_index, mask):
-    offset = hl_index - 97 % 4
+    offset = (hl_index - 97) % 4
     dw_fields = [
                  [('tunnel_header0', 32)],
                  [('tunnel_header1', 32)],
@@ -272,7 +259,7 @@ def dr_hl_tunnel_header_parser(hl_index, mask):
     return dr_hl_dw_mask_parser(dw_fields[offset], mask)
 
 def dr_hl_mpls_parser(hl_index, mask):
-    offset = hl_index - 101 % 4
+    offset = (hl_index - 101) % 4
     dw_fields = [
                  [('mpls0', 32)],
                  [('mpls1', 32)],
@@ -284,7 +271,7 @@ def dr_hl_mpls_parser(hl_index, mask):
     return dr_hl_dw_mask_parser(dw_fields[offset], mask)
 
 def dr_hl_configurable_headers_parser(hl_index, mask):
-    offset = hl_index - 111 % 4
+    offset = (hl_index - 111) % 4
     dw_fields = [
                  [
                   ('eth_l2_config_header0_present', 1), ('reserved', 15),
@@ -301,7 +288,7 @@ def dr_hl_configurable_headers_parser(hl_index, mask):
     return dr_hl_dw_mask_parser(dw_fields[offset], mask)
 
 def dr_hl_random_number_parser(hl_index, mask):
-    offset = hl_index - 119 % 1
+    offset = (hl_index - 119) % 1
     dw_fields = [
                  [('random_number', 16), ('reserved', 16)]
                 ]
@@ -309,7 +296,7 @@ def dr_hl_random_number_parser(hl_index, mask):
     return dr_hl_dw_mask_parser(dw_fields[offset], mask)
 
 def dr_hl_ipsec_parser(hl_index, mask):
-    offset = hl_index - 120 % 3
+    offset = (hl_index - 120) % 3
     dw_fields = [
                  [('SPI', 32)],
                  [('sequence_number', 32)],
@@ -322,7 +309,7 @@ def dr_hl_ipsec_parser(hl_index, mask):
     return dr_hl_dw_mask_parser(dw_fields[offset], mask)
 
 def dr_hl_metadata_to_cqe_parser(hl_index, mask):
-    offset = hl_index - 123 % 1
+    offset = (hl_index - 123) % 1
     dw_fields = [
                  [('metadata_to_cqe', 32)]
                 ]
@@ -330,7 +317,7 @@ def dr_hl_metadata_to_cqe_parser(hl_index, mask):
     return dr_hl_dw_mask_parser(dw_fields[offset], mask)
 
 def dr_hl_general_purpose_field_parser(hl_index, mask):
-    offset = hl_index - 124 % 1
+    offset = (hl_index - 124) % 1
     dw_fields = [
                  [('general_purpose_lookup_field', 32)]
                 ]
@@ -338,7 +325,7 @@ def dr_hl_general_purpose_field_parser(hl_index, mask):
     return dr_hl_dw_mask_parser(dw_fields[offset], mask)
 
 def dr_hl_accumulated_hash_parser(hl_index, mask):
-    offset = hl_index - 125 % 1
+    offset = (hl_index - 125) % 1
     dw_fields = [
                  [('accumulated_hash_register', 32)]
                 ]
@@ -346,7 +333,7 @@ def dr_hl_accumulated_hash_parser(hl_index, mask):
     return dr_hl_dw_mask_parser(dw_fields[offset], mask)
 
 def dr_hl_utc_timestamp_parser(hl_index, mask):
-    offset = hl_index - 126 % 2
+    offset = (hl_index - 126) % 2
     dw_fields = [
                  [('utc_timestamp_h', 32)],
                  [('utc_timestamp_l', 32)]
@@ -355,7 +342,7 @@ def dr_hl_utc_timestamp_parser(hl_index, mask):
     return dr_hl_dw_mask_parser(dw_fields[offset], mask)
 
 def dr_hl_free_runing_timestamp_parser(hl_index, mask):
-    offset = hl_index - 128 % 2
+    offset = (hl_index - 128) % 2
     dw_fields = [
                  [('frc_timestamp_h', 32)],
                  [('frc_timestamp_l', 32)]
@@ -364,7 +351,7 @@ def dr_hl_free_runing_timestamp_parser(hl_index, mask):
     return dr_hl_dw_mask_parser(dw_fields[offset], mask)
 
 def dr_hl_flex_parser_parser(hl_index, mask):
-    offset = hl_index - 130 % 8
+    offset = (hl_index - 130) % 8
     dw_fields = [
                  [('flex_parser_7', 32)],
                  [('flex_parser_6', 32)],
@@ -379,7 +366,7 @@ def dr_hl_flex_parser_parser(hl_index, mask):
     return dr_hl_dw_mask_parser(dw_fields[offset], mask)
 
 def dr_hl_registers_parser(hl_index, mask):
-    offset = hl_index - 138 % 12
+    offset = (hl_index - 138) % 12
     dw_fields = [
                  [('steering_register_5_h', 32)],
                  [('steering_register_5_l', 32)],
@@ -398,7 +385,7 @@ def dr_hl_registers_parser(hl_index, mask):
     return dr_hl_dw_mask_parser(dw_fields[offset], mask)
 
 def dr_hl_ib_l3_extended_parser(hl_index, mask):
-    offset = hl_index - 150 % 2
+    offset = (hl_index - 150) % 2
     dw_fields = [
                  [
                   ('ip_ver', 1), ('reserved', 3), ('traffic_class', 8),
@@ -410,7 +397,7 @@ def dr_hl_ib_l3_extended_parser(hl_index, mask):
     return dr_hl_dw_mask_parser(dw_fields[offset], mask)
 
 def dr_hl_rwh_parser(hl_index, mask):
-    offset = hl_index - 152 % 1
+    offset = (hl_index - 152) % 1
     dw_fields = [
                  [('reserved', 16), ('rwh_ethertype', 16)]
                 ]
@@ -418,7 +405,7 @@ def dr_hl_rwh_parser(hl_index, mask):
     return dr_hl_dw_mask_parser(dw_fields[offset], mask)
 
 def dr_hl_dcceth_parser(hl_index, mask):
-    offset = hl_index - 153 % 1
+    offset = (hl_index - 153) % 1
     dw_fields = [
                  [
                   ('dc_control_request_opcode', 4), ('dc_path_parameters', 8),
@@ -429,7 +416,7 @@ def dr_hl_dcceth_parser(hl_index, mask):
     return dr_hl_dw_mask_parser(dw_fields[offset], mask)
 
 def dr_hl_dceth_parser(hl_index, mask):
-    offset = hl_index - 154 % 5
+    offset = (hl_index - 154) % 5
     dw_fields = [
                  [('dceth_dw0', 32)],
                  [('dceth_dw1', 32)],
@@ -441,7 +428,7 @@ def dr_hl_dceth_parser(hl_index, mask):
     return dr_hl_dw_mask_parser(dw_fields[offset], mask)
 
 def dr_hl_dcaeth_parser(hl_index, mask):
-    offset = hl_index - 159 % 1
+    offset = (hl_index - 159) % 1
     dw_fields = [
                  [
                   ('dc_control_response_opcode', 4), ('reserved', 23),
@@ -452,7 +439,7 @@ def dr_hl_dcaeth_parser(hl_index, mask):
     return dr_hl_dw_mask_parser(dw_fields[offset], mask)
 
 def dr_hl_hro_parser(hl_index, mask):
-    offset = hl_index - 160 % 1
+    offset = (hl_index - 160) % 1
     dw_fields = [
                  [
                   ('reserved', 10), ('header_split_anchor', 6), ('reserved', 8),
@@ -463,7 +450,7 @@ def dr_hl_hro_parser(hl_index, mask):
     return dr_hl_dw_mask_parser(dw_fields[offset], mask)
 
 def dr_hl_ipv6_extended_parser(hl_index, mask):
-    offset = hl_index - 161 % 1
+    offset = (hl_index - 161) % 1
     dw_fields = [
                  [
                   ('inner_last_extension_next_header', 8),
@@ -476,7 +463,7 @@ def dr_hl_ipv6_extended_parser(hl_index, mask):
     return dr_hl_dw_mask_parser(dw_fields[offset], mask)
 
 def dr_hl_macsec_parser(hl_index, mask):
-    offset = hl_index - 162 % 5
+    offset = (hl_index - 162) % 5
     dw_fields = [
                  [('macsec_dw0', 32)],
                  [('macsec_dw1', 32)],
@@ -488,7 +475,7 @@ def dr_hl_macsec_parser(hl_index, mask):
     return dr_hl_dw_mask_parser(dw_fields[offset], mask)
 
 def dr_hl_psp_parser(hl_index, mask):
-    offset = hl_index - 167 % 11
+    offset = (hl_index - 167) % 11
     dw_fields = [
                  [('psp_dw0', 32)],
                  [('psp_dw1', 32)],
