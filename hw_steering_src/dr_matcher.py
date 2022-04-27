@@ -17,15 +17,15 @@ class dr_parse_matcher():
 
     def dump_str(self, verbosity):
         if verbosity == 0:
-            return dump_obj_str(["mlx5dr_debug_res_type", "id", "tbl_id"],
+            return dump_obj_str(["mlx5dr_debug_res_type", "id"],
                                 self.data)
 
         if verbosity == 1:
-            return dump_obj_str(["mlx5dr_debug_res_type", "id", "tbl_id",
+            return dump_obj_str(["mlx5dr_debug_res_type", "id",
                                  "num_of_mt"], self.data)
 
-        return dump_obj_str(["mlx5dr_debug_res_type", "id", "tbl_id",
-                             "num_of_mt", "end_ft_id", "col_matcher_id"],
+        return dump_obj_str(["mlx5dr_debug_res_type", "id", "num_of_mt",
+                             "end_ft_id", "col_matcher_id"],
                              self.data)
 
     def tree_print(self, verbosity, tabs):

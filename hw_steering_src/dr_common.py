@@ -38,10 +38,8 @@ def dump_obj_str(keys, data):
             _str = _str + data[key]
         if i < (length - 1):
             _str = _str + ", "
-        else:
-            _str = _str + "\n"
 
-    return _str
+    return _str + "\n"
 
 
 MLX5DR_DEBUG_RES_TYPE_CONTEXT = "4000"
