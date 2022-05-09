@@ -304,6 +304,35 @@ def mlx5_ifc_dr_match_set_misc5_bits_parser(mask, raw):
     return ret
 
 
+def mlx5_ifc_dr_match_set_misc6_bits_parser(mask, raw):
+    ret = {}
+    data = ""
+
+    if not mask:
+        return ret
+
+    for i in range(0, len(mask), 8):
+        tmp = little_endian_32(mask[i: i + 8])
+        data += tmp
+
+    ret["nisp_header_0"] = _val(data[0: 8])
+    ret["nisp_header_1"] = _val(data[8: 16])
+    ret["nisp_header_2"] = _val(data[16: 24])
+    ret["nisp_header_3"] = _val(data[24: 32])
+    ret["nisp_header_4"] = _val(data[32: 40])
+    ret["nisp_header_5"] = _val(data[40: 48])
+    ret["nisp_header_6"] = _val(data[48: 56])
+    ret["nisp_header_7"] = _val(data[56: 64])
+    ret["nisp_header_8"] = _val(data[64: 72])
+    ret["nisp_header_9"] = _val(data[72: 80])
+    ret["reserved"] = _val(data[80: 128])
+
+    if not raw:
+        ret = dr_prettify.prettify_mask(ret)
+
+    return ret
+
+
 # MLX5_MOD_FLD
 MLX5_MODI_OUT_NONE = -1
 MLX5_MODI_OUT_SMAC_47_16 = 1
