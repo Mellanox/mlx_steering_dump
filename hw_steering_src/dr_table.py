@@ -22,7 +22,7 @@ class dr_parse_table():
                                  "type", "level"], self.data)
 
         return dump_obj_str(["mlx5dr_debug_res_type", "id", "ctx_id", "type",
-                             "level", "fw_ft_type", "ft_id"], self.data)
+                             "level", "ft_id"], self.data)
 
     def tree_print(self, verbosity, tabs):
         _str = tabs + self.dump_str(verbosity)
