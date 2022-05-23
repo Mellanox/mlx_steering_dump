@@ -14,6 +14,9 @@ from hw_steering_src.dr_context import *
 from hw_steering_src.dr_table import *
 from hw_steering_src.dr_matcher import *
 from hw_steering_src.dr_definer import *
+from hw_steering_src.dr_dump_hw import *
+from hw_steering_src.dr_rule import *
+from hw_steering_src.dr_db import _config_args
 
 
 # mapping csv records types to it's relevant parser function
@@ -50,17 +53,19 @@ def dr_csv_get_obj(line):
     parser = switch_csv_res_type[line[0]]
     return parser(line)
 
-def dr_parse_csv_file(csv_file):
-    global DEFINERS
+def dr_parse_csv_file(csv_file, load_to_db):
     ctx = None
     last_table = None
     last_matcher = None
     last_send_engine = None
     last_matcher_template = None
+    last_fw_ste = None
     csv_reader = csv.reader(csv_file)
     for line in csv_reader:
         obj = dr_csv_get_obj(line)
-        if line[0] == MLX5DR_DEBUG_RES_TYPE_CONTEXT:
+        if line[0] == MLX5DR_DEBUG_RES_TYPE_STE:
+            last_fw_ste.add_ste(obj)
+        elif line[0] == MLX5DR_DEBUG_RES_TYPE_CONTEXT:
             ctx = obj
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_CONTEXT_ATTR:
             ctx.add_attr(obj)
@@ -84,50 +89,94 @@ def dr_parse_csv_file(csv_file):
             last_matcher.add_template(obj)
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_DEFINER:
             last_matcher_template.add_definer(obj)
-            DEFINERS[obj.get_definer_obj_id()] = obj
+        elif line[0] == MLX5DR_DEBUG_RES_TYPE_HW_RRESOURCES_DUMP_START:
+            if not(load_to_db):
+                return ctx
+        elif line[0] == MLX5DR_DEBUG_RES_TYPE_FW_STE:
+            if last_fw_ste != None:
+                last_fw_ste.load_to_db()
+            last_fw_ste = obj
+        elif line[0] == MLX5DR_DEBUG_RES_TYPE_HW_RRESOURCES_DUMP_END:
+            if last_fw_ste != None:
+                last_fw_ste.load_to_db()
         else:
             if line[0] not in unsupported_obj_list:
                 unsupported_obj_list.append(line[0])
 
     return ctx
 
+#Parse user command args, and save them to _config_args.
 def parse_args():
     parser = argparse.ArgumentParser(description="hw_steering_parser.py - HW Steering dump tool",
                                      epilog="Note: This parser is still under developement, so not all the args are supported yet.")
-    parser.add_argument("-f", dest="FILEPATH", default="", help="Input steering dump file path")
+    parser.add_argument("-f", dest="file_path", default="", help="Input steering dump file path")
     parser.add_argument("-v", action="count", dest="verbose", default=0, help="Increase output verbosity - v, vv & vvv for extra verbosity")
-    parser.add_argument("-skip-hw", action="store_true", default=False, dest="dump_hw_resources",
-                        help="Skip dumping HW resources")
+    parser.add_argument("-hw", action="store_true", default=False, dest="dump_hw_resources",
+                        help="Dump HW resources (must specify a device with -d)")
     parser.add_argument("-d", dest="device", type=str, default="",
                         help="Provide device")
     parser.add_argument("-pid", dest="dpdk_pid", type=int, default=-1,
                         help="Trigger DPDK app <PID>)")
     parser.add_argument("-port", dest="dpdk_port", type=int, default=0,
                         help="Trigger DPDK app <PORT> (must provide PID with -pid)")
-    parser.add_argument("-no-parse", action="store_true", default=False, dest="no_parse",
+    parser.add_argument("-hw_parse", action="store_true", default=False, dest="hw_parse",
                         help="Skip parsing stage")
-    return parser.parse_args()
 
-if __name__ == "__main__":
-    args = parse_args()
-    if (args.FILEPATH == ""):
+    args = parser.parse_args()
+
+    if (args.file_path == ""):
         print("No input steering dump file provided (-f FILEPATH)")
         sys.exit(0)
+    else:
+        _config_args["file_path"] = args.file_path
+
     if (args.dump_hw_resources):
-        print("-hw is not supported yet.")
-        sys.exit(0)
+        _config_args["dump_hw_resources"] = True
+        if (args.device == ""):
+            print("must specify a device with -d when using -hw flag")
+            sys.exit(0)
+        else:
+            _config_args["device"] = args.device
+    else:
+        _config_args["dump_hw_resources"] = False
+
+    if (args.hw_parse):
+        _config_args["parse_hw_resources"] = True
+        _config_args["load_hw_resources"] = True
+    else:
+        _config_args["parse_hw_resources"] = False
+        _config_args["load_hw_resources"] = False
+
     if (args.dpdk_pid > 0):
-        if dr_trigger.trigger_dump(args.dpdk_pid, args.dpdk_port, args.FILEPATH, 0) is None:
+        if dr_trigger.trigger_dump(args.dpdk_pid, args.dpdk_port, args.file_path, 0) is None:
             sys.exit(-1)
-    if (os.stat(args.FILEPATH).st_size == 0):
+        _config_args["dpdk_pid"] = args.dpdk_pid
+
+    if (os.stat(args.file_path).st_size == 0):
         print("Empty input file, no data to parse")
         sys.exit(0)
 
-    csv_file = open(args.FILEPATH)
-    obj = dr_parse_csv_file(csv_file)
-    verbose = args.verbose
-    if verbose > 3:
-        verbose = 3
+    if args.verbose > 3:
+        _config_args["verbose"] = 3
+    else:
+        _config_args["verbose"] = args.verbose
+
+
+if __name__ == "__main__":
+    parse_args()
+    file_path = _config_args.get("file_path")
+    verbose = _config_args.get("verbose")
+
+
+    csv_file = open(file_path, 'r+')
+    obj = dr_parse_csv_file(csv_file, _config_args.get("load_hw_resources"))
+    csv_file.close()
+
+    if dump_hw_resources:
+        csv_file = open(_config_args.get("file_path"), 'a+')
+        dr_hw_data_engine(obj, csv_file)
+        csv_file.close()
+
     print(obj.tree_print(verbose, ""))
 
     if verbose > 0:
