@@ -19,25 +19,29 @@ class dr_parse_matcher():
         self.save_to_db()
 
     def dump_str(self, verbosity):
-        if verbosity == 0:
-            return dump_obj_str(["mlx5dr_debug_res_type", "id"],
-                                self.data)
+        _keys = ["mlx5dr_debug_res_type", "id"]
 
-        if verbosity == 1:
-            return dump_obj_str(["mlx5dr_debug_res_type", "id",
-                                 "num_of_mt"], self.data)
+        if verbosity > 1:
+            _keys.extend(["end_ft_id"])
+        if verbosity > 2:
+            _keys.extend(["col_matcher_id", "num_of_mt"])
 
-        return dump_obj_str(["mlx5dr_debug_res_type", "id", "num_of_mt",
-                             "end_ft_id", "col_matcher_id"],
-                             self.data)
+        return dump_obj_str(_keys, self.data)
+
+    def dump_matcher_resources(self, verbosity):
+        _keys = ["rtc_0_id", "ste_0_id", "rtc_1_id", "ste_1_id"]
+        _str = "Resources: " + dump_obj_str(_keys, self.data)
+        return _str
 
     def tree_print(self, verbosity, tabs):
         _str = tabs + self.dump_str(verbosity)
         tabs = tabs + TAB
 
         _str = _str + tabs + self.attr.dump_str(verbosity)
+        if verbosity > 2:
+            _str = _str + tabs + self.dump_matcher_resources(verbosity)
         if self.template != None:
-            _str = _str + tabs + self.template.dump_str(verbosity)
+            _str = _str + tabs + self.template.dump_str(tabs, verbosity)
 
         if _config_args.get("parse_hw_resources"):
             _str = _str + dr_parse_rules(self, verbosity, tabs)
@@ -111,18 +115,23 @@ class dr_parse_matcher_template():
         self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
         self.definer = None
 
-    def dump_str(self, verbosity):
-        _str = ":"
+    def dump_str(self, tabs, verbosity):
+        _tabs = tabs + TAB
+        _str = ':'
         if self.definer != None:
             definer_str = self.definer.dump_fields()
             if len(definer_str) != 0:
-                _str = ": " + definer_str + ", "
-        if verbosity > 0:
+                _str = ':\n' + _tabs + definer_str
+                if verbosity > 2:
+                    _str += ", "
+                _str = _str.replace(', ', '\n' + _tabs)
+
+        if verbosity > 2:
             return dump_obj_str(["mlx5dr_debug_res_type", "id", "flags",
                                  "fc_sz"], self.data).replace(":", _str)
 
-        return dump_obj_str(["mlx5dr_debug_res_type", "id",
-                             "flags"], self.data).replace(":", _str)
+        return dump_obj_str(["mlx5dr_debug_res_type", "id"],
+                             self.data).replace(":", _str)
 
     def add_definer(self, definer):
         self.definer = definer

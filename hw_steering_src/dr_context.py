@@ -83,11 +83,11 @@ class dr_parse_context_caps():
     def dump_str(self, verbosity):
         _keys = ["mlx5dr_debug_res_type", "ctx_id"]
         if verbosity > 0:
-            _keys.extend(["fw_version", "wqe_based_update",
-                          "ste_format", "ste_alloc_log_max",
-                          "log_header_modify_argument_max_alloc"])
-        if verbosity == 2:
-            _keys.extend(["flex_protocols", "rtc_reparse_mode",
+            _keys.extend(["fw_version", "wqe_based_update"])
+        if verbosity > 2:
+            _keys.extend(["ste_format", "ste_alloc_log_max",
+                          "log_header_modify_argument_max_alloc",
+                          "flex_protocols", "rtc_reparse_mode",
                           "rtc_index_mode", "ste_alloc_log_gran",
                           "stc_alloc_log_max", "stc_alloc_log_gran",
                           "rtc_log_depth_max", "flex_parser_id_gtpu_dw_0",
