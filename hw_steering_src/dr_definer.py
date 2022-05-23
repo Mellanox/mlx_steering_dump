@@ -3,9 +3,8 @@
 
 from hw_steering_src.dr_common import *
 from hw_steering_src.dr_hl import *
-
-
-DEFINERS = {}
+from hw_steering_src.dr_db import _definers
+from hw_steering_src.dr_ste import fields_handler
 
 
 class dr_parse_definer():
@@ -16,10 +15,22 @@ class dr_parse_definer():
         self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
         self.dw_fields = None
         self.byte_fields = None
+        self.fix_data()
         self.parse_data()
+        self.save_to_db()
+
+    def fix_data(self):
+        self.data["definer_obj_id"] = int(self.data["definer_obj_id"])
 
     def get_definer_obj_id(self):
         return self.data["definer_obj_id"]
+
+    def save_to_db(self):
+        _definers[self.get_definer_obj_id()] = self
+
+    def get_definer_matching_fields(self):
+        fields_arr = {**self.dw_fields, **self.byte_fields}
+        return fields_arr
 
     def dump_str(self, verbosity):
             return dump_obj_str(["mlx5dr_debug_res_type", "id", "mt_id",
@@ -32,10 +43,6 @@ class dr_parse_definer():
 
     def dump_fields(self):
         _str = ""
-        union_fields = {"smac_47_16": 0, "smac_15_0": 0, "dmac_47_16": 0,
-                        "dmac_15_0": 0, "ipv6_address_127_96": 0,
-                        "ipv6_address_95_64": 0, "ipv6_address_63_32": 0,
-                        "ipv6_address_31_0": 0}
         tmp_arr = []
         fields = {}
         for arr in list(self.dw_fields.values()):
@@ -46,38 +53,16 @@ class dr_parse_definer():
 
         for e in tmp_arr:
             _key = e[0]
-            _data = e[1]
-            if int(_data, 2) == 0:
+            _data = int(e[1], 2)
+            if _data == 0:
                 continue
 
-            if _key in union_fields:
-                union_fields[_key] |= int(_data, 2)
-            elif _key in fields:
-                fields[_key] |= int(_data, 2)
+            if _key in fields:
+                fields[_key] |= _data
             else:
-                fields[_key] = int(_data, 2)
+                fields[_key] = _data
 
-        if union_fields["smac_47_16"] != 0 or union_fields["smac_15_0"] != 0:
-            fields["smac"] = (union_fields["smac_47_16"] << 16) | union_fields["smac_15_0"]
-
-        if union_fields["dmac_47_16"] != 0 or union_fields["dmac_15_0"] != 0:
-            fields["dmac"] = (union_fields["dmac_47_16"] << 16) | union_fields["dmac_15_0"]
-
-        if (union_fields["ipv6_address_127_96"] != 0 or
-            union_fields["ipv6_address_95_64"] != 0 or
-            union_fields["ipv6_address_63_32"] != 0 or
-            union_fields["ipv6_address_31_0"] != 0):
-            fields["ipv6_address"] = union_fields["ipv6_address_127_96"] << 96
-            fields["ipv6_address"] |= union_fields["ipv6_address_95_64"] << 64
-            fields["ipv6_address"] |= union_fields["ipv6_address_63_32"] << 32
-            fields["ipv6_address"] |= union_fields["ipv6_address_31_0"]
-
-        for _key in fields:
-            if _str != "":
-                _str += ", "
-            _str += _key + ": " + str(hex(fields[_key]))
-
-        return _str
+        return fields_handler(fields)
 
     def definer_dws_parser(self):
         fields_dic = {}
@@ -97,7 +82,7 @@ class dr_parse_definer():
         for i in range(BYTE_SELECTORS):
             byte_selector = "byte_selector_" + str(i)
             hl_byte_index = int(self.data[byte_selector], 16)
-            hl_dw_index = hl_byte_index / DW_SZ_IN_BYTES
+            hl_dw_index = int(hl_byte_index / DW_SZ_IN_BYTES)
             hl_byte_offset = hl_byte_index % DW_SZ_IN_BYTES
             mask = (hl_byte_offset * BYTE_SZ) * "0" #Add prefix zeros for the mask
             mask += hex_to_bin_str(self.data["byte_mask_tag_" + str(i)], BYTE_SZ)
