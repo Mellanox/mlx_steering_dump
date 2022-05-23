@@ -2,6 +2,8 @@
 #Copyright (c) 2021 NVIDIA CORPORATION. All rights reserved.
 
 from hw_steering_src.dr_common import *
+from hw_steering_src.dr_db import _fw_ste_indexes_arr, _matchers, _tbl_type_db, _config_args
+from hw_steering_src.dr_rule import dr_parse_rules
 
 
 class dr_parse_matcher():
@@ -14,6 +16,7 @@ class dr_parse_matcher():
         self.nic_tx = None
         self.attr = None
         self.template = None
+        self.save_to_db()
 
     def dump_str(self, verbosity):
         if verbosity == 0:
@@ -33,12 +36,11 @@ class dr_parse_matcher():
         tabs = tabs + TAB
 
         _str = _str + tabs + self.attr.dump_str(verbosity)
-        if self.nic_rx != None and verbosity > 0:
-            _str = _str + tabs + self.nic_rx.dump_str(verbosity)
-        if self.nic_tx != None and verbosity > 0:
-            _str = _str + tabs + self.nic_tx.dump_str(verbosity)
         if self.template != None:
             _str = _str + tabs + self.template.dump_str(verbosity)
+
+        if _config_args.get("parse_hw_resources"):
+            _str = _str + dr_parse_rules(self, verbosity, tabs)
 
         return _str
 
@@ -53,6 +55,18 @@ class dr_parse_matcher():
 
     def add_template(self, template):
         self.template = template
+
+    def save_to_db(self):
+        _fw_ste_indexes_arr.append(self.data["ste_0_id"])
+        if _tbl_type_db.get(int(self.data.get("tbl_id"), 16)) == DR_TBL_TYPE_FDB:
+            _fw_ste_indexes_arr.append(self.data["ste_1_id"])
+        _matchers.append(self)
+
+    def get_fw_ste_0_index(self):
+        return self.data["ste_0_id"]
+
+    def get_fw_ste_1_index(self):
+        return self.data["ste_1_id"]
 
 
 class dr_parse_matcher_attr():
@@ -100,9 +114,9 @@ class dr_parse_matcher_template():
     def dump_str(self, verbosity):
         _str = ":"
         if self.definer != None:
-            definer_str = str(self.definer.dump_fields())
+            definer_str = self.definer.dump_fields()
             if len(definer_str) != 0:
-                _str = ": " + self.definer.dump_fields() + ", "
+                _str = ": " + definer_str + ", "
         if verbosity > 0:
             return dump_obj_str(["mlx5dr_debug_res_type", "id", "flags",
                                  "fc_sz"], self.data).replace(":", _str)
