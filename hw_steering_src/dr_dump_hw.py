@@ -4,7 +4,7 @@
 import subprocess as sp
 from hw_steering_src.dr_common import *
 from hw_steering_src.dr_db import _fw_ste_indexes_arr, _fw_ste_db, _stes_range_db, _config_args
-from hw_steering_src.dr_ste import raw_ste_parser
+from hw_steering_src.dr_ste import dr_parse_ste, raw_ste_parser
 
 
 def call_resource_dump(dev, segment, index1, num_of_obj1, num_of_obj2, depth):
@@ -24,8 +24,8 @@ def call_resource_dump(dev, segment, index1, num_of_obj1, num_of_obj2, depth):
 
 def parse_fw_ste_rd_output(data, fw_ste_index, load_to_db, file):
     ste_dic = {}
-    min_addr = 0xFFFFFFFFF
-    max_addr = 0x0
+    min_addr = '0xFFFFFFFFF'
+    max_addr = '0x000000000'
     data_arr = data.split('\n')
     file.write(MLX5DR_DEBUG_RES_TYPE_FW_STE + ',' + fw_ste_index + '\n')
     for count in range(0, len(data_arr)):
@@ -40,7 +40,7 @@ def parse_fw_ste_rd_output(data, fw_ste_index, load_to_db, file):
                 ste_prefix += fw_ste_index + ','
                 file.write(ste_prefix + ste + '\n')
                 if load_to_db:
-                    ste_addr = int(ste_addr, 16)
+                    ste = dr_parse_ste([MLX5DR_DEBUG_RES_TYPE_STE, ste_addr, fw_ste_index, ste])
                     ste_dic[ste_addr] = ste
                     if ste_addr < min_addr:
                         min_addr = ste_addr
@@ -49,7 +49,7 @@ def parse_fw_ste_rd_output(data, fw_ste_index, load_to_db, file):
 
     if load_to_db:
         _fw_ste_db[fw_ste_index] = ste_dic
-        _stes_range_db[range(min_addr, max_addr)] = fw_ste_index
+        _stes_range_db[range(int(min_addr, 16), int(max_addr, 16))] = fw_ste_index
 
 
 def dump_hw_resources(load_to_db, dev, file):

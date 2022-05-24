@@ -2,7 +2,7 @@
 #Copyright (c) 2021 NVIDIA CORPORATION. All rights reserved.
 
 from hw_steering_src.dr_common import *
-from hw_steering_src.dr_db import _fw_ste_indexes_arr
+from hw_steering_src.dr_db import _fw_ste_indexes_arr, _fw_ste_db
 
 class dr_parse_fw_ste():
     def __init__(self, data):
@@ -16,3 +16,6 @@ class dr_parse_fw_ste():
 
     def add_ste(self, ste):
         self.ste_dic[ste.get_addr()] = ste
+
+    def init_fw_ste_db(self):
+        _fw_ste_db[self.data.get("id")] = {}

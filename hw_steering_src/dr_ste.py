@@ -2,7 +2,7 @@
 #Copyright (c) 2021 NVIDIA CORPORATION. All rights reserved.
 
 from hw_steering_src.dr_common import *
-from hw_steering_src.dr_db import _definers
+from hw_steering_src.dr_db import _definers,_fw_ste_db
 
 
 def dr_ste_parse_ste_actions_arr(action_arr):
@@ -172,7 +172,7 @@ def raw_ste_parser(raw_ste):
     ste["hash_definer_context_index"] = int(raw_ste[112 : 120], 2)
     next_table_base_39_32 = int(raw_ste[120 : 128], 2)
     next_table_base_31_5 = int(raw_ste[128 : 155], 2)
-    ste["hit_addr"] = ste_hit_addr_calc(next_table_base_63_48, next_table_base_39_32, next_table_base_31_5)
+    ste["hit_addr"] = hex(ste_hit_addr_calc(next_table_base_63_48, next_table_base_39_32, next_table_base_31_5))
 
     #get definer
     definer = _definers.get(ste["match_definer_context_index"])
@@ -191,7 +191,7 @@ def raw_ste_parser(raw_ste):
     tags = {"dw_selector_0" : dw_selector_0, "dw_selector_1" : dw_selector_1, "dw_selector_2" : dw_selector_2, "dw_selector_3" : dw_selector_3, "dw_selector_4" : dw_selector_4, "dw_selector_5" : dw_selector_5}
 
     if (ste["entry_format"] == STE_ENTRY_TYPE_MATCH):
-    	ste["actions"] = dr_ste_parse_ste_actions_arr([dw_selector_6, dw_selector_7, dw_selector_8])
+    	ste["actions"] = dr_ste_parse_ste_actions_arr([dw_selector_8, dw_selector_7, dw_selector_6])
     else:
         extra_tags = {"dw_selector_6" : dw_selector_6, "dw_selector_7" : dw_selector_7, "dw_selector_8" : dw_selector_8}
 
@@ -227,33 +227,29 @@ def raw_ste_parser(raw_ste):
 
 
 class dr_parse_ste():
-    def __init__(self, ste_id, fw_ste_id, raw_ste):
+    def __init__(self, data):
         keys = ["mlx5dr_debug_res_type", "id", "fw_ste_id", "raw_ste"]
-        self.data = {"mlx5dr_debug_res_type" : MLX5DR_DEBUG_RES_TYPE_STE, 
-                        "id" : ste_id,
-                        "fw_ste_id" : fw_ste_id,
-                        "raw_ste" : raw_ste}
-        parsed_ste = raw_ste_parser(raw_ste)
+        self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
+        parsed_ste = raw_ste_parser(self.data.get("raw_ste"))
         self.hit_addr = parsed_ste["hit_addr"]
         self.miss_addr = parsed_ste["miss_addr"]
         self.fields_dic = parsed_ste.get("parsed_tag")
         self.action_arr = parsed_ste.get("actions")
 
     def dump_str(self, verbosity):
-        _str = 'STE ' + hex(self.data.get("id")) + ':\n'
+        _str = 'STE ' + self.data.get("id") + ':\n'
         return _str
 
     def dump_actions(self, verbosity, tabs):
         _str = tabs + 'Actions:\n'
-        tabs = tabs + TAB
+        _tabs = tabs + TAB
         flag = False
 
         for action in self.action_arr:
             action_type = action.get("type")
             if action_type == "NOPE":
                 continue
-            _str += tabs + action_type + ': '
-            _str += tabs + TAB
+            _str += _tabs + action_type + ': '
             for field in action:
                 if field != "type":
                     if flag:
@@ -296,3 +292,6 @@ class dr_parse_ste():
 
     def get_miss_addr(self):
         return self.miss_addr
+
+    def load_to_db(self):
+        _fw_ste_db[self.data.get("fw_ste_id")][self.data.get("id")] = self

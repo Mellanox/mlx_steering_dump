@@ -27,11 +27,12 @@ class dr_parse_rule():
 
 
 def dr_hw_get_ste_from_addr(addr):
-    fw_ste_index = _stes_range_db.get(addr)
+    _addr = int(addr, 16)
+    fw_ste_index = _stes_range_db.get(_addr)
     if fw_ste_index == None:
         return None
 
-    fw_ste_stes = _fw_ste_db[fw_ste_index]
+    fw_ste_stes = _fw_ste_db.get(fw_ste_index)
     return fw_ste_stes.get(addr)
 
 
@@ -46,21 +47,23 @@ def dr_parse_rules(matcher, verbosity, tabs):
         if i == 0:
             fw_ste_id = matcher.get_fw_ste_0_index()
             if tbl_type == "FDB":
-                prefix = 'RX rules:\n'
+                prefix = 'RX:\n'
         if (i == 1) and (tbl_type == "FDB"):
             fw_ste_id = matcher.get_fw_ste_1_index()
-            prefix = 'TX rules:\n'
+            prefix = 'TX:\n'
 
         _str += tabs + prefix
         fw_ste_dic = _fw_ste_db[fw_ste_id]
         for ste_addr in fw_ste_dic:
-            raw_ste = fw_ste_dic.get(ste_addr)
+            #raw_ste = fw_ste_dic.get(ste_addr)
+            ste = fw_ste_dic.get(ste_addr)
             rule = dr_parse_rule()
-            while raw_ste != None:
-                ste = dr_parse_ste(ste_addr, fw_ste_id, raw_ste)
+            while ste != None:
+                #ste = dr_parse_ste(ste_addr, fw_ste_id, raw_ste)
                 rule.add_ste(ste)
                 hit_addr = ste.get_hit_addr()
-                raw_ste = dr_hw_get_ste_from_addr(hit_addr)
+                #raw_ste = dr_hw_get_ste_from_addr(hit_addr)
+                ste = dr_hw_get_ste_from_addr(hit_addr)
             _str += rule.tree_print(verbosity, _tabs)
 
     return _str

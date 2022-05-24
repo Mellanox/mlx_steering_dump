@@ -16,6 +16,8 @@ from hw_steering_src.dr_matcher import *
 from hw_steering_src.dr_definer import *
 from hw_steering_src.dr_dump_hw import *
 from hw_steering_src.dr_rule import *
+from hw_steering_src.dr_hw_resources import *
+from hw_steering_src.dr_ste import *
 from hw_steering_src.dr_db import _config_args
 
 
@@ -31,6 +33,8 @@ switch_csv_res_type = {
     MLX5DR_DEBUG_RES_TYPE_MATCHER_ATTR: dr_parse_matcher_attr,
     MLX5DR_DEBUG_RES_TYPE_MATCHER_TEMPLATE: dr_parse_matcher_template,
     MLX5DR_DEBUG_RES_TYPE_DEFINER: dr_parse_definer,
+    MLX5DR_DEBUG_RES_TYPE_FW_STE: dr_parse_fw_ste,
+    MLX5DR_DEBUG_RES_TYPE_STE: dr_parse_ste,
 }
 
 unsupported_obj_list = []
@@ -59,12 +63,11 @@ def dr_parse_csv_file(csv_file, load_to_db):
     last_matcher = None
     last_send_engine = None
     last_matcher_template = None
-    last_fw_ste = None
     csv_reader = csv.reader(csv_file)
     for line in csv_reader:
         obj = dr_csv_get_obj(line)
         if line[0] == MLX5DR_DEBUG_RES_TYPE_STE:
-            last_fw_ste.add_ste(obj)
+            obj.load_to_db()
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_CONTEXT:
             ctx = obj
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_CONTEXT_ATTR:
@@ -93,12 +96,8 @@ def dr_parse_csv_file(csv_file, load_to_db):
             if not(load_to_db):
                 return ctx
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_FW_STE:
-            if last_fw_ste != None:
-                last_fw_ste.load_to_db()
-            last_fw_ste = obj
-        elif line[0] == MLX5DR_DEBUG_RES_TYPE_HW_RRESOURCES_DUMP_END:
-            if last_fw_ste != None:
-                last_fw_ste.load_to_db()
+            if load_to_db:
+                obj.init_fw_ste_db()
         else:
             if line[0] not in unsupported_obj_list:
                 unsupported_obj_list.append(line[0])
