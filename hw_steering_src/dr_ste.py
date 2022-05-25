@@ -301,12 +301,22 @@ class dr_parse_ste():
 
         return _str
 
+    def dump_raw_ste(self, verbosity, tabs):
+        _str = tabs + 'Raw STE:\n'
+        tabs = tabs + TAB
+        _str += tabs + self.data.get("raw_ste") + '\n'
+
+        return _str
+
     def tree_print(self, verbosity, tabs):
         _str = tabs + self.dump_str(verbosity)
         tabs = tabs + TAB
 
         _str += self.dump_fields(verbosity, tabs)
         _str += self.dump_actions(verbosity, tabs)
+
+        if verbosity > 2:
+            _str += self.dump_raw_ste(verbosity, tabs)
 
         return _str
 
