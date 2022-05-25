@@ -29,7 +29,8 @@ class dr_parse_definer():
         _definers[self.get_definer_obj_id()] = self
 
     def get_definer_matching_fields(self):
-        fields_arr = {**self.dw_fields, **self.byte_fields}
+        fields_arr = dict(self.dw_fields)
+        fields_arr.update(self.byte_fields)
         return fields_arr
 
     def dump_str(self, verbosity):

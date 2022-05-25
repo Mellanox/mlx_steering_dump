@@ -42,7 +42,7 @@ def dr_parse_rules(matcher, verbosity, tabs):
     _tabs = tabs + TAB
     tbl_type = _tbl_type_db.get(int(matcher.data.get("tbl_id"), 16))
     _range = 2 if (tbl_type == "FDB") else 1
-    prefix = '' if (tbl_type == "FDB") else (tbl_type + ' rules:\n')
+    prefix = '' if (tbl_type == "FDB") else ('RX:\n' if (tbl_type == 'NIC_RX') else 'TX:\n')
     for i in range(_range):
         if i == 0:
             fw_ste_id = matcher.get_fw_ste_0_index()
