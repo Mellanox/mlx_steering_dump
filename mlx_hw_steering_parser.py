@@ -104,6 +104,16 @@ def dr_parse_csv_file(csv_file, load_to_db):
 
     return ctx
 
+
+#Check environment capabilities
+def env_caps():
+    p_v = sys.version[0:1]
+    dump_hw_res = _config_args.get("dump_hw_resources")
+    if p_v != '3' and dump_hw_res:
+        print('Can not Dump HW resources, need Python3')
+        exit()
+
+
 #Parse user command args, and save them to _config_args.
 def parse_args():
     parser = argparse.ArgumentParser(description="hw_steering_parser.py - HW Steering dump tool",
@@ -113,13 +123,13 @@ def parse_args():
     parser.add_argument("-hw", action="store_true", default=False, dest="dump_hw_resources",
                         help="Dump HW resources (must specify a device with -d)")
     parser.add_argument("-d", dest="device", type=str, default="",
-                        help="Provide device")
+                        help="Provide MST device")
     parser.add_argument("-pid", dest="dpdk_pid", type=int, default=-1,
-                        help="Trigger DPDK app <PID>)")
+                        help="Trigger DPDK app <PID>")
     parser.add_argument("-port", dest="dpdk_port", type=int, default=0,
                         help="Trigger DPDK app <PORT> (must provide PID with -pid)")
     parser.add_argument("-hw_parse", action="store_true", default=False, dest="hw_parse",
-                        help="Skip parsing stage")
+                        help="parse HW dumped resources")
 
     args = parser.parse_args()
 
@@ -163,9 +173,9 @@ def parse_args():
 
 if __name__ == "__main__":
     parse_args()
+    env_caps()
     file_path = _config_args.get("file_path")
     verbose = _config_args.get("verbose")
-
 
     csv_file = open(file_path, 'r+')
     obj = dr_parse_csv_file(csv_file, _config_args.get("load_hw_resources"))

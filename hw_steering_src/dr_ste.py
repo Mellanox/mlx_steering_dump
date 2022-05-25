@@ -217,7 +217,7 @@ def raw_ste_parser(raw_ste):
         extra_tags = {"dw_selector_6" : dw_selector_6, "dw_selector_7" : dw_selector_7, "dw_selector_8" : dw_selector_8}
 
     if (ste["entry_format"] == STE_ENTRY_TYPE_JUMBO_MATCH):
-        tags = {**tags, **extra_tags}
+        tags.update(extra_tags)
 
     #Add prefix and suffix zeros for the mask of bytes to complete to DW
     tags["byte_selector_7"] = raw_ste[448 : 456] + (24 * '0')
