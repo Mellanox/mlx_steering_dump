@@ -29,7 +29,7 @@ class dr_parse_context():
         if verbosity > 0:
             _str = _str + tabs + self.caps.dump_str(verbosity)
 
-        if verbosity > 2:
+        if verbosity > 3:
             for se in self.send_engine:
                 _str = _str + se.tree_print(verbosity, tabs)
 

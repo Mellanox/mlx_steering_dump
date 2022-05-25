@@ -116,20 +116,23 @@ def env_caps():
 
 #Parse user command args, and save them to _config_args.
 def parse_args():
-    parser = argparse.ArgumentParser(description="hw_steering_parser.py - HW Steering dump tool",
-                                     epilog="Note: This parser is still under developement, so not all the args are supported yet.")
-    parser.add_argument("-f", dest="file_path", default="", help="Input steering dump file path")
-    parser.add_argument("-v", action="count", dest="verbose", default=0, help="Increase output verbosity - v, vv & vvv for extra verbosity")
+    parser = argparse.ArgumentParser(description="mlx_hw_steering_parser.py - HW Steering dump tool.",
+                                     epilog="Note: This parser is still under developement, so not all the args are supported yet.",
+                                     add_help=False)
+    parser.add_argument("-f", dest="file_path", default="", help="Input steering dump file path.")
+    parser.add_argument("-v", action="count", dest="verbose", default=0, help="Increase output verbosity - v, vv, vvv & vvvv for extra verbosity.")
     parser.add_argument("-hw", action="store_true", default=False, dest="dump_hw_resources",
-                        help="Dump HW resources (must specify a device with -d)")
+                        help="Dump HW resources (must specify a device with -d).")
     parser.add_argument("-d", dest="device", type=str, default="",
-                        help="Provide MST device")
+                        help="Provide MST device.")
     parser.add_argument("-pid", dest="dpdk_pid", type=int, default=-1,
-                        help="Trigger DPDK app <PID>")
+                        help="Trigger DPDK app <PID>.")
     parser.add_argument("-port", dest="dpdk_port", type=int, default=0,
-                        help="Trigger DPDK app <PORT> (must provide PID with -pid)")
+                        help="Trigger DPDK app <PORT> (must provide PID with -pid).")
     parser.add_argument("-hw_parse", action="store_true", default=False, dest="hw_parse",
-                        help="parse HW dumped resources")
+                        help="Parse HW dumped resources.")
+    parser.add_argument('-h', '--help', action='help', default=argparse.SUPPRESS,
+                        help='Show this help message and exit.')
 
     args = parser.parse_args()
 
@@ -165,8 +168,8 @@ def parse_args():
         print("Empty input file, no data to parse")
         sys.exit(0)
 
-    if args.verbose > 3:
-        _config_args["verbose"] = 3
+    if args.verbose > 4:
+        _config_args["verbose"] = 4
     else:
         _config_args["verbose"] = args.verbose
 
