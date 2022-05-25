@@ -3,6 +3,35 @@
 
 from hw_steering_src.dr_common import *
 
+#Define dictionaries for fields text values(tv) according to PRM
+tv_l3_type = {0x0: "None", 0x1: "IPv4", 0x2: "IPv6", 0x3: "Reserved"}
+tv_l4_type_bwc = {0x0: "None", 0x1: "TCP", 0x2: "UDP", 0x3: "IPSEC"}
+tv_encap_type = {0x0: "no encapsulation", 0x1: "L2_tunneling", 0x2: "L3_tunneling", 0x3: "RoCE/R-RoCE"}
+tv_first_vlan_qualifier = {0x0: "None", 0x1: "s-vlan", 0x2: "c-vlan", 0x3: "g-vlan"}
+tv_l4_type = {0x0: "None", 0x1: "TCP", 0x2: "UDP", 0x3: "ICMP", range(4, 16): "Reserved"}
+tv_ipsec_layer = {0x0: "None", 0x1: "IPSECoIP", 0x2: "IPSECoUDP", 0x3: "Reserved"}
+tv_l2_type = {0x0: "unicast" ,0x1: "multicast", 0x2: "broadcast", 0x3: "Reserved"}
+tv_second_vlan_qualifier = {0x0: "None", 0x1: "s-vlan", 0x2: "c-vlan", 0x3: "g-vlan"}
+
+_fields_text_values = {
+                        "l3_type_o": tv_l3_type,
+                        "l3_type_i": tv_l3_type,
+                        "l4_type_bwc_o": tv_l4_type_bwc,
+                        "l4_type_bwc_i": tv_l4_type_bwc,
+                        "encap_type_o": tv_encap_type,
+                        "encap_type_i": tv_encap_type,
+                        "first_vlan_qualifier_o": tv_first_vlan_qualifier,
+                        "first_vlan_qualifier_i": tv_first_vlan_qualifier,
+                        "l4_type_o": tv_l4_type,
+                        "l4_type_i": tv_l4_type,
+                        "ipsec_layer_o": tv_ipsec_layer,
+                        "ipsec_layer_i": tv_ipsec_layer,
+                        "l2_type_o": tv_l2_type,
+                        "l2_type_i": tv_l2_type,
+                        "second_vlan_qualifier_o": tv_second_vlan_qualifier,
+                        "second_vlan_qualifier_i": tv_second_vlan_qualifier,
+                        }
+
 
 def dr_hl_dw_mask_parser(dw_fields, mask):
     fields_arr = []
@@ -16,6 +45,20 @@ def dr_hl_dw_mask_parser(dw_fields, mask):
         _len += dw_fields[i][1]
 
     return fields_arr
+
+
+def dr_hl_fields_arr_add_suffix(arr, suffix):
+    _arr = []
+
+    for fields in arr:
+        _fields = []
+        for field in fields:
+            _field = (field[0] + suffix, field[1])
+            _fields.append(_field)
+        _arr.append(_fields)
+
+    return _arr
+
 
 """
 The following functions decribes the headers layout structs
@@ -52,7 +95,9 @@ def dr_hl_eth_l4_parser(hl_index, mask):
                  ]
                 ]
 
-    return dr_hl_dw_mask_parser(dw_fields[offset], mask)
+    suffix = DR_HL_OUTER if (hl_index < 26) else DR_HL_INNER
+    _dw_fields = dr_hl_fields_arr_add_suffix(dw_fields, suffix)
+    return dr_hl_dw_mask_parser(_dw_fields[offset], mask)
 
 def dr_hl_eth_l2_parser(hl_index, mask):
     offset = int(hl_index % 4)
@@ -75,7 +120,9 @@ def dr_hl_eth_l2_parser(hl_index, mask):
                  ]
                 ]
 
-    return dr_hl_dw_mask_parser(dw_fields[offset], mask)
+    suffix = DR_HL_OUTER if (hl_index < 4) else DR_HL_INNER
+    _dw_fields = dr_hl_fields_arr_add_suffix(dw_fields, suffix)
+    return dr_hl_dw_mask_parser(_dw_fields[offset], mask)
 
 def dr_hl_eth_l3_parser(hl_index, mask):
     offset = (hl_index - 14) % 5
@@ -90,7 +137,9 @@ def dr_hl_eth_l3_parser(hl_index, mask):
                  [('packet_length', 16), ('ipv6_payload_length', 16)]
                 ]
 
-    return dr_hl_dw_mask_parser(dw_fields[offset], mask)
+    suffix = DR_HL_OUTER if (hl_index < 19) else DR_HL_INNER
+    _dw_fields = dr_hl_fields_arr_add_suffix(dw_fields, suffix)
+    return dr_hl_dw_mask_parser(_dw_fields[offset], mask)
 
 def dr_hl_ib_l2_parser(hl_index, mask):
     offset = (hl_index - 12) % 2
@@ -116,19 +165,24 @@ def dr_hl_eth_l2_src_parser(hl_index, mask):
                  ]
                 ]
 
-    return dr_hl_dw_mask_parser(dw_fields[offset], mask)
+    suffix = DR_HL_OUTER if (hl_index < 10) else DR_HL_INNER
+    _dw_fields = dr_hl_fields_arr_add_suffix(dw_fields, suffix)
+    return dr_hl_dw_mask_parser(_dw_fields[offset], mask)
 
 def dr_hl_ipv4_src_dst_parser(hl_index, mask):
     offset = (hl_index - 64) % 2
     dw_fields = [
-                 [('src_address', 32)],
-                 [('dst_address', 32)]
+                 [('src_ip', 32)],
+                 [('dst_ip', 32)]
                 ]
 
-    return dr_hl_dw_mask_parser(dw_fields[offset], mask)
+    suffix = DR_HL_OUTER if (hl_index < 66) else DR_HL_INNER
+    _dw_fields = dr_hl_fields_arr_add_suffix(dw_fields, suffix)
+    return dr_hl_dw_mask_parser(_dw_fields[offset], mask)
 
 def dr_hl_ipv6_addr_parser(hl_index, mask):
     offset = (hl_index - 68) % 4
+    suffix = DR_HL_OUTER
     dw_fields = [
                  [('ipv6_address_127_96', 32)],
                  [('ipv6_address_95_64', 32)],
@@ -136,7 +190,11 @@ def dr_hl_ipv6_addr_parser(hl_index, mask):
                  [('ipv6_address_31_0', 32)]
                 ]
 
-    return dr_hl_dw_mask_parser(dw_fields[offset], mask)
+    if (hl_index > 79) or (hl_index > 71 and hl_index < 76):
+        suffix = DR_HL_INNER
+
+    _dw_fields = dr_hl_fields_arr_add_suffix(dw_fields, suffix)
+    return dr_hl_dw_mask_parser(_dw_fields[offset], mask)
 
 def dr_hl_oks1_parser(hl_index, mask):
     offset = (hl_index - 33) % 1
@@ -235,7 +293,9 @@ def dr_hl_udp_misc_parser(hl_index, mask):
                  [('length', 16), ('TCP/UDP Checksum', 16)]
                 ]
 
-    return dr_hl_dw_mask_parser(dw_fields[offset], mask)
+    suffix = DR_HL_OUTER if (hl_index == 92) else DR_HL_INNER
+    _dw_fields = dr_hl_fields_arr_add_suffix(dw_fields, suffix)
+    return dr_hl_dw_mask_parser(_dw_fields[offset], mask)
 
 def dr_hl_tcp_icmp_parser(hl_index, mask):
     offset = (hl_index - 94) % 3
@@ -268,7 +328,9 @@ def dr_hl_mpls_parser(hl_index, mask):
                  [('mpls4', 32)]
                 ]
 
-    return dr_hl_dw_mask_parser(dw_fields[offset], mask)
+    suffix = DR_HL_OUTER if (hl_index < 106) else DR_HL_INNER
+    _dw_fields = dr_hl_fields_arr_add_suffix(dw_fields, suffix)
+    return dr_hl_dw_mask_parser(_dw_fields[offset], mask)
 
 def dr_hl_configurable_headers_parser(hl_index, mask):
     offset = (hl_index - 111) % 4
@@ -285,7 +347,9 @@ def dr_hl_configurable_headers_parser(hl_index, mask):
                  [('eth_l2_config_header1_dw', 32)]
                 ]
 
-    return dr_hl_dw_mask_parser(dw_fields[offset], mask)
+    suffix = DR_HL_OUTER if (hl_index < 115) else DR_HL_INNER
+    _dw_fields = dr_hl_fields_arr_add_suffix(dw_fields, suffix)
+    return dr_hl_dw_mask_parser(_dw_fields[offset], mask)
 
 def dr_hl_random_number_parser(hl_index, mask):
     offset = (hl_index - 119) % 1

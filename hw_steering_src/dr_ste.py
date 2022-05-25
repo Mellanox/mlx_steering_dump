@@ -3,6 +3,7 @@
 
 from hw_steering_src.dr_common import *
 from hw_steering_src.dr_db import _definers,_fw_ste_db
+from hw_steering_src.dr_hl import _fields_text_values
 
 
 def dr_ste_parse_ste_actions_arr(action_arr):
@@ -104,10 +105,13 @@ def dr_ste_parse_ste_actions_arr(action_arr):
 def fields_handler(_fields):
     _str = ""
     fields = {}
-    union_fields = {"smac_47_16": 0, "smac_15_0": 0, "dmac_47_16": 0,
-                    "dmac_15_0": 0, "ipv6_address_127_96": 0,
-                    "ipv6_address_95_64": 0, "ipv6_address_63_32": 0,
-                    "ipv6_address_31_0": 0}
+    union_fields = {"smac_47_16_o": 0, "smac_15_0_o": 0, "dmac_47_16_o": 0,
+                    "dmac_15_0_o": 0, "ipv6_address_127_96_o": 0,
+                    "ipv6_address_95_64_o": 0, "ipv6_address_63_32_o": 0,
+                    "ipv6_address_31_0_o": 0, "smac_47_16_i": 0,
+                    "smac_15_0_i": 0, "dmac_47_16_i": 0, "dmac_15_0_i": 0,
+                    "ipv6_address_127_96_i": 0, "ipv6_address_95_64_i": 0,
+                    "ipv6_address_63_32_i": 0, "ipv6_address_31_0_i": 0}
     fields_show_values = {}
 
     for field in _fields:
@@ -122,28 +126,45 @@ def fields_handler(_fields):
         else:
             fields[field] = _data
 
-    if union_fields["smac_47_16"] != 0 or union_fields["smac_15_0"] != 0:
-        fields["smac"] = (union_fields["smac_47_16"] << 16) | union_fields["smac_15_0"]
+    if union_fields["smac_47_16_o"] != 0 or union_fields["smac_15_0_o"] != 0:
+        fields["smac_o"] = (union_fields["smac_47_16_o"] << 16) | union_fields["smac_15_0_o"]
 
-    if union_fields["dmac_47_16"] != 0 or union_fields["dmac_15_0"] != 0:
-        fields["dmac"] = (union_fields["dmac_47_16"] << 16) | union_fields["dmac_15_0"]
+    if union_fields["smac_47_16_i"] != 0 or union_fields["smac_15_0_i"] != 0:
+        fields["smac_i"] = (union_fields["smac_47_16_i"] << 16) | union_fields["smac_15_0_i"]
 
-    if (union_fields["ipv6_address_127_96"] != 0 or
-        union_fields["ipv6_address_95_64"] != 0 or
-        union_fields["ipv6_address_63_32"] != 0 or
-        union_fields["ipv6_address_31_0"] != 0):
-        fields["ipv6_address"] = union_fields["ipv6_address_127_96"] << 96
-        fields["ipv6_address"] |= union_fields["ipv6_address_95_64"] << 64
-        fields["ipv6_address"] |= union_fields["ipv6_address_63_32"] << 32
-        fields["ipv6_address"] |= union_fields["ipv6_address_31_0"]
+    if union_fields["dmac_47_16_o"] != 0 or union_fields["dmac_15_0_o"] != 0:
+        fields["dmac_o"] = (union_fields["dmac_47_16_o"] << 16) | union_fields["dmac_15_0_o"]
+
+    if union_fields["dmac_47_16_i"] != 0 or union_fields["dmac_15_0_i"] != 0:
+        fields["dmac_i"] = (union_fields["dmac_47_16_i"] << 16) | union_fields["dmac_15_0_i"]
+
+    if (union_fields["ipv6_address_127_96_o"] != 0 or
+        union_fields["ipv6_address_95_64_o"] != 0 or
+        union_fields["ipv6_address_63_32_o"] != 0 or
+        union_fields["ipv6_address_31_0_o"] != 0):
+        fields["ipv6_addr_o"] = union_fields["ipv6_address_127_96_o"] << 96
+        fields["ipv6_addr_o"] |= union_fields["ipv6_address_95_64_o"] << 64
+        fields["ipv6_addr_o"] |= union_fields["ipv6_address_63_32_o"] << 32
+        fields["ipv6_addr_o"] |= union_fields["ipv6_address_31_0_o"]
+
+    if (union_fields["ipv6_address_127_96_i"] != 0 or
+        union_fields["ipv6_address_95_64_i"] != 0 or
+        union_fields["ipv6_address_63_32_i"] != 0 or
+        union_fields["ipv6_address_31_0_i"] != 0):
+        fields["ipv6_addr_i"] = union_fields["ipv6_address_127_96_i"] << 96
+        fields["ipv6_addr_i"] |= union_fields["ipv6_address_95_64_i"] << 64
+        fields["ipv6_addr_i"] |= union_fields["ipv6_address_63_32_i"] << 32
+        fields["ipv6_addr_i"] |= union_fields["ipv6_address_31_0_i"]
 
     for field in fields:
         if _str != "":
             _str += ", "
-        if field in fields_show_values:
-            _str += field + ": " + fields_show_values.get(field)
+        tv_field = _fields_text_values.get(field)
+        value = fields.get(field)
+        if tv_field != None:
+            _str += field + ": " + hex(value) + ' (' + tv_field.get(value) + ')'
         else:
-            _str += field + ": " + hex(fields[field])
+            _str += field + ": " + hex(value)
 
     return _str
 
