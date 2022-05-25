@@ -102,7 +102,7 @@ def dr_ste_parse_ste_actions_arr(action_arr):
 
     return result
 
-def fields_handler(_fields):
+def fields_handler(_fields, show_field_val=False):
     _str = ""
     fields = {}
     union_fields = {"smac_47_16_o": 0, "smac_15_0_o": 0, "dmac_47_16_o": 0,
@@ -159,10 +159,15 @@ def fields_handler(_fields):
     for field in fields:
         if _str != "":
             _str += ", "
-        tv_field = _fields_text_values.get(field)
+
         value = fields.get(field)
-        if tv_field != None:
-            _str += field + ": " + hex(value) + ' (' + tv_field.get(value) + ')'
+
+        if show_field_val:
+            tv_field = _fields_text_values.get(field)
+            if tv_field != None:
+                _str += field + ": " + hex(value) + ' (' + tv_field.get(value) + ')'
+            else:
+                _str += field + ": " + hex(value)
         else:
             _str += field + ": " + hex(value)
 
@@ -288,11 +293,11 @@ class dr_parse_ste():
     def dump_fields(self, verbosity, tabs):
         _str = tabs + 'Tag:\n'
         tabs = tabs + TAB
-        fields_handler_str = fields_handler(self.fields_dic)
+        fields_handler_str = fields_handler(self.fields_dic, True)
         if fields_handler_str == '':
             _str += tabs + 'Empty Tag\n'
         else:
-            _str += tabs + fields_handler(self.fields_dic) + '\n'
+            _str += tabs + fields_handler_str + '\n'
 
         return _str
 
