@@ -99,3 +99,6 @@ def hex_to_bin_str(_n, _len):
 
 
 TAB = "    "
+
+DR_HL_OUTER = '_o'
+DR_HL_INNER = '_i'
