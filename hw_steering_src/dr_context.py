@@ -2,6 +2,7 @@
 #Copyright (c) 2021 NVIDIA CORPORATION. All rights reserved.
 
 from hw_steering_src.dr_common import *
+from hw_steering_src.dr_db import _config_args
 
 
 class dr_parse_context():
@@ -14,6 +15,10 @@ class dr_parse_context():
         self.attr = None
         self.caps = None
         self.send_engine = []
+        self.load_to_db()
+
+    def load_to_db(self):
+        _config_args["dev_name"] = self.data.get("dev_name");
 
     def dump_str(self, verbosity):
         return dump_obj_str(["mlx5dr_debug_res_type", "id",

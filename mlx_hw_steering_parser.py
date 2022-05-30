@@ -7,6 +7,7 @@ import sys
 import os
 import argparse
 import csv
+import time
 
 from hw_steering_src import dr_trigger
 from hw_steering_src.dr_common import *
@@ -105,13 +106,44 @@ def dr_parse_csv_file(csv_file, load_to_db):
     return ctx
 
 
+#General env initialization
+def env_init():
+    if _config_args.get("resourcedump_mem_mode"):
+        tmp_file_path = ''
+        file_path_arr = _config_args.get("file_path").split('/')
+        for i in range(0, len(file_path_arr) - 1):
+            tmp_file_path += file_path_arr[i] + '/'
+
+        tmp_file_path += 'tmp_' + str(time.time()) + '.bin'
+
+        _config_args["tmp_file_path"] = tmp_file_path
+        _config_args["tmp_file"] = None
+
+
+def env_destroy():
+    tmp_file = _config_args.get("tmp_file")
+    if tmp_file != None:
+        tmp_file.close()
+
+
 #Check environment capabilities
 def env_caps():
     p_v = sys.version[0:1]
     dump_hw_res = _config_args.get("dump_hw_resources")
-    if p_v != '3' and dump_hw_res:
-        print('Can not Dump HW resources, need Python3')
-        exit()
+    if dump_hw_res:
+        if p_v != '3':
+            print('Can not Dump HW resources <-hw>, need Python3')
+            exit()
+
+        output = sp.getoutput('resourcedump -v')
+        output = output.split(', ')
+        if output[0] != 'resourcedump':
+            print('Can not Dump HW resources, no MFT')
+            exit()
+
+        mft_version = output[1]
+        if mft_version >= MEM_MODE_MIN_MFT_VERSION:
+            _config_args["resourcedump_mem_mode"] = True
 
 
 #Parse user command args, and save them to _config_args.
@@ -173,23 +205,33 @@ def parse_args():
     else:
         _config_args["verbose"] = args.verbose
 
+    _config_args["resourcedump_mem_mode"] = False
+
 
 if __name__ == "__main__":
-    parse_args()
-    env_caps()
-    file_path = _config_args.get("file_path")
-    verbose = _config_args.get("verbose")
+    try:
+        parse_args()
+        env_caps()
+        env_init()
+        file_path = _config_args.get("file_path")
+        verbose = _config_args.get("verbose")
 
-    csv_file = open(file_path, 'r+')
-    obj = dr_parse_csv_file(csv_file, _config_args.get("load_hw_resources"))
-    csv_file.close()
-
-    if dump_hw_resources:
-        csv_file = open(_config_args.get("file_path"), 'a+')
-        dr_hw_data_engine(obj, csv_file)
+        csv_file = open(file_path, 'r+')
+        obj = dr_parse_csv_file(csv_file, _config_args.get("load_hw_resources"))
         csv_file.close()
 
-    print(obj.tree_print(verbose, ""))
+        if dump_hw_resources:
+            csv_file = open(_config_args.get("file_path"), 'a+')
+            dr_hw_data_engine(obj, csv_file)
+            csv_file.close()
 
-    if verbose > 0:
-        print_unsupported_obj_list()
+        print(obj.tree_print(verbose, ""))
+
+        if verbose > 0:
+            print_unsupported_obj_list()
+
+    except:
+        print("Something went wrong")
+
+    finally:
+        env_destroy()
