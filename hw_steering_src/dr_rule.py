@@ -27,9 +27,13 @@ class dr_parse_rule():
 
 
 def dr_hw_get_ste_from_addr(addr):
-    _addr = int(addr, 16)
-    fw_ste_index = _stes_range_db.get(_addr)
-    fw_ste_index = _stes_range_db.get(addr)
+    fw_ste_index = None
+    for index in _stes_range_db:
+        _range = _stes_range_db.get(index)
+        if addr >= _range[0] and addr <= _range[1]:
+            fw_ste_index = index
+            break
+
     if fw_ste_index == None:
         return None
 
