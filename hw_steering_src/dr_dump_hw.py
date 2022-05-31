@@ -8,8 +8,8 @@ from hw_steering_src.dr_ste import dr_parse_ste, raw_ste_parser
 
 
 def parse_fw_ste_rd_bin_output(fw_ste_index, load_to_db, file):
-    min_addr = 'ffffffff'
-    max_addr = '00000000'
+    min_addr = '0xffffffff'
+    max_addr = '0x00000000'
     _config_args["tmp_file"] = open(_config_args.get("tmp_file_path"), 'rb+')
     bin_file = _config_args.get("tmp_file")
     data = bin_file.read(68)#There are 68B of prefix data before first STE dump
@@ -40,7 +40,7 @@ def parse_fw_ste_rd_bin_output(fw_ste_index, load_to_db, file):
 
     if load_to_db:
         _fw_ste_db[fw_ste_index] = ste_dic
-        _stes_range_db[range(int(min_addr, 16), int(max_addr, 16))] = fw_ste_index
+        _stes_range_db[fw_ste_index] = (min_addr, max_addr)
 
 
 def call_resource_dump(dev, segment, index1, num_of_obj1, num_of_obj2, depth):
@@ -68,13 +68,13 @@ def call_resource_dump(dev, segment, index1, num_of_obj1, num_of_obj2, depth):
 
 def parse_fw_ste_rd_output(data, fw_ste_index, load_to_db, file):
     ste_dic = {}
-    min_addr = '0xFFFFFFFFF'
-    max_addr = '0x000000000'
+    min_addr = '0xffffffff'
+    max_addr = '0x00000000'
     data_arr = data.split('\n')
     file.write(MLX5DR_DEBUG_RES_TYPE_FW_STE + ',' + fw_ste_index + '\n')
     for count in range(0, len(data_arr)):
         if RESOURCE_DUMP_SEGMENT_TYPE_STE in data_arr[count][0:10]:
-            ste_addr = data_arr[count][22 : 32]
+            ste_addr = (data_arr[count][22 : 32]).lower()
             ste = data_arr[count + 1] + data_arr[count + 2] + data_arr[count + 3] + data_arr[count + 4]
             ste = ste.replace(' 0x', '')
             hit_add = ste[32 : 41]
@@ -93,7 +93,7 @@ def parse_fw_ste_rd_output(data, fw_ste_index, load_to_db, file):
 
     if load_to_db:
         _fw_ste_db[fw_ste_index] = ste_dic
-        _stes_range_db[range(int(min_addr, 16), int(max_addr, 16))] = fw_ste_index
+        _stes_range_db[fw_ste_index] = (min_addr, max_addr)
 
 
 def dump_hw_resources(load_to_db, dev, file):

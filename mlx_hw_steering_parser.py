@@ -64,11 +64,19 @@ def dr_parse_csv_file(csv_file, load_to_db):
     last_matcher = None
     last_send_engine = None
     last_matcher_template = None
+    last_fw_ste = None
+    min_ste_addr = ''
+    max_ste_addr = ''
     csv_reader = csv.reader(csv_file)
     for line in csv_reader:
         obj = dr_csv_get_obj(line)
         if line[0] == MLX5DR_DEBUG_RES_TYPE_STE:
             obj.load_to_db()
+            ste_addr = obj.get_addr()
+            if ste_addr < min_ste_addr:
+                min_ste_addr = ste_addr
+            if ste_addr > max_ste_addr:
+                max_ste_addr = ste_addr
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_CONTEXT:
             ctx = obj
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_CONTEXT_ATTR:
@@ -97,8 +105,15 @@ def dr_parse_csv_file(csv_file, load_to_db):
             if not(load_to_db):
                 return ctx
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_FW_STE:
-            if load_to_db:
-                obj.init_fw_ste_db()
+            if last_fw_ste != None:
+                last_fw_ste.add_stes_range(min_ste_addr, max_ste_addr)
+            obj.init_fw_ste_db()
+            max_ste_addr = '0x00000000'
+            min_ste_addr = '0xffffffff'
+            last_fw_ste = obj
+        elif line[0] == MLX5DR_DEBUG_RES_TYPE_HW_RRESOURCES_DUMP_END:
+            if last_fw_ste != None:
+                last_fw_ste.add_stes_range(min_ste_addr, max_ste_addr)
         else:
             if line[0] not in unsupported_obj_list:
                 unsupported_obj_list.append(line[0])
@@ -231,7 +246,7 @@ if __name__ == "__main__":
             print_unsupported_obj_list()
 
     except:
-        print("Something went wrong")
+        print("")
 
     finally:
         env_destroy()
