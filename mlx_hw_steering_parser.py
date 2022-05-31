@@ -192,8 +192,7 @@ def parse_args():
     if (args.dump_hw_resources):
         _config_args["dump_hw_resources"] = True
         if (args.device == ""):
-            print("must specify a device with -d when using -hw flag")
-            sys.exit(0)
+            _config_args["device"] = None
         else:
             _config_args["device"] = args.device
     else:

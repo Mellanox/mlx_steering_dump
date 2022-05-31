@@ -107,8 +107,13 @@ def dump_hw_resources(load_to_db, dev, file):
 
 
 def dr_hw_data_engine(obj, file):
-    load_to_db = _config_args.get("load_hw_resources")
     if _config_args.get("dump_hw_resources"):
+        load_to_db = _config_args.get("load_hw_resources")
+        device = _config_args.get("device")
+        if device == None:
+            print('Unknown MST device')
+            exit()
+
         file.write(MLX5DR_DEBUG_RES_TYPE_HW_RRESOURCES_DUMP_START + '\n')
-        dump_hw_resources(load_to_db, _config_args.get("device"), file)
+        dump_hw_resources(load_to_db, device, file)
         file.write(MLX5DR_DEBUG_RES_TYPE_HW_RRESOURCES_DUMP_END + '\n')
