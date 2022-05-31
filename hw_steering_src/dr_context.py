@@ -1,8 +1,22 @@
 #SPDX-License-Identifier: BSD-3-Clause
 #Copyright (c) 2021 NVIDIA CORPORATION. All rights reserved.
 
+
+import subprocess as sp
+
 from hw_steering_src.dr_common import *
 from hw_steering_src.dr_db import _config_args
+
+
+def get_mst_dev(rdma_dev_name):
+    output = sp.getoutput('sudo mst status -v')
+    output_arr = output.split('\n')
+
+    for l in output_arr:
+        if _config_args.get("dev_name") in l:
+            l_arr = l.split()
+            if len(l_arr) > 1 and l_arr[1] != 'NA':
+                _config_args["device"] = l_arr[1]
 
 
 class dr_parse_context():
@@ -16,6 +30,8 @@ class dr_parse_context():
         self.caps = None
         self.send_engine = []
         self.load_to_db()
+        if _config_args.get("dump_hw_resources") and _config_args.get("device") == None:
+            get_mst_dev(self.data.get("dev_name"))
 
     def load_to_db(self):
         _config_args["dev_name"] = self.data.get("dev_name");

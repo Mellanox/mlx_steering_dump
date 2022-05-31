@@ -47,7 +47,7 @@ def dr_parse_rules(matcher, verbosity, tabs):
     _tabs = tabs + TAB
     tbl_type = _tbl_type_db.get(int(matcher.data.get("tbl_id"), 16))
     _range = 2 if (tbl_type == "FDB") else 1
-    prefix = '' if (tbl_type == "FDB") else ('RX:\n' if (tbl_type == 'NIC_RX') else 'TX:\n')
+    prefix = ''
     for i in range(_range):
         if i == 0:
             fw_ste_id = matcher.get_fw_ste_0_index()
@@ -57,7 +57,10 @@ def dr_parse_rules(matcher, verbosity, tabs):
             fw_ste_id = matcher.get_fw_ste_1_index()
             prefix = 'TX:\n'
 
-        _str += tabs + prefix
+        if prefix == '':
+            _str += '\n'
+        else:
+            _str += tabs + prefix
         fw_ste_dic = _fw_ste_db[fw_ste_id]
         for ste_addr in fw_ste_dic:
             #raw_ste = fw_ste_dic.get(ste_addr)
