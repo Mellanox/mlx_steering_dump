@@ -262,8 +262,8 @@ class dr_parse_ste():
         self.fields_dic = parsed_ste.get("parsed_tag")
         self.action_arr = parsed_ste.get("actions")
 
-    def dump_str(self, verbosity):
-        _str = 'STE ' + self.data.get("id") + ':\n'
+    def dump_str(self, verbosity, prefix='STE '):
+        _str = prefix + self.data.get("id") + ':\n'
         return _str
 
     def dump_actions(self, verbosity, tabs):
@@ -316,8 +316,8 @@ class dr_parse_ste():
 
         return _str
 
-    def tree_print(self, verbosity, tabs):
-        _str = tabs + self.dump_str(verbosity)
+    def tree_print(self, verbosity, tabs, prefix=None):
+        _str = tabs + self.dump_str(verbosity, prefix)
         tabs = tabs + TAB
 
         _str += self.dump_fields(verbosity, tabs)
