@@ -31,3 +31,8 @@ _stes_range_db = {}
 #This hash table holds tables type, as keys are table id's, and
 #values as table type
 _tbl_type_db = {}
+
+
+#This hash table holds tables level, as keys are table id's, and
+#values as table level
+_tbl_level_db = {}
