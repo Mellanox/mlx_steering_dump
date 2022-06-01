@@ -8,20 +8,29 @@ from hw_steering_src.dr_ste import *
 
 class dr_parse_rule():
     def __init__(self):
-        self.ste_arr = []
+        self.rx_ste_arr = []
+        self.tx_ste_arr = []
+
         
     def dump_str(self, verbosity):
         return 'Rule:\n'
 
-    def add_ste(self, ste):
-        self.ste_arr.append(ste)
+
+    def add_ste(self, ste, rx_tx):
+        if rx_tx == DR_TBL_TYPE_NIC_RX:
+            self.rx_ste_arr.append(ste)
+        else:
+            self.tx_ste_arr.append(ste)
+
 
     def tree_print(self, verbosity, tabs):
         _str = tabs + self.dump_str(verbosity)
         tabs = tabs + TAB
 
-        for ste in self.ste_arr:
-            _str += ste.tree_print(verbosity, tabs)
+        for ste in self.rx_ste_arr:
+            _str += ste.tree_print(verbosity, tabs, 'RX STE ')
+        for ste in self.tx_ste_arr:
+            _str += ste.tree_print(verbosity, tabs, 'TX STE ')
 
         return _str
 
@@ -46,16 +55,16 @@ def dr_parse_rules(matcher, verbosity, tabs):
     prefix = ''
     _tabs = tabs + TAB
     tbl_type = _tbl_type_db.get(int(matcher.data.get("tbl_id"), 16))
-    _range = 2 if (tbl_type == "FDB") else 1
-    prefix = ''
+    _range = 2 if (tbl_type == DR_TBL_TYPE_FDB) else 1
+    _tbl_type = tbl_type
     for i in range(_range):
         if i == 0:
             fw_ste_id = matcher.get_fw_ste_0_index()
-            if tbl_type == "FDB":
-                prefix = 'RX:\n'
+            if tbl_type == DR_TBL_TYPE_FDB:
+                _tbl_type = DR_TBL_TYPE_NIC_RX
         if (i == 1) and (tbl_type == "FDB"):
             fw_ste_id = matcher.get_fw_ste_1_index()
-            prefix = 'TX:\n'
+            _tbl_type = DR_TBL_TYPE_NIC_TX
 
         if prefix == '':
             _str += '\n'
@@ -63,14 +72,11 @@ def dr_parse_rules(matcher, verbosity, tabs):
             _str += tabs + prefix
         fw_ste_dic = _fw_ste_db[fw_ste_id]
         for ste_addr in fw_ste_dic:
-            #raw_ste = fw_ste_dic.get(ste_addr)
             ste = fw_ste_dic.get(ste_addr)
             rule = dr_parse_rule()
             while ste != None:
-                #ste = dr_parse_ste(ste_addr, fw_ste_id, raw_ste)
-                rule.add_ste(ste)
+                rule.add_ste(ste, _tbl_type)
                 hit_addr = ste.get_hit_addr()
-                #raw_ste = dr_hw_get_ste_from_addr(hit_addr)
                 ste = dr_hw_get_ste_from_addr(hit_addr)
             _str += rule.tree_print(verbosity, _tabs)
 
