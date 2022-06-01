@@ -2,7 +2,8 @@
 #Copyright (c) 2021 NVIDIA CORPORATION. All rights reserved.
 
 from hw_steering_src.dr_common import *
-from hw_steering_src.dr_db import _fw_ste_indexes_arr, _matchers, _tbl_type_db, _config_args, _tbl_level_db
+from hw_steering_src.dr_db import _fw_ste_indexes_arr, _matchers, _tbl_type_db,\
+                                _config_args, _tbl_level_db, _col_matchers
 from hw_steering_src.dr_rule import dr_parse_rules
 
 
@@ -12,10 +13,12 @@ class dr_parse_matcher():
                 "end_ft_id", "col_matcher_id", "rtc_0_id", "ste_0_id",
                 "rtc_1_id", "ste_1_id"]
         self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
+        self.id = self.data.get("id")
         self.nic_rx = None
         self.nic_tx = None
         self.attr = None
         self.template = None
+        self.col_matcher_id = self.data.get("col_matcher_id")
         self.save_to_db()
 
 
@@ -37,24 +40,40 @@ class dr_parse_matcher():
 
         return dump_obj_str(_keys, self.data)
 
-    def dump_matcher_resources(self, verbosity):
-        _keys = ["rtc_0_id", "ste_0_id", "rtc_1_id", "ste_1_id"]
-        _str = "Resources: " + dump_obj_str(_keys, self.data)
+    def dump_matcher_resources(self, verbosity, tabs):
+        _keys = ["rtc_0_id", "ste_0_id"]
+
+        tbl_level = _tbl_level_db.get(self.data.get("tbl_id"))
+        if tbl_level == DR_TBL_TYPE_FDB:
+            _keys.extend(["rtc_1_id", "ste_1_id"])
+
+        _str = tabs + "Resources: " + dump_obj_str(_keys, self.data)
+
+        if self.col_matcher_id != "0x0":
+            col_matcher = _matchers.get(self.col_matcher_id)
+            print(self.col_matcher_id)
+            print(col_matcher)
+            _str += tabs +"Resources (C): " + dump_obj_str(_keys, col_matcher.data)
+
         return _str
 
     def tree_print(self, verbosity, tabs):
+        if self.id in _col_matchers:
+            return ''
         _str = tabs + self.dump_str(verbosity)
         tabs = tabs + TAB
         tbl_level = _tbl_level_db.get(self.data.get("tbl_id"))
 
         _str = _str + tabs + self.attr.dump_str(verbosity)
         if verbosity > 2:
-            _str = _str + tabs + self.dump_matcher_resources(verbosity)
+            _str = _str + self.dump_matcher_resources(verbosity, tabs)
         if (self.template != None) and (tbl_level != DR_ROOT_TBL_LEVEL):
             _str = _str + tabs + self.template.dump_str(tabs, verbosity)
 
         if _config_args.get("parse_hw_resources") and (tbl_level != DR_ROOT_TBL_LEVEL):
             _str = _str + dr_parse_rules(self, verbosity, tabs)
+            if self.col_matcher_id != "0x0":
+                _str = _str + dr_parse_rules(_matchers.get(self.col_matcher_id), verbosity, tabs)
 
         return _str
 
@@ -74,7 +93,9 @@ class dr_parse_matcher():
         _fw_ste_indexes_arr.append(self.data["ste_0_id"])
         if _tbl_type_db.get(self.data.get("tbl_id")) == DR_TBL_TYPE_FDB:
             _fw_ste_indexes_arr.append(self.data["ste_1_id"])
-        _matchers.append(self)
+        _matchers[self.id] = self
+        if self.col_matcher_id != "0x0":
+            _col_matchers.append(self.col_matcher_id)
 
     def get_fw_ste_0_index(self):
         return self.data["ste_0_id"]
@@ -102,22 +123,6 @@ class dr_parse_matcher_attr():
 
     def fix_data(self):
         self.data["mode"] = "RULE" if self.data["mode"] == "0" else "HTABLE"
-
-
-class dr_parse_matcher_nic():
-    def __init__(self, data):
-        keys = ["mlx5dr_debug_res_type", "matcher_id", "rtc_id", "ste_obj_id"]
-        self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
-
-    def dump_str(self, verbosity):
-        if verbosity == 1:
-            return dump_obj_str(["mlx5dr_debug_res_type", "matcher_id",
-                                 "rtc_id"], self.data)
-        elif verbosity > 1:
-            return dump_obj_str(["mlx5dr_debug_res_type", "matcher_id",
-                                 "rtc_id", "ste_obj_id"], self.data)
-
-        return ""
 
 
 class dr_parse_matcher_template():
