@@ -54,7 +54,7 @@ def dr_parse_rules(matcher, verbosity, tabs):
     _str = ''
     prefix = ''
     _tabs = tabs + TAB
-    tbl_type = _tbl_type_db.get(int(matcher.data.get("tbl_id"), 16))
+    tbl_type = _tbl_type_db.get(matcher.data.get("tbl_id"))
     _range = 2 if (tbl_type == DR_TBL_TYPE_FDB) else 1
     _tbl_type = tbl_type
     for i in range(_range):

@@ -21,6 +21,8 @@ DR_TBL_TYPE_NIC_RX = 'NIC_RX'
 DR_TBL_TYPE_NIC_TX = 'NIC_TX'
 DR_TBL_TYPE_FDB = 'FDB'
 
+DR_ROOT_TBL_LEVEL = 0
+
 dr_table_type = [DR_TBL_TYPE_NIC_RX, DR_TBL_TYPE_NIC_TX, DR_TBL_TYPE_FDB]
 
 """ dump_obj_str(keys, data):

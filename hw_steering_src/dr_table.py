@@ -2,7 +2,7 @@
 #Copyright (c) 2021 NVIDIA CORPORATION. All rights reserved.
 
 from hw_steering_src.dr_common import *
-from hw_steering_src.dr_db import _tbl_type_db
+from hw_steering_src.dr_db import _tbl_type_db, _tbl_level_db
 
 
 class dr_parse_table():
@@ -10,7 +10,7 @@ class dr_parse_table():
         keys = ["mlx5dr_debug_res_type", "id", "ctx_id",
                 "ft_id", "type", "fw_ft_type", "level"]
         self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
-        self.id = int(self.data.get("id"), 16)
+        self.id = self.data.get("id")
         self.level = int(self.data.get("level"))
         self.fix_data()
         self.matchers = []
@@ -52,3 +52,4 @@ class dr_parse_table():
 
     def save_to_db(self):
         _tbl_type_db[self.id] = self.data.get("type")
+        _tbl_level_db[self.id] = self.level

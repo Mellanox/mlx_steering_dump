@@ -2,7 +2,7 @@
 #Copyright (c) 2021 NVIDIA CORPORATION. All rights reserved.
 
 from hw_steering_src.dr_common import *
-from hw_steering_src.dr_db import _fw_ste_indexes_arr, _matchers, _tbl_type_db, _config_args
+from hw_steering_src.dr_db import _fw_ste_indexes_arr, _matchers, _tbl_type_db, _config_args, _tbl_level_db
 from hw_steering_src.dr_rule import dr_parse_rules
 
 
@@ -45,14 +45,15 @@ class dr_parse_matcher():
     def tree_print(self, verbosity, tabs):
         _str = tabs + self.dump_str(verbosity)
         tabs = tabs + TAB
+        tbl_level = _tbl_level_db.get(self.data.get("tbl_id"))
 
         _str = _str + tabs + self.attr.dump_str(verbosity)
         if verbosity > 2:
             _str = _str + tabs + self.dump_matcher_resources(verbosity)
-        if self.template != None:
+        if (self.template != None) and (tbl_level != DR_ROOT_TBL_LEVEL):
             _str = _str + tabs + self.template.dump_str(tabs, verbosity)
 
-        if _config_args.get("parse_hw_resources"):
+        if _config_args.get("parse_hw_resources") and (tbl_level != DR_ROOT_TBL_LEVEL):
             _str = _str + dr_parse_rules(self, verbosity, tabs)
 
         return _str
@@ -71,7 +72,7 @@ class dr_parse_matcher():
 
     def save_to_db(self):
         _fw_ste_indexes_arr.append(self.data["ste_0_id"])
-        if _tbl_type_db.get(int(self.data.get("tbl_id"), 16)) == DR_TBL_TYPE_FDB:
+        if _tbl_type_db.get(self.data.get("tbl_id")) == DR_TBL_TYPE_FDB:
             _fw_ste_indexes_arr.append(self.data["ste_1_id"])
         _matchers.append(self)
 
