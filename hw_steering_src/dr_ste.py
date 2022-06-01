@@ -304,7 +304,15 @@ class dr_parse_ste():
     def dump_raw_ste(self, verbosity, tabs):
         _str = tabs + 'Raw STE:\n'
         tabs = tabs + TAB
-        _str += tabs + self.data.get("raw_ste") + '\n'
+        raw_ste = self.data.get("raw_ste")[2:]
+        _str += tabs + raw_ste[0:8] + ' ' + raw_ste[8:16] + ' '
+        _str += raw_ste[16:24] + ' ' + raw_ste[24:32] + '\n'
+        _str += tabs + raw_ste[32:40] + ' ' + raw_ste[40:48] + ' '
+        _str += raw_ste[48:56] + ' ' + raw_ste[56:64] + '\n'
+        _str += tabs + raw_ste[64:72] + ' ' + raw_ste[72:80] + ' '
+        _str += raw_ste[80:88] + ' ' + raw_ste[88:96] + '\n'
+        _str += tabs + raw_ste[96:104] + ' ' + raw_ste[104:112] + ' '
+        _str += raw_ste[112:120] + ' ' + raw_ste[120:128] + '\n'
 
         return _str
 
