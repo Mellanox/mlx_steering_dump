@@ -11,10 +11,17 @@ class dr_parse_table():
                 "ft_id", "type", "fw_ft_type", "level"]
         self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
         self.id = int(self.data.get("id"), 16)
+        self.level = int(self.data.get("level"))
         self.fix_data()
         self.matchers = []
         self.col_matcher_ids = {}
         self.save_to_db()
+
+    def __eq__(self, other):
+        return self.level == other.level
+
+    def __lt__(self, other):
+        return self.level < other.level
 
     def dump_str(self, verbosity):
         if verbosity == 0:
@@ -28,7 +35,7 @@ class dr_parse_table():
         _str = tabs + self.dump_str(verbosity)
         tabs = tabs + TAB
 
-        for m in self.matchers:
+        for m in sorted(self.matchers):
             if verbosity < 2 and m.data["id"] in self.col_matcher_ids:
                 continue
             _str = _str + m.tree_print(verbosity, tabs)

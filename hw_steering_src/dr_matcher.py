@@ -18,6 +18,15 @@ class dr_parse_matcher():
         self.template = None
         self.save_to_db()
 
+
+    def __eq__(self, other):
+        return self.attr.priority == other.attr.priority
+
+
+    def __lt__(self, other):
+        return self.attr.priority < other.attr.priority
+
+
     def dump_str(self, verbosity):
         _keys = ["mlx5dr_debug_res_type", "id"]
 
@@ -78,6 +87,7 @@ class dr_parse_matcher_attr():
         keys = ["mlx5dr_debug_res_type", "matcher_id", "priority",
                 "mode", "sz_row_log", "sz_col_log"]
         self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
+        self.priority = self.data.get("priority")
         self.fix_data()
 
     def dump_str(self, verbosity):

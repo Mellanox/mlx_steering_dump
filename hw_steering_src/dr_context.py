@@ -9,7 +9,7 @@ from hw_steering_src.dr_db import _config_args
 
 
 def get_mst_dev(rdma_dev_name):
-    output = sp.getoutput('sudo mst status -v')
+    output = sp.getoutput('mst status -v')
     output_arr = output.split('\n')
 
     for l in output_arr:
@@ -54,7 +54,7 @@ class dr_parse_context():
             for se in self.send_engine:
                 _str = _str + se.tree_print(verbosity, tabs)
 
-        for t in self.tables:
+        for t in sorted(self.tables):
             _str = _str + t.tree_print(verbosity, tabs)
 
         return _str
