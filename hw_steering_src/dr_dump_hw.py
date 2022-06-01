@@ -10,10 +10,14 @@ from hw_steering_src.dr_ste import dr_parse_ste, raw_ste_parser
 def parse_fw_ste_rd_bin_output(fw_ste_index, load_to_db, file):
     min_addr = '0xffffffff'
     max_addr = '0x00000000'
+    ste_dic = {}
+
     _config_args["tmp_file"] = open(_config_args.get("tmp_file_path"), 'rb+')
     bin_file = _config_args.get("tmp_file")
+
+    file.write(MLX5DR_DEBUG_RES_TYPE_FW_STE + ',' + fw_ste_index + '\n')
+
     data = bin_file.read(68)#There are 68B of prefix data before first STE dump
-    ste_dic = {}
     while data:
         data = hex(int.from_bytes(data, byteorder='big'))#Leading zeros will be ignored
         if data[2:8] == RESOURCE_DUMP_SEGMENT_TYPE_STE_BIN:
@@ -58,7 +62,6 @@ def call_resource_dump(dev, segment, index1, num_of_obj1, num_of_obj2, depth):
         _input += ' --bin ' + _config_args.get("tmp_file_path")
 
     output = sp.getoutput(_input)
-
     if (len(output) >= 10) and ('Error' in output[0:10]):
         print('MFT Error')
         exit()
