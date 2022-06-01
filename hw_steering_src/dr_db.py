@@ -11,7 +11,10 @@ _config_args = {}
 _definers = {}
 
 #Store matchers
-_matchers = []
+_matchers = {}
+
+#Store collision matchers ids
+_col_matchers = []
 
 #Store FT's indexes
 _ft_indexes_arr = []
