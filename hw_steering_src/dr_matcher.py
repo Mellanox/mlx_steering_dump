@@ -51,8 +51,6 @@ class dr_parse_matcher():
 
         if self.col_matcher_id != "0x0":
             col_matcher = _matchers.get(self.col_matcher_id)
-            print(self.col_matcher_id)
-            print(col_matcher)
             _str += tabs +"Resources (C): " + dump_obj_str(_keys, col_matcher.data)
 
         return _str
@@ -63,8 +61,11 @@ class dr_parse_matcher():
         _str = tabs + self.dump_str(verbosity)
         tabs = tabs + TAB
         tbl_level = _tbl_level_db.get(self.data.get("tbl_id"))
+        col_matcher = _matchers.get(self.col_matcher_id)
 
         _str = _str + tabs + self.attr.dump_str(verbosity)
+        if col_matcher:
+            _str = _str + tabs + col_matcher.attr.dump_str(verbosity).replace(':', ' (C):')
         if verbosity > 2:
             _str = _str + self.dump_matcher_resources(verbosity, tabs)
         if (self.template != None) and (tbl_level != DR_ROOT_TBL_LEVEL):
@@ -72,8 +73,8 @@ class dr_parse_matcher():
 
         if _config_args.get("parse_hw_resources") and (tbl_level != DR_ROOT_TBL_LEVEL):
             _str = _str + dr_parse_rules(self, verbosity, tabs)
-            if self.col_matcher_id != "0x0":
-                _str = _str + dr_parse_rules(_matchers.get(self.col_matcher_id), verbosity, tabs)
+            if col_matcher:
+                _str = _str + dr_parse_rules(col_matcher, verbosity, tabs)
 
         return _str
 
