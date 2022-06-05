@@ -14,6 +14,13 @@ for k in range(4, 16):
 tv_ipsec_layer = {0x0: "None", 0x1: "IPSECoIP", 0x2: "IPSECoUDP", 0x3: "Reserved"}
 tv_l2_type = {0x0: "unicast" ,0x1: "multicast", 0x2: "broadcast", 0x3: "Reserved"}
 tv_second_vlan_qualifier = {0x0: "None", 0x1: "s-vlan", 0x2: "c-vlan", 0x3: "g-vlan"}
+class tv_ip:
+    def get(self, ip):
+        i_0 = (ip & 0xff000000) >> 24
+        i_1 = (ip & 0x00ff0000) >> 16
+        i_2 = (ip & 0x0000ff00) >> 8
+        i_3 = ip & 0x000000ff
+        return '%d.%d.%d.%d' % (i_0, i_1, i_2, i_3)
 
 _fields_text_values = {
                         "l3_type_o": tv_l3_type,
@@ -32,6 +39,10 @@ _fields_text_values = {
                         "l2_type_i": tv_l2_type,
                         "second_vlan_qualifier_o": tv_second_vlan_qualifier,
                         "second_vlan_qualifier_i": tv_second_vlan_qualifier,
+                        "src_ip_o": tv_ip(),
+                        "src_ip_i": tv_ip(),
+                        "dst_ip_o": tv_ip(),
+                        "dst_ip_i": tv_ip(),
                         }
 
 
