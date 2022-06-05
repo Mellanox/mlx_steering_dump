@@ -4,7 +4,7 @@
 from hw_steering_src.dr_common import *
 from hw_steering_src.dr_db import _definers,_fw_ste_db
 from hw_steering_src.dr_hl import _fields_text_values
-
+from hw_steering_src.dr_action import action_pretiffy
 
 def dr_ste_parse_ste_actions_arr(action_arr):
     index = 0
@@ -19,83 +19,83 @@ def dr_ste_parse_ste_actions_arr(action_arr):
             index += 1
             action_dw_1 = action_arr[index]
             action = {"type" : "Copy"}
-            action["destination_dw_offset"] = action_dw_0[8 : 16]
-            action["destination_left_shifter"] = action_dw_0[18 : 24]
-            action["destination_length"] = action_dw_0[24 : 32]
-            action["source_dw_offset"] = action_dw_1[8 : 16]
-            action["source_right_shifter"] = action_dw_1[18 : 24]
+            action["destination_dw_offset"] = int(action_dw_0[8 : 16], 2)
+            action["destination_left_shifter"] = int(action_dw_0[18 : 24], 2)
+            action["destination_length"] = int(action_dw_0[24 : 32], 2)
+            action["source_dw_offset"] = int(action_dw_1[8 : 16], 2)
+            action["source_right_shifter"] = int(action_dw_1[18 : 24], 2)
             result.append(action)
         elif action_type == 0x6:
             index += 1
             action_dw_1 = action_arr[index]
             action = {"type" : "Set"}
-            action["destination_dw_offset"] = action_dw_0[8 : 16]
-            action["destination_left_shifter"] = action_dw_0[18 : 24]
-            action["destination_length"] = action_dw_0[24 : 32]
-            action["inline_data"] = action_dw_1
+            action["destination_dw_offset"] = int(action_dw_0[8 : 16], 2)
+            action["destination_left_shifter"] = int(action_dw_0[18 : 24], 2)
+            action["destination_length"] = int(action_dw_0[24 : 32], 2)
+            action["inline_data"] = int(action_dw_1, 2)
             result.append(action)
         elif action_type == 0x7:
             index += 1
             action_dw_1 = action_arr[index]
             action = {"type" : "Add"}
-            action["destination_dw_offset"] = action_dw_0[8 : 16]
-            action["destination_left_shifter"] = action_dw_0[18 : 24]
-            action["destination_length"] = action_dw_0[24 : 32]
-            action["add_value"] = action_dw_1
+            action["destination_dw_offset"] = int(action_dw_0[8 : 16], 2)
+            action["destination_left_shifter"] = int(action_dw_0[18 : 24], 2)
+            action["destination_length"] = int(action_dw_0[24 : 32], 2)
+            action["add_value"] = int(action_dw_1, 2)
             result.append(action)
         elif action_type == 0x8:
             action = {"type" : "Remove by size"}
-            action["start_anchor"] = action_dw_0[10 : 16]
-            action["outer_l4_removed"] = action_dw_0[16 : 17]
-            action["start_offset"] = action_dw_0[18 : 25]
-            action["size"] = action_dw_0[26 : 32]
+            action["start_anchor"] = int(action_dw_0[10 : 16], 2)
+            action["outer_l4_removed"] = int(action_dw_0[16 : 17], 2)
+            action["start_offset"] = int(action_dw_0[18 : 25], 2)
+            action["size"] = int(action_dw_0[26 : 32], 2)
             result.append(action)
         elif action_type == 0x9:
             action = {"type" : "remove header2header"}
-            action["start_anchor"] = action_dw_0[10 : 16]
-            action["end_anchor"] = action_dw_0[18 : 24]
-            action["decap"] = action_dw_0[28 : 29]
-            action["vni_to_cqe"] = action_dw_0[29 : 30]
-            action["qos_profile "] = action_dw_0[30 : 32]
+            action["start_anchor"] = int(action_dw_0[10 : 16], 2)
+            action["end_anchor"] = int(action_dw_0[18 : 24], 2)
+            action["decap"] = int(action_dw_0[28 : 29], 2)
+            action["vni_to_cqe"] = int(action_dw_0[29 : 30], 2)
+            action["qos_profile "] = int(action_dw_0[30 : 32], 2)
             result.append(action)
         elif action_type == 0xa:
             index += 1
             action_dw_1 = action_arr[index]
             action = {"type" : "insert with inline"}
-            action["start_anchor"] = action_dw_0[10 : 16]
-            action["end_anchor"] = action_dw_0[18 : 24]
-            action["insert_data_inline"] = action_dw_1[0 : 32]
+            action["start_anchor"] = int(action_dw_0[10 : 16], 2)
+            action["end_anchor"] = int(action_dw_0[18 : 24], 2)
+            action["insert_data_inline"] = int(action_dw_1[0 : 32], 2)
             result.append(action)
         elif action_type == 0xb:
             index += 1
             action_dw_1 = action_arr[index]
             action = {"type" : "insert with pointer"}
-            action["start_anchor"] = action_dw_0[10 : 16]
-            action["end_anchor"] = action_dw_0[18 : 24]
-            action["size"] = action_dw_0[24 : 29]
-            action["attributes"] = action_dw_0[29 : 32]
-            action["pointer"] = action_dw_1[0 : 32]
+            action["start_anchor"] = int(action_dw_0[10 : 16], 2)
+            action["end_anchor"] = int(action_dw_0[18 : 24], 2)
+            action["size"] = int(action_dw_0[24 : 29], 2)
+            action["attributes"] = int(action_dw_0[29 : 32], 2)
+            action["pointer"] = int(action_dw_1[0 : 32], 2)
             result.append(action)
         elif action_type == 0xc:
             action = {"type" : "flow tag"}
-            action["flow_tag"] = action_dw_0[8 : 32]
+            action["flow_tag"] = int(action_dw_0[8 : 32], 2)
             result.append(action)
         elif action_type == 0xe:
             index += 1
             action_dw_1 = action_arr[index]
             action = {"type" : "accelerated modify action list"}
-            action["modify_actions_pattern_pointer"] = action_dw_0[8 : 32]
-            action["number_of_modify_actions"] =  action_dw_1[0 : 8]
-            action["modify_actions_argument_pointer"] = action_dw_1[8 : 32]
+            action["modify_actions_pattern_pointer"] = int(action_dw_0[8 : 32], 2)
+            action["number_of_modify_actions"] =  int(action_dw_1[0 : 8], 2)
+            action["modify_actions_argument_pointer"] = int(action_dw_1[8 : 32], 2)
             result.append(action)
         elif action_type == 0x12:
             index += 1
             action_dw_1 = action_arr[index]
             action = {"type" : "ASO"}
-            action["aso_context_number"] = action_dw_0[8 : 32]
-            action["dest_reg_id"] = action_dw_1[0 : 2]
-            action["aso_context_type"] = action_dw_1[4 : 8]
-            action["aso_fields"] = action_dw_1[16 : 32]
+            action["aso_context_number"] = int(action_dw_0[8 : 32], 2)
+            action["dest_reg_id"] = int(action_dw_1[0 : 2], 2)
+            action["aso_context_type"] = int(action_dw_1[4 : 8], 2)
+            action["aso_fields"] = int(action_dw_1[16 : 32], 2)
             result.append(action)
 
         index += 1
@@ -112,7 +112,6 @@ def fields_handler(_fields, show_field_val=False):
                     "smac_15_0_i": 0, "dmac_47_16_i": 0, "dmac_15_0_i": 0,
                     "ipv6_address_127_96_i": 0, "ipv6_address_95_64_i": 0,
                     "ipv6_address_63_32_i": 0, "ipv6_address_31_0_i": 0}
-    fields_show_values = {}
 
     for field in _fields:
         _data = _fields.get(field)
@@ -272,23 +271,15 @@ class dr_parse_ste():
         flag = False
 
         for action in self.action_arr:
-            action_type = action.get("type")
-            if action_type == "NOPE":
-                continue
-            _str += _tabs + action_type + ': '
-            for field in action:
-                if field != "type":
-                    if flag:
-                        _str += ', '
-                    else:
-                        flag = True
-                    _str += field + ': ' + action.get(field)
-            _str += '\n'
+            action_str = action_pretiffy(action)
+            if action_str != '':
+                _str += _tabs + action_pretiffy(action)
+                flag = True
 
-        if flag == False:
+        if flag:
+            return _str
+        else:
             return ''
-
-        return _str
 
     def dump_fields(self, verbosity, tabs):
         _str = tabs + 'Tag:\n'
