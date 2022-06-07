@@ -32,7 +32,8 @@ switch_csv_res_type = {
     MLX5DR_DEBUG_RES_TYPE_TABLE: dr_parse_table,
     MLX5DR_DEBUG_RES_TYPE_MATCHER: dr_parse_matcher,
     MLX5DR_DEBUG_RES_TYPE_MATCHER_ATTR: dr_parse_matcher_attr,
-    MLX5DR_DEBUG_RES_TYPE_MATCHER_TEMPLATE: dr_parse_matcher_template,
+    MLX5DR_DEBUG_RES_TYPE_MATCHER_MATCH_TEMPLATE: dr_parse_matcher_match_template,
+    MLX5DR_DEBUG_RES_TYPE_MATCHER_ACTION_TEMPLATE: dr_parse_matcher_action_template,
     MLX5DR_DEBUG_RES_TYPE_DEFINER: dr_parse_definer,
     MLX5DR_DEBUG_RES_TYPE_FW_STE: dr_parse_fw_ste,
     MLX5DR_DEBUG_RES_TYPE_STE: dr_parse_ste,
@@ -96,9 +97,11 @@ def dr_parse_csv_file(csv_file, load_to_db):
             last_table.add_matcher(obj)
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_MATCHER_ATTR:
             last_matcher.add_attr(obj)
-        elif line[0] == MLX5DR_DEBUG_RES_TYPE_MATCHER_TEMPLATE:
+        elif line[0] == MLX5DR_DEBUG_RES_TYPE_MATCHER_MATCH_TEMPLATE:
             last_matcher_template = obj
-            last_matcher.add_template(obj)
+            last_matcher.add_match_template(obj)
+        elif line[0] == MLX5DR_DEBUG_RES_TYPE_MATCHER_ACTION_TEMPLATE:
+            last_matcher.add_action_template(obj)
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_DEFINER:
             last_matcher_template.add_definer(obj)
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_HW_RRESOURCES_DUMP_START:

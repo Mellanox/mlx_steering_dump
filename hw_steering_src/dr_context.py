@@ -22,7 +22,7 @@ def get_mst_dev(rdma_dev_name):
 class dr_parse_context():
     def __init__(self, data):
         keys = ["mlx5dr_debug_res_type", "id", "hws_support",
-                "dev_name", "package_version"]
+                "dev_name", "debug_version"]
         self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
         self.fix_data()
         self.tables = []
@@ -33,12 +33,13 @@ class dr_parse_context():
         if _config_args.get("dump_hw_resources") and _config_args.get("device") == None:
             get_mst_dev(self.data.get("dev_name"))
 
+
     def load_to_db(self):
         _config_args["dev_name"] = self.data.get("dev_name");
 
     def dump_str(self, verbosity):
         return dump_obj_str(["mlx5dr_debug_res_type", "id",
-                             "hws_support", "dev_name", "package_version"],
+                             "hws_support", "dev_name", "debug_version"],
                              self.data)
 
     def tree_print(self, verbosity, tabs):

@@ -10,16 +10,45 @@ from hw_steering_src.dr_rule import dr_parse_rules
 class dr_parse_matcher():
     def __init__(self, data):
         keys = ["mlx5dr_debug_res_type", "id", "tbl_id", "num_of_mt",
-                "end_ft_id", "col_matcher_id", "rtc_0_id", "ste_0_id",
-                "rtc_1_id", "ste_1_id"]
+                "end_ft_id", "col_matcher_id", "match_rtc_0_id", "match_ste_0_id",
+                "match_rtc_1_id", "match_ste_1_id", "action_rtc_0_id", "action_ste_0_id",
+                "action_rtc_1_id", "action_ste_1_id"]
         self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
         self.id = self.data.get("id")
         self.nic_rx = None
         self.nic_tx = None
         self.attr = None
-        self.template = None
+        self.match_template = None
+        self.action_templates = []
         self.col_matcher_id = self.data.get("col_matcher_id")
+        self.match_ste_0_id = None
+        self.match_ste_1_id = None
+        self.action_ste_0_id = None
+        self.action_ste_1_id = None
+        self.fix_data()
         self.save_to_db()
+
+
+    def fix_data(self):
+        tbl_level = _tbl_level_db.get(self.data.get("tbl_id"))
+        if tbl_level == DR_ROOT_TBL_LEVEL:
+            return
+
+        ste_id = self.data.get("match_ste_0_id")
+        if ste_id != '-1':
+            self.match_ste_0_id = ste_id
+
+        ste_id = self.data.get("match_ste_1_id")
+        if ste_id != '-1':
+            self.match_ste_1_id = ste_id
+
+        ste_id = self.data.get("action_ste_0_id")
+        if ste_id != '-1':
+            self.action_ste_0_id = ste_id
+
+        ste_id = self.data.get("action_ste_1_id")
+        if ste_id != '-1':
+            self.action_ste_1_id = ste_id
 
 
     def __eq__(self, other):
@@ -40,12 +69,18 @@ class dr_parse_matcher():
 
         return dump_obj_str(_keys, self.data)
 
-    def dump_matcher_resources(self, verbosity, tabs):
-        _keys = ["rtc_0_id", "ste_0_id"]
 
-        tbl_level = _tbl_level_db.get(self.data.get("tbl_id"))
-        if tbl_level == DR_TBL_TYPE_FDB:
-            _keys.extend(["rtc_1_id", "ste_1_id"])
+    def dump_matcher_resources(self, verbosity, tabs):
+        _keys = ["match_rtc_0_id", "match_ste_0_id"]
+
+        if self.match_ste_1_id != None:
+            _keys.extend(["match_rtc_1_id", "match_ste_1_id"])
+
+        if self.action_ste_0_id != None:
+            _keys.extend(["action_rtc_0_id", "action_ste_0_id"])
+
+        if self.action_ste_1_id != None:
+            _keys.extend(["action_rtc_1_id", "action_ste_1_id"])
 
         _str = tabs + "Resources: " + dump_obj_str(_keys, self.data)
 
@@ -68,8 +103,12 @@ class dr_parse_matcher():
             _str = _str + tabs + col_matcher.attr.dump_str(verbosity).replace(':', ' (C):')
         if verbosity > 2:
             _str = _str + self.dump_matcher_resources(verbosity, tabs)
-        if (self.template != None) and (tbl_level != DR_ROOT_TBL_LEVEL):
-            _str = _str + tabs + self.template.dump_str(tabs, verbosity)
+
+        if tbl_level != DR_ROOT_TBL_LEVEL:
+            if self.match_template != None:
+                _str = _str + tabs + self.match_template.dump_str(tabs, verbosity)
+            for at in self.action_templates:
+                _str = _str + tabs + at.dump_str(tabs, verbosity)
 
         if _config_args.get("parse_hw_resources") and (tbl_level != DR_ROOT_TBL_LEVEL):
             _str = _str + dr_parse_rules(self, verbosity, tabs)
@@ -87,22 +126,36 @@ class dr_parse_matcher():
     def add_nic_tx(self, nic_tx):
         self.nic_tx = nic_tx
 
-    def add_template(self, template):
-        self.template = template
+    def add_match_template(self, template):
+        self.match_template = template
+
+    def add_action_template(self, template):
+        self.action_templates.append(template)
 
     def save_to_db(self):
-        _fw_ste_indexes_arr.append(self.data["ste_0_id"])
-        if _tbl_type_db.get(self.data.get("tbl_id")) == DR_TBL_TYPE_FDB:
-            _fw_ste_indexes_arr.append(self.data["ste_1_id"])
+        if self.match_ste_0_id != None:
+            _fw_ste_indexes_arr.append(self.match_ste_0_id)
+
+        if self.match_ste_1_id != None:
+             _fw_ste_indexes_arr.append(self.match_ste_1_id)
+
+        if self.action_ste_0_id != None:
+            _fw_ste_indexes_arr.append(self.action_ste_0_id)
+
+        if self.action_ste_1_id != None:
+            _fw_ste_indexes_arr.append(self.action_ste_1_id)
+
         _matchers[self.id] = self
+
         if self.col_matcher_id != "0x0":
             _col_matchers.append(self.col_matcher_id)
 
+
     def get_fw_ste_0_index(self):
-        return self.data["ste_0_id"]
+        return self.match_ste_0_id
 
     def get_fw_ste_1_index(self):
-        return self.data["ste_1_id"]
+        return self.match_ste_1_id
 
 
 class dr_parse_matcher_attr():
@@ -126,7 +179,7 @@ class dr_parse_matcher_attr():
         self.data["mode"] = "RULE" if self.data["mode"] == "0" else "HTABLE"
 
 
-class dr_parse_matcher_template():
+class dr_parse_matcher_match_template():
     def __init__(self, data):
         keys = ["mlx5dr_debug_res_type", "id", "matcher_id", "fc_sz", "flags"]
         self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
@@ -152,3 +205,28 @@ class dr_parse_matcher_template():
 
     def add_definer(self, definer):
         self.definer = definer
+
+
+class dr_parse_matcher_action_template():
+    def __init__(self, data):
+        keys = ["mlx5dr_debug_res_type", "id", "matcher_id", "only_term",
+                "num_of_action_stes", "num_of_actions"]
+        self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
+        self.num_actions = int(self.data.get("num_of_actions"))
+        if self.num_actions > 0:
+            self.data["action_combinations"] = data[6]#Actions combinations start index is 6
+            for ac in data[7:]:#Actions combinations start index is 6, 7 for the second
+                self.data["action_combinations"] += ', ' + ac
+
+    def dump_str(self, tabs, verbosity):
+        _keys = ["mlx5dr_debug_res_type", "id"]
+        if verbosity > 2:
+            _keys.extend(["num_of_actions", "only_term", "num_of_action_stes"])
+
+        _tabs = tabs + TAB
+        _str = dump_obj_str(_keys, self.data)
+
+        if self.num_actions > 0:
+            _str += _tabs + 'Action combinations: ' + self.data.get("action_combinations") + '\n'
+
+        return _str
