@@ -247,6 +247,8 @@ if __name__ == "__main__":
         if verbose > 0:
             print_unsupported_obj_list()
 
+    except OSError as e:
+        print(e)
     except:
         print("")
 
