@@ -99,12 +99,12 @@ class dr_parse_matcher():
         col_matcher = _matchers.get(self.col_matcher_id)
 
         _str = _str + tabs + self.attr.dump_str(verbosity)
-        if col_matcher:
-            _str = _str + tabs + col_matcher.attr.dump_str(verbosity).replace(':', ' (C):')
-        if verbosity > 2:
-            _str = _str + self.dump_matcher_resources(verbosity, tabs)
 
         if tbl_level != DR_ROOT_TBL_LEVEL:
+            if col_matcher and verbosity > 0:
+                _str = _str + tabs + col_matcher.attr.dump_str(verbosity).replace(':', ' (C):')
+            if verbosity > 0:
+                _str = _str + self.dump_matcher_resources(verbosity, tabs)
             if self.match_template != None:
                 _str = _str + tabs + self.match_template.dump_str(tabs, verbosity)
             for at in self.action_templates:
