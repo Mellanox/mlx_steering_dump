@@ -85,9 +85,11 @@ class dr_parse_definer():
             hl_byte_index = int(self.data[byte_selector], 16)
             hl_dw_index = int(hl_byte_index / DW_SZ_IN_BYTES)
             hl_byte_offset = hl_byte_index % DW_SZ_IN_BYTES
-            mask = (hl_byte_offset * BYTE_SZ) * "0" #Add prefix zeros for the mask
+            #Add prefix zeros for the mask
+            mask = (hl_byte_offset * BYTE_SZ) * "0"
             mask += hex_to_bin_str(self.data["byte_mask_tag_" + str(i)], BYTE_SZ)
-            mask += ((3 - hl_byte_offset) * BYTE_SZ) * "0" #Add suffix zeros for the mask
+            #Add suffix zeros for the mask
+            mask += ((3 - hl_byte_offset) * BYTE_SZ) * "0"
 
             fields_dic[byte_selector] = dr_hl_dw_parser(hl_dw_index, mask)
 
@@ -101,13 +103,15 @@ class dr_parse_definer():
         for i in range(_len):
             self.data["dw_selector_" + str(_len - (i + 1))] = dw_selector_arr[-(i + 1)]
             self.data["dw_mask_tag_" + str(_len - (i + 1))] = "0x" + self.data["mask_tag"][count: count + 8]
-            count += 8 #8 chars represents a 32 bit in hex
+            #8 chars represents a 32 bit in hex
+            count += 8
 
         _len = len(byte_selector_arr)
         for i in range(_len):
             self.data["byte_selector_" + str(_len - (i + 1))] = byte_selector_arr[-(i + 1)]
             self.data["byte_mask_tag_" + str(_len - (i + 1))] = "0x" + self.data["mask_tag"][count: count + 2]
-            count += 2 #2 chars represents byte in hex
+            #2 chars represents byte in hex
+            count += 2
 
     def parse_data(self):
         self.parse_selectors_and_mask()

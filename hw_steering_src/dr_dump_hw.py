@@ -17,9 +17,11 @@ def parse_fw_ste_rd_bin_output(fw_ste_index, load_to_db, file):
 
     file.write(MLX5DR_DEBUG_RES_TYPE_FW_STE + ',' + fw_ste_index + '\n')
 
-    data = bin_file.read(68)#There are 68B of prefix data before first STE dump
+    #There are 68B of prefix data before first STE dump
+    data = bin_file.read(68)
     while data:
-        data = hex(int.from_bytes(data, byteorder='big'))#Leading zeros will be ignored
+        #Leading zeros will be ignored
+        data = hex(int.from_bytes(data, byteorder='big'))
         if data[2:8] == RESOURCE_DUMP_SEGMENT_TYPE_STE_BIN:
             ste = '0x' + data[32:]
             hit_add = ste[32 : 41]
@@ -37,7 +39,8 @@ def parse_fw_ste_rd_bin_output(fw_ste_index, load_to_db, file):
                     if ste_addr > max_addr:
                         max_addr = ste_addr
 
-        data = bin_file.read(80)#Each STE dump contain 64B(STE) + 16(STE prefix)
+        #Each STE dump contain 64B(STE) + 16(STE prefix)
+        data = bin_file.read(80)
 
     bin_file.close()
     _config_args["tmp_file"] = None
@@ -63,6 +66,7 @@ def call_resource_dump(dev, segment, index1, num_of_obj1, num_of_obj2, depth):
 
     output = sp.getoutput(_input)
     if (len(output) >= 10) and ('Error' in output[0:10]):
+        print(output)
         print('MFT Error')
         exit()
 
@@ -95,12 +99,14 @@ def parse_fw_ste_rd_output(data, fw_ste_index, load_to_db, file):
                         max_addr = ste_addr
 
     if load_to_db:
+        #Save the STE's to FW STE DB
         _fw_ste_db[fw_ste_index] = ste_dic
+        #Save the STE's range for this FW STE
         _stes_range_db[fw_ste_index] = (min_addr, max_addr)
 
 
 def dump_hw_resources(load_to_db, dev, file):
-    #Dump FW STE's, and save the range into
+    #Dump FW STE's
     for fw_ste_index in _fw_ste_indexes_arr:
         output = call_resource_dump(dev, "FW_STE", fw_ste_index, None, 'all', None)
         if _config_args.get("resourcedump_mem_mode"):

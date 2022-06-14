@@ -179,10 +179,10 @@ def ste_hit_addr_calc(next_table_base_63_48, next_table_base_39_32, next_table_b
 
     return hit_addr
 
-#This function parses the takes an input an STE raw data
-#in HEX represintation and extracts the relevant data
+#This function input is raw STE data in hexa, and
+#extracts the matching data.
 def raw_ste_parser(raw_ste):
-    #convert STE to binary
+    #Convert STE to binary
     ste = {}
     raw_ste = hex_to_bin_str(raw_ste, STE_SIZE_IN_BITS)
     
@@ -199,7 +199,7 @@ def raw_ste_parser(raw_ste):
     next_table_base_31_5 = int(raw_ste[128 : 155], 2)
     ste["hit_addr"] = hex(ste_hit_addr_calc(next_table_base_63_48, next_table_base_39_32, next_table_base_31_5))
 
-    #get definer
+    #Get definer
     definer = _definers.get(ste["match_definer_context_index"])
     definer_fields = definer.get_definer_matching_fields()
 
