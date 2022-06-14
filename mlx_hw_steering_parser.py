@@ -144,8 +144,8 @@ def env_destroy():
         tmp_file.close()
 
 
-#Check environment capabilities
-def env_caps():
+#Check and validate environment capabilities
+def validate_env_caps():
     p_v = sys.version[0:1]
     dump_hw_res = _config_args.get("dump_hw_resources")
     if dump_hw_res:
@@ -228,7 +228,7 @@ def parse_args():
 if __name__ == "__main__":
     try:
         parse_args()
-        env_caps()
+        validate_env_caps()
         env_init()
         file_path = _config_args.get("file_path")
         verbose = _config_args.get("verbose")
