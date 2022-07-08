@@ -161,8 +161,15 @@ class dr_parse_matcher():
 class dr_parse_matcher_attr():
     def __init__(self, data):
         keys = ["mlx5dr_debug_res_type", "matcher_id", "priority",
-                "mode", "sz_row_log", "sz_col_log"]
+                "mode", "sz_row_log", "sz_col_log", "use_rule_idx",
+                "flow_src"]
         self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
+        if self.data["flow_src"] == "1":
+            self.data["flow_src"]  = "FDB ingress"
+        elif self.data["flow_src"] == "2":
+            self.data["flow_src"]  = "FDB egress"
+        else:
+            self.data["flow_src"]  = "default"
         self.priority = self.data.get("priority")
         self.fix_data()
 
@@ -170,7 +177,7 @@ class dr_parse_matcher_attr():
         if verbosity > 0:
             return dump_obj_str(["mlx5dr_debug_res_type",
                                  "priority", "mode", "sz_row_log",
-                                 "sz_col_log"], self.data)
+                                 "sz_col_log", "flow_src"], self.data)
 
         return dump_obj_str(["mlx5dr_debug_res_type",
                              "priority", "mode"], self.data)
