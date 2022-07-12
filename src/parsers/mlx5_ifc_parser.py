@@ -481,24 +481,29 @@ def mlx5_ifc_encap_decap(bin_str):
         ret["src_ip"] = pretty_ip(bin_str[length + IPV4_HDR_LEN - 16 : length + IPV4_HDR_LEN - 8])
         ret["dst_ip"] = pretty_ip(bin_str[length + IPV4_HDR_LEN - 8  : length + IPV4_HDR_LEN])
         length += IPV4_HDR_LEN
-    else :
+    elif ret["ethtype"] == '86dd':
         ret["ip_type"] = (bin_str[length + IPV6_HDR_LEN - 68 + off: length + IPV6_HDR_LEN - 66 + off])  # udp/ip
         ret["src_ip"] = pretty_ip('0x' + bin_str[length + IPV6_HDR_LEN - 64 : length + IPV6_HDR_LEN - 32])
         ret["dst_ip"] = pretty_ip('0x' + bin_str[length + IPV6_HDR_LEN - 32 : length + IPV6_HDR_LEN])
         length += IPV6_HDR_LEN
+    else:
+        return
 
+    if _len < (length + UDP_HDR_LEN + VXLAN_HDR_LEN):
+        return
     ret["udp_port"] = int(bin_str[length + UDP_HDR_LEN - 12 : length + UDP_HDR_LEN - 8], 16)
     length += UDP_HDR_LEN
-    ret["flag"] = (bin_str[length + VXLAN_HDR_LEN - 16 : length + VXLAN_HDR_LEN - 8])
+    ret["flag"] = bin_str[length + VXLAN_HDR_LEN - 16 : length + VXLAN_HDR_LEN - 14]
+    ret["proto"] = int(bin_str[length + VXLAN_HDR_LEN - 10 : length + VXLAN_HDR_LEN - 8], 16)
     ret["vni"] = int(bin_str[length + VXLAN_HDR_LEN - 8 : length + VXLAN_HDR_LEN-2], 16)
     if has_vlan:
-        str = "vxlan tnl_push(dmac=%s, smac=%s, vid=%s, sip=%s, dip=%s, port=%s, vni=%s)" % \
+        str = "vxlan tnl_push(dmac=%s, smac=%s, vid=%s, sip=%s, dip=%s, port=%s, vni=%s, flag=0x%s, proto=%s)" % \
                            (ret["dmac"], ret["smac"], ret["vid"], ret["src_ip"], ret["dst_ip"],
-                           ret["udp_port"], ret["vni"])
+                           ret["udp_port"], ret["vni"], ret["flag"], ret["proto"])
     else:
-        str = "vxlan tnl_push(dmac=%s, smac=%s, vlan null, sip=%s, dip=%s, port=%s, vni=%s)" % \
+        str = "vxlan tnl_push(dmac=%s, smac=%s, vlan null, sip=%s, dip=%s, port=%s, vni=%s, flag=0x%s, proto=%s)" % \
                            (ret["dmac"], ret["smac"], ret["src_ip"], ret["dst_ip"],
-                           ret["udp_port"], ret["vni"])
+                           ret["udp_port"], ret["vni"], ret["flag"], ret["proto"])
     return str
 
 def int_repl(match):
