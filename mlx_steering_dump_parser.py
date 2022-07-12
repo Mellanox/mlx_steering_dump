@@ -201,6 +201,7 @@ def parse_domain(csv_reader, domain_obj=None, verbose=0):
             dump_ctx.rule.add_action(dr_obj)
             if dr_rec_type in [DR_DUMP_REC_TYPE_ACTION_ENCAP_L2,
                                DR_DUMP_REC_TYPE_ACTION_ENCAP_L3,
+                               DR_DUMP_REC_TYPE_ACTION_DECAP_L3,
                                DR_DUMP_REC_TYPE_ACTION_CTR,
                                DR_DUMP_REC_TYPE_ACTION_MODIFY_HDR]:
                dr_obj.add_dump_ctx(dump_ctx)

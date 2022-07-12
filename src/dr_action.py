@@ -156,8 +156,15 @@ class dr_dump_action_decap_l3(dr_obj):
         keys = ["dr_dump_rec_type", "id", "rule_id", "rewrite_index"]
         self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
 
+    def add_dump_ctx(self, dump_ctx):
+        self.dump_ctx = dump_ctx
+
     def dump_str(self):
-        return "DECAP_L3, rewrite index %s" % (_srd(self.data, "rewrite_index"))
+        if ( (_srd(self.data, "id")) in self.dump_ctx.encap_decap.keys()):
+           out_str = self.dump_ctx.encap_decap[(_srd(self.data, "id"))]
+        else:
+           out_str = "parse l3decap error!"
+        return "DECAP_L3(%s), rewrite index %s" % (out_str, _srd(self.data, "rewrite_index"))
 
 
 class dr_dump_action_encap_l2(dr_obj):
