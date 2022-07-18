@@ -93,6 +93,7 @@ switch_csv_rec_type = {
     DR_DUMP_REC_TYPE_PMD_ACTION_PKT_REFORMAT: dr_dump_encap_decap,
     DR_DUMP_REC_TYPE_PMD_ACTION_COUNTER: dr_dump_counter,
     DR_DUMP_REC_TYPE_PMD_ACTION_MODIFY_HDR: dr_dump_modify_hdr,
+    DR_DUMP_REC_TYPE_ACTION_ROOT_FT: dr_dump_action_root_ft,
 }
 
 unsupported_obj_list = []

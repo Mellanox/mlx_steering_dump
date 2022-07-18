@@ -333,3 +333,12 @@ class dr_dump_modify_hdr(dr_obj):
 
     def dump_str(self):
         return "modify_hdr"
+
+class dr_dump_action_root_ft(dr_obj):
+    def __init__(self, data):
+        keys = ["dr_dump_rec_type", "id", "rule_id", "ft_id"]
+        self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
+
+    def dump_str(self):
+        return "ROOT FT ID=%s" % (_srd(self.data, "ft_id"))
+
