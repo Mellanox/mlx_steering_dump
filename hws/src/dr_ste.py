@@ -1,10 +1,10 @@
 #SPDX-License-Identifier: BSD-3-Clause
 #Copyright (c) 2021 NVIDIA CORPORATION. All rights reserved.
 
-from hw_steering_src.dr_common import *
-from hw_steering_src.dr_db import _definers,_fw_ste_db
-from hw_steering_src.dr_hl import _fields_text_values
-from hw_steering_src.dr_action import action_pretiffy
+from src.dr_common import *
+from src.dr_db import _definers,_fw_ste_db
+from src.dr_hl import _fields_text_values
+from src.dr_action import action_pretiffy
 
 def dr_ste_parse_ste_actions_arr(action_arr):
     index = 0

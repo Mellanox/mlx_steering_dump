@@ -1,10 +1,10 @@
 #SPDX-License-Identifier: BSD-3-Clause
 #Copyright (c) 2021 NVIDIA CORPORATION. All rights reserved.
 
-from hw_steering_src.dr_common import *
-from hw_steering_src.dr_db import _fw_ste_indexes_arr, _matchers, _tbl_type_db,\
-                                _config_args, _tbl_level_db, _col_matchers
-from hw_steering_src.dr_rule import dr_parse_rules
+from src.dr_common import *
+from src.dr_db import _fw_ste_indexes_arr, _matchers, _tbl_type_db,\
+                      _config_args, _tbl_level_db, _col_matchers
+from src.dr_rule import dr_parse_rules
 
 
 class dr_parse_matcher():

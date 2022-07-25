@@ -1,10 +1,10 @@
 #SPDX-License-Identifier: BSD-3-Clause
 #Copyright (c) 2021 NVIDIA CORPORATION. All rights reserved.
 
-from hw_steering_src.dr_common import *
-from hw_steering_src.dr_hl import *
-from hw_steering_src.dr_db import _definers
-from hw_steering_src.dr_ste import fields_handler
+from src.dr_common import *
+from src.dr_hl import *
+from src.dr_db import _definers
+from src.dr_ste import fields_handler
 
 
 class dr_parse_definer():

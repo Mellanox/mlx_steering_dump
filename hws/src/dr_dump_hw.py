@@ -2,9 +2,9 @@
 #Copyright (c) 2021 NVIDIA CORPORATION. All rights reserved.
 
 import subprocess as sp
-from hw_steering_src.dr_common import *
-from hw_steering_src.dr_db import _fw_ste_indexes_arr, _fw_ste_db, _stes_range_db, _config_args
-from hw_steering_src.dr_ste import dr_parse_ste, raw_ste_parser
+from src.dr_common import *
+from src.dr_db import _fw_ste_indexes_arr, _fw_ste_db, _stes_range_db, _config_args
+from src.dr_ste import dr_parse_ste, raw_ste_parser
 
 
 def parse_fw_ste_rd_bin_output(fw_ste_index, load_to_db, file):
