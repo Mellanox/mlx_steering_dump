@@ -1,7 +1,7 @@
 #SPDX-License-Identifier: BSD-3-Clause
 #Copyright (c) 2021 NVIDIA CORPORATION. All rights reserved.
 
-from hw_steering_src.dr_common import *
+from src.dr_common import *
 
 
 def action_pretiffy(action):

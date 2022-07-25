@@ -1,8 +1,8 @@
 #SPDX-License-Identifier: BSD-3-Clause
 #Copyright (c) 2021 NVIDIA CORPORATION. All rights reserved.
 
-from hw_steering_src.dr_common import *
-from hw_steering_src.dr_db import _fw_ste_indexes_arr, _fw_ste_db, _stes_range_db
+from src.dr_common import *
+from src.dr_db import _fw_ste_indexes_arr, _fw_ste_db, _stes_range_db
 
 class dr_parse_fw_ste():
     def __init__(self, data):
