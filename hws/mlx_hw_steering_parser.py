@@ -107,6 +107,7 @@ def dr_parse_csv_file(csv_file, load_to_db):
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_HW_RRESOURCES_DUMP_START:
             if not(load_to_db):
                 return ctx
+            _config_args["hw_resources_present"] = True
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_FW_STE:
             if last_fw_ste != None:
                 last_fw_ste.add_stes_range(min_ste_addr, max_ste_addr)
@@ -171,16 +172,16 @@ def parse_args():
                                      add_help=False)
     parser.add_argument("-f", dest="file_path", default="", help="Input steering dump file path.")
     parser.add_argument("-v", action="count", dest="verbose", default=0, help="Increase output verbosity - v, vv, vvv & vvvv for extra verbosity.")
-    parser.add_argument("-hw", action="store_true", default=False, dest="dump_hw_resources",
-                        help="Dump HW resources (must specify a device with -d).")
+    parser.add_argument("-skip_hw", action="store_false", default=True, dest="dump_hw_resources",
+                        help="Skip HW resources dumping.")
+    parser.add_argument("-skip_parse", action="store_false", default=True, dest="hw_parse",
+                        help="Skip HW dumped resources parsing.")
     parser.add_argument("-d", dest="device", type=str, default="",
-                        help="Provide MST device.")
+                        help="Provide MST device for HW resources dumping.")
     parser.add_argument("-pid", dest="dpdk_pid", type=int, default=-1,
                         help="Trigger DPDK app <PID>.")
     parser.add_argument("-port", dest="dpdk_port", type=int, default=0,
                         help="Trigger DPDK app <PORT> (must provide PID with -pid).")
-    parser.add_argument("-hw_parse", action="store_true", default=False, dest="hw_parse",
-                        help="Parse HW dumped resources.")
     parser.add_argument('-h', '--help', action='help', default=argparse.SUPPRESS,
                         help='Show this help message and exit.')
 
@@ -223,6 +224,7 @@ def parse_args():
         _config_args["verbose"] = args.verbose
 
     _config_args["resourcedump_mem_mode"] = False
+    _config_args["hw_resources_present"] = False
 
 
 if __name__ == "__main__":
@@ -234,13 +236,18 @@ if __name__ == "__main__":
         verbose = _config_args.get("verbose")
 
         csv_file = open(file_path, 'r+')
-        obj = dr_parse_csv_file(csv_file, _config_args.get("load_hw_resources"))
+        load_to_db = False if _config_args.get("dump_hw_resources") else _config_args.get("load_hw_resources")
+        obj = dr_parse_csv_file(csv_file, load_to_db)
         csv_file.close()
 
-        if dump_hw_resources:
+        if _config_args.get("dump_hw_resources"):
             csv_file = open(_config_args.get("file_path"), 'a+')
             dr_hw_data_engine(obj, csv_file)
             csv_file.close()
+        else:
+            if _config_args.get("hw_resources_present") == False:
+                _config_args["parse_hw_resources"] = False
+                _config_args["load_hw_resources"] = False
 
         print(obj.tree_print(verbose, ""))
 
