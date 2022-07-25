@@ -9,17 +9,17 @@ import argparse
 import csv
 import time
 
-from hw_steering_src import dr_trigger
-from hw_steering_src.dr_common import *
-from hw_steering_src.dr_context import *
-from hw_steering_src.dr_table import *
-from hw_steering_src.dr_matcher import *
-from hw_steering_src.dr_definer import *
-from hw_steering_src.dr_dump_hw import *
-from hw_steering_src.dr_rule import *
-from hw_steering_src.dr_hw_resources import *
-from hw_steering_src.dr_ste import *
-from hw_steering_src.dr_db import _config_args
+from src import dr_trigger
+from src.dr_common import *
+from src.dr_context import *
+from src.dr_table import *
+from src.dr_matcher import *
+from src.dr_definer import *
+from src.dr_dump_hw import *
+from src.dr_rule import *
+from src.dr_hw_resources import *
+from src.dr_ste import *
+from src.dr_db import _config_args
 
 
 # mapping csv records types to it's relevant parser function
