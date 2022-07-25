@@ -1,7 +1,7 @@
 #SPDX-License-Identifier: BSD-3-Clause
 #Copyright (c) 2021 NVIDIA CORPORATION. All rights reserved.
 
-from hw_steering_src.dr_common import *
+from src.dr_common import *
 
 #Define dictionaries for fields text values(tv) according to PRM
 tv_l3_type = {0x0: "None", 0x1: "IPv4", 0x2: "IPv6", 0x3: "Reserved"}

@@ -4,8 +4,8 @@
 
 import subprocess as sp
 
-from hw_steering_src.dr_common import *
-from hw_steering_src.dr_db import _config_args
+from src.dr_common import *
+from src.dr_db import _config_args
 
 
 def get_mst_dev(rdma_dev_name):
