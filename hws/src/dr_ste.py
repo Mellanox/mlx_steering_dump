@@ -199,10 +199,6 @@ def raw_ste_parser(raw_ste):
     next_table_base_31_5 = int(raw_ste[128 : 155], 2)
     ste["hit_addr"] = hex(ste_hit_addr_calc(next_table_base_63_48, next_table_base_39_32, next_table_base_31_5))
 
-    #Get definer
-    definer = _definers.get(ste["match_definer_context_index"])
-    definer_fields = definer.get_definer_matching_fields()
-
     dw_selector_8 = raw_ste[160 : 192]
     dw_selector_7 = raw_ste[192 : 224]
     dw_selector_6 = raw_ste[224 : 256]
@@ -223,6 +219,14 @@ def raw_ste_parser(raw_ste):
     if (ste["entry_format"] == STE_ENTRY_TYPE_JUMBO_MATCH):
         tags.update(extra_tags)
 
+    #Get definer
+    definer = _definers.get(ste["match_definer_context_index"])
+    if definer == None:
+        ste["parsed_tag"] = {}
+        return ste
+
+    definer_fields = definer.get_definer_matching_fields()
+
     #Add prefix and suffix zeros for the mask of bytes to complete to DW
     tags["byte_selector_7"] = raw_ste[448 : 456] + (24 * '0')
     tags["byte_selector_6"] = (8 * '0') + raw_ste[456 : 464] + (16 * '0')
@@ -234,7 +238,7 @@ def raw_ste_parser(raw_ste):
     tags["byte_selector_0"] = (24 * '0') + raw_ste[504 : 512]
 
     parsed_tag = {}
-    
+
     for selector in definer_fields:
         selector_arr = definer_fields[selector]
         count = 0
