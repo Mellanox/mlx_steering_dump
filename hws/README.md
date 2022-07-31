@@ -1,9 +1,9 @@
 # mlx_hw_steering_parser.py
 > This is HW steering parser and triggering for dump files in **CSV
-> format**.
+> format**. 
 > This tool triggers the app to dump the app specific data,
 > and also triggers the HW to dump the app HW data.
-
+> 
 How to trigger the HW steering dump
 ===================================
 The dump can be triggered by calling the dump API directly via:
@@ -14,22 +14,14 @@ Also it can be triggered for a DPDK app via:
     python mlx_hw_steering_dump_parser.py -p <DPDK PID> -f <dump_file>
 
 **Example:**
-
- - Triggering the Dump from a DPDK app, with dumping HW resources and
-   parsing them. (For more data to show you need to pass more
-   verbosity, for example for RAW STE you need pass -vvv):
-
-		/mlx_hw_steering_dump_parser.py -p <DPDK PID> -f <dump_file> -v
-
- - Developer: May need more data to be shown, so increase verbosity,
-                for example for RAW STE you need pass -vvv.
-
-        /mlx_hw_steering_dump_parser.py -p <DPDK PID> -f <dump_file> -vvv
-
- - Customer: May not need to parse the data and just have raw data.
+ - Developer triggering and parsing a dump with HW resources from a DPDK app:
  
-        /mlx_hw_steering_dump_parser.py -p <DPDK PID> -f <dump_file> -skip_parse
-
+        ./mlx_hw_steering_dump_parser.py -p <DPDK PID> -f <dump_file> -vvv
+   
+ - Customer producing a dump for developers to debug:
+ 
+        ./mlx_hw_steering_dump_parser.py -p <DPDK PID> -f <dump_file> -skip_parse
+  
  - For only parsing a dump CSV file:
 
         ./mlx_hw_steering_dump_parser.py -f <dump_file> -skip_hw -v
@@ -39,8 +31,8 @@ Also it can be triggered for a DPDK app via:
 Running syntax
 ==============
 
-    ./mlx_hw_steering_parser.py [-f FILE_PATH] [-v] [-hw] [-d DEVICE]
-                                [-pid DPDK_PID] [-port DPDK_PORT] [-hw_parse]
+    ./mlx_hw_steering_parser.py [-f FILE_PATH] [-v] [-skip_hw] [-d DEVICE]
+                                [-pid DPDK_PID] [-port DPDK_PORT] [-skip_parse]
                                 [-h]
 
 ***optional arguments:***
@@ -61,5 +53,5 @@ Required package
  - Python3
  - Scapy
  - Cython
- - Pyverbs (Install RDMA-CORE after Cython)
+ - Pyverbs (Install RDMA-CORE after Cython, planned to be removed in August release)
  - MFT (Version 4.21 or higher)
