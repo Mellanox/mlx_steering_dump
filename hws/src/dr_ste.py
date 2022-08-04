@@ -152,7 +152,11 @@ def raw_ste_parser(raw_ste):
             if (field != None):
                 tag_value = int(field[1], 2) & int(tag[count : count + len(field[1])], 2)
                 if tag_value != 0:
-                    parsed_tag[field[0]] = tag_value
+                    pre_tag = parsed_tag.get(field[0])
+                    if pre_tag != None:
+                        parsed_tag[field[0]] = pre_tag | tag_value
+                    else:
+                        parsed_tag[field[0]] = tag_value
                 count += len(field[1])
 
     ste["parsed_tag"] = parsed_tag
