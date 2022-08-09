@@ -160,7 +160,12 @@ class dr_dump_matcher_rx_tx(dr_obj):
 
 class dr_dump_matcher_builder(dr_obj):
     def __init__(self, data):
+        ofed_keys = ["dr_dump_rec_type", "matcher_id", "is_rx", "lu_type", "definer_id"]
         keys = ["dr_dump_rec_type", "matcher_id", "index", "is_rx", "lu_type", "definer_id"]
+
+        if len(data) != len(keys):
+            keys = ofed_keys
+
         self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
 
     def dump_string(self):
