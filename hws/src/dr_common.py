@@ -97,6 +97,19 @@ class_name_arr = {
 }
 
 
+DR_ACTION_NOPE = 0x0
+DR_ACTION_COPY = 0x5
+DR_ACTION_SET = 0x6
+DR_ACTION_ADD = 0x7
+DR_ACTION_REMOVE_BY_SIZE = 0x8
+DR_ACTION_REMOVE_HEADER2HEADER = 0x9
+DR_ACTION_INSERT_INLINE = 0xa
+DR_ACTION_INSERT_POINTER = 0xb
+DR_ACTION_FLOW_TAG = 0xc
+DR_ACTION_COUNTER = 0xd
+DR_ACTION_ACCELERATED_MODIFY_LIST = 0xe
+DR_ACTION_ASO = 0x12
+
 def hex_to_bin_str(_n, _len):
     n = str(bin(int(_n, 16)))[2:]
     z = (_len - len(n)) * "0"
