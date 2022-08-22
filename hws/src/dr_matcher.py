@@ -18,7 +18,7 @@ class dr_parse_matcher():
         self.nic_rx = None
         self.nic_tx = None
         self.attr = None
-        self.match_template = None
+        self.match_template = []
         self.action_templates = []
         self.col_matcher_id = self.data.get("col_matcher_id")
         self.match_ste_0_id = None
@@ -105,8 +105,8 @@ class dr_parse_matcher():
                 _str = _str + tabs + col_matcher.attr.dump_str(verbosity).replace(':', ' (C):')
             if verbosity > 0:
                 _str = _str + self.dump_matcher_resources(verbosity, tabs)
-            if self.match_template != None:
-                _str = _str + tabs + self.match_template.dump_str(tabs, verbosity)
+            for mt in self.match_template:
+                _str = _str + tabs + mt.dump_str(tabs, verbosity)
             for at in self.action_templates:
                 _str = _str + tabs + at.dump_str(tabs, verbosity)
 
@@ -127,7 +127,7 @@ class dr_parse_matcher():
         self.nic_tx = nic_tx
 
     def add_match_template(self, template):
-        self.match_template = template
+        self.match_template.append(template)
 
     def add_action_template(self, template):
         self.action_templates.append(template)
