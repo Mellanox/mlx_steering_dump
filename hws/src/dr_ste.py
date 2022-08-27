@@ -132,15 +132,15 @@ def raw_ste_parser(raw_ste):
 
     definer_fields = definer.get_definer_matching_fields()
 
-    #Add prefix and suffix zeros for the mask of bytes to complete to DW
-    tags["byte_selector_7"] = raw_ste[448 : 456] + (24 * '0')
-    tags["byte_selector_6"] = (8 * '0') + raw_ste[456 : 464] + (16 * '0')
-    tags["byte_selector_5"] = (16 * '0') + raw_ste[464 : 472] + (8 * '0')
-    tags["byte_selector_4"] = (24 * '0') + raw_ste[472 : 480]
-    tags["byte_selector_3"] = raw_ste[480 : 488] + (24 * '0')
-    tags["byte_selector_2"] = (8 * '0') + raw_ste[488 : 496] + (16 * '0')
-    tags["byte_selector_1"] = (16 * '0') + raw_ste[496 : 504] + (8 * '0')
-    tags["byte_selector_0"] = (24 * '0') + raw_ste[504 : 512]
+    #Build the mask tag according to definer byte_mask_tag_functions lambda functions to get the correct fields
+    tags["byte_selector_7"] = definer.byte_mask_tag_functions.get("byte_selector_7")(raw_ste[448 : 456])
+    tags["byte_selector_6"] = definer.byte_mask_tag_functions.get("byte_selector_6")(raw_ste[456 : 464])
+    tags["byte_selector_5"] = definer.byte_mask_tag_functions.get("byte_selector_5")(raw_ste[464 : 472])
+    tags["byte_selector_4"] = definer.byte_mask_tag_functions.get("byte_selector_4")(raw_ste[472 : 480])
+    tags["byte_selector_3"] = definer.byte_mask_tag_functions.get("byte_selector_3")(raw_ste[480 : 488])
+    tags["byte_selector_2"] = definer.byte_mask_tag_functions.get("byte_selector_2")(raw_ste[488 : 496])
+    tags["byte_selector_1"] = definer.byte_mask_tag_functions.get("byte_selector_1")(raw_ste[496 : 504])
+    tags["byte_selector_0"] = definer.byte_mask_tag_functions.get("byte_selector_0")(raw_ste[504 : 512])
 
     parsed_tag = {}
 

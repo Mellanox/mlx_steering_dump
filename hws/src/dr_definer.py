@@ -6,6 +6,8 @@ from src.dr_hl import *
 from src.dr_db import _definers
 from src.dr_ste import fields_handler
 
+def byte_mask_builder(hl_byte_offset):
+    return lambda byte_tag : ((hl_byte_offset * BYTE_SZ) * "0") + byte_tag + (((3 - hl_byte_offset) * BYTE_SZ) * "0")
 
 class dr_parse_definer():
     def __init__(self, data):
@@ -15,6 +17,7 @@ class dr_parse_definer():
         self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
         self.dw_fields = None
         self.byte_fields = None
+        self.byte_mask_tag_functions = {}
         self.fix_data()
         self.parse_data()
         self.save_to_db()
@@ -82,15 +85,20 @@ class dr_parse_definer():
 
         for i in range(BYTE_SELECTORS):
             byte_selector = "byte_selector_" + str(i)
+            #Check byte mask tag if zero then continue assigning empty array
+            byte_mask_tag = hex_to_bin_str(self.data["byte_mask_tag_" + str(i)], BYTE_SZ)
+            if int(byte_mask_tag, 2) == 0:
+                self.byte_mask_tag_functions[byte_selector] = lambda byte_tag : 32 * "0"
+                fields_dic[byte_selector] = []
+                continue
             hl_byte_index = int(self.data[byte_selector], 16)
             hl_dw_index = int(hl_byte_index / DW_SZ_IN_BYTES)
             hl_byte_offset = hl_byte_index % DW_SZ_IN_BYTES
-            #Add prefix zeros for the mask
-            mask = (hl_byte_offset * BYTE_SZ) * "0"
-            mask += hex_to_bin_str(self.data["byte_mask_tag_" + str(i)], BYTE_SZ)
-            #Add suffix zeros for the mask
-            mask += ((3 - hl_byte_offset) * BYTE_SZ) * "0"
-
+            #Define Lambda function which creates the mask tag
+            mask_func = byte_mask_builder(hl_byte_offset)
+            self.byte_mask_tag_functions[byte_selector] = mask_func
+            #create mask tag
+            mask = mask_func(byte_mask_tag)
             fields_dic[byte_selector] = dr_hl_dw_parser(hl_dw_index, mask)
 
         return fields_dic
