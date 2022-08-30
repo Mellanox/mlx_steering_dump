@@ -19,7 +19,6 @@ def dr_action_copy_parser(action_arr, index):
     return (2, action_pretiffy(action))
 
 def dr_action_set_parser(action_arr, index):
-    print(index)
     action_dw_0 = action_arr[index]
     action_dw_1 = action_arr[index + 1]
     action = {"type" : "Set"}
