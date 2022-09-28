@@ -8,7 +8,7 @@ from src.dr_db import _tbl_type_db, _tbl_level_db
 class dr_parse_table():
     def __init__(self, data):
         keys = ["mlx5dr_debug_res_type", "id", "ctx_id",
-                "ft_id", "type", "fw_ft_type", "level"]
+                "ft_id", "type", "fw_ft_type", "level", "local_ft_id"]
         self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
         self.id = self.data.get("id")
         self.level = int(self.data.get("level"))
@@ -29,7 +29,7 @@ class dr_parse_table():
                                  "type", "level"], self.data)
 
         return dump_obj_str(["mlx5dr_debug_res_type", "id", "ctx_id", "type",
-                             "level", "ft_id"], self.data)
+                             "level", "ft_id", "local_ft_id"], self.data)
 
     def tree_print(self, verbosity, tabs):
         _str = tabs + self.dump_str(verbosity)

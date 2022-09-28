@@ -50,7 +50,7 @@ def parse_fw_ste_rd_bin_output(fw_ste_index, load_to_db, file):
         _stes_range_db[fw_ste_index] = (min_addr, max_addr)
 
 
-def call_resource_dump(dev, segment, index1, num_of_obj1, num_of_obj2, depth):
+def call_resource_dump(dev, dev_name, segment, index1, num_of_obj1, num_of_obj2, depth):
     _input = 'resourcedump dump -d ' + dev
     _input += ' --segment ' + segment
     _input += ' --index1 ' + index1
@@ -61,7 +61,7 @@ def call_resource_dump(dev, segment, index1, num_of_obj1, num_of_obj2, depth):
     if depth != None:
         _input += ' --depth=' + depth
     if _config_args.get("resourcedump_mem_mode"):
-        _input += ' --mem ' + _config_args.get("dev_name")
+        _input += ' --mem ' + dev_name
         _input += ' --bin ' + _config_args.get("tmp_file_path")
 
     output = sp.getoutput(_input)
@@ -105,10 +105,10 @@ def parse_fw_ste_rd_output(data, fw_ste_index, load_to_db, file):
         _stes_range_db[fw_ste_index] = (min_addr, max_addr)
 
 
-def dump_hw_resources(load_to_db, dev, file):
+def dump_hw_resources(load_to_db, dev, dev_name, file):
     #Dump FW STE's
     for fw_ste_index in _fw_ste_indexes_arr:
-        output = call_resource_dump(dev, "FW_STE", fw_ste_index, None, 'all', None)
+        output = call_resource_dump(dev, dev_name, "FW_STE", fw_ste_index, None, 'all', None)
         if _config_args.get("resourcedump_mem_mode"):
             parse_fw_ste_rd_bin_output(fw_ste_index, load_to_db, file)
         else:
@@ -118,11 +118,16 @@ def dump_hw_resources(load_to_db, dev, file):
 def dr_hw_data_engine(obj, file):
     if _config_args.get("dump_hw_resources"):
         load_to_db = _config_args.get("load_hw_resources")
-        device = _config_args.get("device")
-        if device == None:
-            print('Unknown MST device')
-            exit()
+        dev = _config_args.get("shared_device")
+        if dev == None:
+            dev = _config_args.get("device")
+            if dev == None:
+                print('Unknown MST device')
+                exit()
+            dev_name = _config_args.get("dev_name")
+        else:
+            dev_name = _config_args.get("shared_dev_name")
 
         file.write(MLX5DR_DEBUG_RES_TYPE_HW_RRESOURCES_DUMP_START + '\n')
-        dump_hw_resources(load_to_db, device, file)
+        dump_hw_resources(load_to_db, dev, dev_name, file)
         file.write(MLX5DR_DEBUG_RES_TYPE_HW_RRESOURCES_DUMP_END + '\n')
