@@ -12,7 +12,7 @@ class dr_parse_matcher():
         keys = ["mlx5dr_debug_res_type", "id", "tbl_id", "num_of_mt",
                 "end_ft_id", "col_matcher_id", "match_rtc_0_id", "match_ste_0_id",
                 "match_rtc_1_id", "match_ste_1_id", "action_rtc_0_id", "action_ste_0_id",
-                "action_rtc_1_id", "action_ste_1_id"]
+                "action_rtc_1_id", "action_ste_1_id", "aliased_rtc_0_id"]
         self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
         self.id = self.data.get("id")
         self.nic_rx = None
@@ -25,6 +25,7 @@ class dr_parse_matcher():
         self.match_ste_1_id = None
         self.action_ste_0_id = None
         self.action_ste_1_id = None
+        self.aliased_rtc_0_id = None
         self.fix_data()
         self.save_to_db()
 
@@ -50,6 +51,10 @@ class dr_parse_matcher():
         if ste_id != '-1':
             self.action_ste_1_id = ste_id
 
+        aliased_rtc_0_id = self.data.get("aliased_rtc_0_id")
+        if aliased_rtc_0_id != None and aliased_rtc_0_id != '0':
+            self.aliased_rtc_0_id = aliased_rtc_0_id
+
 
     def __eq__(self, other):
         return self.attr.priority == other.attr.priority
@@ -73,6 +78,8 @@ class dr_parse_matcher():
     def dump_matcher_resources(self, verbosity, tabs):
         _keys = ["match_rtc_0_id", "match_ste_0_id"]
 
+        if self.aliased_rtc_0_id != None:
+            _keys.append("aliased_rtc_0_id")
         if self.match_ste_1_id != None:
             _keys.extend(["match_rtc_1_id", "match_ste_1_id"])
 
