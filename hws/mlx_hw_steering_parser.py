@@ -19,7 +19,7 @@ from src.dr_dump_hw import *
 from src.dr_rule import *
 from src.dr_hw_resources import *
 from src.dr_ste import *
-from src.dr_db import _config_args
+from src.dr_db import _config_args, _stc_indexes_arr, _term_dest_db
 
 
 # mapping csv records types to it's relevant parser function
@@ -37,6 +37,8 @@ switch_csv_res_type = {
     MLX5DR_DEBUG_RES_TYPE_DEFINER: dr_parse_definer,
     MLX5DR_DEBUG_RES_TYPE_FW_STE: dr_parse_fw_ste,
     MLX5DR_DEBUG_RES_TYPE_STE: dr_parse_ste,
+    MLX5DR_DEBUG_RES_TYPE_ADDRESS: dr_parse_address,
+    MLX5DR_DEBUG_RES_TYPE_CONTEXT_STC: dr_parse_stc,
 }
 
 unsupported_obj_list = []
@@ -78,6 +80,9 @@ def dr_parse_csv_file(csv_file, load_to_db):
                 min_ste_addr = ste_addr
             if ste_addr > max_ste_addr:
                 max_ste_addr = ste_addr
+        elif line[0] == MLX5DR_DEBUG_RES_TYPE_ADDRESS:
+            if load_to_db:
+                obj.load_to_db()
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_CONTEXT:
             ctx = obj
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_CONTEXT_ATTR:
@@ -104,6 +109,8 @@ def dr_parse_csv_file(csv_file, load_to_db):
             last_matcher.add_action_template(obj)
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_DEFINER:
             last_matcher_template.add_definer(obj)
+        elif line[0] == MLX5DR_DEBUG_RES_TYPE_CONTEXT_STC:
+            obj.load_to_db()
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_HW_RRESOURCES_DUMP_START:
             if not(load_to_db):
                 return ctx

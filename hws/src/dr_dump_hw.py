@@ -3,8 +3,43 @@
 
 import subprocess as sp
 from src.dr_common import *
-from src.dr_db import _fw_ste_indexes_arr, _fw_ste_db, _stes_range_db, _config_args
+from src.dr_db import _fw_ste_indexes_arr, _fw_ste_db, _stes_range_db, _config_args, _term_dest_db, _stc_indexes_arr
 from src.dr_ste import dr_parse_ste, raw_ste_parser
+from src.dr_hw_resources import dr_parse_fw_stc_action_get_obj_id, dr_parse_fw_stc_get_addr
+
+
+def parse_fw_stc_rd_bin_output(stc_index, load_to_db, file):
+    _dests = {}
+    _config_args["tmp_file"] = open(_config_args.get("tmp_file_path"), 'rb+')
+    bin_file = _config_args.get("tmp_file")
+    stc = ''
+
+    #There are 68B of prefix data before first STC dump
+    data = bin_file.read(68)
+    while data:
+        #Leading zeros will be ignored
+        data = hex(int.from_bytes(data, byteorder='big'))
+        data_type = data[2:8]
+        if data_type == RESOURCE_DUMP_SEGMENT_TYPE_STC_BIN:
+            stc = '0x' + data[32:]
+            data = bin_file.read(48)
+            continue
+        elif data_type[:-1] == RESOURCE_DUMP_SEGMENT_TYPE_ACTION_STC_BIN:
+            stc_action = '0x' + data[31:]
+            obj = dr_parse_fw_stc_action_get_obj_id(stc_action)
+            if obj != None:
+                addr = dr_parse_fw_stc_get_addr(stc)
+                write_line = '%s,%s,%s,%s\n' % (MLX5DR_DEBUG_RES_TYPE_ADDRESS, addr, obj.get("type"), obj.get("id"))
+                file.write(write_line)
+                _dests[addr] = obj
+
+        data = bin_file.read(80)
+
+    bin_file.close()
+    _config_args["tmp_file"] = None
+
+    if load_to_db:
+        _term_dest_db.update(_dests)
 
 
 def parse_fw_ste_rd_bin_output(fw_ste_index, load_to_db, file):
@@ -106,6 +141,10 @@ def parse_fw_ste_rd_output(data, fw_ste_index, load_to_db, file):
 
 
 def dump_hw_resources(load_to_db, dev, dev_name, file):
+    for stc_index in _stc_indexes_arr:
+        output = call_resource_dump(dev, dev_name, "STC", stc_index, None, 'all', None)
+        parse_fw_stc_rd_bin_output(stc_index, load_to_db, file)
+
     #Dump FW STE's
     for fw_ste_index in _fw_ste_indexes_arr:
         output = call_resource_dump(dev, dev_name, "FW_STE", fw_ste_index, None, 'all', None)
