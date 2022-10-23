@@ -2,7 +2,7 @@
 #Copyright (c) 2021 NVIDIA CORPORATION. All rights reserved.
 
 from src.dr_common import *
-from src.dr_db import _definers,_fw_ste_db
+from src.dr_db import _definers,_fw_ste_db, _term_dest_db
 from src.dr_hl import _fields_text_values
 from src.dr_action import action_pretiffy,dr_ste_parse_ste_actions_arr
 
@@ -187,6 +187,11 @@ class dr_parse_ste():
             if action != '':
                 _str += _tabs + action
                 flag = True
+
+        obj = _term_dest_db.get(self.hit_addr)
+        if obj != None:
+            _str += _tabs + obj.get("type") + ': ' + obj.get("id") + '\n'
+            flag = True
 
         if flag:
             return _str
