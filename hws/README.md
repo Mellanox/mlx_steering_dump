@@ -51,7 +51,4 @@ Required package
 ===================
 **For dumping the app HW resources:**
  - Python3
- - Scapy
- - Cython
- - Pyverbs (Install RDMA-CORE after Cython, planned to be removed in August release)
- - MFT (Version 4.21 or higher)
+ - MFT (Version 4.22.0-80 or higher)
