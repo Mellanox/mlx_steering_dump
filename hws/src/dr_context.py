@@ -5,7 +5,7 @@
 import subprocess as sp
 
 from src.dr_common import *
-from src.dr_db import _config_args
+from src.dr_db import _config_args, _definers
 
 
 def get_mst_dev(rdma_dev_name):
@@ -110,8 +110,14 @@ class dr_parse_context_caps():
                 "flex_parser_id_gtpu_teid", "flex_parser_id_gtpu_dw_2",
                 "flex_parser_id_gtpu_first_ext_dw_0", "nic_ft_max_level",
                 "nic_ft_reparse", "fdb_ft_max_level", "fdb_ft_reparse",
-                "log_header_modify_argument_granularity"]
+                "log_header_modify_argument_granularity",
+                "linear_match_definer", "linear_match_definer_field_name"]
         self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
+        _config_args["linear_match_definer"] = self.data.get("linear_match_definer")
+        _config_args["linear_match_definer_field_name"] = self.data.get("linear_match_definer_field_name")
+        if _config_args.get("linear_match_definer") != None:
+            #Add to _definers DB as None so in STE parsing tag parsing will be skipped
+            _definers[int(_config_args.get("linear_match_definer"))] = None
 
     def dump_str(self, verbosity):
         _keys = ["mlx5dr_debug_res_type", "ctx_id"]
@@ -129,7 +135,9 @@ class dr_parse_context_caps():
                           "flex_parser_id_gtpu_first_ext_dw_0",
                           "nic_ft_max_level", "nic_ft_reparse",
                           "fdb_ft_max_level", "fdb_ft_reparse",
-                          "log_header_modify_argument_granularity"])
+                          "log_header_modify_argument_granularity",
+                          "linear_match_definer",
+                          "linear_match_definer_field_name"])
 
         return dump_obj_str(_keys, self.data)
 
