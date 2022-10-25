@@ -169,7 +169,7 @@ class dr_parse_matcher_attr():
     def __init__(self, data):
         keys = ["mlx5dr_debug_res_type", "matcher_id", "priority",
                 "mode", "sz_row_log", "sz_col_log", "use_rule_idx",
-                "flow_src"]
+                "flow_src", "insertion", "distribution"]
         self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
         if self.data["flow_src"] == "1":
             self.data["flow_src"]  = "FDB ingress"
@@ -184,13 +184,16 @@ class dr_parse_matcher_attr():
         if verbosity > 0:
             return dump_obj_str(["mlx5dr_debug_res_type",
                                  "priority", "mode", "sz_row_log",
-                                 "sz_col_log", "flow_src"], self.data)
+                                 "sz_col_log", "flow_src", "insertion",
+                                 "distribution"], self.data)
 
         return dump_obj_str(["mlx5dr_debug_res_type",
                              "priority", "mode"], self.data)
 
     def fix_data(self):
         self.data["mode"] = "RULE" if self.data["mode"] == "0" else "HTABLE"
+        self.data["insertion"] = "INDEX" if self.data.get("insertion") == "1" else "HASH"
+        self.data["distribution"] = "LINEAR" if self.data.get("distribution") == "1" else "HASH"
 
 
 class dr_parse_matcher_match_template():
