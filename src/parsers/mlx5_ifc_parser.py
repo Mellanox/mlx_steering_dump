@@ -4,7 +4,7 @@
 from socket import ntohl
 
 from src import dr_prettify
-from src.dr_utilities import hex_2_bin
+from src.dr_utilities import hex_2_bin, to_hex
 import ctypes
 import re
 from src.dr_prettify import pretty_ip, pretty_mac
@@ -17,7 +17,7 @@ def little_endian_32(hex_str):
 
 def get_bits_at(data, i, j, m, n):
     bin_val = hex_2_bin(data[i: j])
-    bin_val = hex(int(bin_val[m: n], 2))
+    bin_val = to_hex(int(bin_val[m: n], 2))
     return bin_val
 
 
