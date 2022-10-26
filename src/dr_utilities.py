@@ -173,3 +173,6 @@ def hex_2_bin(hex_str):
     return bin_str
 
 
+#Use the % for printing instead of hex() func here to not get the trailing L for Long numbers
+def to_hex(_int):
+    return "0x%x" % _int

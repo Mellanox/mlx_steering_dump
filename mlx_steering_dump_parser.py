@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 
 # Copyright (c) 2020 Mellanox Technologies, Inc.  All rights reserved.
 #
