@@ -94,6 +94,7 @@ switch_csv_rec_type = {
     DR_DUMP_REC_TYPE_PMD_ACTION_COUNTER: dr_dump_counter,
     DR_DUMP_REC_TYPE_PMD_ACTION_MODIFY_HDR: dr_dump_modify_hdr,
     DR_DUMP_REC_TYPE_ACTION_ROOT_FT: dr_dump_action_root_ft,
+    DR_DUMP_REC_TYPE_ACTION_MATCH_RANGE: dr_dump_action_match_range,
 }
 
 unsupported_obj_list = []

@@ -342,3 +342,19 @@ class dr_dump_action_root_ft(dr_obj):
     def dump_str(self):
         return "ROOT FT ID=%s" % (_srd(self.data, "ft_id"))
 
+
+class dr_dump_action_match_range(dr_obj):
+    def __init__(self, data):
+        keys = ["dr_dump_rec_type", "id", "rule_id",
+                "hit_table_devx_id", "hit_ft",
+                "miss_table_devx_id", "miss_ft", "definer_id"]
+        self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
+
+    def dump_str(self):
+        return "Hit FT devx id %s, hit_ft %s, Miss FT devx id %s, miss_ft %s, definer id %s" % (
+            _srd(self.data, "hit_table_devx_id"),
+            _srd(self.data, "hit_ft"),
+            _srd(self.data, "miss_table_devx_id"),
+            _srd(self.data, "miss_ft"),
+            _srd(self.data, "definer_id"))
+
