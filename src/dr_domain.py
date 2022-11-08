@@ -107,7 +107,7 @@ class dr_dump_domain(dr_obj):
 
     def fix_data(self):
         self.data["type"] = domain_type_str(self.data["type"])
-        self.data["gvmi"] = "0x" + str(int(self.data["gvmi"], 16))
+        self.data["gvmi"] = hex(int(self.data["gvmi"], 16))
         self.data["support_sw_steering"] = True if self.data["support_sw_steering"] is "1" else False
 
     def add_table(self, table):
