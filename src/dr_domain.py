@@ -51,7 +51,7 @@ def domain_type_str(type_str):
 
 class dr_dump_domain(dr_obj):
     def __init__(self, data):
-        keys = ["dr_dump_rec_type", "id", "type", "gvmi", "support_sw_steering", "package_version", "dev_name"]
+        keys = ["dr_dump_rec_type", "id", "type", "gvmi", "support_sw_steering", "package_version", "dev_name", "flags", "num_ste_buddy", "num_mh_buddy", "num_ptrn_buddy"]
         self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
         self.fix_data()
         self.table_list = []
@@ -62,13 +62,17 @@ class dr_dump_domain(dr_obj):
         self.flex_parsers = []
 
     def dump_str(self):
-        return "domain %s: type: %s, gvmi: %s, support_sw_steering %s, dev_name %s, package_version %s\n" % (
+        return "domain %s: type: %s, gvmi: %s, support_sw_steering %s, dev_name %s, package_version %s, flags %s, ste_buddies %s, mh_buddies %s, ptrn_buddies %s\n" % (
             _srd(self.data, "id"),
             _srd(self.data, "type"),
             _srd(self.data, "gvmi"),
             _srd(self.data, "support_sw_steering"),
             _srd(self.data, "dev_name"),
-            _srd(self.data, "package_version"))
+            _srd(self.data, "package_version"),
+            _srd(self.data, "flags"),
+            _srd(self.data, "num_ste_buddy"),
+            _srd(self.data, "num_mh_buddy"),
+            _srd(self.data, "num_ptrn_buddy"))
 
     def print_tree_view(self, dump_ctx, verbose, raw):
         print_dr(dr_print_color.DOMAIN, self.dump_str())
