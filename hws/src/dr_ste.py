@@ -90,7 +90,7 @@ def raw_ste_parser(raw_ste):
     #Convert STE to binary
     ste = {}
     raw_ste = hex_to_bin_str(raw_ste, STE_SIZE_IN_BITS)
-    
+
     ste["entry_format"] = int(raw_ste[0 : 8], 2)
     ste["counter_id"] = int(raw_ste[8 : 32], 2)
     miss_address_63_48 = int(raw_ste[32 : 48], 2)

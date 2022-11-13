@@ -11,7 +11,7 @@ class dr_parse_rule():
         self.rx_ste_arr = []
         self.tx_ste_arr = []
 
-        
+
     def dump_str(self, verbosity):
         return 'Rule:\n'
 
