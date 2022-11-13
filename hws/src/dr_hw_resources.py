@@ -44,7 +44,7 @@ class dr_parse_address():
         return self.data.get('id')
 
     def load_to_db(self):
-        _term_dest_db[self.get_addr()] = {'type': self.get_type(), 'id': self.get_id()}
+        _term_dest_db[self.get_addr()] = {'type': self.get_type(), 'id': int(self.get_id(), 16)}
 
 class dr_parse_stc():
     def __init__(self, data):

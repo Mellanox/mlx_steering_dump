@@ -79,7 +79,7 @@ def fields_handler(_fields, show_field_val=False):
 
 def ste_hit_addr_calc(next_table_base_63_48, next_table_base_39_32, next_table_base_31_5):
     hit_addr = next_table_base_39_32 << 32
-    hit_addr |= next_table_base_31_5
+    hit_addr |= (next_table_base_31_5 << 5)
     hit_addr = (hit_addr >> 6) & 0xffffffff
 
     return hit_addr
@@ -173,10 +173,18 @@ class dr_parse_ste():
         self.miss_addr = parsed_ste["miss_addr"]
         self.fields_dic = parsed_ste.get("parsed_tag")
         self.action_arr = parsed_ste.get("actions")
+        self.fix_data()
 
-    def dump_str(self, verbosity, prefix='STE '):
-        _str = prefix + self.data.get("id") + ':\n'
-        return _str
+    def fix_data(self):
+        obj = _term_dest_db.get(self.hit_addr)
+        if obj != None:
+            self.action_arr.append(action_pretiffy(obj))
+
+    def dump_str(self, verbosity, prefix='STE ', ste_info=True):
+        _str = prefix
+        if ste_info:
+            _str += self.data.get("id")
+        return _str + ':\n'
 
     def dump_actions(self, verbosity, tabs):
         _str = tabs + 'Actions:\n'
@@ -187,11 +195,6 @@ class dr_parse_ste():
             if action != '':
                 _str += _tabs + action
                 flag = True
-
-        obj = _term_dest_db.get(self.hit_addr)
-        if obj != None:
-            _str += _tabs + obj.get("type") + ': ' + obj.get("id") + '\n'
-            flag = True
 
         if flag:
             return _str
@@ -224,8 +227,8 @@ class dr_parse_ste():
 
         return _str
 
-    def tree_print(self, verbosity, tabs, prefix=None):
-        _str = tabs + self.dump_str(verbosity, prefix)
+    def tree_print(self, verbosity, tabs, prefix=None, ste_info=True):
+        _str = tabs + self.dump_str(verbosity, prefix, ste_info)
         tabs = tabs + TAB
 
         _str += self.dump_fields(verbosity, tabs)

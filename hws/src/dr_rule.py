@@ -23,9 +23,31 @@ class dr_parse_rule():
             self.tx_ste_arr.append(ste)
 
 
+    def compress_stes(self, verbosity, tabs, rx):
+        _str = ""
+        _ste = None
+        ste_arr = self.rx_ste_arr if rx else self.tx_ste_arr
+
+	for ste in ste_arr:
+            if _ste == None:
+                _ste = ste
+            else:
+                _ste.fields_dic.update(ste.fields_dic)
+                _ste.action_arr.extend(ste.action_arr)
+        if _ste != None:
+            _str += _ste.tree_print(verbosity, tabs, 'RX' if rx else 'TX', False)
+
+	return _str
+
+
     def tree_print(self, verbosity, tabs):
         _str = tabs + self.dump_str(verbosity)
         tabs = tabs + TAB
+
+        if verbosity < 3:
+            _str += self.compress_stes(verbosity, tabs, True)
+            _str += self.compress_stes(verbosity, tabs, False)
+            return _str
 
         for ste in self.rx_ste_arr:
             _str += ste.tree_print(verbosity, tabs, 'RX STE ')
