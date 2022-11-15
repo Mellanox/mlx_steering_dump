@@ -73,6 +73,16 @@ def dr_hl_fields_arr_add_suffix(arr, suffix):
     return _arr
 
 
+def dr_hl_fields_arr_add_prefix(prefix, arr):
+    _arr = []
+
+    for field in arr:
+        _field = (prefix + field[0], field[1])
+        _arr.append(_field)
+
+    return _arr
+
+
 """
 The following functions decribes the headers layout structs
 The functions recieve hl_index which is the DWs offset according to the headers layout and the DW mask

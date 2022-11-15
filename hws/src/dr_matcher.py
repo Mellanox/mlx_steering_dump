@@ -26,6 +26,7 @@ class dr_parse_matcher():
         self.action_ste_0_id = None
         self.action_ste_1_id = None
         self.aliased_rtc_0_id = None
+        self.hash_definer = None
         self.fix_data()
         self.save_to_db()
 
@@ -112,6 +113,11 @@ class dr_parse_matcher():
                 _str = _str + tabs + col_matcher.attr.dump_str(verbosity).replace(':', ' (C):')
             if verbosity > 0:
                 _str = _str + self.dump_matcher_resources(verbosity, tabs)
+            if self.hash_definer != None:
+                definer_str = self.hash_definer.dump_fields()
+                if len(definer_str) != 0:
+                    definer_str = definer_str.replace(', ', '\n' + TAB + tabs)
+                    _str += tabs + 'Hash fields:\n' + tabs + TAB + definer_str + '\n'
             for mt in self.match_template:
                 _str = _str + tabs + mt.dump_str(tabs, verbosity)
             for at in self.action_templates:
@@ -138,6 +144,9 @@ class dr_parse_matcher():
 
     def add_action_template(self, template):
         self.action_templates.append(template)
+
+    def add_hash_definer(self, definer):
+        self.hash_definer = definer
 
     def save_to_db(self):
         if self.match_ste_0_id != None:
@@ -198,30 +207,47 @@ class dr_parse_matcher_attr():
 
 class dr_parse_matcher_match_template():
     def __init__(self, data):
-        keys = ["mlx5dr_debug_res_type", "id", "matcher_id", "fc_sz", "flags"]
+        keys = ["mlx5dr_debug_res_type", "id", "matcher_id", "fc_sz", "flags", "fcr_sz"]
         self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
-        self.definer = None
+        self.match_definer = None
+        self.range_definer = None
+        self.fix_data()
+
+    def fix_data(self):
+        if self.data.get("fcr_sz") == None:
+            self.data["fcr_sz"] = "0"
 
     def dump_str(self, tabs, verbosity):
         _tabs = tabs + TAB
+        __tabs = _tabs + TAB
         _str = ':'
-        if self.definer != None:
-            definer_str = self.definer.dump_fields()
+        if self.match_definer != None:
+            definer_str = self.match_definer.dump_fields()
             if len(definer_str) != 0:
-                _str = ':\n' + _tabs + definer_str
-                if verbosity > 2:
-                    _str += ", "
-                _str = _str.replace(', ', '\n' + _tabs)
+                _str = ':\n' + _tabs + 'Match fields:\n' + __tabs + definer_str
+                _str = _str.replace(', ', '\n' + __tabs)
+
+            range_definer_str = ''
+            if self.range_definer != None:
+                range_definer_str = self.range_definer.dump_fields()
+            if len(range_definer_str) != 0:
+                _str += '\n' + _tabs + 'Range fields:\n' + __tabs + range_definer_str
+                _str = _str.replace(', ', '\n' + __tabs)
 
         if verbosity > 2:
+            if _str != ':':
+                _str += '\n' + _tabs
             return dump_obj_str(["mlx5dr_debug_res_type", "id", "flags",
-                                 "fc_sz"], self.data).replace(":", _str)
+                                 "fc_sz", "fcr_sz"], self.data).replace(":", _str)
 
         return dump_obj_str(["mlx5dr_debug_res_type", "id"],
                              self.data).replace(":", _str)
 
-    def add_definer(self, definer):
-        self.definer = definer
+    def add_match_definer(self, definer):
+        self.match_definer = definer
+
+    def add_range_definer(self, definer):
+        self.range_definer = definer
 
 
 class dr_parse_matcher_action_template():
