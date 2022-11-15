@@ -34,7 +34,9 @@ switch_csv_res_type = {
     MLX5DR_DEBUG_RES_TYPE_MATCHER_ATTR: dr_parse_matcher_attr,
     MLX5DR_DEBUG_RES_TYPE_MATCHER_MATCH_TEMPLATE: dr_parse_matcher_match_template,
     MLX5DR_DEBUG_RES_TYPE_MATCHER_ACTION_TEMPLATE: dr_parse_matcher_action_template,
-    MLX5DR_DEBUG_RES_TYPE_DEFINER: dr_parse_definer,
+    MLX5DR_DEBUG_RES_TYPE_MATCHER_TEMPLATE_MATCH_DEFINER: dr_parse_definer,
+    MLX5DR_DEBUG_RES_TYPE_MATCHER_TEMPLATE_RANGE_DEFINER: dr_parse_definer,
+    MLX5DR_DEBUG_RES_TYPE_MATCHER_TEMPLATE_HASH_DEFINER: dr_parse_definer,
     MLX5DR_DEBUG_RES_TYPE_FW_STE: dr_parse_fw_ste,
     MLX5DR_DEBUG_RES_TYPE_STE: dr_parse_ste,
     MLX5DR_DEBUG_RES_TYPE_ADDRESS: dr_parse_address,
@@ -107,8 +109,12 @@ def dr_parse_csv_file(csv_file, load_to_db):
             last_matcher.add_match_template(obj)
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_MATCHER_ACTION_TEMPLATE:
             last_matcher.add_action_template(obj)
-        elif line[0] == MLX5DR_DEBUG_RES_TYPE_DEFINER:
-            last_matcher_template.add_definer(obj)
+        elif line[0] == MLX5DR_DEBUG_RES_TYPE_MATCHER_TEMPLATE_MATCH_DEFINER:
+            last_matcher_template.add_match_definer(obj)
+        elif line[0] == MLX5DR_DEBUG_RES_TYPE_MATCHER_TEMPLATE_RANGE_DEFINER:
+            last_matcher_template.add_range_definer(obj)
+        elif line[0] == MLX5DR_DEBUG_RES_TYPE_MATCHER_TEMPLATE_HASH_DEFINER:
+            last_matcher.add_hash_definer(obj)
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_CONTEXT_STC:
             obj.load_to_db()
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_HW_RRESOURCES_DUMP_START:

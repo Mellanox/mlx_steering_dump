@@ -17,6 +17,9 @@ class dr_parse_definer():
         self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
         self.dw_fields = None
         self.byte_fields = None
+        self.range_dw_fields = None
+        self.range_byte_fields = None
+        self.fields_arr = None
         self.byte_mask_tag_functions = {}
         self.fix_data()
         self.parse_data()
@@ -32,9 +35,7 @@ class dr_parse_definer():
         _definers[self.get_definer_obj_id()] = self
 
     def get_definer_matching_fields(self):
-        fields_arr = dict(self.dw_fields)
-        fields_arr.update(self.byte_fields)
-        return fields_arr
+        return self.fields_arr
 
     def dump_str(self, verbosity):
             return dump_obj_str(["mlx5dr_debug_res_type", "id", "mt_id",
@@ -49,10 +50,17 @@ class dr_parse_definer():
         _str = ""
         tmp_arr = []
         fields = {}
-        for arr in list(self.dw_fields.values()):
+        if self.data.get("mlx5dr_debug_res_type") == MLX5DR_DEBUG_RES_TYPE_MATCHER_TEMPLATE_RANGE_DEFINER:
+            _dw_fields = self.range_dw_fields
+            _byte_fields = self.range_byte_fields
+        else:
+            _dw_fields = self.dw_fields
+            _byte_fields = self.byte_fields
+
+        for arr in list(_dw_fields.values()):
             tmp_arr.extend(arr)
 
-        for arr in list(self.byte_fields.values()):
+        for arr in list(_byte_fields.values()):
             tmp_arr.extend(arr)
 
         for e in tmp_arr:
@@ -76,7 +84,10 @@ class dr_parse_definer():
             hl_index = int(self.data[dw_selector], 16)
             mask = hex_to_bin_str(self.data["dw_mask_tag_" + str(i)], DW_SZ)
 
-            fields_dic[dw_selector] = dr_hl_dw_parser(hl_index, mask)
+            if int(mask, 2) == 0:
+                fields_dic[dw_selector] = []
+            else:
+                fields_dic[dw_selector] = dr_hl_dw_parser(hl_index, mask)
 
         return fields_dic
 
@@ -125,3 +136,33 @@ class dr_parse_definer():
         self.parse_selectors_and_mask()
         self.dw_fields = self.definer_dws_parser()
         self.byte_fields = self.definer_bytes_parser()
+        if self.data.get("mlx5dr_debug_res_type") == MLX5DR_DEBUG_RES_TYPE_MATCHER_TEMPLATE_RANGE_DEFINER:
+            _dw_fields = {}
+            _byte_fields = {}
+            _dw_fields["dw_selector_0_min"] = dr_hl_fields_arr_add_prefix("min_", self.dw_fields["dw_selector_0"])
+            _dw_fields["dw_selector_0_max"] = dr_hl_fields_arr_add_prefix("max_", self.dw_fields["dw_selector_0"])
+            _dw_fields["dw_selector_1_min"] = dr_hl_fields_arr_add_prefix("min_", self.dw_fields["dw_selector_1"])
+            _dw_fields["dw_selector_1_max"] = dr_hl_fields_arr_add_prefix("max_", self.dw_fields["dw_selector_1"])
+            self.range_dw_fields = self.dw_fields
+            self.dw_fields = _dw_fields
+            _byte_fields["byte_selector_0_min"] = dr_hl_fields_arr_add_prefix("min_", self.byte_fields["byte_selector_0"])
+            _byte_fields["byte_selector_0_max"] = dr_hl_fields_arr_add_prefix("max_", self.byte_fields["byte_selector_0"])
+            _byte_fields["byte_selector_1_min"] = dr_hl_fields_arr_add_prefix("min_", self.byte_fields["byte_selector_1"])
+            _byte_fields["byte_selector_1_max"] = dr_hl_fields_arr_add_prefix("max_", self.byte_fields["byte_selector_1"])
+            _byte_fields["byte_selector_2_min"] = dr_hl_fields_arr_add_prefix("min_", self.byte_fields["byte_selector_2"])
+            _byte_fields["byte_selector_2_max"] = dr_hl_fields_arr_add_prefix("max_", self.byte_fields["byte_selector_2"])
+            _byte_fields["byte_selector_3_min"] = dr_hl_fields_arr_add_prefix("min_", self.byte_fields["byte_selector_3"])
+            _byte_fields["byte_selector_3_max"] = dr_hl_fields_arr_add_prefix("max_", self.byte_fields["byte_selector_3"])
+            _byte_fields["byte_selector_4_min"] = dr_hl_fields_arr_add_prefix("min_", self.byte_fields["byte_selector_4"])
+            _byte_fields["byte_selector_4_max"] = dr_hl_fields_arr_add_prefix("max_", self.byte_fields["byte_selector_4"])
+            _byte_fields["byte_selector_5_min"] = dr_hl_fields_arr_add_prefix("min_", self.byte_fields["byte_selector_5"])
+            _byte_fields["byte_selector_5_max"] = dr_hl_fields_arr_add_prefix("max_", self.byte_fields["byte_selector_5"])
+            _byte_fields["byte_selector_6_min"] = dr_hl_fields_arr_add_prefix("min_", self.byte_fields["byte_selector_6"])
+            _byte_fields["byte_selector_6_max"] = dr_hl_fields_arr_add_prefix("max_", self.byte_fields["byte_selector_6"])
+            _byte_fields["byte_selector_7_min"] = dr_hl_fields_arr_add_prefix("min_", self.byte_fields["byte_selector_7"])
+            _byte_fields["byte_selector_7_max"] = dr_hl_fields_arr_add_prefix("max_", self.byte_fields["byte_selector_7"])
+            self.range_byte_fields = self.byte_fields
+            self.byte_fields = _byte_fields
+
+        self.fields_arr = dict(self.dw_fields)
+        self.fields_arr.update(self.byte_fields)
