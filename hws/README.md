@@ -51,4 +51,4 @@ Required package
 ===================
 **For dumping the app HW resources:**
  - Python3
- - MFT (Version 4.22.0-80 or higher)
+ - MFT (Version 4.22.0-80 provided with OFED 5.8 or higher)
