@@ -188,7 +188,7 @@ def parse_args():
     parser.add_argument("-pid", dest="dpdk_pid", type=int, default=-1,
                         help="Trigger DPDK app <PID>.")
     parser.add_argument("-port", dest="dpdk_port", type=int, default=0,
-                        help="Trigger DPDK app <PORT> (must provide PID with -pid).")
+                        help="Trigger DPDK app <PORT> newer dpdk supports -1 for all ports (must provide PID with -pid).")
     parser.add_argument('-h', '--help', action='help', default=argparse.SUPPRESS,
                         help='Show this help message and exit.')
 

@@ -126,6 +126,10 @@ def trigger_dump(s_pid, s_port, path, s_flow_ptr):
     global server_pid
     global flow_ptr
 
+    # DPDK support dumping all ports if uint16_max is used
+    if s_port == -1:
+        s_port = int(0xffff)
+
     port = s_port
     server_pid = s_pid
     flow_ptr = s_flow_ptr
