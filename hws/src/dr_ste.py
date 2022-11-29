@@ -7,7 +7,7 @@ from src.dr_hl import _fields_text_values
 from src.dr_action import action_pretiffy,dr_ste_parse_ste_actions_arr
 
 
-def fields_handler(_fields, show_field_val=False):
+def fields_handler(_fields, verbosity=0, show_field_val=False):
     _str = ""
     fields = {}
     union_fields = {"smac_47_16_o": 0, "smac_15_0_o": 0, "dmac_47_16_o": 0,
@@ -69,7 +69,9 @@ def fields_handler(_fields, show_field_val=False):
         if show_field_val:
             tv_field = _fields_text_values.get(field)
             if tv_field != None:
-                _str += field + ": " + hex(value) + ' (' + tv_field.get(value) + ')'
+                _str += field + ": " + tv_field.get(value)
+                if verbosity > 2:
+                    _str += ' (' + hex(value) + ')'
             else:
                 _str += field + ": " + hex(value)
         else:
@@ -221,7 +223,7 @@ class dr_parse_ste():
     def dump_fields(self, verbosity, tabs):
         _str = tabs + 'Tag:\n'
         tabs = tabs + TAB
-        fields_handler_str = fields_handler(self.fields_dic, True)
+        fields_handler_str = fields_handler(self.fields_dic, verbosity, True)
         if fields_handler_str == '':
             _str += tabs + 'Empty Tag\n'
         else:
