@@ -52,7 +52,6 @@ def dr_hw_get_ste_from_addr(addr):
 
 def dr_parse_rules(matcher, verbosity, tabs):
     _str = ''
-    prefix = ''
     _tabs = tabs + TAB
     tbl_type = _tbl_type_db.get(matcher.data.get("tbl_id"))
     _range = 2 if (tbl_type == DR_TBL_TYPE_FDB) else 1
@@ -66,10 +65,6 @@ def dr_parse_rules(matcher, verbosity, tabs):
             fw_ste_id = matcher.get_fw_ste_1_index()
             _tbl_type = DR_TBL_TYPE_NIC_TX
 
-        if prefix == '':
-            _str += '\n'
-        else:
-            _str += tabs + prefix
         fw_ste_dic = _fw_ste_db[fw_ste_id]
         for ste_addr in fw_ste_dic:
             ste = fw_ste_dic.get(ste_addr)

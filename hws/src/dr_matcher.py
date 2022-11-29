@@ -124,6 +124,7 @@ class dr_parse_matcher():
                 _str = _str + tabs + at.dump_str(tabs, verbosity)
 
         if _config_args.get("parse_hw_resources") and (tbl_level != DR_ROOT_TBL_LEVEL):
+            _str += tabs + 'Rules:\n'
             _str = _str + dr_parse_rules(self, verbosity, tabs)
             if col_matcher:
                 _str = _str + dr_parse_rules(col_matcher, verbosity, tabs)
