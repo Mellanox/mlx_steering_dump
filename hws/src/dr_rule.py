@@ -66,9 +66,7 @@ def dr_parse_rules(matcher, verbosity, tabs):
             fw_ste_id = matcher.get_fw_ste_1_index()
             _tbl_type = DR_TBL_TYPE_NIC_TX
 
-        if prefix == '':
-            _str += '\n'
-        else:
+        if prefix != '':
             _str += tabs + prefix
         fw_ste_dic = _fw_ste_db[fw_ste_id]
         for ste_addr in fw_ste_dic:
