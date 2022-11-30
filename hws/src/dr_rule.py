@@ -1,20 +1,18 @@
-#SPDX-License-Identifier: BSD-3-Clause
-#Copyright (c) 2021 NVIDIA CORPORATION. All rights reserved.
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright (c) 2021 NVIDIA CORPORATION. All rights reserved.
 
 from src.dr_common import *
 from src.dr_db import _matchers, _fw_ste_db, _stes_range_db, _tbl_type_db
 from src.dr_ste import *
 
 
-class dr_parse_rule():
+class dr_parse_rule:
     def __init__(self):
         self.rx_ste_arr = []
         self.tx_ste_arr = []
 
-
     def dump_str(self, verbosity):
-        return 'Rule:\n'
-
+        return "Rule:\n"
 
     def add_ste(self, ste, rx_tx):
         if rx_tx == DR_TBL_TYPE_NIC_RX:
@@ -22,15 +20,14 @@ class dr_parse_rule():
         else:
             self.tx_ste_arr.append(ste)
 
-
     def tree_print(self, verbosity, tabs):
         _str = tabs + self.dump_str(verbosity)
         tabs = tabs + TAB
 
         for ste in self.rx_ste_arr:
-            _str += ste.tree_print(verbosity, tabs, 'RX STE ')
+            _str += ste.tree_print(verbosity, tabs, "RX STE ")
         for ste in self.tx_ste_arr:
-            _str += ste.tree_print(verbosity, tabs, 'TX STE ')
+            _str += ste.tree_print(verbosity, tabs, "TX STE ")
 
         return _str
 
@@ -51,8 +48,8 @@ def dr_hw_get_ste_from_addr(addr):
 
 
 def dr_parse_rules(matcher, verbosity, tabs):
-    _str = ''
-    prefix = ''
+    _str = ""
+    prefix = ""
     _tabs = tabs + TAB
     tbl_type = _tbl_type_db.get(matcher.data.get("tbl_id"))
     _range = 2 if (tbl_type == DR_TBL_TYPE_FDB) else 1
@@ -66,7 +63,7 @@ def dr_parse_rules(matcher, verbosity, tabs):
             fw_ste_id = matcher.get_fw_ste_1_index()
             _tbl_type = DR_TBL_TYPE_NIC_TX
 
-        if prefix != '':
+        if prefix != "":
             _str += tabs + prefix
         fw_ste_dic = _fw_ste_db[fw_ste_id]
         for ste_addr in fw_ste_dic:

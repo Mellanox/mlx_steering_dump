@@ -1,35 +1,50 @@
-#SPDX-License-Identifier: BSD-3-Clause
-#Copyright (c) 2021 NVIDIA CORPORATION. All rights reserved.
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright (c) 2021 NVIDIA CORPORATION. All rights reserved.
 
 import subprocess as sp
 from src.dr_common import *
-from src.dr_db import _fw_ste_indexes_arr, _fw_ste_db, _stes_range_db, _config_args, _term_dest_db, _stc_indexes_arr
+from src.dr_db import (
+    _fw_ste_indexes_arr,
+    _fw_ste_db,
+    _stes_range_db,
+    _config_args,
+    _term_dest_db,
+    _stc_indexes_arr,
+)
 from src.dr_ste import dr_parse_ste, raw_ste_parser
-from src.dr_hw_resources import dr_parse_fw_stc_action_get_obj_id, dr_parse_fw_stc_get_addr
+from src.dr_hw_resources import (
+    dr_parse_fw_stc_action_get_obj_id,
+    dr_parse_fw_stc_get_addr,
+)
 
 
 def parse_fw_stc_rd_bin_output(stc_index, load_to_db, file):
     _dests = {}
-    _config_args["tmp_file"] = open(_config_args.get("tmp_file_path"), 'rb+')
+    _config_args["tmp_file"] = open(_config_args.get("tmp_file_path"), "rb+")
     bin_file = _config_args.get("tmp_file")
-    stc = ''
+    stc = ""
 
-    #There are 68B of prefix data before first STC dump
+    # There are 68B of prefix data before first STC dump
     data = bin_file.read(68)
     while data:
-        #Leading zeros will be ignored
-        data = hex(int.from_bytes(data, byteorder='big'))
+        # Leading zeros will be ignored
+        data = hex(int.from_bytes(data, byteorder="big"))
         data_type = data[2:8]
         if data_type == RESOURCE_DUMP_SEGMENT_TYPE_STC_BIN:
-            stc = '0x' + data[32:]
+            stc = "0x" + data[32:]
             data = bin_file.read(48)
             continue
         elif data_type[:-1] == RESOURCE_DUMP_SEGMENT_TYPE_ACTION_STC_BIN:
-            stc_action = '0x' + data[31:]
+            stc_action = "0x" + data[31:]
             obj = dr_parse_fw_stc_action_get_obj_id(stc_action)
             if obj != None:
                 addr = dr_parse_fw_stc_get_addr(stc)
-                write_line = '%s,%s,%s,%s\n' % (MLX5DR_DEBUG_RES_TYPE_ADDRESS, addr, obj.get("type"), obj.get("id"))
+                write_line = "%s,%s,%s,%s\n" % (
+                    MLX5DR_DEBUG_RES_TYPE_ADDRESS,
+                    addr,
+                    obj.get("type"),
+                    obj.get("id"),
+                )
                 file.write(write_line)
                 _dests[addr] = obj
 
@@ -43,38 +58,40 @@ def parse_fw_stc_rd_bin_output(stc_index, load_to_db, file):
 
 
 def parse_fw_ste_rd_bin_output(fw_ste_index, load_to_db, file):
-    min_addr = '0xffffffff'
-    max_addr = '0x00000000'
+    min_addr = "0xffffffff"
+    max_addr = "0x00000000"
     ste_dic = {}
 
-    _config_args["tmp_file"] = open(_config_args.get("tmp_file_path"), 'rb+')
+    _config_args["tmp_file"] = open(_config_args.get("tmp_file_path"), "rb+")
     bin_file = _config_args.get("tmp_file")
 
-    file.write(MLX5DR_DEBUG_RES_TYPE_FW_STE + ',' + fw_ste_index + '\n')
+    file.write(MLX5DR_DEBUG_RES_TYPE_FW_STE + "," + fw_ste_index + "\n")
 
-    #There are 68B of prefix data before first STE dump
+    # There are 68B of prefix data before first STE dump
     data = bin_file.read(68)
     while data:
-        #Leading zeros will be ignored
-        data = hex(int.from_bytes(data, byteorder='big'))
+        # Leading zeros will be ignored
+        data = hex(int.from_bytes(data, byteorder="big"))
         if data[2:8] == RESOURCE_DUMP_SEGMENT_TYPE_STE_BIN:
-            ste = '0x' + data[32:]
-            hit_add = ste[32 : 41]
+            ste = "0x" + data[32:]
+            hit_add = ste[32:41]
             if int(hit_add, 16) & STE_ALWAYS_HIT_ADDRESS != STE_ALWAYS_HIT_ADDRESS:
-                ste_addr = '0x' + data[16:24]
-                ste_prefix = MLX5DR_DEBUG_RES_TYPE_STE + ','
-                ste_prefix += ste_addr + ','
-                ste_prefix += fw_ste_index + ','
-                file.write(ste_prefix + ste + '\n')
+                ste_addr = "0x" + data[16:24]
+                ste_prefix = MLX5DR_DEBUG_RES_TYPE_STE + ","
+                ste_prefix += ste_addr + ","
+                ste_prefix += fw_ste_index + ","
+                file.write(ste_prefix + ste + "\n")
                 if load_to_db:
-                    ste = dr_parse_ste([MLX5DR_DEBUG_RES_TYPE_STE, ste_addr, fw_ste_index, ste])
+                    ste = dr_parse_ste(
+                        [MLX5DR_DEBUG_RES_TYPE_STE, ste_addr, fw_ste_index, ste]
+                    )
                     ste_dic[ste_addr] = ste
                     if ste_addr < min_addr:
                         min_addr = ste_addr
                     if ste_addr > max_addr:
                         max_addr = ste_addr
 
-        #Each STE dump contain 64B(STE) + 16(STE prefix)
+        # Each STE dump contain 64B(STE) + 16(STE prefix)
         data = bin_file.read(80)
 
     bin_file.close()
@@ -86,23 +103,23 @@ def parse_fw_ste_rd_bin_output(fw_ste_index, load_to_db, file):
 
 
 def call_resource_dump(dev, dev_name, segment, index1, num_of_obj1, num_of_obj2, depth):
-    _input = 'resourcedump dump -d ' + dev
-    _input += ' --segment ' + segment
-    _input += ' --index1 ' + index1
+    _input = "resourcedump dump -d " + dev
+    _input += " --segment " + segment
+    _input += " --index1 " + index1
     if num_of_obj1 != None:
-        _input += ' --num-of-obj1 ' + num_of_obj1
+        _input += " --num-of-obj1 " + num_of_obj1
     if num_of_obj2 != None:
-        _input += ' --num-of-obj2 ' + num_of_obj2
+        _input += " --num-of-obj2 " + num_of_obj2
     if depth != None:
-        _input += ' --depth=' + depth
+        _input += " --depth=" + depth
     if _config_args.get("resourcedump_mem_mode"):
-        _input += ' --mem ' + dev_name
-        _input += ' --bin ' + _config_args.get("tmp_file_path")
+        _input += " --mem " + dev_name
+        _input += " --bin " + _config_args.get("tmp_file_path")
 
     output = sp.getoutput(_input)
-    if (len(output) >= 10) and ('Error' in output[0:10]):
+    if (len(output) >= 10) and ("Error" in output[0:10]):
         print(output)
-        print('MFT Error')
+        print("MFT Error")
         exit()
 
     return output
@@ -110,23 +127,30 @@ def call_resource_dump(dev, dev_name, segment, index1, num_of_obj1, num_of_obj2,
 
 def parse_fw_ste_rd_output(data, fw_ste_index, load_to_db, file):
     ste_dic = {}
-    min_addr = '0xffffffff'
-    max_addr = '0x00000000'
-    data_arr = data.split('\n')
-    file.write(MLX5DR_DEBUG_RES_TYPE_FW_STE + ',' + fw_ste_index + '\n')
+    min_addr = "0xffffffff"
+    max_addr = "0x00000000"
+    data_arr = data.split("\n")
+    file.write(MLX5DR_DEBUG_RES_TYPE_FW_STE + "," + fw_ste_index + "\n")
     for count in range(0, len(data_arr)):
         if RESOURCE_DUMP_SEGMENT_TYPE_STE in data_arr[count][0:10]:
-            ste_addr = (data_arr[count][22 : 32]).lower()
-            ste = data_arr[count + 1] + data_arr[count + 2] + data_arr[count + 3] + data_arr[count + 4]
-            ste = ste.replace(' 0x', '')
-            hit_add = ste[32 : 41]
+            ste_addr = (data_arr[count][22:32]).lower()
+            ste = (
+                data_arr[count + 1]
+                + data_arr[count + 2]
+                + data_arr[count + 3]
+                + data_arr[count + 4]
+            )
+            ste = ste.replace(" 0x", "")
+            hit_add = ste[32:41]
             if int(hit_add, 16) & STE_ALWAYS_HIT_ADDRESS != STE_ALWAYS_HIT_ADDRESS:
-                ste_prefix = MLX5DR_DEBUG_RES_TYPE_STE + ','
-                ste_prefix += ste_addr + ','
-                ste_prefix += fw_ste_index + ','
-                file.write(ste_prefix + ste + '\n')
+                ste_prefix = MLX5DR_DEBUG_RES_TYPE_STE + ","
+                ste_prefix += ste_addr + ","
+                ste_prefix += fw_ste_index + ","
+                file.write(ste_prefix + ste + "\n")
                 if load_to_db:
-                    ste = dr_parse_ste([MLX5DR_DEBUG_RES_TYPE_STE, ste_addr, fw_ste_index, ste])
+                    ste = dr_parse_ste(
+                        [MLX5DR_DEBUG_RES_TYPE_STE, ste_addr, fw_ste_index, ste]
+                    )
                     ste_dic[ste_addr] = ste
                     if ste_addr < min_addr:
                         min_addr = ste_addr
@@ -134,20 +158,22 @@ def parse_fw_ste_rd_output(data, fw_ste_index, load_to_db, file):
                         max_addr = ste_addr
 
     if load_to_db:
-        #Save the STE's to FW STE DB
+        # Save the STE's to FW STE DB
         _fw_ste_db[fw_ste_index] = ste_dic
-        #Save the STE's range for this FW STE
+        # Save the STE's range for this FW STE
         _stes_range_db[fw_ste_index] = (min_addr, max_addr)
 
 
 def dump_hw_resources(load_to_db, dev, dev_name, file):
     for stc_index in _stc_indexes_arr:
-        output = call_resource_dump(dev, dev_name, "STC", stc_index, None, 'all', None)
+        output = call_resource_dump(dev, dev_name, "STC", stc_index, None, "all", None)
         parse_fw_stc_rd_bin_output(stc_index, load_to_db, file)
 
-    #Dump FW STE's
+    # Dump FW STE's
     for fw_ste_index in _fw_ste_indexes_arr:
-        output = call_resource_dump(dev, dev_name, "FW_STE", fw_ste_index, None, 'all', None)
+        output = call_resource_dump(
+            dev, dev_name, "FW_STE", fw_ste_index, None, "all", None
+        )
         if _config_args.get("resourcedump_mem_mode"):
             parse_fw_ste_rd_bin_output(fw_ste_index, load_to_db, file)
         else:
@@ -161,12 +187,12 @@ def dr_hw_data_engine(obj, file):
         if dev == None:
             dev = _config_args.get("device")
             if dev == None:
-                print('Unknown MST device')
+                print("Unknown MST device")
                 exit()
             dev_name = _config_args.get("dev_name")
         else:
             dev_name = _config_args.get("shared_dev_name")
 
-        file.write(MLX5DR_DEBUG_RES_TYPE_HW_RRESOURCES_DUMP_START + '\n')
+        file.write(MLX5DR_DEBUG_RES_TYPE_HW_RRESOURCES_DUMP_START + "\n")
         dump_hw_resources(load_to_db, dev, dev_name, file)
-        file.write(MLX5DR_DEBUG_RES_TYPE_HW_RRESOURCES_DUMP_END + '\n')
+        file.write(MLX5DR_DEBUG_RES_TYPE_HW_RRESOURCES_DUMP_END + "\n")
