@@ -141,3 +141,20 @@ def trigger_dump(s_pid, s_port, path, s_flow_ptr):
     dump_file.close()
     sock.close()
     return path
+
+
+def main():
+    if len(sys.argv) < 4:
+        print("Example:\n\tpython dr_trigger.py <DPDK_PID> <DPDK_PORT> <dump_file>")
+        sys.exit(1)
+
+    pid = int(sys.argv[1])
+    port = int(sys.argv[2])
+    dump_path = sys.argv[3]
+    _flow_ptr = 0
+    trigger_dump(pid, port, dump_path, _flow_ptr)
+
+    print("Done.")
+
+if __name__ == "__main__":
+    main()
