@@ -81,7 +81,7 @@ def fields_handler(_fields, verbosity=0, show_field_val=False):
 
 def ste_hit_addr_calc(next_table_base_63_48, next_table_base_39_32, next_table_base_31_5):
     hit_addr = next_table_base_39_32 << 32
-    hit_addr |= next_table_base_31_5
+    hit_addr |= (next_table_base_31_5 << 5)
     hit_addr = (hit_addr >> 6) & 0xffffffff
 
     return hit_addr
