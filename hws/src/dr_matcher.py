@@ -3,7 +3,8 @@
 
 from src.dr_common import *
 from src.dr_db import _fw_ste_indexes_arr, _matchers, _tbl_type_db,\
-                      _config_args, _tbl_level_db, _col_matchers
+                      _config_args, _tbl_level_db, _col_matchers,\
+                      _term_dest_db
 from src.dr_rule import dr_parse_rules
 
 
@@ -12,7 +13,8 @@ class dr_parse_matcher():
         keys = ["mlx5dr_debug_res_type", "id", "tbl_id", "num_of_mt",
                 "end_ft_id", "col_matcher_id", "match_rtc_0_id", "match_ste_0_id",
                 "match_rtc_1_id", "match_ste_1_id", "action_rtc_0_id", "action_ste_0_id",
-                "action_rtc_1_id", "action_ste_1_id", "aliased_rtc_0_id"]
+                "action_rtc_1_id", "action_ste_1_id", "aliased_rtc_0_id",
+                "rx_icm_addr", "tx_icm_addr"]
         self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
         self.id = self.data.get("id")
         self.nic_rx = None
@@ -56,6 +58,19 @@ class dr_parse_matcher():
         if aliased_rtc_0_id != None and aliased_rtc_0_id != '0':
             self.aliased_rtc_0_id = aliased_rtc_0_id
 
+        rx_icm_addr = self.data.get("rx_icm_addr")
+        if rx_icm_addr == None:
+            rx_icm_addr = "0x0"
+
+        tx_icm_addr = self.data.get("tx_icm_addr")
+        if tx_icm_addr == None:
+            tx_icm_addr = "0x0"
+
+        self.data["rx_icm_addr"] = rx_icm_addr
+        self.data["tx_icm_addr"] = tx_icm_addr
+
+        self.data["end_ft_id"] = hex(int(self.data.get("end_ft_id")))
+
 
     def __eq__(self, other):
         return self.attr.priority == other.attr.priority
@@ -70,6 +85,11 @@ class dr_parse_matcher():
 
         if verbosity > 1:
             _keys.extend(["end_ft_id"])
+            if self.data.get("rx_icm_addr") != "0x0":
+                _keys.extend(["rx_icm_addr"])
+            if self.data.get("tx_icm_addr") != "0x0":
+                _keys.extend(["tx_icm_addr"])
+
         if verbosity > 2:
             _keys.extend(["col_matcher_id", "num_of_mt"])
 
@@ -166,6 +186,11 @@ class dr_parse_matcher():
 
         if self.col_matcher_id != "0x0":
             _col_matchers.append(self.col_matcher_id)
+
+        if self.data.get("rx_icm_addr") != "0x0":
+            _term_dest_db[self.data.get("rx_icm_addr")] = {"type": "FT", "id": self.data.get("end_ft_id")}
+        if self.data.get("tx_icm_addr") != "0x0":
+            _term_dest_db[self.data.get("tx_icm_addr")] = {"type": "FT", "id": self.data.get("end_ft_id")}
 
 
     def get_fw_ste_0_index(self):
