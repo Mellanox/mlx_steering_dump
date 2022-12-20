@@ -25,8 +25,8 @@ class dr_parse_table():
         return self.level < other.level
 
     def dump_str(self, verbosity):
-        _keys = ["mlx5dr_debug_res_type", "id", "ctx_id", "type", "level"]
-        if verbosity == 0:
+        _keys = ["mlx5dr_debug_res_type", "id", "type", "level"]
+        if verbosity < 2:
             return dump_obj_str(_keys, self.data)
 
         if _config_args.get("shared_device") != None:
