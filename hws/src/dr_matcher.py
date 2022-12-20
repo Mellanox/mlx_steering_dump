@@ -215,20 +215,22 @@ class dr_parse_matcher_attr():
         self.priority = self.data.get("priority")
         self.fix_data()
 
-    def dump_str(self, verbosity):
-        if verbosity > 0:
-            return dump_obj_str(["mlx5dr_debug_res_type",
-                                 "priority", "mode", "sz_row_log",
-                                 "sz_col_log", "flow_src", "insertion",
-                                 "distribution"], self.data)
 
-        return dump_obj_str(["mlx5dr_debug_res_type",
-                             "priority", "mode"], self.data)
+    def dump_str(self, verbosity):
+        _keys = ["mlx5dr_debug_res_type", "priority", "log_sz"]
+        if verbosity > 1:
+            _keys.extend(["mode", "flow_src"])
+        if verbosity > 2:
+            _keys.extend(["insertion", "distribution"])
+
+        return dump_obj_str(_keys, self.data)
+
 
     def fix_data(self):
         self.data["mode"] = "RULE" if self.data["mode"] == "0" else "HTABLE"
         self.data["insertion"] = "INDEX" if self.data.get("insertion") == "1" else "HASH"
         self.data["distribution"] = "LINEAR" if self.data.get("distribution") == "1" else "HASH"
+        self.data["log_sz"] = "%sX%s" % (self.data.get("sz_row_log"), self.data.get("sz_col_log"))
 
 
 class dr_parse_matcher_match_template():
