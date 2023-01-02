@@ -197,7 +197,7 @@ def parse_args():
                                      add_help=False)
     parser.add_argument("-f", dest="file_path", default="", help="Input steering dump file path.")
     parser.add_argument("-v", action="count", dest="verbose", default=0, help="Increase output verbosity - v, vv, vvv & vvvv for extra verbosity.")
-    parser.add_argument("-skip_hw", action="store_false", default=True, dest="dump_hw_resources",
+    parser.add_argument("-skip_dump", action="store_false", default=True, dest="dump_hw_resources",
                         help="Skip HW resources dumping.")
     parser.add_argument("-skip_parse", action="store_false", default=True, dest="hw_parse",
                         help="Skip HW dumped resources parsing.")
