@@ -188,20 +188,33 @@ def raw_ste_parser(raw_ste):
 
 
 class dr_parse_ste():
-    def __init__(self, data):
+    def __init__(self, data, parse=False):
         keys = ["mlx5dr_debug_res_type", "id", "fw_ste_id", "raw_ste"]
         self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
+        self.hit_addr = None
+        self.miss_addr = None
+        self.fields_dic = None
+        self.action_arr = None
+        self.parsed = False
+        if parse:
+            self.parse()
+
+    def parse(self):
         parsed_ste = raw_ste_parser(self.data.get("raw_ste"))
         self.hit_addr = parsed_ste["hit_addr"]
         self.miss_addr = parsed_ste["miss_addr"]
         self.fields_dic = parsed_ste.get("parsed_tag")
         self.action_arr = parsed_ste.get("actions")
+        self.parsed = True
 
     def dump_str(self, verbosity, prefix='STE '):
         _str = prefix + self.data.get("id") + ':\n'
         return _str
 
     def dump_actions(self, verbosity, tabs):
+        if not(self.parsed):
+            self.parse()
+
         _str = tabs + 'Actions:\n'
         _tabs = tabs + TAB
         flag = False
@@ -222,6 +235,9 @@ class dr_parse_ste():
             return ''
 
     def dump_fields(self, verbosity, tabs):
+        if not(self.parsed):
+            self.parse()
+
         _str = tabs + 'Tag:\n'
         tabs = tabs + TAB
         fields_handler_str = fields_handler(self.fields_dic, verbosity, True)
@@ -263,9 +279,15 @@ class dr_parse_ste():
         return self.data.get("id")
 
     def get_hit_addr(self):
+        if not(self.parsed):
+            self.parse()
+
         return self.hit_addr
 
     def get_miss_addr(self):
+        if not(self.parsed):
+            self.parse()
+
         return self.miss_addr
 
     def load_to_db(self):

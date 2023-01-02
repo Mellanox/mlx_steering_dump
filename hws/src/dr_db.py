@@ -1,9 +1,6 @@
 #SPDX-License-Identifier: BSD-3-Clause
 #Copyright (c) 2021 NVIDIA CORPORATION. All rights reserved.
 
-from src.dr_common import *
-
-
 #Store config. args
 _config_args = {}
 
@@ -44,3 +41,9 @@ _tbl_level_db = {}
 
 #This hash table holds address as keys, and info structure about them
 _term_dest_db = {}
+
+#This hash table holds indexes as keys, and info structure about them
+_pattern_db = {}
+
+#This hash table holds indexes as keys, and info structure about them
+_argument_db = {}
