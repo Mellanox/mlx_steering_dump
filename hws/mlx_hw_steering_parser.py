@@ -19,7 +19,7 @@ from src.dr_dump_hw import *
 from src.dr_rule import *
 from src.dr_hw_resources import *
 from src.dr_ste import *
-from src.dr_db import _config_args, _stc_indexes_arr, _term_dest_db
+from src.dr_db import _config_args
 
 
 # mapping csv records types to it's relevant parser function
@@ -41,6 +41,8 @@ switch_csv_res_type = {
     MLX5DR_DEBUG_RES_TYPE_STE: dr_parse_ste,
     MLX5DR_DEBUG_RES_TYPE_ADDRESS: dr_parse_address,
     MLX5DR_DEBUG_RES_TYPE_CONTEXT_STC: dr_parse_stc,
+    MLX5DR_DEBUG_RES_TYPE_PATTERN: dr_parse_pattern,
+    MLX5DR_DEBUG_RES_TYPE_ARGUMENT: dr_parse_argument,
 }
 
 unsupported_obj_list = []
@@ -83,6 +85,12 @@ def dr_parse_csv_file(csv_file, load_to_db):
             if ste_addr > max_ste_addr:
                 max_ste_addr = ste_addr
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_ADDRESS:
+            if load_to_db:
+                obj.load_to_db()
+        elif line[0] == MLX5DR_DEBUG_RES_TYPE_ARGUMENT:
+            if load_to_db:
+                obj.load_to_db()
+        elif line[0] == MLX5DR_DEBUG_RES_TYPE_PATTERN:
             if load_to_db:
                 obj.load_to_db()
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_CONTEXT:
@@ -157,6 +165,10 @@ def env_destroy():
     if tmp_file != None:
         tmp_file.close()
 
+    csv_file = _config_args.get("csv_file")
+    if csv_file != None:
+        csv_file.close()
+
 
 #Check and validate environment capabilities
 def validate_env_caps():
@@ -195,7 +207,9 @@ def parse_args():
                         help="Trigger DPDK app <PID>.")
     parser.add_argument("-port", dest="dpdk_port", type=int, default=0,
                         help="Trigger DPDK app <PORT> newer dpdk supports -1 for all ports (must provide PID with -pid).")
-    parser.add_argument('-h', '--help', action='help', default=argparse.SUPPRESS,
+    parser.add_argument("-extra_hw_res", type=str, default="", dest="extra_hw_res", metavar="[pat, arg]",
+                        help = "Request extra HW resources to be dumped. for example: -extra_hw_res pat,arg")
+    parser.add_argument("-h", "--help", action="help", default=argparse.SUPPRESS,
                         help='Show this help message and exit.')
 
     args = parser.parse_args()
@@ -206,12 +220,25 @@ def parse_args():
     else:
         _config_args["file_path"] = args.file_path
 
+    _config_args["extra_hw_res_arg"] = False
+    _config_args["extra_hw_res_pat"] = False
+
     if (args.dump_hw_resources):
         _config_args["dump_hw_resources"] = True
         if (args.device == ""):
             _config_args["device"] = None
         else:
             _config_args["device"] = args.device
+
+        for hw_res in args.extra_hw_res.split(","):
+            if hw_res == "pat":
+                _config_args["extra_hw_res_pat"] = True
+            elif hw_res == "arg":
+                _config_args["extra_hw_res_arg"] = True
+
+        if _config_args.get("extra_hw_res_arg") and not(_config_args.get("extra_hw_res_pat")):
+            _config_args["extra_hw_res_arg"] = False
+
     else:
         _config_args["dump_hw_resources"] = False
 
@@ -255,14 +282,17 @@ if __name__ == "__main__":
 
         if _config_args.get("dump_hw_resources"):
             csv_file = open(_config_args.get("file_path"), 'a+')
+            _config_args["csv_file"] = csv_file
             dr_hw_data_engine(obj, csv_file)
-            csv_file.close()
         else:
             if _config_args.get("hw_resources_present") == False:
                 _config_args["parse_hw_resources"] = False
                 _config_args["load_hw_resources"] = False
 
         print(obj.tree_print(verbose, ""))
+
+        if _config_args.get("csv_file") != None and _config_args.get("hw_resources_dump_started") == True:
+            csv_file.write(MLX5DR_DEBUG_RES_TYPE_HW_RRESOURCES_DUMP_END + '\n')
 
         if verbose > 0:
             print_unsupported_obj_list()

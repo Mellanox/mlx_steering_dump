@@ -17,6 +17,7 @@ Also it can be triggered for a DPDK app via:
  - Developer triggering and parsing a dump with HW resources from a DPDK app:
  
         ./mlx_hw_steering_parser.py -p <DPDK PID> -f <dump_file> -vvv
+        ./mlx_hw_steering_parser.py -p <DPDK PID> -f <dump_file> -vvv -extra_hw_res pat,arg
    
  - Customer producing a dump for developers to debug:
  
@@ -45,6 +46,7 @@ Running syntax
 | -d DEVICE | Provide MST device, otherwise it will be guessed automatically |
 | -pid DPDK_PID | Trigger DPDK app <PID> |
 | -port DPDK_PORT | Trigger DPDK app <PORT> (must provide PID with -pid) |
+| -extra_hw_res [pat, arg] | Provide extra HW resources to be dumped. for example: -extra_hw_res pat,arg |
 | -h, --help | It will show the help message and exit |
 
 Required package
