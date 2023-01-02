@@ -1,11 +1,10 @@
 #SPDX-License-Identifier: BSD-3-Clause
 #Copyright (c) 2021 NVIDIA CORPORATION. All rights reserved.
 
-import subprocess as sp
 from src.dr_common import *
-from src.dr_db import _fw_ste_indexes_arr, _fw_ste_db, _stes_range_db, _config_args, _term_dest_db, _stc_indexes_arr
-from src.dr_ste import dr_parse_ste, raw_ste_parser
-from src.dr_hw_resources import dr_parse_fw_stc_action_get_obj_id, dr_parse_fw_stc_get_addr
+from src.dr_db import _fw_ste_indexes_arr, _fw_ste_db, _stes_range_db, _config_args, _term_dest_db, _stc_indexes_arr, _pattern_db
+from src.dr_ste import dr_parse_ste
+from src.dr_hw_resources import dr_parse_fw_stc_action_get_obj_id, dr_parse_fw_stc_get_addr, dr_parse_fw_modify_pattern
 
 
 def parse_fw_stc_rd_bin_output(stc_index, load_to_db, file):
@@ -85,29 +84,6 @@ def parse_fw_ste_rd_bin_output(fw_ste_index, load_to_db, file):
         _stes_range_db[fw_ste_index] = (min_addr, max_addr)
 
 
-def call_resource_dump(dev, dev_name, segment, index1, num_of_obj1, num_of_obj2, depth):
-    _input = 'resourcedump dump -d ' + dev
-    _input += ' --segment ' + segment
-    _input += ' --index1 ' + index1
-    if num_of_obj1 != None:
-        _input += ' --num-of-obj1 ' + num_of_obj1
-    if num_of_obj2 != None:
-        _input += ' --num-of-obj2 ' + num_of_obj2
-    if depth != None:
-        _input += ' --depth=' + depth
-    if _config_args.get("resourcedump_mem_mode"):
-        _input += ' --mem ' + dev_name
-        _input += ' --bin ' + _config_args.get("tmp_file_path")
-
-    output = sp.getoutput(_input)
-    if (len(output) >= 10) and ('Error' in output[0:10]):
-        print(output)
-        print('MFT Error')
-        exit()
-
-    return output
-
-
 def parse_fw_ste_rd_output(data, fw_ste_index, load_to_db, file):
     ste_dic = {}
     min_addr = '0xffffffff'
@@ -126,7 +102,7 @@ def parse_fw_ste_rd_output(data, fw_ste_index, load_to_db, file):
                 ste_prefix += fw_ste_index + ','
                 file.write(ste_prefix + ste + '\n')
                 if load_to_db:
-                    ste = dr_parse_ste([MLX5DR_DEBUG_RES_TYPE_STE, ste_addr, fw_ste_index, ste])
+                    ste = dr_parse_ste([MLX5DR_DEBUG_RES_TYPE_STE, ste_addr, fw_ste_index, ste], True)
                     ste_dic[ste_addr] = ste
                     if ste_addr < min_addr:
                         min_addr = ste_addr
@@ -168,5 +144,7 @@ def dr_hw_data_engine(obj, file):
             dev_name = _config_args.get("shared_dev_name")
 
         file.write(MLX5DR_DEBUG_RES_TYPE_HW_RRESOURCES_DUMP_START + '\n')
+        _config_args["hw_resources_dump_started"] = True
+        _config_args["_dev"] = dev
+        _config_args["_dev_name"] = dev_name
         dump_hw_resources(load_to_db, dev, dev_name, file)
-        file.write(MLX5DR_DEBUG_RES_TYPE_HW_RRESOURCES_DUMP_END + '\n')

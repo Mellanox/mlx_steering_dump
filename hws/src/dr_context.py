@@ -63,7 +63,7 @@ class dr_parse_context():
         return _str
 
     def fix_data(self):
-        self.data["hws_support"] = "True" if self.data["hws_support"] is "1" else "False"
+        self.data["hws_support"] = "True" if self.data["hws_support"] == "1" else "False"
 
     def add_table(self, table):
         self.tables.append(table)
