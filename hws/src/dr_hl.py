@@ -455,18 +455,18 @@ def dr_hl_flex_parser_parser(hl_index, mask):
 def dr_hl_registers_parser(hl_index, mask):
     offset = int((hl_index - 138) % 12)
     dw_fields = [
-                 [('steering_register_5_h', 32)],
-                 [('steering_register_5_l', 32)],
-                 [('steering_register_4_h', 32)],
-                 [('steering_register_4_l', 32)],
-                 [('steering_register_3_h', 32)],
-                 [('steering_register_3_l', 32)],
-                 [('steering_register_2_h', 32)],
-                 [('steering_register_2_l', 32)],
-                 [('steering_register_1_h', 32)],
-                 [('steering_register_1_l', 32)],
-                 [('steering_register_0_h', 32)],
-                 [('steering_register_0_l', 32)]
+                 [('steering_reg_10', 32)],
+                 [('steering_reg_11', 32)],
+                 [('steering_reg_8', 32)],
+                 [('steering_reg_9', 32)],
+                 [('steering_reg_6', 32)],
+                 [('steering_reg_7', 32)],
+                 [('steering_reg_4', 32)],
+                 [('steering_reg_5', 32)],
+                 [('steering_reg_2', 32)],
+                 [('steering_reg_3', 32)],
+                 [('steering_reg_0', 32)],
+                 [('steering_reg_1', 32)]
                 ]
 
     return dr_hl_dw_mask_parser(dw_fields[offset], mask)

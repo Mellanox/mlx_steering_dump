@@ -4,6 +4,8 @@
 from src.dr_common import *
 from src.dr_db import _config_args, _pattern_db, _argument_db
 from src.dr_hw_resources import parse_fw_modify_pattern_rd_bin_output, parse_fw_modify_argument_rd_bin_output, dr_parse_fw_modify_arguments_dic
+from src.dr_hl import dr_hl_dw_parser
+
 
 def dr_action_nope_parser(action_arr, index):
     return (1, [''])
@@ -12,11 +14,33 @@ def dr_action_copy_parser(action_arr, index):
     action_dw_0 = action_arr[index]
     action_dw_1 = action_arr[index + 1]
     action = {"type" : "Copy"}
-    action["destination_dw_offset"] = int(action_dw_0[8 : 16], 2)
-    action["destination_left_shifter"] = int(action_dw_0[18 : 24], 2)
-    action["destination_length"] = int(action_dw_0[24 : 32], 2)
-    action["source_dw_offset"] = int(action_dw_1[8 : 16], 2)
-    action["source_right_shifter"] = int(action_dw_1[18 : 24], 2)
+    dst_dw_offset = int(action_dw_0[8 : 16], 2)
+    dst_left_shifter = int(action_dw_0[18 : 24], 2)
+    length = int(action_dw_0[24 : 32], 2)
+    length = 32 if length == 0 else length
+    mask = hex_to_bin_str(hex(int(length * "1", 2) << dst_left_shifter), 32)
+    res = dr_hl_dw_parser(dst_dw_offset, mask)
+
+    if res != None and len(res) > 0:
+        action["dst_field"] = res[0][0]
+    else:
+        action["dst_dw_offset"] = dst_dw_offset
+
+    action["dst_left_shifter"] = dst_left_shifter
+    action["length"] = length
+
+    src_dw_offset = int(action_dw_1[8 : 16], 2)
+    src_right_shifter = int(action_dw_1[18 : 24], 2)
+
+    mask = hex_to_bin_str(hex(int(length * "1", 2) << (32 - src_right_shifter)), 32)
+    res = dr_hl_dw_parser(src_dw_offset, mask)
+
+    if res != None and len(res) > 0:
+        action["src_field"] = res[0][0]
+    else:
+        action["src_dw_offset"] = src_dw_offset
+
+    action["src_right_shifter"] = src_right_shifter
 
     return (2, [action_pretiffy(action)])
 
@@ -24,9 +48,20 @@ def dr_action_set_parser(action_arr, index):
     action_dw_0 = action_arr[index]
     action_dw_1 = action_arr[index + 1]
     action = {"type" : "Set"}
-    action["destination_dw_offset"] = int(action_dw_0[8 : 16], 2)
-    action["destination_left_shifter"] = int(action_dw_0[18 : 24], 2)
-    action["destination_length"] = int(action_dw_0[24 : 32], 2)
+    dw_offset = int(action_dw_0[8 : 16], 2)
+    left_shifter = int(action_dw_0[18 : 24], 2)
+    length = int(action_dw_0[24 : 32], 2)
+    length = 32 if length == 0 else length
+    mask = hex_to_bin_str(hex(int(length * "1", 2) << left_shifter), 32)
+    res = dr_hl_dw_parser(dw_offset, mask)
+
+    if res != None and len(res) > 0:
+        action["field"] = res[0][0]
+    else:
+        action["dw_offset"] = dw_offset
+
+    action["length"] = length
+    action["left_shifter"] = left_shifter
     action["inline_data"] = int(action_dw_1, 2)
 
     return (2, [action_pretiffy(action)])
@@ -35,10 +70,21 @@ def dr_action_add_parser(action_arr, index):
     action_dw_0 = action_arr[index]
     action_dw_1 = action_arr[index + 1]
     action = {"type" : "Add"}
-    action["destination_dw_offset"] = int(action_dw_0[8 : 16], 2)
-    action["destination_left_shifter"] = int(action_dw_0[18 : 24], 2)
-    action["destination_length"] = int(action_dw_0[24 : 32], 2)
-    action["add_value"] = int(action_dw_1, 2)
+    dw_offset = int(action_dw_0[8 : 16], 2)
+    left_shifter = int(action_dw_0[18 : 24], 2)
+    length = int(action_dw_0[24 : 32], 2)
+    length = 32 if length == 0 else length
+    mask = hex_to_bin_str(hex(int(length * "1", 2) << left_shifter), 32)
+    res = dr_hl_dw_parser(dw_offset, mask)
+
+    if res != None and len(res) > 0:
+        action["field"] = res[0][0]
+    else:
+        action["dw_offset"] = dw_offset
+
+    action["length"] = length
+    action["left_shifter"] = left_shifter
+    action["value"] = int(action_dw_1, 2)
 
     return (2, [action_pretiffy(action)])
 
@@ -46,7 +92,9 @@ def dr_action_remove_by_size_parser(action_arr, index):
     action_dw_0 = action_arr[index]
     action_dw_1 = action_arr[index + 1]
     action = {"type" : "Remove by size"}
-    action["start_anchor"] = int(action_dw_0[10 : 16], 2)
+    start_anchor = int(action_dw_0[10 : 16], 2)
+    field = modify_pattern_anchor_dic.get(start_anchor)
+    action["start_anchor"] = field if field != None else start_anchor
     action["outer_l4_removed"] = int(action_dw_0[16 : 17], 2)
     action["start_offset"] = int(action_dw_0[18 : 25], 2)
     action["size"] = int(action_dw_0[26 : 32], 2)
@@ -57,8 +105,12 @@ def dr_action_remove_header2header_parser(action_arr, index):
     action_dw_0 = action_arr[index]
     action_dw_1 = action_arr[index + 1]
     action = {"type" : "remove header2header"}
-    action["start_anchor"] = int(action_dw_0[10 : 16], 2)
-    action["end_anchor"] = int(action_dw_0[18 : 24], 2)
+    start_anchor = int(action_dw_0[10 : 16], 2)
+    end_anchor = int(action_dw_0[18 : 24], 2)
+    field = modify_pattern_anchor_dic.get(start_anchor)
+    action["start_anchor"] = field if field != None else start_anchor
+    field = modify_pattern_anchor_dic.get(end_anchor)
+    action["end_anchor"] = field if field != None else end_anchor
     action["decap"] = int(action_dw_0[28 : 29], 2)
     action["vni_to_cqe"] = int(action_dw_0[29 : 30], 2)
     action["qos_profile "] = int(action_dw_0[30 : 32], 2)
@@ -69,8 +121,12 @@ def dr_action_insert_inline_parser(action_arr, index):
     action_dw_0 = action_arr[index]
     action_dw_1 = action_arr[index + 1]
     action = {"type" : "insert with inline"}
-    action["start_anchor"] = int(action_dw_0[10 : 16], 2)
-    action["end_anchor"] = int(action_dw_0[18 : 24], 2)
+    start_anchor = int(action_dw_0[10 : 16], 2)
+    field = modify_pattern_anchor_dic.get(start_anchor)
+    action["start_anchor"] = field if field != None else start_anchor
+    end_anchor = int(action_dw_0[18 : 24], 2)
+    field = modify_pattern_anchor_dic.get(end_anchor)
+    action["end_anchor"] = field if field != None else end_anchor
     action["insert_data_inline"] = int(action_dw_1[0 : 32], 2)
 
     return (2, [action_pretiffy(action)])
@@ -79,8 +135,12 @@ def dr_action_insert_pointer_parser(action_arr, index):
     action_dw_0 = action_arr[index]
     action_dw_1 = action_arr[index + 1]
     action = {"type" : "insert with pointer"}
-    action["start_anchor"] = int(action_dw_0[10 : 16], 2)
-    action["end_anchor"] = int(action_dw_0[18 : 24], 2)
+    start_anchor = int(action_dw_0[10 : 16], 2)
+    field = modify_pattern_anchor_dic.get(start_anchor)
+    action["start_anchor"] = field if field != None else start_anchor
+    end_anchor = int(action_dw_0[18 : 24], 2)
+    field = modify_pattern_anchor_dic.get(end_anchor)
+    action["end_anchor"] = field if field != None else end_anchor
     action["size"] = int(action_dw_0[24 : 29], 2)
     action["attributes"] = int(action_dw_0[29 : 32], 2)
     action["pointer"] = int(action_dw_1[0 : 32], 2)
@@ -94,9 +154,9 @@ def dr_action_accelerated_modify_list_parser(action_arr, index):
     modify_actions_pattern_pointer = int(action_dw_0[8 : 32], 2)
     number_of_modify_actions =  int(action_dw_1[0 : 8], 2)
     modify_actions_argument_pointer = int(action_dw_1[8 : 32], 2)
-    action["modify_actions_pattern_pointer"] = modify_actions_pattern_pointer
-    action["number_of_modify_actions"] = number_of_modify_actions
-    action["modify_actions_argument_pointer"] = modify_actions_argument_pointer
+    action["pat_idx"] = modify_actions_pattern_pointer
+    action["num_of_actions"] = number_of_modify_actions
+    action["arg_idx"] = modify_actions_argument_pointer
     arr = [action_pretiffy(action)]
     dump_arg = _config_args.get("extra_hw_res_arg")
     dump_pat = _config_args.get("extra_hw_res_pat")
@@ -162,8 +222,8 @@ def dr_action_aso_parser(action_arr, index):
     aso_context_type = int(action_dw_1[4 : 8], 2)
     aso_fields = int(action_dw_1[16 : 32], 2)
 
-    _str = 'ASO: aso_context_number: ' + hex(aso_context_number)
-    _str += ', aso_context_type: '
+    _str = 'ASO: ctx_num: ' + hex(aso_context_number)
+    _str += ', ctx_type: '
     if aso_context_type > 0x5:
         _str += hex(aso_context_type)
     else:
@@ -172,7 +232,7 @@ def dr_action_aso_parser(action_arr, index):
     _str += aso_context_type_arr[aso_context_type] + ' (' + hex(aso_context_type) + ')'
     _str += ', dest_reg_id: ' + hex(dest_reg_id)
 
-    _str += ', aso_fields: ' + hex(aso_fields)
+    _str += ', fields: ' + hex(aso_fields)
     aso_init_colors = ["RED", "YELLOW", "GREEN", "UNDEFINED"]
     _str += ' [line_id: ' + hex(aso_fields & 0x1)
     init_color_val = (aso_fields & 0x6) >> 1
@@ -222,7 +282,12 @@ def action_pretiffy(action):
                 first = False
             else:
                 _str += ', '
-            _str += field + ': ' + hex(action.get(field))
+            _str += field + ': '
+            val = action.get(field)
+            if type(val) is str:
+                _str += val
+            else:
+                _str += hex(val)
     _str += '\n'
 
     return _str
