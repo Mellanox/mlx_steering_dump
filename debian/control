@@ -1,7 +1,7 @@
 Source: mlx-steering-dump
 Section: net
 Priority: optional
-Maintainer: Muhammad Sammar <muhammads@nvidia.com>
+Maintainer: Hamdan Igbaria <hamdani@nvidia.com>
 Build-Depends: debhelper (>= 9)
 Standards-Version: 1.0.0
 Homepage: http://www.mellanox.com/Mellanox/mlx_steering_dump

@@ -1,4 +1,4 @@
-mlx_steering_dump_parser.py	usr/share/mlx-steering-dump
-src				usr/share/mlx-steering-dump
-mlx_steering_dump		usr/bin
+sws/mlx_steering_dump_parser.py	usr/share/mlx-steering-dump
+sws/src				usr/share/mlx-steering-dump
+sws/mlx_steering_dump		usr/bin
 
