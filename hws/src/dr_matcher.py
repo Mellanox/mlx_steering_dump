@@ -1,0 +1,276 @@
+#SPDX-License-Identifier: BSD-3-Clause
+#Copyright (c) 2021 NVIDIA CORPORATION. All rights reserved.
+
+from src.dr_common import *
+from src.dr_db import _fw_ste_indexes_arr, _matchers, _tbl_type_db,\
+                      _config_args, _tbl_level_db, _col_matchers
+from src.dr_rule import dr_parse_rules
+
+
+class dr_parse_matcher():
+    def __init__(self, data):
+        keys = ["mlx5dr_debug_res_type", "id", "tbl_id", "num_of_mt",
+                "end_ft_id", "col_matcher_id", "match_rtc_0_id", "match_ste_0_id",
+                "match_rtc_1_id", "match_ste_1_id", "action_rtc_0_id", "action_ste_0_id",
+                "action_rtc_1_id", "action_ste_1_id", "aliased_rtc_0_id"]
+        self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
+        self.id = self.data.get("id")
+        self.nic_rx = None
+        self.nic_tx = None
+        self.attr = None
+        self.match_template = []
+        self.action_templates = []
+        self.col_matcher_id = self.data.get("col_matcher_id")
+        self.match_ste_0_id = None
+        self.match_ste_1_id = None
+        self.action_ste_0_id = None
+        self.action_ste_1_id = None
+        self.aliased_rtc_0_id = None
+        self.hash_definer = None
+        self.fix_data()
+        self.save_to_db()
+
+
+    def fix_data(self):
+        tbl_level = _tbl_level_db.get(self.data.get("tbl_id"))
+        if tbl_level == DR_ROOT_TBL_LEVEL:
+            return
+
+        ste_id = self.data.get("match_ste_0_id")
+        if ste_id != '-1':
+            self.match_ste_0_id = ste_id
+
+        ste_id = self.data.get("match_ste_1_id")
+        if ste_id != '-1':
+            self.match_ste_1_id = ste_id
+
+        ste_id = self.data.get("action_ste_0_id")
+        if ste_id != '-1':
+            self.action_ste_0_id = ste_id
+
+        ste_id = self.data.get("action_ste_1_id")
+        if ste_id != '-1':
+            self.action_ste_1_id = ste_id
+
+        aliased_rtc_0_id = self.data.get("aliased_rtc_0_id")
+        if aliased_rtc_0_id != None and aliased_rtc_0_id != '0':
+            self.aliased_rtc_0_id = aliased_rtc_0_id
+
+
+    def __eq__(self, other):
+        return self.attr.priority == other.attr.priority
+
+
+    def __lt__(self, other):
+        return self.attr.priority < other.attr.priority
+
+
+    def dump_str(self, verbosity):
+        _keys = ["mlx5dr_debug_res_type", "id"]
+
+        if verbosity > 1:
+            _keys.extend(["end_ft_id"])
+        if verbosity > 2:
+            _keys.extend(["col_matcher_id", "num_of_mt"])
+
+        return dump_obj_str(_keys, self.data)
+
+
+    def dump_matcher_resources(self, verbosity, tabs):
+        _keys = ["match_rtc_0_id", "match_ste_0_id"]
+
+        if self.aliased_rtc_0_id != None:
+            _keys.append("aliased_rtc_0_id")
+        if self.match_ste_1_id != None:
+            _keys.extend(["match_rtc_1_id", "match_ste_1_id"])
+
+        if self.action_ste_0_id != None:
+            _keys.extend(["action_rtc_0_id", "action_ste_0_id"])
+
+        if self.action_ste_1_id != None:
+            _keys.extend(["action_rtc_1_id", "action_ste_1_id"])
+
+        _str = tabs + "Resources: " + dump_obj_str(_keys, self.data)
+
+        if self.col_matcher_id != "0x0":
+            col_matcher = _matchers.get(self.col_matcher_id)
+            _str += tabs +"Resources (C): " + dump_obj_str(_keys, col_matcher.data)
+
+        return _str
+
+    def tree_print(self, verbosity, tabs):
+        if self.id in _col_matchers:
+            return ''
+        _str = tabs + self.dump_str(verbosity)
+        tabs = tabs + TAB
+        tbl_level = _tbl_level_db.get(self.data.get("tbl_id"))
+        col_matcher = _matchers.get(self.col_matcher_id)
+
+        _str = _str + tabs + self.attr.dump_str(verbosity)
+
+        if tbl_level != DR_ROOT_TBL_LEVEL:
+            if col_matcher and verbosity > 0:
+                _str = _str + tabs + col_matcher.attr.dump_str(verbosity).replace(':', ' (C):')
+            if verbosity > 0:
+                _str = _str + self.dump_matcher_resources(verbosity, tabs)
+            if self.hash_definer != None:
+                definer_str = self.hash_definer.dump_fields()
+                if len(definer_str) != 0:
+                    definer_str = definer_str.replace(', ', '\n' + TAB + tabs)
+                    _str += tabs + 'Hash fields:\n' + tabs + TAB + definer_str + '\n'
+            for mt in self.match_template:
+                _str = _str + tabs + mt.dump_str(tabs, verbosity)
+            for at in self.action_templates:
+                _str = _str + tabs + at.dump_str(tabs, verbosity)
+
+        if _config_args.get("parse_hw_resources") and (tbl_level != DR_ROOT_TBL_LEVEL):
+            _str += tabs + 'Rules:\n'
+            _str = _str + dr_parse_rules(self, verbosity, tabs)
+            if col_matcher:
+                _str = _str + dr_parse_rules(col_matcher, verbosity, tabs)
+
+        return _str
+
+    def add_attr(self, attr):
+        self.attr = attr
+
+    def add_nic_rx(self, nic_rx):
+        self.nic_rx = nic_rx
+
+    def add_nic_tx(self, nic_tx):
+        self.nic_tx = nic_tx
+
+    def add_match_template(self, template):
+        self.match_template.append(template)
+
+    def add_action_template(self, template):
+        self.action_templates.append(template)
+
+    def add_hash_definer(self, definer):
+        self.hash_definer = definer
+
+    def save_to_db(self):
+        if self.match_ste_0_id != None:
+            _fw_ste_indexes_arr.append(self.match_ste_0_id)
+
+        if self.match_ste_1_id != None:
+             _fw_ste_indexes_arr.append(self.match_ste_1_id)
+
+        if self.action_ste_0_id != None:
+            _fw_ste_indexes_arr.append(self.action_ste_0_id)
+
+        if self.action_ste_1_id != None:
+            _fw_ste_indexes_arr.append(self.action_ste_1_id)
+
+        _matchers[self.id] = self
+
+        if self.col_matcher_id != "0x0":
+            _col_matchers.append(self.col_matcher_id)
+
+
+    def get_fw_ste_0_index(self):
+        return self.match_ste_0_id
+
+    def get_fw_ste_1_index(self):
+        return self.match_ste_1_id
+
+
+class dr_parse_matcher_attr():
+    def __init__(self, data):
+        keys = ["mlx5dr_debug_res_type", "matcher_id", "priority",
+                "mode", "sz_row_log", "sz_col_log", "use_rule_idx",
+                "flow_src", "insertion", "distribution"]
+        self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
+        if self.data["flow_src"] == "1":
+            self.data["flow_src"]  = "FDB ingress"
+        elif self.data["flow_src"] == "2":
+            self.data["flow_src"]  = "FDB egress"
+        else:
+            self.data["flow_src"]  = "default"
+        self.priority = self.data.get("priority")
+        self.fix_data()
+
+    def dump_str(self, verbosity):
+        if verbosity > 0:
+            return dump_obj_str(["mlx5dr_debug_res_type",
+                                 "priority", "mode", "sz_row_log",
+                                 "sz_col_log", "flow_src", "insertion",
+                                 "distribution"], self.data)
+
+        return dump_obj_str(["mlx5dr_debug_res_type",
+                             "priority", "mode"], self.data)
+
+    def fix_data(self):
+        self.data["mode"] = "RULE" if self.data["mode"] == "0" else "HTABLE"
+        self.data["insertion"] = "INDEX" if self.data.get("insertion") == "1" else "HASH"
+        self.data["distribution"] = "LINEAR" if self.data.get("distribution") == "1" else "HASH"
+
+
+class dr_parse_matcher_match_template():
+    def __init__(self, data):
+        keys = ["mlx5dr_debug_res_type", "id", "matcher_id", "fc_sz", "flags", "fcr_sz"]
+        self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
+        self.match_definer = None
+        self.range_definer = None
+        self.fix_data()
+
+    def fix_data(self):
+        if self.data.get("fcr_sz") == None:
+            self.data["fcr_sz"] = "0"
+
+    def dump_str(self, tabs, verbosity):
+        _tabs = tabs + TAB
+        __tabs = _tabs + TAB
+        _str = ':'
+        if self.match_definer != None:
+            definer_str = self.match_definer.dump_fields()
+            if len(definer_str) != 0:
+                _str = ':\n' + _tabs + 'Match fields:\n' + __tabs + definer_str
+                _str = _str.replace(', ', '\n' + __tabs)
+
+            range_definer_str = ''
+            if self.range_definer != None:
+                range_definer_str = self.range_definer.dump_fields()
+            if len(range_definer_str) != 0:
+                _str += '\n' + _tabs + 'Range fields:\n' + __tabs + range_definer_str
+                _str = _str.replace(', ', '\n' + __tabs)
+
+        if verbosity > 2:
+            if _str != ':':
+                _str += '\n' + _tabs
+            return dump_obj_str(["mlx5dr_debug_res_type", "id", "flags",
+                                 "fc_sz", "fcr_sz"], self.data).replace(":", _str)
+
+        return dump_obj_str(["mlx5dr_debug_res_type", "id"],
+                             self.data).replace(":", _str)
+
+    def add_match_definer(self, definer):
+        self.match_definer = definer
+
+    def add_range_definer(self, definer):
+        self.range_definer = definer
+
+
+class dr_parse_matcher_action_template():
+    def __init__(self, data):
+        keys = ["mlx5dr_debug_res_type", "id", "matcher_id", "only_term",
+                "num_of_action_stes", "num_of_actions"]
+        self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
+        self.num_actions = int(self.data.get("num_of_actions"))
+        if self.num_actions > 0:
+            self.data["action_combinations"] = data[6]#Actions combinations start index is 6
+            for ac in data[7:]:#Actions combinations start index is 6, 7 for the second
+                self.data["action_combinations"] += ', ' + ac
+
+    def dump_str(self, tabs, verbosity):
+        _keys = ["mlx5dr_debug_res_type", "id"]
+        if verbosity > 2:
+            _keys.extend(["num_of_actions", "only_term", "num_of_action_stes"])
+
+        _tabs = tabs + TAB
+        _str = dump_obj_str(_keys, self.data)
+
+        if self.num_actions > 0:
+            _str += _tabs + 'Action combinations: ' + self.data.get("action_combinations") + '\n'
+
+        return _str
