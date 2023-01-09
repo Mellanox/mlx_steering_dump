@@ -1,0 +1,4 @@
+#!/bin/sh
+cd /usr/share/mlx-steering-dump/hws
+exec ./mlx_hw_steering_parser.py "$@"
+
