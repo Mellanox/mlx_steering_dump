@@ -231,7 +231,7 @@ class dr_dump_action_meter(dr_obj):
         self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
 
     def dump_str(self):
-        return "METER, next flow table %s, devx obj id %s, rx_icm_addr %s rx_icm_addr %s" % (
+        return "METER, next flow table %s, devx obj id %s, rx_icm_addr %s, tx_icm_addr %s" % (
             _srd(self.data, "next_ft"),
             _srd(self.data, "devx_id"),
             _srd(self.data, "rx_icm_addr"),
@@ -245,8 +245,8 @@ class dr_dump_action_sampler(dr_obj):
         self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
 
     def dump_str(self):
-        return "SAMPLER, next flow table %s, sample table devx obj id %s, sampler devx obj id %s, rx_icm_addr %s " \
-               "rx_icm_addr %s" % (
+        return "SAMPLER, next flow table %s, sample table devx obj id %s, sampler devx obj id %s, rx_icm_addr %s, " \
+               "tx_icm_addr %s" % (
             _srd(self.data, "next_ft"),
             _srd(self.data, "sample_tbl_devx_id"),
             _srd(self.data, "devx_id"),
@@ -260,7 +260,7 @@ class dr_dump_action_dest_array(dr_obj):
         self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
 
     def dump_str(self):
-        return "DEST_ARRAY, devx obj id %s, rx_icm_addr %s rx_icm_addr %s" % (
+        return "DEST_ARRAY, devx obj id %s, rx_icm_addr %s, tx_icm_addr %s" % (
             _srd(self.data, "devx_id"),
             _srd(self.data, "rx_icm_addr"),
             _srd(self.data, "tx_icm_addr"))
