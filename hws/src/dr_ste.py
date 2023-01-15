@@ -99,7 +99,7 @@ def raw_ste_parser(raw_ste):
     ste["match_definer_context_index"] = int(raw_ste[48 : 56], 2)
     miss_address_39_32 = int(raw_ste[56 : 64], 2)
     miss_address_31_6 = int(raw_ste[64 : 90], 2)
-    ste["miss_addr"] = (miss_address_63_48 << 64) | (miss_address_39_32 << 32) | (miss_address_31_6 << 6)
+    ste["miss_addr"] = (miss_address_63_48 << 48) | (miss_address_39_32 << 32) | (miss_address_31_6 << 6)
     next_table_base_63_48 = int(raw_ste[96 : 112], 2)
     ste["hash_definer_context_index"] = int(raw_ste[112 : 120], 2)
     next_table_base_39_32 = int(raw_ste[120 : 128], 2)
