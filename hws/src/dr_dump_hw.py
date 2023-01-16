@@ -44,6 +44,7 @@ def parse_fw_stc_rd_bin_output(stc_index, load_to_db, file):
 def parse_fw_ste_rd_bin_output(fw_ste_index, load_to_db, file):
     min_addr = '0xffffffff'
     max_addr = '0x00000000'
+    first_ste = True
     ste_dic = {}
 
     _config_args["tmp_file"] = open(_config_args.get("tmp_file_path"), 'rb+')
@@ -59,6 +60,11 @@ def parse_fw_ste_rd_bin_output(fw_ste_index, load_to_db, file):
         if data[2:8] == RESOURCE_DUMP_SEGMENT_TYPE_STE_BIN:
             ste = '0x' + data[32:]
             hit_add = ste[32 : 41]
+            if first_ste:
+                ste_addr = '0x' + data[16:24]
+                if ste_addr < min_addr:
+                    min_addr = ste_addr
+                first_ste = False
             if int(hit_add, 16) & STE_ALWAYS_HIT_ADDRESS != STE_ALWAYS_HIT_ADDRESS:
                 ste_addr = '0x' + data[16:24]
                 ste_prefix = MLX5DR_DEBUG_RES_TYPE_STE + ','
@@ -82,6 +88,8 @@ def parse_fw_ste_rd_bin_output(fw_ste_index, load_to_db, file):
     if load_to_db:
         _fw_ste_db[fw_ste_index] = ste_dic
         _stes_range_db[fw_ste_index] = (min_addr, max_addr)
+
+    file.write("%s,%s,%s,%s\n" % (MLX5DR_DEBUG_RES_TYPE_FW_STE_STATS, fw_ste_index, min_addr, max_addr))
 
 
 def parse_fw_ste_rd_output(data, fw_ste_index, load_to_db, file):

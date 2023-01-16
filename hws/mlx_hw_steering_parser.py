@@ -38,6 +38,7 @@ switch_csv_res_type = {
     MLX5DR_DEBUG_RES_TYPE_MATCHER_TEMPLATE_RANGE_DEFINER: dr_parse_definer,
     MLX5DR_DEBUG_RES_TYPE_MATCHER_TEMPLATE_HASH_DEFINER: dr_parse_definer,
     MLX5DR_DEBUG_RES_TYPE_FW_STE: dr_parse_fw_ste,
+    MLX5DR_DEBUG_RES_TYPE_FW_STE_STATS: dr_parse_fw_ste_stats,
     MLX5DR_DEBUG_RES_TYPE_STE: dr_parse_ste,
     MLX5DR_DEBUG_RES_TYPE_ADDRESS: dr_parse_address,
     MLX5DR_DEBUG_RES_TYPE_CONTEXT_STC: dr_parse_stc,
@@ -136,6 +137,9 @@ def dr_parse_csv_file(csv_file, load_to_db):
             max_ste_addr = '0x00000000'
             min_ste_addr = '0xffffffff'
             last_fw_ste = obj
+        elif line[0] == MLX5DR_DEBUG_RES_TYPE_FW_STE_STATS:
+                min_ste_addr = obj.get_min_addr()
+                max_ste_addr = obj.get_max_addr()
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_HW_RRESOURCES_DUMP_END:
             if last_fw_ste != None:
                 last_fw_ste.add_stes_range(min_ste_addr, max_ste_addr)
@@ -209,6 +213,8 @@ def parse_args():
                         help="Trigger DPDK app <PORT> newer dpdk supports -1 for all ports (must provide PID with -pid).")
     parser.add_argument("-extra_hw_res", type=str, default="", dest="extra_hw_res", metavar="[pat, arg]",
                         help = "Request extra HW resources to be dumped. For example: -extra_hw_res pat,arg")
+    parser.add_argument("-s", action="store_true", default=False, dest="statistics",
+                        help="Show dump statistics.")
     parser.add_argument("-h", "--help", action="help", default=argparse.SUPPRESS,
                         help='Show this help message and exit.')
 
@@ -265,6 +271,8 @@ def parse_args():
 
     _config_args["resourcedump_mem_mode"] = False
     _config_args["hw_resources_present"] = False
+
+    _config_args["statistics"] = args.statistics
 
 
 if __name__ == "__main__":

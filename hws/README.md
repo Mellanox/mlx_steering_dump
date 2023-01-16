@@ -34,7 +34,7 @@ Running syntax
 
     ./mlx_hw_steering_parser.py [-f FILE_PATH] [-v] [-skip_dump] [-d DEVICE]
                                 [-pid DPDK_PID] [-port DPDK_PORT] [-skip_parse]
-                                [-h]
+                                [-s] [-h]
 
 ***optional arguments:***
 | Flag | Description |
@@ -47,6 +47,7 @@ Running syntax
 | -pid DPDK_PID | Trigger DPDK app <PID> |
 | -port DPDK_PORT | Trigger DPDK app <PORT> (must provide PID with -pid) |
 | -extra_hw_res [pat, arg] | Request extra HW resources to be dumped. For example: -extra_hw_res pat,arg |
+| -s | Show dump statistics. |
 | -h, --help | It will show the help message and exit |
 
 Required package
