@@ -91,6 +91,7 @@ def ste_hit_addr_calc(next_table_base_63_48, next_table_base_39_32, next_table_b
 def raw_ste_parser(raw_ste):
     #Convert STE to binary
     ste = {}
+    ste["actions"] = []
     raw_ste = hex_to_bin_str(raw_ste, STE_SIZE_IN_BITS)
 
     ste["entry_format"] = int(raw_ste[0 : 8], 2)
