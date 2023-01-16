@@ -4,9 +4,31 @@
 from src.dr_common import *
 from src.dr_db import _fw_ste_indexes_arr, _matchers, _tbl_type_db,\
                       _config_args, _tbl_level_db, _col_matchers,\
-                      _term_dest_db
+                      _term_dest_db, _stes_range_db, _fw_ste_db
 from src.dr_rule import dr_parse_rules
 
+
+def get_fw_ste_distribution_statistics(fw_ste_id, row_log_sz, col_log_sz):
+    tbl_size = 1 << row_log_sz
+    arr = [0] * (1 << col_log_sz)
+    _str = str(arr)
+    base_addr = _stes_range_db.get(fw_ste_id)
+    if base_addr == None:
+        return _str
+
+    base_addr = int(base_addr[0], 16)
+    ste_addr_db = _fw_ste_db.get(fw_ste_id)
+    if ste_addr_db == None:
+        return _str
+
+    for addr in ste_addr_db:
+        _addr = int(addr, 16)
+        i = (_addr - base_addr) // tbl_size
+        arr[i] += 1
+
+    _str = str(arr)
+
+    return _str
 
 class dr_parse_matcher():
     def __init__(self, data):
@@ -96,6 +118,20 @@ class dr_parse_matcher():
         return dump_obj_str(_keys, self.data)
 
 
+    def dump_matcher_statistcs(self):
+        row_log_sz = self.attr.get_row_log_sz()
+        col_log_sz = self.attr.get_col_log_sz()
+        _str = "Statistics: distribution: "
+        if self.match_ste_1_id != None:
+            _str += "RX: "
+        _str += get_fw_ste_distribution_statistics(self.match_ste_0_id, row_log_sz, col_log_sz)
+        if self.match_ste_1_id != None:
+            _str += ", TX: " + get_fw_ste_distribution_statistics(self.match_ste_1_id, row_log_sz, col_log_sz)
+        _str += "\n"
+
+        return _str
+
+
     def dump_matcher_resources(self, verbosity, tabs):
         _keys = ["match_rtc_0_id", "match_ste_0_id"]
 
@@ -115,6 +151,12 @@ class dr_parse_matcher():
         if self.col_matcher_id != "0x0":
             col_matcher = _matchers.get(self.col_matcher_id)
             _str += tabs +"Resources (C): " + dump_obj_str(_keys, col_matcher.data)
+
+        if _config_args.get("statistics") == True:
+            _str += tabs + self.dump_matcher_statistcs()
+
+            if self.col_matcher_id != "0x0":
+                _str += tabs + col_matcher.dump_matcher_statistcs().replace("Statistics:", "Statistics (C):")
 
         return _str
 
@@ -215,6 +257,11 @@ class dr_parse_matcher_attr():
         self.priority = self.data.get("priority")
         self.fix_data()
 
+    def get_row_log_sz(self):
+        return int(self.data.get("sz_row_log"))
+
+    def get_col_log_sz(self):
+        return int(self.data.get("sz_col_log"))
 
     def dump_str(self, verbosity):
         _keys = ["mlx5dr_debug_res_type", "priority", "log_sz"]

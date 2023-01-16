@@ -28,6 +28,18 @@ class dr_parse_fw_ste():
         _stes_range_db[self.get_id()] = (min_ste_addr, max_ste_addr)
 
 
+class dr_parse_fw_ste_stats():
+    def __init__(self, data):
+        keys = ["mlx5dr_debug_res_type", "fw_ste_id", "min_addr", "max_addr"]
+        self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
+
+    def get_min_addr(self):
+        return self.data.get("min_addr")
+
+    def get_max_addr(self):
+        return self.data.get("max_addr")
+
+
 class dr_parse_address():
     def __init__(self, data):
         keys = ["mlx5dr_debug_res_type", "address", "type", "id"]
