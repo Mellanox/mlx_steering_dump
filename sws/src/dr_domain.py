@@ -28,7 +28,7 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from src.dr_utilities import _srd, dec_indent, dr_obj, inc_indent, print_dr, dr_print_color
+from src.dr_utilities import _srd, dec_indent, dr_obj, inc_indent, print_dr, dr_print_color, dr_utils_dic
 from src.dr_constants import DR_DUMP_REC_TYPE_DOMAIN_OBJS
 
 
@@ -51,7 +51,7 @@ def domain_type_str(type_str):
 
 class dr_dump_domain(dr_obj):
     def __init__(self, data):
-        keys = ["dr_dump_rec_type", "id", "type", "gvmi", "support_sw_steering", "package_version", "dev_name", "flags", "num_ste_buddy", "num_mh_buddy", "num_ptrn_buddy"]
+        keys = ["dr_dump_rec_type", "id", "type", "gvmi", "support_sw_steering", "package_version", "dev_name", "flags", "num_ste_buddy", "num_mh_buddy", "num_ptrn_buddy", "sw_format_ver"]
         self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
         self.fix_data()
         self.table_list = []
@@ -60,6 +60,9 @@ class dr_dump_domain(dr_obj):
         self.send_ring = None
         self.vports = []
         self.flex_parsers = []
+        sw_format_ver = self.data.get("sw_format_ver")
+        if sw_format_ver != None:
+            dr_utils_dic["sw_format_ver"] = int(sw_format_ver);
 
     def dump_str(self):
         return "domain %s: type: %s, gvmi: %s, support_sw_steering %s, dev_name %s, package_version %s, flags %s, ste_buddies %s, mh_buddies %s, ptrn_buddies %s\n" % (
