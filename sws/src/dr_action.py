@@ -33,6 +33,7 @@ from src.dr_constants import DR_DUMP_REC_TYPE_ACTION_OBJS
 from src.dr_prettify import pretty_ip,pretty_mac
 from src.dr_utilities import _val
 from src.parsers.mlx5_ifc_parser import mlx5_ifc_encap_decap, mlx5_ifc_modify_hdr
+from src.parsers.dr_ptrn_and_args_parser import dr_ptrn_and_args_parser
 from src.dr_utilities import dr_dump_ctx
 
 def dr_rec_type_is_action(rec_type):
@@ -115,8 +116,15 @@ class dr_dump_action_tag(dr_obj):
 
 class dr_dump_action_modify_header(dr_obj):
     def __init__(self, data):
-        keys = ["dr_dump_rec_type", "id", "rule_id", "rewrite_index", "single_action_opt"]
+        keys = ["dr_dump_rec_type", "id", "rule_id", "rewrite_index", "single_action_opt",
+                "num_of_ptrn_actions", "ptrn_idx", "arg_idx"]
         self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
+        self.ptrn_and_args_arr = []
+        if self.data.get("num_of_ptrn_actions") != None:
+            num_of_ptrn_actions = int(self.data.get("num_of_ptrn_actions"), 16)
+            if num_of_ptrn_actions > 0:
+                self.ptrn_and_args_arr = data[-num_of_ptrn_actions:]
+
 
     def add_dump_ctx(self, dump_ctx):
         self.dump_ctx = dump_ctx
@@ -125,6 +133,14 @@ class dr_dump_action_modify_header(dr_obj):
         if self.data["single_action_opt"]:
             if int(self.data["single_action_opt"], 16) == 1:
                 return "MODIFY_HDR, single modify action optimized"
+
+        if len(self.ptrn_and_args_arr) > 0:
+            out_str = dr_ptrn_and_args_parser(self.ptrn_and_args_arr)
+            ptrn_idx = self.data.get("ptrn_idx")
+            arg_idx = self.data.get("arg_idx")
+            num_of_actions = self.data.get("num_of_ptrn_actions")
+            return "MODIFY_HDR, num of actions: %s, ptrn_idx: %s, arg_idx: %s%s"\
+                % (num_of_actions, ptrn_idx, arg_idx, out_str)
 
         if ( (_srd(self.data, "id")) in self.dump_ctx.modify_hdr.keys()):
             out_str = self.dump_ctx.modify_hdr[(_srd(self.data, "id"))].lstrip(',')
