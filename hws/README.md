@@ -11,22 +11,32 @@ The dump can be triggered by calling the dump API directly via:
 
 Also it can be triggered for a DPDK app via:
 
-    python mlx_hw_steering_parser.py -p <DPDK PID> -f <dump_file>
+    python mlx_hw_steering_parser.py -pid <DPDK PID> -f <dump_file>
 
 **Example:**
+
+ - Trigger a dump to a new CSV file and skip HW dump:
+
+        ./mlx_hw_steering_parser.py -pid <DPDK PID> -f <dump_file> -skip_dump 
+
+ - Parse an existing dump_file CSV:
+
+        ./mlx_hw_steering_parser.py -f <dump_file> -skip_dump
+
  - Developer triggering and parsing a dump with HW resources from a DPDK app:
  
-        ./mlx_hw_steering_parser.py -p <DPDK PID> -f <dump_file> -vvv
-        ./mlx_hw_steering_parser.py -p <DPDK PID> -f <dump_file> -vvv -extra_hw_res pat,arg
+        ./mlx_hw_steering_parser.py -pid <DPDK PID> -f <dump_file> -vvv
+        ./mlx_hw_steering_parser.py -pid <DPDK PID> -f <dump_file> -vvv -extra_hw_res pat,arg
    
- - Customer producing a dump for developers to debug:
+ - Customer producing a full dump for developers to debug:
  
-        ./mlx_hw_steering_parser.py -p <DPDK PID> -f <dump_file> -skip_parse
+        ./mlx_hw_steering_parser.py -pid <DPDK PID> -f <dump_file> -skip_parse
+
+ - Customer producing a control dump for developers to debug:
+ 
+        ./mlx_hw_steering_parser.py -pid <DPDK PID> -f <dump_file> -skip_dump
   
- - For only parsing a dump CSV file:
-
-        ./mlx_hw_steering_parser.py -f <dump_file> -skip_dump -v
-
+  
  ***Please see below "Running syntax" for more info.***
  
 Running syntax
