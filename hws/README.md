@@ -57,7 +57,7 @@ Running syntax
 | -pid DPDK_PID | Trigger DPDK app <PID> |
 | -port DPDK_PORT | Trigger DPDK app <PORT> (must provide PID with -pid) |
 | -extra_hw_res [pat, arg] | Request extra HW resources to be dumped. For example: -extra_hw_res pat,arg |
-| -s | Show dump statistics, as STE's distribution |
+| -s | Show dump statistics, such as STE's distribution |
 | -h, --help | It will show the help message and exit |
 
 Required package
