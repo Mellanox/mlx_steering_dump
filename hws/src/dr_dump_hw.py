@@ -46,14 +46,28 @@ def parse_fw_ste_rd_bin_output(fw_ste_index, load_to_db, file):
     max_addr = '0x00000000'
     first_ste = True
     ste_dic = {}
+    count = 0
 
     _config_args["tmp_file"] = open(_config_args.get("tmp_file_path"), 'rb+')
     bin_file = _config_args.get("tmp_file")
 
     file.write(MLX5DR_DEBUG_RES_TYPE_FW_STE + ',' + fw_ste_index + '\n')
 
-    #There are 68B of prefix data before first STE dump
-    data = bin_file.read(68)
+    #First read DW(4B) each time till reaching first STE
+    data = bin_file.read(4)
+    while data:
+        data = hex(int.from_bytes(data, byteorder='big'))
+        if data[2:8] == RESOURCE_DUMP_SEGMENT_TYPE_STE_BIN:
+            #Seek to the first STE location in the bin_file
+            bin_file.seek(count)
+            break
+
+        count += 4
+        data = bin_file.read(4)
+
+    #Each STE dump contain 64B(STE) + 16(STE prefix)
+    data = bin_file.read(80)
+
     while data:
         #Leading zeros will be ignored
         data = hex(int.from_bytes(data, byteorder='big'))
