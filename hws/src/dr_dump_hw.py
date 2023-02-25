@@ -160,11 +160,14 @@ def dr_hw_data_engine(obj, file):
                 print('Unknown MST device')
                 exit()
             dev_name = _config_args.get("dev_name")
+            _vhca_id = _config_args.get("vhca_id")
         else:
             dev_name = _config_args.get("shared_dev_name")
+            _vhca_id = _config_args.get("shared_vhca_id")
 
         file.write(MLX5DR_DEBUG_RES_TYPE_HW_RRESOURCES_DUMP_START + '\n')
         _config_args["hw_resources_dump_started"] = True
         _config_args["_dev"] = dev
         _config_args["_dev_name"] = dev_name
+        _config_args["_vhca_id"] = _vhca_id
         dump_hw_resources(load_to_db, dev, dev_name, file)

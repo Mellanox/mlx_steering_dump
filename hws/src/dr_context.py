@@ -84,10 +84,12 @@ class dr_parse_context_attr():
                 "pd_num", "queues", "queue_size", "shared_dev_name",
                 "vhca_id", "shared_vhca_id"]
         self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
+        _config_args["vhca_id"] = self.data.get("vhca_id")
         shared_dev_name = None if self.data.get("shared_dev_name") == 'None' else self.data.get("shared_dev_name")
         if _config_args.get("dump_hw_resources") and shared_dev_name != None:
             _config_args["shared_dev_name"] = shared_dev_name
             _config_args["shared_device"] = get_mst_dev(shared_dev_name)
+            _config_args["shared_vhca_id"] = self.data.get("shared_vhca_id")
 
     def dump_str(self, verbosity):
         arr = ["mlx5dr_debug_res_type", "ctx_id", "pd_num",
