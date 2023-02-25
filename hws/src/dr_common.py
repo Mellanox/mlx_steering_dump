@@ -166,6 +166,10 @@ def call_resource_dump(dev, dev_name, segment, index1, num_of_obj1, num_of_obj2,
         _input += ' --mem ' + dev_name
         _input += ' --bin ' + _config_args.get("tmp_file_path")
 
+    vhca_id = _config_args.get("_vhca_id")
+    if vhca_id != None and vhca_id != "0":
+        _input += ' --virtual-hca-id ' + vhca_id
+
     output = sp.getoutput(_input)
     if (len(output) >= 10) and ('Error' in output[0:10]):
         print(output)
