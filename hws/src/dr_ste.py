@@ -148,22 +148,22 @@ def raw_ste_parser(raw_ste):
     else:
         tags["dw_selector_1_min"] = raw_ste[480 : 512]
         tags["dw_selector_1_max"] = raw_ste[448 : 480]
-        tags["byte_selector_0_min"] = dw_selector_4[24 : 32]
-        tags["byte_selector_0_max"] = dw_selector_5[24 : 32]
-        tags["byte_selector_1_min"] = dw_selector_4[16 : 24]
-        tags["byte_selector_1_max"] = dw_selector_5[16 : 24]
-        tags["byte_selector_2_min"] = dw_selector_4[8 : 16]
-        tags["byte_selector_2_max"] = dw_selector_5[8 : 16]
-        tags["byte_selector_3_min"] = dw_selector_4[0 : 8]
-        tags["byte_selector_3_max"] = dw_selector_5[0 : 8]
-        tags["byte_selector_4_min"] = dw_selector_2[24 : 32]
-        tags["byte_selector_4_max"] = dw_selector_3[24 : 32]
-        tags["byte_selector_5_min"] = dw_selector_2[16 : 24]
-        tags["byte_selector_5_max"] = dw_selector_3[16 : 24]
-        tags["byte_selector_6_min"] = dw_selector_2[7 : 16]
-        tags["byte_selector_6_max"] = dw_selector_3[8 : 16]
-        tags["byte_selector_7_min"] = dw_selector_2[0 : 8]
-        tags["byte_selector_7_max"] = dw_selector_3[0 : 8]
+        tags["byte_selector_0_min"] = definer.byte_mask_tag_functions.get("byte_selector_0")(dw_selector_4[24 : 32])
+        tags["byte_selector_0_max"] = definer.byte_mask_tag_functions.get("byte_selector_0")(dw_selector_5[24 : 32])
+        tags["byte_selector_1_min"] = definer.byte_mask_tag_functions.get("byte_selector_1")(dw_selector_4[16 : 24])
+        tags["byte_selector_1_max"] = definer.byte_mask_tag_functions.get("byte_selector_1")(dw_selector_5[16 : 24])
+        tags["byte_selector_2_min"] = definer.byte_mask_tag_functions.get("byte_selector_2")(dw_selector_4[8 : 16])
+        tags["byte_selector_2_max"] = definer.byte_mask_tag_functions.get("byte_selector_2")(dw_selector_5[8 : 16])
+        tags["byte_selector_3_min"] = definer.byte_mask_tag_functions.get("byte_selector_3")(dw_selector_4[0 : 8])
+        tags["byte_selector_3_max"] = definer.byte_mask_tag_functions.get("byte_selector_3")(dw_selector_5[0 : 8])
+        tags["byte_selector_4_min"] = definer.byte_mask_tag_functions.get("byte_selector_4")(dw_selector_2[24 : 32])
+        tags["byte_selector_4_max"] = definer.byte_mask_tag_functions.get("byte_selector_4")(dw_selector_3[24 : 32])
+        tags["byte_selector_5_min"] = definer.byte_mask_tag_functions.get("byte_selector_5")(dw_selector_2[16 : 24])
+        tags["byte_selector_5_max"] = definer.byte_mask_tag_functions.get("byte_selector_5")(dw_selector_3[16 : 24])
+        tags["byte_selector_6_min"] = definer.byte_mask_tag_functions.get("byte_selector_6")(dw_selector_2[7 : 16])
+        tags["byte_selector_6_max"] = definer.byte_mask_tag_functions.get("byte_selector_6")(dw_selector_3[8 : 16])
+        tags["byte_selector_7_min"] = definer.byte_mask_tag_functions.get("byte_selector_7")(dw_selector_2[0 : 8])
+        tags["byte_selector_7_max"] = definer.byte_mask_tag_functions.get("byte_selector_7")(dw_selector_3[0 : 8])
 
     parsed_tag = {}
 
