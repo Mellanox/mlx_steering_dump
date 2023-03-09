@@ -7,6 +7,14 @@ from src.dr_hw_resources import parse_fw_modify_pattern_rd_bin_output, parse_fw_
 from src.dr_hl import dr_hl_dw_parser
 
 
+def get_field(dw_offset, mask):
+    fw_version_major = _config_args.get("fw_version_major")
+    if fw_version_major < FW_VERSION_MAJOR_CX7:
+        if dw_offset > FLEX_PARSER_0_HL_OFFSET:
+            dw_offset += V1_TO_V2_HL_OFFSET_DIFF
+
+    return dr_hl_dw_parser(dw_offset, mask)
+
 def dr_action_nope_parser(action_arr, index):
     return (1, [''])
 
@@ -19,7 +27,7 @@ def dr_action_copy_parser(action_arr, index):
     length = int(action_dw_0[24 : 32], 2)
     length = 32 if length == 0 else length
     mask = hex_to_bin_str(hex(int(length * "1", 2) << dst_left_shifter), 32)
-    res = dr_hl_dw_parser(dst_dw_offset, mask)
+    res = get_field(dst_dw_offset, mask)
 
     if res != None and len(res) > 0:
         action["dst_field"] = res[0][0]
@@ -33,7 +41,7 @@ def dr_action_copy_parser(action_arr, index):
     src_right_shifter = int(action_dw_1[18 : 24], 2)
 
     mask = hex_to_bin_str(hex(int(length * "1", 2) << (32 - src_right_shifter)), 32)
-    res = dr_hl_dw_parser(src_dw_offset, mask)
+    res = get_field(src_dw_offset, mask)
 
     if res != None and len(res) > 0:
         action["src_field"] = res[0][0]
@@ -53,7 +61,7 @@ def dr_action_set_parser(action_arr, index):
     length = int(action_dw_0[24 : 32], 2)
     length = 32 if length == 0 else length
     mask = hex_to_bin_str(hex(int(length * "1", 2) << left_shifter), 32)
-    res = dr_hl_dw_parser(dw_offset, mask)
+    res = get_field(dw_offset, mask)
 
     if res != None and len(res) > 0:
         action["field"] = res[0][0]
@@ -75,7 +83,7 @@ def dr_action_add_parser(action_arr, index):
     length = int(action_dw_0[24 : 32], 2)
     length = 32 if length == 0 else length
     mask = hex_to_bin_str(hex(int(length * "1", 2) << left_shifter), 32)
-    res = dr_hl_dw_parser(dw_offset, mask)
+    res = get_field(dw_offset, mask)
 
     if res != None and len(res) > 0:
         action["field"] = res[0][0]

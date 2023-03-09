@@ -115,6 +115,12 @@ class dr_parse_context_caps():
                 "log_header_modify_argument_granularity",
                 "linear_match_definer", "linear_match_definer_field_name"]
         self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
+
+        try:
+            _config_args["fw_version_major"] = int(self.data.get("fw_version").split(".")[0])
+        except:
+            _config_args["fw_version_major"] = 0xff
+
         _config_args["linear_match_definer"] = self.data.get("linear_match_definer")
         _config_args["linear_match_definer_field_name"] = self.data.get("linear_match_definer_field_name")
         if _config_args.get("linear_match_definer") != None:

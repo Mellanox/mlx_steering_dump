@@ -377,3 +377,7 @@ modify_pattern_anchor_dic = {
     0x3B: "IN2_IP_END",
 }
 
+
+FW_VERSION_MAJOR_CX7 = 28
+FLEX_PARSER_0_HL_OFFSET = 137
+V1_TO_V2_HL_OFFSET_DIFF = 4
