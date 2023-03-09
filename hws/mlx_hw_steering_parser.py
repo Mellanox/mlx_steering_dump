@@ -180,7 +180,7 @@ def validate_env_caps():
     dump_hw_res = _config_args.get("dump_hw_resources")
     if dump_hw_res:
         if p_v != '3':
-            print('Can not Dump HW resources <-hw>, need Python3')
+            print('Cannot Dump HW resources <-hw>, need Python3')
             exit()
 
         output = sp.getoutput('resourcedump -v')
