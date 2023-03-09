@@ -263,7 +263,7 @@ class dr_parse_matcher_attr():
             self.data["flow_src"]  = "FDB egress"
         else:
             self.data["flow_src"]  = "default"
-        self.priority = self.data.get("priority")
+        self.priority = int(self.data.get("priority")) & 0xffffffff
         self.fix_data()
 
     def get_row_log_sz(self):
@@ -287,6 +287,7 @@ class dr_parse_matcher_attr():
         self.data["insertion"] = "INDEX" if self.data.get("insertion") == "1" else "HASH"
         self.data["distribution"] = "LINEAR" if self.data.get("distribution") == "1" else "HASH"
         self.data["log_sz"] = "%sX%s" % (self.data.get("sz_row_log"), self.data.get("sz_col_log"))
+        self.data["priority"] = hex(self.priority)
 
 
 class dr_parse_matcher_match_template():
