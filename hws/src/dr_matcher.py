@@ -187,9 +187,13 @@ class dr_parse_matcher():
 
         if _config_args.get("parse_hw_resources") and (tbl_level != DR_ROOT_TBL_LEVEL):
             _str += tabs + 'Rules:\n'
-            _str = _str + dr_parse_rules(self, verbosity, tabs)
+            _rules_str = dr_parse_rules(self, verbosity, tabs)
             if col_matcher:
-                _str = _str + dr_parse_rules(col_matcher, verbosity, tabs)
+                _rules_str += dr_parse_rules(col_matcher, verbosity, tabs)
+            if _rules_str != "":
+                _str += _rules_str
+            else:
+                _str += tabs + TAB + "No rules\n"
 
         return _str
 
