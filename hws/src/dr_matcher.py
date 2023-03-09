@@ -88,6 +88,11 @@ class dr_parse_matcher():
         if tx_icm_addr == None:
             tx_icm_addr = "0x0"
 
+        _tbl_type = _tbl_type_db.get(self.data.get("tbl_id"))
+        if _tbl_type == DR_TBL_TYPE_NIC_TX:
+            tx_icm_addr = rx_icm_addr
+            rx_icm_addr = "0x0"
+
         self.data["rx_icm_addr"] = rx_icm_addr
         self.data["tx_icm_addr"] = tx_icm_addr
 
