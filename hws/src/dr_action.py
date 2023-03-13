@@ -24,6 +24,9 @@ def dr_action_copy_parser(action_arr, index):
     action = {"type" : "Copy"}
     dst_dw_offset = int(action_dw_0[8 : 16], 2)
     dst_left_shifter = int(action_dw_0[18 : 24], 2)
+    if dst_left_shifter >= 32:
+        dst_left_shifter -= 32
+
     length = int(action_dw_0[24 : 32], 2)
     length = 32 if length == 0 else length
     mask = hex_to_bin_str(hex(int(length * "1", 2) << dst_left_shifter), 32)
@@ -39,6 +42,8 @@ def dr_action_copy_parser(action_arr, index):
 
     src_dw_offset = int(action_dw_1[8 : 16], 2)
     src_right_shifter = int(action_dw_1[18 : 24], 2)
+    if src_right_shifter >= 32:
+        src_right_shifter -= 32
 
     mask = hex_to_bin_str(hex(int(length * "1", 2) << (32 - src_right_shifter)), 32)
     res = get_field(src_dw_offset, mask)
@@ -58,6 +63,9 @@ def dr_action_set_parser(action_arr, index):
     action = {"type" : "Set"}
     dw_offset = int(action_dw_0[8 : 16], 2)
     left_shifter = int(action_dw_0[18 : 24], 2)
+    if left_shifter >= 32:
+        left_shifter -= 32
+
     length = int(action_dw_0[24 : 32], 2)
     length = 32 if length == 0 else length
     mask = hex_to_bin_str(hex(int(length * "1", 2) << left_shifter), 32)
@@ -80,6 +88,9 @@ def dr_action_add_parser(action_arr, index):
     action = {"type" : "Add"}
     dw_offset = int(action_dw_0[8 : 16], 2)
     left_shifter = int(action_dw_0[18 : 24], 2)
+    if left_shifter >= 32:
+        left_shifter -= 32
+
     length = int(action_dw_0[24 : 32], 2)
     length = 32 if length == 0 else length
     mask = hex_to_bin_str(hex(int(length * "1", 2) << left_shifter), 32)
