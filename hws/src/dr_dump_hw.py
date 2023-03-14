@@ -5,6 +5,7 @@ from src.dr_common import *
 from src.dr_db import _fw_ste_indexes_arr, _fw_ste_db, _stes_range_db, _config_args, _term_dest_db, _stc_indexes_arr, _pattern_db
 from src.dr_ste import dr_parse_ste
 from src.dr_hw_resources import dr_parse_fw_stc_action_get_obj_id, dr_parse_fw_stc_get_addr, dr_parse_fw_modify_pattern
+from src.dr_visual import interactive_progress_bar
 
 
 def parse_fw_stc_rd_bin_output(stc_index, load_to_db, file):
@@ -137,9 +138,14 @@ def parse_fw_ste_rd_output(data, fw_ste_index, load_to_db, file):
 
 
 def dump_hw_resources(load_to_db, dev, dev_name, file):
+    total_resources = _config_args.get("total_resources")
+    interactive_progress_bar(0, total_resources, DUMPING_HW_RESOURCES)
+    i = 0
     for stc_index in _stc_indexes_arr:
         output = call_resource_dump(dev, dev_name, "STC", stc_index, None, 'all', None)
         parse_fw_stc_rd_bin_output(stc_index, load_to_db, file)
+        i += 1
+        interactive_progress_bar(i, total_resources, DUMPING_HW_RESOURCES)
 
     #Dump FW STE's
     for fw_ste_index in _fw_ste_indexes_arr:
@@ -148,6 +154,9 @@ def dump_hw_resources(load_to_db, dev, dev_name, file):
             parse_fw_ste_rd_bin_output(fw_ste_index, load_to_db, file)
         else:
             parse_fw_ste_rd_output(output, fw_ste_index, load_to_db, file)
+
+        i += 1
+        interactive_progress_bar(i, total_resources, DUMPING_HW_RESOURCES)
 
 
 def dr_hw_data_engine(obj, file):

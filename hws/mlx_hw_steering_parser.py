@@ -19,7 +19,7 @@ from src.dr_dump_hw import *
 from src.dr_rule import *
 from src.dr_hw_resources import *
 from src.dr_ste import *
-from src.dr_db import _config_args
+from src.dr_db import _config_args, _fw_ste_indexes_arr, _stc_indexes_arr
 
 
 # mapping csv records types to it's relevant parser function
@@ -75,6 +75,7 @@ def dr_parse_csv_file(csv_file, load_to_db):
     last_fw_ste = None
     min_ste_addr = ''
     max_ste_addr = ''
+    print("Loading input file ...")
     csv_reader = csv.reader(csv_file)
     for line in csv_reader:
         obj = dr_csv_get_obj(line)
@@ -288,6 +289,9 @@ if __name__ == "__main__":
         obj = dr_parse_csv_file(csv_file, load_to_db)
         csv_file.close()
 
+        _config_args["total_resources"] = len(_stc_indexes_arr) + len(_fw_ste_indexes_arr)
+        _config_args["total_fw_ste"] = len(_fw_ste_indexes_arr)
+
         if _config_args.get("dump_hw_resources"):
             csv_file = open(_config_args.get("file_path"), 'a+')
             _config_args["csv_file"] = csv_file
@@ -296,6 +300,10 @@ if __name__ == "__main__":
             if _config_args.get("hw_resources_present") == False:
                 _config_args["parse_hw_resources"] = False
                 _config_args["load_hw_resources"] = False
+
+        if _config_args.get("parse_hw_resources"):
+            _config_args["progress_bar_i"] = 0
+            interactive_progress_bar(0, _config_args.get("total_fw_ste"), PARSING_THE_RULES_STR)
 
         print(obj.tree_print(verbose, ""))
 
