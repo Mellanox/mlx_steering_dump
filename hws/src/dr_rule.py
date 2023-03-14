@@ -2,8 +2,9 @@
 #Copyright (c) 2021 NVIDIA CORPORATION. All rights reserved.
 
 from src.dr_common import *
-from src.dr_db import _matchers, _fw_ste_db, _stes_range_db, _tbl_type_db
+from src.dr_db import _config_args, _matchers, _fw_ste_db, _stes_range_db, _tbl_type_db
 from src.dr_ste import *
+from src.dr_visual import interactive_progress_bar
 
 
 class dr_parse_rule():
@@ -56,6 +57,9 @@ def dr_parse_rules(matcher, verbosity, tabs):
     tbl_type = _tbl_type_db.get(matcher.data.get("tbl_id"))
     _range = 2 if (tbl_type == DR_TBL_TYPE_FDB) else 1
     _tbl_type = tbl_type
+    progress_bar_i = _config_args.get("progress_bar_i")
+    if progress_bar_i == 0:
+        interactive_progress_bar(progress_bar_i, _config_args.get("total_fw_ste"), PARSING_THE_RULES_STR)
     for i in range(_range):
         if i == 0:
             fw_ste_id = matcher.get_fw_ste_0_index()
@@ -74,5 +78,10 @@ def dr_parse_rules(matcher, verbosity, tabs):
                 hit_addr = ste.get_hit_addr()
                 ste = dr_hw_get_ste_from_addr(hit_addr)
             _str += rule.tree_print(verbosity, _tabs)
+
+        progress_bar_i += 1
+        interactive_progress_bar(progress_bar_i, _config_args.get("total_fw_ste"), PARSING_THE_RULES_STR)
+
+    _config_args["progress_bar_i"] = progress_bar_i
 
     return _str

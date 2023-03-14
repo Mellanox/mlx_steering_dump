@@ -381,3 +381,7 @@ modify_pattern_anchor_dic = {
 FW_VERSION_MAJOR_CX7 = 28
 FLEX_PARSER_0_HL_OFFSET = 137
 V1_TO_V2_HL_OFFSET_DIFF = 4
+
+
+PARSING_THE_RULES_STR = "Parsing the rules:      "
+DUMPING_HW_RESOURCES = "Dumping HW resources:   "
