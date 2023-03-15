@@ -305,7 +305,12 @@ if __name__ == "__main__":
             _config_args["progress_bar_i"] = 0
             interactive_progress_bar(0, _config_args.get("total_fw_ste"), PARSING_THE_RULES_STR)
 
-        print(obj.tree_print(verbose, ""))
+        output_file_name = file_path + ".parsed"
+        output_file = open(output_file_name, 'w+')
+        output_file.write(obj.tree_print(verbose, ""))
+        print("")#empty line
+        print(OUTPUT_FILE_STR + file_path)
+        print(PARSED_OUTPUT_FILE_STR + output_file_name)
 
         if _config_args.get("csv_file") != None and _config_args.get("hw_resources_dump_started") == True:
             csv_file.write(MLX5DR_DEBUG_RES_TYPE_HW_RRESOURCES_DUMP_END + '\n')
