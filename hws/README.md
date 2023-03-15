@@ -42,14 +42,18 @@ Also it can be triggered for a DPDK app via:
 Running syntax
 ==============
 
-    ./mlx_hw_steering_parser.py [-f FILE_PATH] [-v] [-skip_dump] [-d DEVICE]
+    ./mlx_hw_steering_parser.py -f <FILE_PATH> [-v] [-skip_dump] [-d DEVICE]
                                 [-pid DPDK_PID] [-port DPDK_PORT] [-skip_parse]
                                 [-s] [-h]
+
+***arguments:***
+| Flag | Description |
+|--|--|
+| -f FILE_PATH | Input steering dump file path, also the output of the tool will be written to FILE_PATH.parsed |
 
 ***optional arguments:***
 | Flag | Description |
 |--|--|
-| -f FILE_PATH | Input steering dump file path |
 | -v | Increase output verbosity - v, vv, vvv & vvvv for extra verbosity |
 | -skip_dump | Skip HW resources dumping |
 | -skip_parse | Skip HW dumped resources parsing |
