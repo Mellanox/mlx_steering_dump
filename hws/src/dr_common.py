@@ -385,3 +385,5 @@ V1_TO_V2_HL_OFFSET_DIFF = 4
 
 PARSING_THE_RULES_STR = "Parsing the rules:      "
 DUMPING_HW_RESOURCES = "Dumping HW resources:   "
+OUTPUT_FILE_STR = "Output file:            "
+PARSED_OUTPUT_FILE_STR = "Parsed output file:     "

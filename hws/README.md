@@ -49,7 +49,7 @@ Running syntax
 ***optional arguments:***
 | Flag | Description |
 |--|--|
-| -f FILE_PATH | Input steering dump file path |
+| -f FILE_PATH | Input steering dump file path, also the output of the tool will be written to FILE_PATH.parsed |
 | -v | Increase output verbosity - v, vv, vvv & vvvv for extra verbosity |
 | -skip_dump | Skip HW resources dumping |
 | -skip_parse | Skip HW dumped resources parsing |
