@@ -23,6 +23,10 @@ Also it can be triggered for a DPDK app via:
 
         ./mlx_hw_steering_parser.py -f <dump_file> -skip_dump
 
+ - Trigger a DPDK app to dump all the ports HWS app to a new CSV file and skip HW dump:
+
+	./mlx_hw_steering_parser.py -pid <DPDK PID> -port -1 -f <dump_file> -skip_dump
+
  - Developer triggering and parsing a dump with HW resources from a DPDK app:
  
         ./mlx_hw_steering_parser.py -pid <DPDK PID> -f <dump_file> -vvv

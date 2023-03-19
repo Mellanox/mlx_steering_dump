@@ -3,7 +3,7 @@
 
 from src.dr_common import *
 from src.dr_hl import *
-from src.dr_db import _definers
+from src.dr_db import _db
 from src.dr_ste import fields_handler
 
 def byte_mask_builder(hl_byte_offset):
@@ -32,7 +32,7 @@ class dr_parse_definer():
         return self.data["definer_obj_id"]
 
     def save_to_db(self):
-        _definers[self.get_definer_obj_id()] = self
+        _db._definers[self.get_definer_obj_id()] = self
 
     def get_definer_matching_fields(self):
         return self.fields_arr

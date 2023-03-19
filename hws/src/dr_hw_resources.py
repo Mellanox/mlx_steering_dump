@@ -2,7 +2,7 @@
 #Copyright (c) 2021 NVIDIA CORPORATION. All rights reserved.
 
 from src.dr_common import *
-from src.dr_db import _fw_ste_db, _stes_range_db, _term_dest_db, _stc_indexes_arr, _config_args, _pattern_db, _argument_db
+from src.dr_db import _db, _config_args
 
 
 class dr_parse_fw_ste():
@@ -22,10 +22,10 @@ class dr_parse_fw_ste():
         self.ste_dic[ste.get_addr()] = ste
 
     def init_fw_ste_db(self):
-        _fw_ste_db[self.data.get("id")] = {}
+        _db._fw_ste_db[self.data.get("id")] = {}
 
     def add_stes_range(self, min_ste_addr, max_ste_addr):
-        _stes_range_db[self.get_id()] = (min_ste_addr, max_ste_addr)
+        _db._stes_range_db[self.get_id()] = (min_ste_addr, max_ste_addr)
 
 
 class dr_parse_fw_ste_stats():
@@ -55,7 +55,7 @@ class dr_parse_address():
         return self.data.get('id')
 
     def load_to_db(self):
-        _term_dest_db[self.get_addr()] = {'type': self.get_type(), 'id': self.get_id()}
+        _db._term_dest_db[self.get_addr()] = {'type': self.get_type(), 'id': self.get_id()}
 
 class dr_parse_stc():
     def __init__(self, data):
@@ -66,7 +66,7 @@ class dr_parse_stc():
         return self.data.get("id")
 
     def load_to_db(self):
-        _stc_indexes_arr.append(self.get_id())
+        _db._stc_indexes_arr.append(self.get_id())
 
 
 #This dictionary holds action objects id location
@@ -117,7 +117,7 @@ class dr_parse_pattern():
         return self.data.get("index")
 
     def load_to_db(self):
-        _pattern_db[self.get_index()] = self.patterns_arr
+        _db._pattern_db[self.get_index()] = self.patterns_arr
 
 
 class dr_parse_argument():
@@ -130,7 +130,7 @@ class dr_parse_argument():
         return self.data.get("index")
 
     def load_to_db(self):
-        _argument_db[self.get_index()] = self.args_arr
+        _db._argument_db[self.get_index()] = self.args_arr
 
 
 def dr_parse_fw_modify_argument_set(raw):
@@ -259,7 +259,7 @@ def parse_fw_modify_pattern_rd_bin_output(pattern_index, load_to_db, file):
     file.write("%s\n" % file_str)
 
     if load_to_db:
-        _pattern_db[pattern_index] = arr
+        _db._pattern_db[pattern_index] = arr
 
     return arr
 
@@ -289,6 +289,6 @@ def parse_fw_modify_argument_rd_bin_output(arg_index,  load_to_db, file, len):
     file.write("%s\n" % file_str)
 
     if load_to_db:
-        _argument_db[arg_index] = arr
+        _db._argument_db[arg_index] = arr
 
     return arr

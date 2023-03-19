@@ -2,7 +2,7 @@
 #Copyright (c) 2021 NVIDIA CORPORATION. All rights reserved.
 
 from src.dr_common import *
-from src.dr_db import _config_args, _matchers, _fw_ste_db, _stes_range_db, _tbl_type_db
+from src.dr_db import _config_args, _db
 from src.dr_ste import *
 from src.dr_visual import interactive_progress_bar
 
@@ -38,8 +38,8 @@ class dr_parse_rule():
 
 def dr_hw_get_ste_from_addr(addr):
     fw_ste_index = None
-    for index in _stes_range_db:
-        _range = _stes_range_db.get(index)
+    for index in _db._stes_range_db:
+        _range = _db._stes_range_db.get(index)
         if addr >= _range[0] and addr <= _range[1]:
             fw_ste_index = index
             break
@@ -47,14 +47,14 @@ def dr_hw_get_ste_from_addr(addr):
     if fw_ste_index == None:
         return None
 
-    fw_ste_stes = _fw_ste_db.get(fw_ste_index)
+    fw_ste_stes = _db._fw_ste_db.get(fw_ste_index)
     return fw_ste_stes.get(addr)
 
 
 def dr_parse_rules(matcher, verbosity, tabs):
     _str = ''
     _tabs = tabs + TAB
-    tbl_type = _tbl_type_db.get(matcher.data.get("tbl_id"))
+    tbl_type = _db._tbl_type_db.get(matcher.data.get("tbl_id"))
     _range = 2 if (tbl_type == DR_TBL_TYPE_FDB) else 1
     _tbl_type = tbl_type
     progress_bar_i = _config_args.get("progress_bar_i")
@@ -69,7 +69,7 @@ def dr_parse_rules(matcher, verbosity, tabs):
             fw_ste_id = matcher.get_fw_ste_1_index()
             _tbl_type = DR_TBL_TYPE_NIC_TX
 
-        fw_ste_dic = _fw_ste_db[fw_ste_id]
+        fw_ste_dic = _db._fw_ste_db[fw_ste_id]
         for ste_addr in fw_ste_dic:
             ste = fw_ste_dic.get(ste_addr)
             rule = dr_parse_rule()

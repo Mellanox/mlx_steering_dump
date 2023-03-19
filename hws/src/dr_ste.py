@@ -2,7 +2,7 @@
 #Copyright (c) 2021 NVIDIA CORPORATION. All rights reserved.
 
 from src.dr_common import *
-from src.dr_db import _definers,_fw_ste_db, _term_dest_db
+from src.dr_db import _db
 from src.dr_hl import _fields_text_values
 from src.dr_action import action_pretiffy,dr_ste_parse_ste_actions_arr
 
@@ -128,7 +128,7 @@ def raw_ste_parser(raw_ste):
         tags.update({"dw_selector_6" : dw_selector_6, "dw_selector_7" : dw_selector_7, "dw_selector_8" : dw_selector_8})
 
     #Get definer
-    definer = _definers.get(ste["match_definer_context_index"])
+    definer = _db._definers.get(ste["match_definer_context_index"])
     if definer == None:
         ste["parsed_tag"] = {}
         return ste
@@ -224,7 +224,7 @@ class dr_parse_ste():
                 _str += _tabs + action
                 flag = True
 
-        obj = _term_dest_db.get(self.hit_addr)
+        obj = _db._term_dest_db.get(self.hit_addr)
         if obj != None:
             _str += _tabs + obj.get("type") + ': ' + obj.get("id") + '\n'
             flag = True
@@ -291,4 +291,4 @@ class dr_parse_ste():
         return self.miss_addr
 
     def load_to_db(self):
-        _fw_ste_db[self.data.get("fw_ste_id")][self.data.get("id")] = self
+        _db._fw_ste_db[self.data.get("fw_ste_id")][self.data.get("id")] = self

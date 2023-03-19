@@ -2,7 +2,7 @@
 #Copyright (c) 2021 NVIDIA CORPORATION. All rights reserved.
 
 from src.dr_common import *
-from src.dr_db import _fw_ste_indexes_arr, _fw_ste_db, _stes_range_db, _config_args, _term_dest_db, _stc_indexes_arr, _pattern_db
+from src.dr_db import _db, _config_args
 from src.dr_ste import dr_parse_ste
 from src.dr_hw_resources import dr_parse_fw_stc_action_get_obj_id, dr_parse_fw_stc_get_addr, dr_parse_fw_modify_pattern
 from src.dr_visual import interactive_progress_bar
@@ -39,7 +39,7 @@ def parse_fw_stc_rd_bin_output(stc_index, load_to_db, file):
     _config_args["tmp_file"] = None
 
     if load_to_db:
-        _term_dest_db.update(_dests)
+        _db._term_dest_db.update(_dests)
 
 
 def parse_fw_ste_rd_bin_output(fw_ste_index, load_to_db, file):
@@ -99,8 +99,8 @@ def parse_fw_ste_rd_bin_output(fw_ste_index, load_to_db, file):
     _config_args["tmp_file"] = None
 
     if load_to_db:
-        _fw_ste_db[fw_ste_index] = ste_dic
-        _stes_range_db[fw_ste_index] = (min_addr, max_addr)
+        _db._fw_ste_db[fw_ste_index] = ste_dic
+        _db._stes_range_db[fw_ste_index] = (min_addr, max_addr)
 
     file.write("%s,%s,%s,%s\n" % (MLX5DR_DEBUG_RES_TYPE_FW_STE_STATS, fw_ste_index, min_addr, max_addr))
 
@@ -132,23 +132,23 @@ def parse_fw_ste_rd_output(data, fw_ste_index, load_to_db, file):
 
     if load_to_db:
         #Save the STE's to FW STE DB
-        _fw_ste_db[fw_ste_index] = ste_dic
+        _db._fw_ste_db[fw_ste_index] = ste_dic
         #Save the STE's range for this FW STE
-        _stes_range_db[fw_ste_index] = (min_addr, max_addr)
+        _db._stes_range_db[fw_ste_index] = (min_addr, max_addr)
 
 
 def dump_hw_resources(load_to_db, dev, dev_name, file):
     total_resources = _config_args.get("total_resources")
     interactive_progress_bar(0, total_resources, DUMPING_HW_RESOURCES)
     i = 0
-    for stc_index in _stc_indexes_arr:
+    for stc_index in _db._stc_indexes_arr:
         output = call_resource_dump(dev, dev_name, "STC", stc_index, None, 'all', None)
         parse_fw_stc_rd_bin_output(stc_index, load_to_db, file)
         i += 1
         interactive_progress_bar(i, total_resources, DUMPING_HW_RESOURCES)
 
     #Dump FW STE's
-    for fw_ste_index in _fw_ste_indexes_arr:
+    for fw_ste_index in _db._fw_ste_indexes_arr:
         output = call_resource_dump(dev, dev_name, "FW_STE", fw_ste_index, None, 'all', None)
         if _config_args.get("resourcedump_mem_mode"):
             parse_fw_ste_rd_bin_output(fw_ste_index, load_to_db, file)

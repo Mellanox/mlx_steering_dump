@@ -2,7 +2,7 @@
 #Copyright (c) 2021 NVIDIA CORPORATION. All rights reserved.
 
 from src.dr_common import *
-from src.dr_db import _config_args, _pattern_db, _argument_db
+from src.dr_db import _config_args, _db
 from src.dr_hw_resources import parse_fw_modify_pattern_rd_bin_output, parse_fw_modify_argument_rd_bin_output, dr_parse_fw_modify_arguments_dic
 from src.dr_hl import dr_hl_dw_parser
 
@@ -188,14 +188,14 @@ def dr_action_accelerated_modify_list_parser(action_arr, index):
     num_of_pat = int((number_of_modify_actions + PAT_ARG_BULK_SIZE - 1) // PAT_ARG_BULK_SIZE)#Addition to ceiling division
     for i in range (0, num_of_pat):
         pat_index = hex(modify_actions_pattern_pointer + i)
-        pat_arr = _pattern_db.get(pat_index)
+        pat_arr = _db._pattern_db.get(pat_index)
         if pat_arr == None:
             if dump_pat == True:
                 output = call_resource_dump(dev, dev_name, "MODIFY_PATTERN", pat_index, None, None, None)
                 pat_arr = parse_fw_modify_pattern_rd_bin_output(pat_index,  load_to_db, file)
 
         arg_index = hex(modify_actions_argument_pointer + i)
-        arg_arr = _argument_db.get(arg_index)
+        arg_arr = _db._argument_db.get(arg_index)
         if arg_arr == None:
             if dump_arg == True:
                 output = call_resource_dump(dev, dev_name, "MODIFY_ARGUMENT", arg_index, None, "1", None)

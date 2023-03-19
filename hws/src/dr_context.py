@@ -5,7 +5,7 @@
 import subprocess as sp
 
 from src.dr_common import *
-from src.dr_db import _config_args, _definers
+from src.dr_db import _config_args, _ctx_db, _db
 
 
 def get_mst_dev(rdma_dev_name):
@@ -31,6 +31,7 @@ class dr_parse_context():
         self.attr = None
         self.caps = None
         self.send_engine = []
+        self.ctx_db = _ctx_db()
         self.load_to_db()
         if _config_args.get("dump_hw_resources") and _config_args.get("device") == None:
             _config_args["device"] = get_mst_dev(self.data.get("dev_name"))
@@ -38,6 +39,7 @@ class dr_parse_context():
 
     def load_to_db(self):
         _config_args["dev_name"] = self.data.get("dev_name");
+        _db.load(self.ctx_db)
 
     def dump_str(self, verbosity):
         return dump_obj_str(["mlx5dr_debug_res_type", "id",
@@ -125,7 +127,7 @@ class dr_parse_context_caps():
         _config_args["linear_match_definer_field_name"] = self.data.get("linear_match_definer_field_name")
         if _config_args.get("linear_match_definer") != None:
             #Add to _definers DB as None so in STE parsing tag parsing will be skipped
-            _definers[int(_config_args.get("linear_match_definer"))] = None
+            _db._definers[int(_config_args.get("linear_match_definer"))] = None
 
     def dump_str(self, verbosity):
         _keys = ["mlx5dr_debug_res_type", "ctx_id"]
