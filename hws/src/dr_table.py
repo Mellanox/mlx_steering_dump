@@ -2,7 +2,7 @@
 #Copyright (c) 2021 NVIDIA CORPORATION. All rights reserved.
 
 from src.dr_common import *
-from src.dr_db import _tbl_type_db, _tbl_level_db, _config_args, _term_dest_db
+from src.dr_db import _db, _config_args
 
 
 class dr_parse_table():
@@ -91,13 +91,13 @@ class dr_parse_table():
         self.matchers.append(matcher)
 
     def save_to_db(self):
-        _tbl_type_db[self.id] = self.data.get("type")
-        _tbl_level_db[self.id] = self.level
+        _db._tbl_type_db[self.id] = self.data.get("type")
+        _db._tbl_level_db[self.id] = self.level
         if self.data.get("rx_icm_addr") != "0x0":
-            _term_dest_db[self.data.get("rx_icm_addr")] = {"type": "FT", "id": self.data.get("ft_id")}
+            _db._term_dest_db[self.data.get("rx_icm_addr")] = {"type": "FT", "id": self.data.get("ft_id")}
         if self.data.get("tx_icm_addr") != "0x0":
-            _term_dest_db[self.data.get("tx_icm_addr")] = {"type": "FT", "id": self.data.get("ft_id")}
+            _db._term_dest_db[self.data.get("tx_icm_addr")] = {"type": "FT", "id": self.data.get("ft_id")}
         if self.data.get("local_rx_icm_addr") != "0x0":
-            _term_dest_db[self.data.get("local_rx_icm_addr")] = {"type": "FT", "id": self.data.get("local_ft_id")}
+            _db._term_dest_db[self.data.get("local_rx_icm_addr")] = {"type": "FT", "id": self.data.get("local_ft_id")}
         if self.data.get("local_tx_icm_addr") != "0x0":
-            _term_dest_db[self.data.get("local_tx_icm_addr")] = {"type": "FT", "id": self.data.get("local_ft_id")}
+            _db._term_dest_db[self.data.get("local_tx_icm_addr")] = {"type": "FT", "id": self.data.get("local_ft_id")}

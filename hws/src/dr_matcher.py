@@ -2,9 +2,7 @@
 #Copyright (c) 2021 NVIDIA CORPORATION. All rights reserved.
 
 from src.dr_common import *
-from src.dr_db import _fw_ste_indexes_arr, _matchers, _tbl_type_db,\
-                      _config_args, _tbl_level_db, _col_matchers,\
-                      _term_dest_db, _stes_range_db, _fw_ste_db
+from src.dr_db import _config_args, _db
 from src.dr_rule import dr_parse_rules
 
 
@@ -12,12 +10,12 @@ def get_fw_ste_distribution_statistics(fw_ste_id, row_log_sz, col_log_sz):
     tbl_size = 1 << row_log_sz
     arr = [0] * (1 << col_log_sz)
     _str = str(arr)
-    base_addr = _stes_range_db.get(fw_ste_id)
+    base_addr = _db._stes_range_db.get(fw_ste_id)
     if base_addr == None:
         return _str
 
     base_addr = int(base_addr[0], 16)
-    ste_addr_db = _fw_ste_db.get(fw_ste_id)
+    ste_addr_db = _db._fw_ste_db.get(fw_ste_id)
     if ste_addr_db == None:
         return _str
 
@@ -56,7 +54,7 @@ class dr_parse_matcher():
 
 
     def fix_data(self):
-        tbl_level = _tbl_level_db.get(self.data.get("tbl_id"))
+        tbl_level = _db._tbl_level_db.get(self.data.get("tbl_id"))
         if tbl_level == DR_ROOT_TBL_LEVEL:
             return
 
@@ -88,7 +86,7 @@ class dr_parse_matcher():
         if tx_icm_addr == None:
             tx_icm_addr = "0x0"
 
-        _tbl_type = _tbl_type_db.get(self.data.get("tbl_id"))
+        _tbl_type = _db._tbl_type_db.get(self.data.get("tbl_id"))
         if _tbl_type == DR_TBL_TYPE_NIC_TX:
             tx_icm_addr = rx_icm_addr
             rx_icm_addr = "0x0"
@@ -154,7 +152,7 @@ class dr_parse_matcher():
         _str = tabs + "Resources: " + dump_obj_str(_keys, self.data)
 
         if self.col_matcher_id != "0x0":
-            col_matcher = _matchers.get(self.col_matcher_id)
+            col_matcher = _db._matchers.get(self.col_matcher_id)
             _str += tabs +"Resources (C): " + dump_obj_str(_keys, col_matcher.data)
 
         if _config_args.get("statistics") == True:
@@ -166,12 +164,12 @@ class dr_parse_matcher():
         return _str
 
     def tree_print(self, verbosity, tabs):
-        if self.id in _col_matchers:
+        if self.id in _db._col_matchers:
             return ''
         _str = tabs + self.dump_str(verbosity)
         tabs = tabs + TAB
-        tbl_level = _tbl_level_db.get(self.data.get("tbl_id"))
-        col_matcher = _matchers.get(self.col_matcher_id)
+        tbl_level = _db._tbl_level_db.get(self.data.get("tbl_id"))
+        col_matcher = _db._matchers.get(self.col_matcher_id)
 
         _str = _str + tabs + self.attr.dump_str(verbosity)
 
@@ -222,26 +220,26 @@ class dr_parse_matcher():
 
     def save_to_db(self):
         if self.match_ste_0_id != None:
-            _fw_ste_indexes_arr.append(self.match_ste_0_id)
+            _db._fw_ste_indexes_arr.append(self.match_ste_0_id)
 
         if self.match_ste_1_id != None:
-             _fw_ste_indexes_arr.append(self.match_ste_1_id)
+             _db._fw_ste_indexes_arr.append(self.match_ste_1_id)
 
         if self.action_ste_0_id != None:
-            _fw_ste_indexes_arr.append(self.action_ste_0_id)
+            _db._fw_ste_indexes_arr.append(self.action_ste_0_id)
 
         if self.action_ste_1_id != None:
-            _fw_ste_indexes_arr.append(self.action_ste_1_id)
+            _db._fw_ste_indexes_arr.append(self.action_ste_1_id)
 
-        _matchers[self.id] = self
+        _db._matchers[self.id] = self
 
         if self.col_matcher_id != "0x0":
-            _col_matchers.append(self.col_matcher_id)
+            _db._col_matchers.append(self.col_matcher_id)
 
         if self.data.get("rx_icm_addr") != "0x0":
-            _term_dest_db[self.data.get("rx_icm_addr")] = {"type": "FT", "id": self.data.get("end_ft_id")}
+            _db._term_dest_db[self.data.get("rx_icm_addr")] = {"type": "FT", "id": self.data.get("end_ft_id")}
         if self.data.get("tx_icm_addr") != "0x0":
-            _term_dest_db[self.data.get("tx_icm_addr")] = {"type": "FT", "id": self.data.get("end_ft_id")}
+            _db._term_dest_db[self.data.get("tx_icm_addr")] = {"type": "FT", "id": self.data.get("end_ft_id")}
 
 
     def get_fw_ste_0_index(self):

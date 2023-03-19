@@ -19,7 +19,7 @@ from src.dr_dump_hw import *
 from src.dr_rule import *
 from src.dr_hw_resources import *
 from src.dr_ste import *
-from src.dr_db import _config_args, _fw_ste_indexes_arr, _stc_indexes_arr
+from src.dr_db import _config_args, _db
 
 
 # mapping csv records types to it's relevant parser function
@@ -67,6 +67,7 @@ def dr_csv_get_obj(line):
     return parser(line)
 
 def dr_parse_csv_file(csv_file, load_to_db):
+    ctxs = []
     ctx = None
     last_table = None
     last_matcher = None
@@ -97,6 +98,7 @@ def dr_parse_csv_file(csv_file, load_to_db):
                 obj.load_to_db()
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_CONTEXT:
             ctx = obj
+            ctxs.append(ctx)
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_CONTEXT_ATTR:
             ctx.add_attr(obj)
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_CONTEXT_CAPS:
@@ -129,7 +131,7 @@ def dr_parse_csv_file(csv_file, load_to_db):
             obj.load_to_db()
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_HW_RRESOURCES_DUMP_START:
             if not(load_to_db):
-                return ctx
+                return ctxs
             _config_args["hw_resources_present"] = True
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_FW_STE:
             if last_fw_ste != None:
@@ -148,7 +150,7 @@ def dr_parse_csv_file(csv_file, load_to_db):
             if line[0] not in unsupported_obj_list:
                 unsupported_obj_list.append(line[0])
 
-    return ctx
+    return ctxs
 
 
 #General env initialization
@@ -286,34 +288,40 @@ if __name__ == "__main__":
 
         csv_file = open(file_path, 'r+')
         load_to_db = False if _config_args.get("dump_hw_resources") else _config_args.get("load_hw_resources")
-        obj = dr_parse_csv_file(csv_file, load_to_db)
+        ctxs = dr_parse_csv_file(csv_file, load_to_db)
         csv_file.close()
-
-        _config_args["total_resources"] = len(_stc_indexes_arr) + len(_fw_ste_indexes_arr)
-        _config_args["total_fw_ste"] = len(_fw_ste_indexes_arr)
 
         if _config_args.get("dump_hw_resources"):
             csv_file = open(_config_args.get("file_path"), 'a+')
             _config_args["csv_file"] = csv_file
-            dr_hw_data_engine(obj, csv_file)
         else:
             if _config_args.get("hw_resources_present") == False:
                 _config_args["parse_hw_resources"] = False
                 _config_args["load_hw_resources"] = False
 
-        if _config_args.get("parse_hw_resources"):
-            _config_args["progress_bar_i"] = 0
-            interactive_progress_bar(0, _config_args.get("total_fw_ste"), PARSING_THE_RULES_STR)
-
         output_file_name = file_path + ".parsed"
         output_file = open(output_file_name, 'w+')
-        output_file.write(obj.tree_print(verbose, ""))
+
+        for ctx in ctxs:
+            ctx.load_to_db()
+            _config_args["total_resources"] = len(_db._stc_indexes_arr) + len(_db._fw_ste_indexes_arr)
+            _config_args["total_fw_ste"] = len(_db._fw_ste_indexes_arr)
+
+            if _config_args.get("dump_hw_resources"):
+                dr_hw_data_engine(ctx, csv_file)
+
+            if _config_args.get("parse_hw_resources"):
+                _config_args["progress_bar_i"] = 0
+                interactive_progress_bar(0, _config_args.get("total_fw_ste"), PARSING_THE_RULES_STR)
+
+            if _config_args.get("csv_file") != None and _config_args.get("hw_resources_dump_started") == True:
+                csv_file.write(MLX5DR_DEBUG_RES_TYPE_HW_RRESOURCES_DUMP_END + '\n')
+
+            output_file.write(ctx.tree_print(verbose, ""))
+
         print("")#empty line
         print(OUTPUT_FILE_STR + file_path)
         print(PARSED_OUTPUT_FILE_STR + output_file_name)
-
-        if _config_args.get("csv_file") != None and _config_args.get("hw_resources_dump_started") == True:
-            csv_file.write(MLX5DR_DEBUG_RES_TYPE_HW_RRESOURCES_DUMP_END + '\n')
 
         if verbose > 0:
             print_unsupported_obj_list()
