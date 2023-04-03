@@ -248,6 +248,11 @@ def parse_args():
         if _config_args.get("extra_hw_res_arg") and not(_config_args.get("extra_hw_res_pat")):
             _config_args["extra_hw_res_arg"] = False
 
+        """
+            Ignore arg dumping till FW issue is fixed.
+        """
+        _config_args["extra_hw_res_arg"] = False
+
     else:
         _config_args["dump_hw_resources"] = False
 
