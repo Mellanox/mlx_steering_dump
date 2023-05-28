@@ -123,7 +123,7 @@ def dr_action_remove_by_size_parser(action_arr, index):
 def dr_action_remove_header2header_parser(action_arr, index):
     action_dw_0 = action_arr[index]
     action_dw_1 = action_arr[index + 1]
-    action = {"type" : "remove header2header"}
+    action = {"type" : "Remove header2header"}
     start_anchor = int(action_dw_0[10 : 16], 2)
     end_anchor = int(action_dw_0[18 : 24], 2)
     field = modify_pattern_anchor_dic.get(start_anchor)
@@ -139,7 +139,7 @@ def dr_action_remove_header2header_parser(action_arr, index):
 def dr_action_insert_inline_parser(action_arr, index):
     action_dw_0 = action_arr[index]
     action_dw_1 = action_arr[index + 1]
-    action = {"type" : "insert with inline"}
+    action = {"type" : "Insert inline"}
     start_anchor = int(action_dw_0[10 : 16], 2)
     field = modify_pattern_anchor_dic.get(start_anchor)
     action["start_anchor"] = field if field != None else start_anchor
@@ -153,7 +153,7 @@ def dr_action_insert_inline_parser(action_arr, index):
 def dr_action_insert_pointer_parser(action_arr, index):
     action_dw_0 = action_arr[index]
     action_dw_1 = action_arr[index + 1]
-    action = {"type" : "insert with pointer"}
+    action = {"type" : "Insert pointer"}
     start_anchor = int(action_dw_0[10 : 16], 2)
     field = modify_pattern_anchor_dic.get(start_anchor)
     action["start_anchor"] = field if field != None else start_anchor
@@ -169,7 +169,7 @@ def dr_action_insert_pointer_parser(action_arr, index):
 def dr_action_accelerated_modify_list_parser(action_arr, index):
     action_dw_0 = action_arr[index]
     action_dw_1 = action_arr[index + 1]
-    action = {"type" : "accelerated modify action list"}
+    action = {"type" : "Modify action list"}
     modify_actions_pattern_pointer = int(action_dw_0[8 : 32], 2)
     number_of_modify_actions =  int(action_dw_1[0 : 8], 2)
     modify_actions_argument_pointer = int(action_dw_1[8 : 32], 2)
@@ -220,14 +220,14 @@ def dr_action_accelerated_modify_list_parser(action_arr, index):
 
 def dr_action_counter_parser(action_arr, index):
     action_dw_0 = action_arr[index]
-    action = {"type" : "counter"}
+    action = {"type" : "Counter"}
     action["counter_id"] = int(action_dw_0[8 : 32], 2)
 
     return (1, [action_pretiffy(action)])
 
 def dr_action_flow_tag_parser(action_arr, index):
     action_dw_0 = action_arr[index]
-    action = {"type" : "flow tag"}
+    action = {"type" : "Flow tag"}
     action["flow_tag"] = int(action_dw_0[8 : 32], 2)
 
     return (1, [action_pretiffy(action)])
