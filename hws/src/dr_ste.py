@@ -196,6 +196,7 @@ class dr_parse_ste():
         self.fields_dic = None
         self.action_arr = None
         self.parsed = False
+        self.counter_id = 0;
         if parse:
             self.parse()
 
@@ -205,6 +206,7 @@ class dr_parse_ste():
         self.miss_addr = parsed_ste["miss_addr"]
         self.fields_dic = parsed_ste.get("parsed_tag")
         self.action_arr = parsed_ste.get("actions")
+        self.counter_id = parsed_ste.get("counter_id")
         self.parsed = True
 
     def dump_str(self, verbosity, prefix='STE '):
@@ -218,6 +220,10 @@ class dr_parse_ste():
         _str = tabs + 'Actions:\n'
         _tabs = tabs + TAB
         flag = False
+
+        if self.counter_id != 0:
+            _str += _tabs + 'Counter: ' + hex(self.counter_id) + '\n'
+            flag = True
 
         for action in self.action_arr:
             if action != '':
