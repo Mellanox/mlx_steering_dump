@@ -20,6 +20,19 @@ def get_mst_dev(rdma_dev_name):
 
     return None
 
+def get_mst_rdma_dev(dev_name):
+    output = sp.getoutput('mst status -v')
+    output_arr = output.split('\n')
+
+    for l in output_arr:
+        if dev_name in l:
+            l_arr = l.split()
+            if len(l_arr) < 3:
+                continue
+            if l_arr[1] == dev_name and l_arr[3] != 'NA':
+                return l_arr[3]
+
+    return None
 
 class dr_parse_context():
     def __init__(self, data):
@@ -33,12 +46,17 @@ class dr_parse_context():
         self.send_engine = []
         self.ctx_db = _ctx_db()
         self.load_to_db()
-        if _config_args.get("dump_hw_resources") and _config_args.get("device") == None:
-            _config_args["device"] = get_mst_dev(self.data.get("dev_name"))
-
 
     def load_to_db(self):
-        _config_args["dev_name"] = self.data.get("dev_name");
+        if _config_args.get("dump_hw_resources"):
+            if _config_args.get("device") == None:
+                _config_args["dev_name"] = self.data.get("dev_name");
+                _config_args["device"] = get_mst_dev(self.data.get("dev_name"))
+            else:
+                _config_args["dev_name"] = get_mst_rdma_dev(_config_args.get("device"))
+        else:
+            _config_args["dev_name"] = self.data.get("dev_name");
+
         _db.load(self.ctx_db)
 
     def dump_str(self, verbosity):
