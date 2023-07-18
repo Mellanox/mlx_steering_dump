@@ -177,8 +177,9 @@ def parse_domain(csv_reader, domain_obj=None, verbose=0):
         dr_rec_type = line[0]
 
         # report unsupported object
-        if dr_obj is None and dr_rec_type not in unsupported_obj_list:
-            unsupported_obj_list.append(dr_rec_type)
+        if dr_obj is None:
+            if dr_rec_type not in unsupported_obj_list:
+                unsupported_obj_list.append(dr_rec_type)
             continue
 
         # update Rule entry objects
