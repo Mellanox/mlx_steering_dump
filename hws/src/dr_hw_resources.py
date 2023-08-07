@@ -55,7 +55,20 @@ class dr_parse_address():
         return self.data.get('id')
 
     def load_to_db(self):
-        _db._term_dest_db[self.get_addr()] = {'type': self.get_type(), 'id': self.get_id()}
+        if self.get_type() == 'FW_STE_TABLE':
+            _id = str(int(self.get_id(), 16))
+            flag = True
+            for fw_ste_index in _db._fw_ste_indexes_arr:
+                if fw_ste_index == _id:
+                    flag = False
+                    break
+
+            if flag:
+                _db._fw_ste_indexes_arr.append(_id)
+
+        else:
+            _db._term_dest_db[self.get_addr()] = {'type': self.get_type(), 'id': self.get_id()}
+
 
 class dr_parse_stc():
     def __init__(self, data):
@@ -72,6 +85,7 @@ class dr_parse_stc():
 #This dictionary holds action objects id location
 #according to stc obj param
 stc_param_id_loc_dic = {
+    STC_ACTION_JUMP_TO_STE_TABLE: {'type': 'FW_STE_TABLE', 'loc': (2, 10)},
     STC_ACTION_JUMP_TO_TIR: {'type': 'TIR', 'loc': (2,8)},
     STC_ACTION_JUMP_TO_FLOW_TABLE: {'type': 'FT', 'loc': (2,8)},
     STC_ACTION_JUMP_TO_VPORT: {'type': 'VPORT', 'loc': (4,8)},

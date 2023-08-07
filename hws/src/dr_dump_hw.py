@@ -31,7 +31,18 @@ def parse_fw_stc_rd_bin_output(stc_index, load_to_db, file):
                 addr = dr_parse_fw_stc_get_addr(stc)
                 write_line = '%s,%s,%s,%s\n' % (MLX5DR_DEBUG_RES_TYPE_ADDRESS, addr, obj.get("type"), obj.get("id"))
                 file.write(write_line)
-                _dests[addr] = obj
+                if obj.get("type") == 'FW_STE_TABLE':
+                    _id = str(int(obj.get("id"), 16))
+                    flag = True
+                    for fw_ste_index in _db._fw_ste_indexes_arr:
+                        if fw_ste_index == _id:
+                            flag = False
+                            break
+
+                    if flag:
+                        _db._fw_ste_indexes_arr.append(_id)
+                else:
+                    _dests[addr] = obj
 
         data = bin_file.read(80)
 
