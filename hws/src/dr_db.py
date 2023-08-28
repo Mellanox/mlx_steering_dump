@@ -37,6 +37,9 @@ class _ctx_db:
         self._pattern_db = {}
         #This hash table holds indexes as keys, and info structure about them
         self._argument_db = {}
+        #This hash table holds indexes as keys, and empty string as info,
+        #since this dic is only needed for keys
+        self._arg_obj_indexes_dic = {}
 
     def load(self, _new):
         self._definers = _new._definers
@@ -52,6 +55,7 @@ class _ctx_db:
         self._term_dest_db = _new._term_dest_db
         self._pattern_db = _new._pattern_db
         self._argument_db = _new._argument_db
+        self._arg_obj_indexes_dic = _new._arg_obj_indexes_dic
 
 
 

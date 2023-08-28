@@ -41,6 +41,10 @@ def parse_fw_stc_rd_bin_output(stc_index, load_to_db, file):
 
                     if flag:
                         _db._fw_ste_indexes_arr.append(_id)
+
+                elif obj.get("type") == 'MODIFY_LIST':
+                    _db._arg_obj_indexes_dic[obj.get("id")] = ''
+
                 else:
                     _dests[addr] = obj
 
@@ -148,8 +152,38 @@ def parse_fw_ste_rd_output(data, fw_ste_index, load_to_db, file):
         _db._stes_range_db[fw_ste_index] = (min_addr, max_addr)
 
 
+def parse_fw_modify_argument_rd_bin_output(arg_index,  load_to_db, file):
+    arg_dic = {}
+    arr = []
+    file_str = "%s,%s" % (MLX5DR_DEBUG_RES_TYPE_ARGUMENT, arg_index)
+    _config_args["tmp_file"] = open(_config_args.get("tmp_file_path"), 'rb+')
+    bin_file = _config_args.get("tmp_file")
+
+    #There are 68B of prefix data before first pattern dump
+    data = bin_file.read(68)
+
+    while data:
+        data = hex(int.from_bytes(data, byteorder='big'))
+        data_type = data[2:8]
+        if data_type == RESOURCE_DUMP_SEGMENT_TYPE_MODIFY_ARG_BIN:
+            index = hex(int(data[16:24], 16))
+            file_str = "%s,%s,%s" % (MLX5DR_DEBUG_RES_TYPE_ARGUMENT, arg_index, index)
+            arr = data[32:]
+            file_str += ",%s" % arr
+            file.write("%s\n" % file_str)
+            if load_to_db:
+                arg_dic[index] = arr
+
+        #64B(Args data) + 16(Prefix)
+        data = bin_file.read(80)
+
+    if load_to_db:
+        _db._argument_db.update(arg_dic)
+
+
 def dump_hw_resources(load_to_db, dev, dev_name, file):
     total_resources = _config_args.get("total_resources")
+    dump_arg = _config_args.get("extra_hw_res_arg")
     interactive_progress_bar(0, total_resources, DUMPING_HW_RESOURCES)
     i = 0
     for stc_index in _db._stc_indexes_arr:
@@ -168,6 +202,12 @@ def dump_hw_resources(load_to_db, dev, dev_name, file):
 
         i += 1
         interactive_progress_bar(i, total_resources, DUMPING_HW_RESOURCES)
+
+    #Dump Arg's
+    if dump_arg == True:
+        for arg_index in _db._arg_obj_indexes_dic:
+            output = call_resource_dump(dev, dev_name, "MODIFY_ARGUMENT", arg_index, None, 'all', None)
+            parse_fw_modify_argument_rd_bin_output(arg_index,  load_to_db, file)
 
 
 def dr_hw_data_engine(obj, file):
