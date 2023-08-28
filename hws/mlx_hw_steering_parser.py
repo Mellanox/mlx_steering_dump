@@ -203,20 +203,20 @@ def parse_args():
     parser = argparse.ArgumentParser(description="mlx_hw_steering_parser.py - HW Steering dump tool.",
                                      epilog="Note: This parser is still under developement, so not all the args are supported yet.",
                                      add_help=False)
-    parser.add_argument("-f", dest="file_path", default="", help="Input steering dump file path.")
+    parser.add_argument("-f", dest="file_path", default="", help="Input steering dump file path.", required=True)
     parser.add_argument("-v", action="count", dest="verbose", default=0, help="Increase output verbosity - v, vv, vvv & vvvv for extra verbosity.")
-    parser.add_argument("-skip_dump", action="store_false", default=True, dest="dump_hw_resources",
+    parser.add_argument("--skip_dump", action="store_false", default=True, dest="dump_hw_resources",
                         help="Skip HW resources dumping.")
-    parser.add_argument("-skip_parse", action="store_false", default=True, dest="hw_parse",
+    parser.add_argument("--skip_parse", action="store_false", default=True, dest="hw_parse",
                         help="Skip HW dumped resources parsing.")
     parser.add_argument("-d", dest="device", type=str, default="",
                         help="Provide MST device for HW resources dumping.")
-    parser.add_argument("-pid", dest="dpdk_pid", type=int, default=-1,
+    parser.add_argument("--pid", dest="dpdk_pid", type=int, default=-1,
                         help="Trigger DPDK app <PID>.")
-    parser.add_argument("-port", dest="dpdk_port", type=int, default=0,
+    parser.add_argument("--port", dest="dpdk_port", type=int, default=0,
                         help="Trigger DPDK app <PORT> newer dpdk supports -1 for all ports (must provide PID with -pid).")
-    parser.add_argument("-extra_hw_res", type=str, default="", dest="extra_hw_res", metavar="[pat, arg, all]",
-                        help = "Request extra HW resources to be dumped. For example: -extra_hw_res pat,arg")
+    parser.add_argument("--extra_hw_res", type=str, default="", dest="extra_hw_res", metavar="[pat, arg, all]",
+                        help = "Request extra HW resources to be dumped. For example: --extra_hw_res pat,arg")
     parser.add_argument("-s", action="store_true", default=False, dest="statistics",
                         help="Show dump statistics.")
     parser.add_argument("-h", "--help", action="help", default=argparse.SUPPRESS,
