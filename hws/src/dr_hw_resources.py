@@ -3,6 +3,7 @@
 
 from src.dr_common import *
 from src.dr_db import _db, _config_args
+from src.dr_common_functions import *
 
 
 class dr_parse_fw_ste():
@@ -85,6 +86,7 @@ class dr_parse_stc():
 #This dictionary holds action objects id location
 #according to stc obj param
 stc_param_id_loc_dic = {
+    STC_ACTION_HEADER_MODIFY_LIST: {'type': 'MODIFY_LIST', 'loc': (10, 18)},
     STC_ACTION_JUMP_TO_STE_TABLE: {'type': 'FW_STE_TABLE', 'loc': (2, 10)},
     STC_ACTION_JUMP_TO_TIR: {'type': 'TIR', 'loc': (2,8)},
     STC_ACTION_JUMP_TO_FLOW_TABLE: {'type': 'FT', 'loc': (2,8)},
@@ -123,7 +125,7 @@ class dr_parse_pattern():
         parsed_patterns = []
         for e in self.patterns_arr:
             tmp = e.split("-")
-            parsed_patterns.append({"type": int(tmp[0], 16), "text": tmp[1]})
+            parsed_patterns.append({"raw": tmp[0], "type": int(tmp[1], 16), "text": tmp[2]})
 
         self.patterns_arr = parsed_patterns
 
@@ -136,104 +138,95 @@ class dr_parse_pattern():
 
 class dr_parse_argument():
     def __init__(self, data):
-        keys = ["mlx5dr_debug_res_type", "index"]
+        keys = ["mlx5dr_debug_res_type", "arg_index", "index", "data"]
         self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
-        self.args_arr = data[2:] if (len(data) > 2) else []
 
     def get_index(self):
         return self.data.get("index")
 
     def load_to_db(self):
-        _db._argument_db[self.get_index()] = self.args_arr
+        _db._argument_db[self.get_index()] = self.data.get("data")
 
 
 def dr_parse_fw_modify_argument_set(raw):
-    return "data: %s" % hex(int(raw[8:16], 16))
+    raw = raw[8:16]
+    text = "data: %s" % hex(int(raw, 16))
+    return {"text": text, "raw": raw}
 
 
-def dr_parse_fw_modify_pattern_set(raw):
-    field = modify_pattern_field_dic.get(int(raw[1:4], 16))
-    offset = hex(int(raw[4:6], 16) & 0x1f)
-    length = int(raw[6:8], 16) & 0x1f
-    length = "0x20" if length == 0 else hex(length)
-    text = "SET: field: %s offset: %s length: %s" %\
-            (field, offset, length)
+def dr_parse_modify_pattern_set(raw):
+    _raw = hex_to_bin_str(raw, 64)
+    action = dr_parse_set_action(_raw[0:32], _raw[32:64], False)
 
-    return {"type": 0x1, "text": text}
+    return {"type": 0x1, "text": action_pretiffy(action, False), "raw": raw[0:8]}
 
 
 def dr_parse_fw_modify_argument_add(raw):
-    return "data: %s" % hex(int(raw[8:16], 16))
+    raw = raw[8:16]
+    text = "data: %s" % hex(int(raw, 16))
+    return {"text": text, "raw": raw}
 
 
-def dr_parse_fw_modify_pattern_add(raw):
-    field = modify_pattern_field_dic.get(int(raw[1:4], 16))
-    text =  "ADD: field: %s" % field
+def dr_parse_modify_pattern_add(raw):
+    _raw = hex_to_bin_str(raw, 64)
+    action = dr_parse_add_action(_raw[0:32], _raw[32:64], False)
 
-    return {"type": 0x2, "text": text}
+    return {"type": 0x2, "text": action_pretiffy(action, False), "raw": raw[0:8]}
 
 
-def dr_parse_fw_modify_pattern_copy(raw):
-    src_field = modify_pattern_field_dic.get(int(raw[1:4], 16))
-    src_offset = hex(int(raw[4:6], 16) & 0x1f)
-    length = int(raw[6:8]) & 0x1f
-    length = "0x20" if length == 0 else hex(length)
-    dst_field = modify_pattern_field_dic.get(int(raw[9:12], 16))
-    dst_offset = hex(int(raw[12:14], 16) & 0x1f)
-    text = "COPY: field: %s src_offset: %s src_length: %s dst_field: %s dst_offset: %s" %\
-            (src_field, src_offset, length, dst_field, dst_offset)
+def dr_parse_modify_pattern_copy(raw):
+    _raw = hex_to_bin_str(raw, 64)
+    action = dr_parse_copy_action(_raw[0:32], _raw[32:64])
 
-    return {"type": 0x3, "text": text}
+    return {"type": 0x3, "text": action_pretiffy(action, False), "raw": raw}
 
 
 def dr_parse_fw_modify_argument_insert(raw):
-    return "insert_argument: %s" % hex(int(raw[8:16], 16))
+    raw = raw[8:16]
+    text = "insert_argument: %s" % hex(int(raw, 16))
+    return {"text": text, "raw": raw}
 
 
-def dr_parse_fw_modify_pattern_insert(raw):
-    encap = hex(int(raw[1:2], 16) & 0x8)
-    inline_data = hex(int(raw[1:2], 16) & 0x4)
-    insert_anchor = modify_pattern_anchor_dic.get(int(raw[2:4]) & 0x3f)
-    insert_offset = hex(int(raw[4:6], 16) & 0x7f)
-    insert_size = hex(int(raw[6:8], 16) & 0x7f)
-    insert_argument = "0x%s" % raw[8:16]
-    text = "INSERT: encap: %s inline_data: %s insert_anchor: %s insert_offset: %s insert_size: %s insert_argument: %s" %\
-            (encap, inline_data, insert_anchor, insert_offset, insert_size, insert_argument)
+def dr_parse_modify_pattern_insert_inline(raw):
+    _raw = hex_to_bin_str(raw, 64)
+    action = dr_parse_insert_inline_action(_raw[0:32], _raw[32:64], False)
 
-    return {"type": 0x4, "text": text}
+    return {"type": 0x4, "text": action_pretiffy(action, False), "raw": raw[0:8]}
 
+def dr_parse_modify_pattern_insert_pointer(raw):
+    _raw = hex_to_bin_str(raw, 64)
+    action = dr_parse_insert_by_pointer_action(_raw[0:32], _raw[32:64])
 
-def dr_parse_fw_modify_pattern_remove(raw):
-    decap = hex(int(raw[1:2], 16) & 0x8)
-    start_anchor = modify_pattern_anchor_dic.get(int(raw[2:4], 16) & 0x3f)
-    end_anchor = modify_pattern_anchor_dic.get(int(raw[4:6], 16) & 0x3f)
-    text = "REMOVE: decap: %s start_anchor: %s end_anchor: %s" %\
-            (decap, start_anchor, end_anchor)
-
-    return {"type": 0x5, "text": text}
+    return {"type": 0x4, "text": action_pretiffy(action, False), "raw": raw}
 
 
-def dr_parse_fw_modify_pattern_nop(raw):
-    return {"type":0x6, "text": ""}
+def dr_parse_modify_pattern_remove(raw):
+    _raw = hex_to_bin_str(raw, 64)
+    action = dr_parse_remove_header2header_action(_raw[0:32], _raw[32:64])
+
+    return {"type": 0x5, "text": action_pretiffy(action, False), "raw": raw}
 
 
-def dr_parse_fw_modify_pattern_remove_words(raw):
-    start_anchor = modify_pattern_anchor_dic.get(int(raw[2:4], 16) & 0x3f)
-    remove_size = hex(int(raw[6:8], 16) & 0x3f)
-    text = "REMOVE WORDS: start_anchor: %s remove_size: %s" %\
-            (start_anchor, remove_size)
+def dr_parse_modify_pattern_nop(raw):
+    return {"type":0x6, "text": "", "raw": raw}
 
-    return {"type": 0x7, "text": text}
+
+def dr_parse_modify_pattern_remove_words(raw):
+    _raw = hex_to_bin_str(raw, 64)
+    action = dr_parse_remove_by_size_action(_raw[0:32], _raw[32:64])
+
+    return {"type": 0x7, "text": action_pretiffy(action, False), "raw": raw}
 
 
 dr_parse_fw_modify_pattern_dic = {
-    0x1: dr_parse_fw_modify_pattern_set,
-    0x2: dr_parse_fw_modify_pattern_add,
-    0x3: dr_parse_fw_modify_pattern_copy,
-    0x4: dr_parse_fw_modify_pattern_insert,
-    0x5: dr_parse_fw_modify_pattern_remove,
-    0x6: dr_parse_fw_modify_pattern_nop,
-    0x7: dr_parse_fw_modify_pattern_remove_words,
+    0x0: dr_parse_modify_pattern_nop,
+    0x5: dr_parse_modify_pattern_copy,
+    0x6: dr_parse_modify_pattern_set,
+    0x7: dr_parse_modify_pattern_add,
+    0x8: dr_parse_modify_pattern_remove_words,
+    0x9: dr_parse_modify_pattern_remove,
+    0xa: dr_parse_modify_pattern_insert_inline,
+    0xb: dr_parse_modify_pattern_insert_pointer,
 }
 
 dr_parse_fw_modify_arguments_dic = {
@@ -246,28 +239,27 @@ def dr_parse_fw_modify_pattern(raw):
     action_type = int(raw[0:1], 16)
     return dr_parse_fw_modify_pattern_dic.get(action_type)(raw)
 
-
-def parse_fw_modify_pattern_rd_bin_output(pattern_index, load_to_db, file):
+def parse_fw_modify_pattern_rd_bin_output(pattern_index, load_to_db, file, num_of_pat):
     arr = []
+    read_sz = num_of_pat * MODIFY_PATTERN_BYTES_SZ
     file_str = "%s,%s" % (MLX5DR_DEBUG_RES_TYPE_PATTERN, pattern_index)
     _config_args["tmp_file"] = open(_config_args.get("tmp_file_path"), 'rb+')
     bin_file = _config_args.get("tmp_file")
 
-    #There are 68B of prefix data before first pattern dump
-    data = bin_file.read(68)
+    #There are 36B of prefix data before first pattern dump
+    data = bin_file.read(36)
     #Segment prefix till pattern data
-    data = bin_file.read(48)
+    data = bin_file.read(16)
     data = hex(int.from_bytes(data, byteorder='big'))
     data_type = data[2:8]
     if data_type == RESOURCE_DUMP_SEGMENT_TYPE_MODIFY_PAT_BIN:
-        read_sz = int(data[64:66], 16) * MODIFY_PATTERN_BYTES_SZ
         while read_sz:
             data = bin_file.read(MODIFY_PATTERN_BYTES_SZ)
             if data:
                 data = hex(int.from_bytes(data, byteorder='big'))
                 pat_dic = dr_parse_fw_modify_pattern(data[2:])
                 arr.append(pat_dic)
-                file_str += ",%s-%s" % (hex(pat_dic.get("type")), pat_dic.get("text"))
+                file_str += ",%s-%s-%s" % (pat_dic.get("raw") ,hex(pat_dic.get("type")), pat_dic.get("text").replace(',', ''))
             read_sz -= MODIFY_PATTERN_BYTES_SZ
 
     file.write("%s\n" % file_str)
@@ -277,32 +269,3 @@ def parse_fw_modify_pattern_rd_bin_output(pattern_index, load_to_db, file):
 
     return arr
 
-
-def parse_fw_modify_argument_rd_bin_output(arg_index,  load_to_db, file, len):
-    arr = []
-    file_str = "%s,%s" % (MLX5DR_DEBUG_RES_TYPE_ARGUMENT, arg_index)
-    _config_args["tmp_file"] = open(_config_args.get("tmp_file_path"), 'rb+')
-    bin_file = _config_args.get("tmp_file")
-
-    #There are 68B of prefix data before first pattern dump
-    data = bin_file.read(68)
-    #Segment prefix till pattern data
-    data = bin_file.read(16)
-    data = hex(int.from_bytes(data, byteorder='big'))
-    data_type = data[2:8]
-    if data_type == RESOURCE_DUMP_SEGMENT_TYPE_MODIFY_ARG_BIN:
-        read_sz = len * MODIFY_ARGUMENT_BYTES_SZ
-        while read_sz:
-            data = bin_file.read(MODIFY_ARGUMENT_BYTES_SZ)
-            if data:
-                data = hex(int.from_bytes(data, byteorder='big'))[2:]
-                arr.append(data)
-                file_str += ",%s" % data
-            read_sz -= MODIFY_ARGUMENT_BYTES_SZ
-
-    file.write("%s\n" % file_str)
-
-    if load_to_db:
-        _db._argument_db[arg_index] = arr
-
-    return arr

@@ -19,7 +19,7 @@ RESOURCE_DUMP_SEGMENT_TYPE_STE = '0x0014003E'
 RESOURCE_DUMP_SEGMENT_TYPE_STE_BIN = '14003e'
 RESOURCE_DUMP_SEGMENT_TYPE_STC_BIN = '14003c'
 RESOURCE_DUMP_SEGMENT_TYPE_ACTION_STC_BIN = 'c003b'
-RESOURCE_DUMP_SEGMENT_TYPE_MODIFY_PAT_BIN = '1c1035'
+RESOURCE_DUMP_SEGMENT_TYPE_MODIFY_PAT_BIN = '14103d'
 RESOURCE_DUMP_SEGMENT_TYPE_MODIFY_ARG_BIN = '14003d'
 
 STE_ENTRY_TYPE_MATCH = 0x4
@@ -139,6 +139,7 @@ DR_HL_INNER = '_i'
 
 MEM_MODE_MIN_MFT_VERSION = 'mft 4.20.0-00'
 
+STC_ACTION_HEADER_MODIFY_LIST = '0e'
 STC_ACTION_JUMP_TO_STE_TABLE = '80'
 STC_ACTION_JUMP_TO_TIR = '81'
 STC_ACTION_JUMP_TO_FLOW_TABLE = '82'
@@ -172,6 +173,7 @@ def call_resource_dump(dev, dev_name, segment, index1, num_of_obj1, num_of_obj2,
         _input += ' --virtual-hca-id ' + vhca_id
 
     output = sp.getoutput(_input)
+
     if (len(output) >= 10) and ('Error' in output[0:10]):
         print(output)
         print('MFT Error')
