@@ -9,7 +9,8 @@ class dr_parse_table():
     def __init__(self, data):
         keys = ["mlx5dr_debug_res_type", "id", "ctx_id", "ft_id", "type",
                 "fw_ft_type", "level", "local_ft_id", "rx_icm_addr",
-                "tx_icm_addr", "local_rx_icm_addr", "local_tx_icm_addr"]
+                "tx_icm_addr", "local_rx_icm_addr", "local_tx_icm_addr",
+                "miss_tbl"]
         self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
         self.id = self.data.get("id")
         self.level = int(self.data.get("level"))
@@ -26,6 +27,9 @@ class dr_parse_table():
 
     def dump_str(self, verbosity):
         _keys = ["mlx5dr_debug_res_type", "id", "type", "level"]
+        if self.data.get("miss_tbl") != "0x0":
+             _keys.extend(["miss_tbl"])
+
         if verbosity < 2:
             return dump_obj_str(_keys, self.data)
 
