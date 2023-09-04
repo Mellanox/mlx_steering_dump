@@ -2,6 +2,7 @@
 #Copyright (c) 2021 NVIDIA CORPORATION. All rights reserved.
 
 
+import sys
 import subprocess as sp
 
 from src.dr_common import *
@@ -136,10 +137,13 @@ class dr_parse_context_caps():
                 "linear_match_definer", "linear_match_definer_field_name"]
         self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
 
-        try:
-            _config_args["fw_version_major"] = int(self.data.get("fw_version").split(".")[0])
-        except:
-            _config_args["fw_version_major"] = 0xff
+        _config_args["fw_version_major"] = int(self.data.get("fw_version").split(".")[0])
+
+        if _config_args.get("extra_hw_res_pat") == True:
+            expected_fw_version = "%s.%s" % (_config_args.get("fw_version_major"), FW_VERSION_MINOR_EXTRA_HW_RES)
+            if self.data.get("fw_version") < expected_fw_version:
+                print("To dump extra HW resources, please use FW version %s or higher" % expected_fw_version)
+                sys.exit(0)
 
         _config_args["linear_match_definer"] = self.data.get("linear_match_definer")
         _config_args["linear_match_definer_field_name"] = self.data.get("linear_match_definer_field_name")
