@@ -73,14 +73,14 @@ class dr_parse_address():
 
 class dr_parse_stc():
     def __init__(self, data):
-        keys = ["mlx5dr_debug_res_type", "type", "id"]
+        keys = ["mlx5dr_debug_res_type", "id", "type", "idx"]
         self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
 
-    def get_id(self):
-        return self.data.get("id")
+    def get_idx(self):
+        return self.data.get("idx")
 
     def load_to_db(self):
-        _db._stc_indexes_arr.append(self.get_id())
+        _db._stc_indexes_arr.append(self.get_idx())
 
 
 #This dictionary holds action objects id location
