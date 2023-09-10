@@ -219,11 +219,20 @@ class dr_parse_matcher():
         self.hash_definer = definer
 
     def save_to_db(self):
+        total_match_fw_stes = 0
+
         if self.match_ste_0_id != None:
             _db._fw_ste_indexes_arr.append(self.match_ste_0_id)
+            total_match_fw_stes += 1
 
         if self.match_ste_1_id != None:
-             _db._fw_ste_indexes_arr.append(self.match_ste_1_id)
+            _db._fw_ste_indexes_arr.append(self.match_ste_1_id)
+            total_match_fw_stes += 1
+
+        if total_match_fw_stes > 0:
+            _tmp = _db._total_matcher_match_fw_stes[0]
+            _db._total_matcher_match_fw_stes[0] = _tmp + total_match_fw_stes
+
 
         if self.action_ste_0_id != None:
             _db._fw_ste_indexes_arr.append(self.action_ste_0_id)
