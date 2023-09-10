@@ -58,8 +58,9 @@ def dr_parse_rules(matcher, verbosity, tabs):
     _range = 2 if (tbl_type == DR_TBL_TYPE_FDB) else 1
     _tbl_type = tbl_type
     progress_bar_i = _config_args.get("progress_bar_i")
+    progress_bar_total = _db._total_matcher_match_fw_stes[0]
     if progress_bar_i == 0:
-        interactive_progress_bar(progress_bar_i, _config_args.get("total_fw_ste"), PARSING_THE_RULES_STR)
+        interactive_progress_bar(progress_bar_i, progress_bar_total, PARSING_THE_RULES_STR)
     for i in range(_range):
         if i == 0:
             fw_ste_id = matcher.get_fw_ste_0_index()
@@ -80,7 +81,7 @@ def dr_parse_rules(matcher, verbosity, tabs):
             _str += rule.tree_print(verbosity, _tabs)
 
         progress_bar_i += 1
-        interactive_progress_bar(progress_bar_i, _config_args.get("total_fw_ste"), PARSING_THE_RULES_STR)
+        interactive_progress_bar(progress_bar_i, progress_bar_total, PARSING_THE_RULES_STR)
 
     _config_args["progress_bar_i"] = progress_bar_i
 

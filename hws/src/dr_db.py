@@ -40,6 +40,9 @@ class _ctx_db:
         #This hash table holds indexes as keys, and empty string as info,
         #since this dic is only needed for keys
         self._arg_obj_indexes_dic = {}
+        #Hold total matcher match FW STE's to use for progress bar
+        #We define it in an array of one index
+        self._total_matcher_match_fw_stes = [0]
 
     def load(self, _new):
         self._definers = _new._definers
@@ -56,6 +59,7 @@ class _ctx_db:
         self._pattern_db = _new._pattern_db
         self._argument_db = _new._argument_db
         self._arg_obj_indexes_dic = _new._arg_obj_indexes_dic
+        self._total_matcher_match_fw_stes = _new._total_matcher_match_fw_stes
 
 
 
