@@ -342,7 +342,7 @@ def dr_hl_tunnel_header_parser(hl_index, mask):
     return dr_hl_dw_mask_parser(dw_fields[offset], mask)
 
 def dr_hl_mpls_parser(hl_index, mask):
-    offset = int((hl_index - 101) % 4)
+    offset = int((hl_index - 101) % 5)
     dw_fields = [
                  [('mpls0', 32)],
                  [('mpls1', 32)],
