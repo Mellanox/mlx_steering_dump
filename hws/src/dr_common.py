@@ -128,6 +128,7 @@ DR_ACTION_IPSEC_DEC = 0x11
 DR_ACTION_ASO = 0x12
 DR_ACTION_TRAILER = 0x13
 DR_ACTION_COUNTER = 0x14
+DR_ACTION_ADD_FIELD = 0x1b
 
 def hex_to_bin_str(_n, _len):
     n = str(bin(int(_n, 16)))[2:]

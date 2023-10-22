@@ -96,7 +96,7 @@ def dr_parse_copy_action(action_dw_0, action_dw_1):
     if src_right_shifter >= 32:
         src_right_shifter -= 32
 
-    mask = hex_to_bin_str(hex(int(length * "1", 2) << (32 - src_right_shifter)), 32)
+    mask = hex_to_bin_str(hex(int(length * "1", 2) << src_right_shifter), 32)
     res = get_field(src_dw_offset, mask)
 
     if res != None:
@@ -191,3 +191,39 @@ def dr_parse_insert_by_pointer_action(action_dw_0, action_dw_1):
 
     return action
 
+def dr_parse_add_field_action(action_dw_0, action_dw_1):
+    action = {"type" : "Add Field"}
+    dst_dw_offset = int(action_dw_0[8 : 16], 2)
+    dst_left_shifter = int(action_dw_0[18 : 24], 2)
+    if dst_left_shifter >= 32:
+        dst_left_shifter -= 32
+
+    length = int(action_dw_0[24 : 32], 2)
+    length = 32 if length == 0 else length
+    mask = hex_to_bin_str(hex(int(length * "1", 2) << dst_left_shifter), 32)
+    res = get_field(dst_dw_offset, mask)
+
+    if res != None:
+        action["dst_field"] = "%s (%s)" % (res, hex(dst_dw_offset))
+    else:
+        action["dst_dw_offset"] = dst_dw_offset
+
+    action["dst_left_shifter"] = dst_left_shifter
+    action["length"] = length
+
+    src_dw_offset = int(action_dw_1[8 : 16], 2)
+    src_right_shifter = int(action_dw_1[18 : 24], 2)
+    if src_right_shifter >= 32:
+        src_right_shifter -= 32
+
+    mask = hex_to_bin_str(hex(int(length * "1", 2) << src_right_shifter), 32)
+    res = get_field(src_dw_offset, mask)
+
+    if res != None:
+        action["src_field"] = "%s (%s)" % (res, hex(src_dw_offset))
+    else:
+        action["src_dw_offset"] = src_dw_offset
+
+    action["src_right_shifter"] = src_right_shifter
+
+    return action

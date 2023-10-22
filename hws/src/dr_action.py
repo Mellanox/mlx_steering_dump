@@ -208,6 +208,12 @@ def dr_action_trailer_parser(action_arr, index):
 
     return (1, [_str])
 
+def dr_action_add_field_parser(action_arr, index):
+    action_dw_0 = action_arr[index]
+    action_dw_1 = action_arr[index + 1]
+    action = dr_parse_add_field_action(action_dw_0, action_dw_1)
+
+    return (2, [action_pretiffy(action)])
 
 switch_actions_parser = {
     DR_ACTION_NOPE: dr_action_nope_parser,
@@ -225,6 +231,7 @@ switch_actions_parser = {
     DR_ACTION_IPSEC_ENC: dr_action_ipsec_enc_parser,
     DR_ACTION_IPSEC_DEC: dr_action_ipsec_dec_parser,
     DR_ACTION_TRAILER: dr_action_trailer_parser,
+    DR_ACTION_ADD_FIELD : dr_action_add_field_parser,
 }
 
 def dr_ste_parse_ste_actions_arr(actions_arr):

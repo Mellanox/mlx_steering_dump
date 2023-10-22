@@ -217,6 +217,11 @@ def dr_parse_modify_pattern_remove_words(raw):
 
     return {"type": 0x7, "text": action_pretiffy(action, False), "raw": raw}
 
+def dr_parse_modify_pattern_add_field(raw):
+    _raw = hex_to_bin_str(raw, 64)
+    action = dr_parse_add_field_action(_raw[0:32], _raw[32:64])
+
+    return {"type": 0x8, "text": action_pretiffy(action, False), "raw": raw}
 
 dr_parse_fw_modify_pattern_dic = {
     0x0: dr_parse_modify_pattern_nop,
@@ -227,6 +232,7 @@ dr_parse_fw_modify_pattern_dic = {
     0x9: dr_parse_modify_pattern_remove,
     0xa: dr_parse_modify_pattern_insert_inline,
     0xb: dr_parse_modify_pattern_insert_pointer,
+    0x1b: dr_parse_modify_pattern_add_field,
 }
 
 dr_parse_fw_modify_arguments_dic = {
