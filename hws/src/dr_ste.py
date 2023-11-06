@@ -65,6 +65,9 @@ def fields_handler(_fields, verbosity=0, show_field_val=False):
             _str += ", "
 
         value = fields.get(field)
+        if type(value) == str:
+            _str += field + ": " + value
+            continue
 
         if show_field_val:
             tv_field = _fields_text_values.get(field)
@@ -85,6 +88,25 @@ def ste_hit_addr_calc(next_table_base_63_48, next_table_base_39_32, next_table_b
     hit_addr = (hit_addr >> 6) & 0xffffffff
 
     return hit_addr
+
+def compare_ste_op_translate(op, inverse):
+    _str = ""
+    if inverse == 1:
+        if op == 2:
+            _str = "NE(!=)"
+        elif op == 1:
+            _str = "GT(>)"
+        else:
+            _str = "LT(<)"
+    else:
+        if op == 2:
+            _str = "EQ(=)"
+        elif op == 1:
+            _str = "LE(<=)"
+        else:
+            _str = "GE(>=)"
+
+    return _str
 
 #This function input is raw STE data in hexa, and
 #extracts the matching data.
@@ -117,10 +139,12 @@ def raw_ste_parser(raw_ste):
     dw_selector_1 = raw_ste[384 : 416]
     dw_selector_0 = raw_ste[416 : 448]
 
-    if (ste["entry_format"] != STE_ENTRY_TYPE_RANGE_MATCH):
-        tags = {"dw_selector_0" : dw_selector_0, "dw_selector_1" : dw_selector_1, "dw_selector_2" : dw_selector_2, "dw_selector_3" : dw_selector_3, "dw_selector_4" : dw_selector_4, "dw_selector_5" : dw_selector_5}
-    else:
+    if ste["entry_format"] == STE_ENTRY_TYPE_RANGE_MATCH:
         tags = {"dw_selector_0_min": dw_selector_0, "dw_selector_0_max": dw_selector_1}
+    elif ste["entry_format"] == STE_ENTRY_TYPE_4DW_RANGE_MATCH:
+        tags = {"dw_selector_arg_0": dw_selector_4, "dw_selector_arg_1": dw_selector_5, "dw_selector_base_0": dw_selector_2, "dw_selector_base_1": dw_selector_3}
+    else:
+        tags = {"dw_selector_0" : dw_selector_0, "dw_selector_1" : dw_selector_1, "dw_selector_2" : dw_selector_2, "dw_selector_3" : dw_selector_3, "dw_selector_4" : dw_selector_4, "dw_selector_5" : dw_selector_5}
 
     if (ste["entry_format"] != STE_ENTRY_TYPE_JUMBO_MATCH):
         ste["actions"] = dr_ste_parse_ste_actions_arr([dw_selector_8, dw_selector_7, dw_selector_6])
@@ -136,16 +160,7 @@ def raw_ste_parser(raw_ste):
     definer_fields = definer.get_definer_matching_fields()
 
     #Build the mask tag according to definer byte_mask_tag_functions lambda functions to get the correct fields
-    if (ste["entry_format"] != STE_ENTRY_TYPE_RANGE_MATCH):
-        tags["byte_selector_7"] = definer.byte_mask_tag_functions.get("byte_selector_7")(raw_ste[448 : 456])
-        tags["byte_selector_6"] = definer.byte_mask_tag_functions.get("byte_selector_6")(raw_ste[456 : 464])
-        tags["byte_selector_5"] = definer.byte_mask_tag_functions.get("byte_selector_5")(raw_ste[464 : 472])
-        tags["byte_selector_4"] = definer.byte_mask_tag_functions.get("byte_selector_4")(raw_ste[472 : 480])
-        tags["byte_selector_3"] = definer.byte_mask_tag_functions.get("byte_selector_3")(raw_ste[480 : 488])
-        tags["byte_selector_2"] = definer.byte_mask_tag_functions.get("byte_selector_2")(raw_ste[488 : 496])
-        tags["byte_selector_1"] = definer.byte_mask_tag_functions.get("byte_selector_1")(raw_ste[496 : 504])
-        tags["byte_selector_0"] = definer.byte_mask_tag_functions.get("byte_selector_0")(raw_ste[504 : 512])
-    else:
+    if ste["entry_format"] == STE_ENTRY_TYPE_RANGE_MATCH:
         tags["dw_selector_1_min"] = raw_ste[480 : 512]
         tags["dw_selector_1_max"] = raw_ste[448 : 480]
         tags["byte_selector_0_min"] = definer.byte_mask_tag_functions.get("byte_selector_0")(dw_selector_4[24 : 32])
@@ -164,8 +179,34 @@ def raw_ste_parser(raw_ste):
         tags["byte_selector_6_max"] = definer.byte_mask_tag_functions.get("byte_selector_6")(dw_selector_3[8 : 16])
         tags["byte_selector_7_min"] = definer.byte_mask_tag_functions.get("byte_selector_7")(dw_selector_2[0 : 8])
         tags["byte_selector_7_max"] = definer.byte_mask_tag_functions.get("byte_selector_7")(dw_selector_3[0 : 8])
+    elif ste["entry_format"] != STE_ENTRY_TYPE_4DW_RANGE_MATCH:
+        tags["byte_selector_7"] = definer.byte_mask_tag_functions.get("byte_selector_7")(raw_ste[448 : 456])
+        tags["byte_selector_6"] = definer.byte_mask_tag_functions.get("byte_selector_6")(raw_ste[456 : 464])
+        tags["byte_selector_5"] = definer.byte_mask_tag_functions.get("byte_selector_5")(raw_ste[464 : 472])
+        tags["byte_selector_4"] = definer.byte_mask_tag_functions.get("byte_selector_4")(raw_ste[472 : 480])
+        tags["byte_selector_3"] = definer.byte_mask_tag_functions.get("byte_selector_3")(raw_ste[480 : 488])
+        tags["byte_selector_2"] = definer.byte_mask_tag_functions.get("byte_selector_2")(raw_ste[488 : 496])
+        tags["byte_selector_1"] = definer.byte_mask_tag_functions.get("byte_selector_1")(raw_ste[496 : 504])
+        tags["byte_selector_0"] = definer.byte_mask_tag_functions.get("byte_selector_0")(raw_ste[504 : 512])
 
     parsed_tag = {}
+
+    if ste["entry_format"] == STE_ENTRY_TYPE_4DW_RANGE_MATCH:
+        arg_1 = tags.get("dw_selector_arg_1")
+        match = int(arg_1[0 : 1], 2)
+        base_1_src = int(arg_1[3 : 4], 2)
+        inverse_1 = int(arg_1[4 : 5], 2)
+        operator_1 = int(arg_1[6 : 8], 2)
+        base_0_src = int(arg_1[11 : 12], 2)
+        inverse_0 = int(arg_1[12 : 13], 2)
+        operator_0 = int(arg_1[14 : 16], 2)
+        parsed_tag["operator_0"] = compare_ste_op_translate(operator_0, inverse_0)
+        if base_0_src == 0x1:
+            parsed_tag["base_0_src"] = "inline base"
+            parsed_tag["base_0"] = int(tags.get("dw_selector_base_0"), 2)
+
+        ste["parsed_tag"] = parsed_tag
+        return ste
 
     for selector in definer_fields:
         selector_arr = definer_fields[selector]
