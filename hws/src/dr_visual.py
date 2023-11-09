@@ -5,6 +5,9 @@ PROGRESS_BAR_CHAR = "="
 
 
 def interactive_progress_bar(index, total, title = ''):
+    if total == 0:
+        return
+
     percent = int(100 * (index / total))
     completed = int(PROGRESS_BAR_LENGTH * (index / total))
     bar = PROGRESS_BAR_CHAR * completed + '-' * (PROGRESS_BAR_LENGTH - completed)
