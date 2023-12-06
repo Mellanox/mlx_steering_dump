@@ -260,26 +260,22 @@ class dr_parse_ste():
 
         _str = tabs + 'Actions:\n'
         _tabs = tabs + TAB
-        flag = False
 
         if self.counter_id != 0:
             _str += _tabs + 'Counter: ' + hex(self.counter_id) + '\n'
-            flag = True
 
         for action in self.action_arr:
             if action != '':
                 _str += _tabs + action
-                flag = True
 
+        _str += _tabs + 'Go To: ' + str(self.hit_addr)
         obj = _db._term_dest_db.get(self.hit_addr)
         if obj != None:
-            _str += _tabs + obj.get("type") + ': ' + obj.get("id") + '\n'
-            flag = True
-
-        if flag:
-            return _str
+            _str += ' (' + obj.get("type") + ': ' + obj.get("id") + ')\n'
         else:
-            return ''
+            _str += '\n'
+
+        return _str
 
     def dump_fields(self, verbosity, tabs):
         if not(self.parsed):
