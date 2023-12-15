@@ -247,7 +247,7 @@ class dr_parse_ste():
         _str = prefix + self.data.get("id") + ':\n'
         return _str
 
-    def dump_actions(self, verbosity, tabs):
+    def dump_actions(self, verbosity, tabs, is_last):
         if not(self.parsed):
             self.parse()
 
@@ -264,9 +264,17 @@ class dr_parse_ste():
                 _str += _tabs + action
                 flag = True
 
-        obj = _db._term_dest_db.get(hex(self.hit_loc.index))
-        if obj != None:
-            _str += _tabs + obj.get("type") + ': ' + obj.get("id") + '\n'
+        if is_last or verbosity > 3:
+            _str += _tabs + 'Go To:'
+            if self.hit_loc.gvmi_str == _config_args.get("vhca_id"):
+                obj = _db._term_dest_db.get(hex(self.hit_loc.index))
+            else:
+                obj = None
+            if obj != None:
+                _str += ' ' + obj.get("type") + ' ' + obj.get("id")
+            if obj is None or verbosity > 2:
+                _str += ' (' + str(self.hit_loc) + ')'
+            _str += '\n'
             flag = True
 
         if flag:
@@ -318,13 +326,13 @@ class dr_parse_ste():
 
         return _str
 
-    def tree_print(self, verbosity, tabs, prefix, expected_miss_index):
+    def tree_print(self, verbosity, tabs, prefix, expected_miss_index, is_last):
         _str = tabs + self.dump_str(verbosity, prefix)
         tabs = tabs + TAB
 
         _str += self.dump_fields(verbosity, tabs)
         _str += self.dump_miss(verbosity, tabs, expected_miss_index)
-        _str += self.dump_actions(verbosity, tabs)
+        _str += self.dump_actions(verbosity, tabs, is_last)
 
         if verbosity > 2:
             _str += self.dump_raw_ste(verbosity, tabs)

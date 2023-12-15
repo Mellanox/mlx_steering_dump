@@ -28,10 +28,14 @@ class dr_parse_rule():
         _str = tabs + self.dump_str(verbosity)
         tabs = tabs + TAB
 
-        for ste in self.rx_ste_arr:
-            _str += ste.tree_print(verbosity, tabs, 'RX STE ', matcher.data["rx_icm_addr"])
-        for ste in self.tx_ste_arr:
-            _str += ste.tree_print(verbosity, tabs, 'TX STE ', matcher.data["tx_icm_addr"])
+        def tree_print_stes(stes, prefix, expected_miss_index):
+            nonlocal _str
+            last_i = len(stes) - 1
+            for i, ste in enumerate(stes):
+                is_last = i == last_i
+                _str += ste.tree_print(verbosity, tabs, prefix, expected_miss_index, is_last)
+        tree_print_stes(self.rx_ste_arr, 'RX STE ', matcher.data["rx_icm_addr"])
+        tree_print_stes(self.tx_ste_arr, 'TX STE ', matcher.data["tx_icm_addr"])
 
         return _str
 
