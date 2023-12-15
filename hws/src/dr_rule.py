@@ -62,23 +62,28 @@ def dr_hw_get_ste_from_loc(loc):
 def dr_parse_rules(matcher, verbosity, tabs):
     _str = ''
     _tabs = tabs + TAB
-    tbl_type = _db._tbl_type_db.get(matcher.data.get("tbl_id"))
-    _range = 2 if (tbl_type == DR_TBL_TYPE_FDB) else 1
-    _tbl_type = tbl_type
     progress_bar_i = _config_args.get("progress_bar_i")
     progress_bar_total = _db._total_matcher_match_fw_stes[0]
     if progress_bar_i == 0:
         interactive_progress_bar(progress_bar_i, progress_bar_total, PARSING_THE_RULES_STR)
-    for i in range(_range):
-        if i == 0:
-            fw_ste_id = matcher.get_fw_ste_0_index()
-            if tbl_type == DR_TBL_TYPE_FDB:
-                _tbl_type = DR_TBL_TYPE_NIC_RX
-        if (i == 1) and (tbl_type == "FDB"):
-            fw_ste_id = matcher.get_fw_ste_1_index()
-            _tbl_type = DR_TBL_TYPE_NIC_TX
 
-        fw_ste_dic = _db._fw_ste_db[fw_ste_id]
+    tbl_type_to_dumps = {
+        DR_TBL_TYPE_NIC_RX: [
+            (DR_TBL_TYPE_NIC_RX, matcher.get_fw_ste_0_index()),
+        ],
+        DR_TBL_TYPE_NIC_TX: [
+            (DR_TBL_TYPE_NIC_TX, matcher.get_fw_ste_0_index()),
+        ],
+        DR_TBL_TYPE_FDB: [
+            (DR_TBL_TYPE_NIC_RX, matcher.get_fw_ste_0_index()),
+            (DR_TBL_TYPE_NIC_TX, matcher.get_fw_ste_1_index()),
+        ],
+    }
+    tbl_type = _db._tbl_type_db.get(matcher.data.get("tbl_id"))
+    dumps = tbl_type_to_dumps[tbl_type]
+
+    for _tbl_type, match_ste_id in dumps:
+        fw_ste_dic = _db._fw_ste_db[match_ste_id]
         for ste_addr in fw_ste_dic:
             ste = fw_ste_dic.get(ste_addr)
             rule = dr_parse_rule()
