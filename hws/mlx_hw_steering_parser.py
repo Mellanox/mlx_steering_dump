@@ -166,6 +166,8 @@ def env_init():
             tmp_file_path += file_path_arr[i] + '/'
 
         tmp_file_path += 'tmp_' + str(time.time()) + '.bin'
+        fd = open(tmp_file_path, 'w+')
+        fd.close()
 
         _config_args["tmp_file_path"] = tmp_file_path
         _config_args["tmp_file"] = None
