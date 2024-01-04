@@ -24,14 +24,14 @@ class dr_parse_rule():
             self.tx_ste_arr.append(ste)
 
 
-    def tree_print(self, verbosity, tabs):
+    def tree_print(self, verbosity, tabs, matcher):
         _str = tabs + self.dump_str(verbosity)
         tabs = tabs + TAB
 
         for ste in self.rx_ste_arr:
-            _str += ste.tree_print(verbosity, tabs, 'RX STE ')
+            _str += ste.tree_print(verbosity, tabs, 'RX STE ', matcher.data["rx_icm_addr"])
         for ste in self.tx_ste_arr:
-            _str += ste.tree_print(verbosity, tabs, 'TX STE ')
+            _str += ste.tree_print(verbosity, tabs, 'TX STE ', matcher.data["tx_icm_addr"])
 
         return _str
 
@@ -82,7 +82,7 @@ def dr_parse_rules(matcher, verbosity, tabs):
                 rule.add_ste(ste, _tbl_type)
                 hit_loc = ste.get_hit_location()
                 ste = dr_hw_get_ste_from_loc(hit_loc)
-            _str += rule.tree_print(verbosity, _tabs)
+            _str += rule.tree_print(verbosity, _tabs, matcher)
 
         progress_bar_i += 1
         interactive_progress_bar(progress_bar_i, progress_bar_total, PARSING_THE_RULES_STR)
