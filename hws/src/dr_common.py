@@ -178,9 +178,9 @@ def call_resource_dump(dev, dev_name, segment, index1, num_of_obj1, num_of_obj2,
     if vhca_id != None and vhca_id != "0":
         _input += ' --virtual-hca-id ' + vhca_id
 
-    output = sp.getoutput(_input)
-
-    if (len(output) >= 10) and ('Error' in output[0:10]):
+    status, output = sp.getstatusoutput(_input)
+    # FIXME: "Error" isn't always printed on the first line.
+    if status != 0 or ((len(output) >= 10) and ('Error' in output[0:10])):
         print(output)
         print('MFT Error')
         exit()
