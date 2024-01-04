@@ -108,10 +108,11 @@ def dr_parse_fw_stc_action_get_obj_id(raw):
 
 def dr_parse_fw_stc_get_addr(raw):
     raw = hex_to_bin_str(raw, STE_SIZE_IN_BITS)
+    next_table_base_63_48 = int(raw[96 : 112], 2)
     next_table_base_39_32 = int(raw[120 : 128], 2)
     next_table_base_31_5 = int(raw[128 : 155], 2)
 
-    return hex(hit_addr_calc(next_table_base_39_32, next_table_base_31_5))
+    return hex(hit_location_calc(next_table_base_63_48, next_table_base_39_32, next_table_base_31_5).index)
 
 
 class dr_parse_pattern():

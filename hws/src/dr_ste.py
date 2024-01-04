@@ -82,13 +82,6 @@ def fields_handler(_fields, verbosity=0, show_field_val=False):
 
     return _str
 
-def ste_hit_addr_calc(next_table_base_63_48, next_table_base_39_32, next_table_base_31_5):
-    hit_addr = next_table_base_39_32 << 32
-    hit_addr |= (next_table_base_31_5 << 5)
-    hit_addr = (hit_addr >> 6) & 0xffffffff
-
-    return hit_addr
-
 def compare_ste_op_translate(op, inverse):
     _str = ""
     if inverse == 1:
@@ -122,12 +115,12 @@ def raw_ste_parser(raw_ste):
     ste["match_definer_context_index"] = int(raw_ste[48 : 56], 2)
     miss_address_39_32 = int(raw_ste[56 : 64], 2)
     miss_address_31_6 = int(raw_ste[64 : 90], 2)
-    ste["miss_addr"] = (miss_address_63_48 << 48) | (miss_address_39_32 << 32) | (miss_address_31_6 << 6)
+    ste["miss_loc"] = miss_location_calc(miss_address_63_48, miss_address_39_32, miss_address_31_6)
     next_table_base_63_48 = int(raw_ste[96 : 112], 2)
     ste["hash_definer_context_index"] = int(raw_ste[112 : 120], 2)
     next_table_base_39_32 = int(raw_ste[120 : 128], 2)
     next_table_base_31_5 = int(raw_ste[128 : 155], 2)
-    ste["hit_addr"] = hex(ste_hit_addr_calc(next_table_base_63_48, next_table_base_39_32, next_table_base_31_5))
+    ste["hit_loc"] = hit_location_calc(next_table_base_63_48, next_table_base_39_32, next_table_base_31_5)
 
     dw_selector_8 = raw_ste[160 : 192]
     dw_selector_7 = raw_ste[192 : 224]
@@ -232,8 +225,8 @@ class dr_parse_ste():
     def __init__(self, data, parse=False):
         keys = ["mlx5dr_debug_res_type", "id", "fw_ste_id", "raw_ste"]
         self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
-        self.hit_addr = None
-        self.miss_addr = None
+        self.hit_loc = None
+        self.miss_loc = None
         self.fields_dic = None
         self.action_arr = None
         self.parsed = False
@@ -243,8 +236,8 @@ class dr_parse_ste():
 
     def parse(self):
         parsed_ste = raw_ste_parser(self.data.get("raw_ste"))
-        self.hit_addr = parsed_ste["hit_addr"]
-        self.miss_addr = parsed_ste["miss_addr"]
+        self.hit_loc = parsed_ste["hit_loc"]
+        self.miss_loc = parsed_ste["miss_loc"]
         self.fields_dic = parsed_ste.get("parsed_tag")
         self.action_arr = parsed_ste.get("actions")
         self.counter_id = parsed_ste.get("counter_id")
@@ -271,7 +264,7 @@ class dr_parse_ste():
                 _str += _tabs + action
                 flag = True
 
-        obj = _db._term_dest_db.get(self.hit_addr)
+        obj = _db._term_dest_db.get(hex(self.hit_loc.index))
         if obj != None:
             _str += _tabs + obj.get("type") + ': ' + obj.get("id") + '\n'
             flag = True
@@ -325,17 +318,17 @@ class dr_parse_ste():
     def get_addr(self):
         return self.data.get("id")
 
-    def get_hit_addr(self):
+    def get_hit_location(self):
         if not(self.parsed):
             self.parse()
 
-        return self.hit_addr
+        return self.hit_loc
 
-    def get_miss_addr(self):
+    def get_miss_location(self):
         if not(self.parsed):
             self.parse()
 
-        return self.miss_addr
+        return self.miss_loc
 
     def load_to_db(self):
         _db._fw_ste_db[self.data.get("fw_ste_id")][self.data.get("id")] = self
