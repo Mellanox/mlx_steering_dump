@@ -2,7 +2,7 @@
 #Copyright (c) 2021 NVIDIA CORPORATION. All rights reserved.
 
 from src.dr_common import *
-from src.dr_db import _db
+from src.dr_db import _db, _config_args
 from src.dr_hl import _fields_text_values
 from src.dr_action import action_pretiffy,dr_ste_parse_ste_actions_arr
 
@@ -288,6 +288,21 @@ class dr_parse_ste():
 
         return _str
 
+    def dump_miss(self, verbosity, tabs, expected_miss_index):
+        if not len(self.fields_dic):
+            return ''
+
+        miss_is_expected_loc = (
+            self.miss_loc.gvmi_str == _config_args.get("vhca_id")
+            and
+            hex(self.miss_loc.index) == expected_miss_index
+        )
+        if miss_is_expected_loc and verbosity < 4:
+             return ''
+
+        expected_str = '' if miss_is_expected_loc else ' (NOT expected value)'
+        return tabs + 'Miss address: ' + str(self.miss_loc) + expected_str + '\n'
+
     def dump_raw_ste(self, verbosity, tabs):
         _str = tabs + 'Raw STE:\n'
         tabs = tabs + TAB
@@ -303,11 +318,12 @@ class dr_parse_ste():
 
         return _str
 
-    def tree_print(self, verbosity, tabs, prefix=None):
+    def tree_print(self, verbosity, tabs, prefix, expected_miss_index):
         _str = tabs + self.dump_str(verbosity, prefix)
         tabs = tabs + TAB
 
         _str += self.dump_fields(verbosity, tabs)
+        _str += self.dump_miss(verbosity, tabs, expected_miss_index)
         _str += self.dump_actions(verbosity, tabs)
 
         if verbosity > 2:
