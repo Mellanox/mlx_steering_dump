@@ -152,12 +152,39 @@ STC_ACTION_JUMP_TO_FLOW_TABLE = '82'
 STC_ACTION_JUMP_TO_VPORT = '85'
 
 
-def hit_addr_calc(next_table_base_39_32, next_table_base_31_5):
-    hit_addr = next_table_base_39_32 << 32
-    hit_addr |= (next_table_base_31_5 << 5)
-    hit_addr = (hit_addr >> 6) & 0xffffffff
+class SteLocation():
+    def __init__(self, gvmi, address):
+        self.gvmi = gvmi
+        self.gvmi_str = str(gvmi)
+        # This field is not currently used:
+        # self.address = address
+        self.index = address >> 6
+        # This field is not currently used:
+        # If it becomes used, bits 47:40 need to be found somewhere.
+        # self.global_va = (gvmi << 48) | address
 
-    return hit_addr
+    def __str__(self):
+        _str = ''
+        if self.gvmi_str != _config_args.get("vhca_id"):
+            _str += hex(self.gvmi) + ':'
+        _str += hex(self.index)
+        return _str
+
+    def __repr__(self):
+        return repr((self.gvmi, self.index))
+
+def miss_location_calc(miss_address_63_48, miss_address_39_32, miss_address_31_6):
+    gvmi = miss_address_63_48
+    address = miss_address_39_32 << 32
+    address |= miss_address_31_6 << 6
+    return SteLocation(gvmi, address)
+
+
+def hit_location_calc(next_table_base_63_48, next_table_base_39_32, next_table_base_31_5):
+    gvmi = next_table_base_63_48
+    address = next_table_base_39_32 << 32
+    address |= next_table_base_31_5 << 5
+    return SteLocation(gvmi, address)
 
 
 def call_resource_dump(dev, dev_name, segment, index1, num_of_obj1, num_of_obj2, depth):

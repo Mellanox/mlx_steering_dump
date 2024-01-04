@@ -36,7 +36,11 @@ class dr_parse_rule():
         return _str
 
 
-def dr_hw_get_ste_from_addr(addr):
+def dr_hw_get_ste_from_loc(loc):
+    if loc.gvmi_str != _config_args.get("vhca_id"):
+        return None
+
+    addr = hex(loc.index)
     fw_ste_index = None
     for index in _db._stes_range_db:
         _range = _db._stes_range_db.get(index)
@@ -76,8 +80,8 @@ def dr_parse_rules(matcher, verbosity, tabs):
             rule = dr_parse_rule()
             while ste != None:
                 rule.add_ste(ste, _tbl_type)
-                hit_addr = ste.get_hit_addr()
-                ste = dr_hw_get_ste_from_addr(hit_addr)
+                hit_loc = ste.get_hit_location()
+                ste = dr_hw_get_ste_from_loc(hit_loc)
             _str += rule.tree_print(verbosity, _tabs)
 
         progress_bar_i += 1
