@@ -10,7 +10,11 @@ from src.dr_db import _config_args, _ctx_db, _db
 
 
 def get_mst_dev(rdma_dev_name):
-    output = sp.getoutput('mst status -v')
+    status, output = sp.getstatusoutput('mst status -v')
+    if status != 0:
+        print(output)
+        print('MFT Error')
+        exit()
     output_arr = output.split('\n')
 
     for l in output_arr:
@@ -22,7 +26,11 @@ def get_mst_dev(rdma_dev_name):
     return None
 
 def get_mst_rdma_dev(dev_name):
-    output = sp.getoutput('mst status -v')
+    status, output = sp.getstatusoutput('mst status -v')
+    if status != 0:
+        print(output)
+        print('MFT Error')
+        exit()
     output_arr = output.split('\n')
 
     for l in output_arr:

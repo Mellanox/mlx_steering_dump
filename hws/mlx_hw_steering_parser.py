@@ -192,7 +192,11 @@ def validate_env_caps():
             print('Cannot Dump HW resources <-hw>, need Python3')
             exit()
 
-        output = sp.getoutput('resourcedump -v')
+        status, output = sp.getstatusoutput('resourcedump -v')
+        if status != 0:
+            print(output)
+            print('MFT Error')
+            exit()
         output = output.split(', ')
         if output[0] != 'resourcedump':
             print('Can not Dump HW resources, no MFT')
