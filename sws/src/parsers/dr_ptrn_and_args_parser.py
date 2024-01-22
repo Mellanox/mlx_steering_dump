@@ -98,7 +98,7 @@ def dr_action_nop_parser(action):
 def get_modify_hdr_field(dw_offset, left_shifter, length):
     sw_format_ver = dr_utils_dic.get("sw_format_ver")
     if sw_format_ver == MLX5_HW_CONNECTX_6DX:
-        if dst_dw_offset > V1_TO_V2_HL_BOUND:
+        if dw_offset > V1_TO_V2_HL_BOUND:
             dw_offset += V1_TO_V2_HL_DIFF
 
     end = left_shifter + length - 1
