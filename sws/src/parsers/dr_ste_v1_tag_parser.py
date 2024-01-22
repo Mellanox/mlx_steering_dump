@@ -697,8 +697,8 @@ def mlx5_ste_v1_tag_parser(lookup_type, definer_id, tag, raw):
     if lookup_type in switch_tag_parser.keys():
         func, inner = switch_tag_parser[lookup_type]
     # The default value for definer_id is None, and value -1 means definer not supported.
-    elif definer_id not in [None, "-1"] and int(definer_id) in switch_definer_parser.keys():
-        func = switch_definer_parser[int(definer_id)]
+    elif definer_id not in [None, "-1"] and int(definer_id, 16) in switch_definer_parser.keys():
+        func = switch_definer_parser[int(definer_id, 16)]
     else:
         return mlx5_ifc_ste_v1_unsupported_tag()
 
