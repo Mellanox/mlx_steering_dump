@@ -86,11 +86,12 @@ class dr_parse_stc():
 #This dictionary holds action objects id location
 #according to stc obj param
 stc_param_id_loc_dic = {
-    STC_ACTION_HEADER_MODIFY_LIST: {'type': 'MODIFY_LIST', 'loc': (10, 18)},
-    STC_ACTION_JUMP_TO_STE_TABLE: {'type': 'FW_STE_TABLE', 'loc': (2, 10)},
-    STC_ACTION_JUMP_TO_TIR: {'type': 'TIR', 'loc': (2,8)},
-    STC_ACTION_JUMP_TO_FLOW_TABLE: {'type': 'FT', 'loc': (2,8)},
-    STC_ACTION_JUMP_TO_VPORT: {'type': 'VPORT', 'loc': (4,8)},
+    STC_ACTION_HEADER_MODIFY_LIST: {'type': 'MODIFY_LIST', 'loc': (8, 16)},
+    STC_ACTION_JUMP_TO_STE_TABLE: {'type': 'FW_STE_TABLE', 'loc': (0, 8)},
+    STC_ACTION_JUMP_TO_TIR: {'type': 'TIR', 'loc': (0, 6)},
+    STC_ACTION_JUMP_TO_FLOW_TABLE: {'type': 'FT', 'loc': (0, 6)},
+    STC_ACTION_JUMP_TO_VPORT: {'type': 'VPORT', 'loc': (0, 4)},
+    STC_ACTION_JUMP_TO_UPLINK : {'type': 'UPLINK'}
 }
 
 
@@ -100,6 +101,9 @@ def dr_parse_fw_stc_action_get_obj_id(raw):
 
     obj = stc_param_id_loc_dic.get(action_type)
     if obj != None:
+        if action_type == STC_ACTION_JUMP_TO_UPLINK:
+            return {"type": obj.get("type"), "id": ''}
+
         id_loc = obj.get("loc")
         return {"type": obj.get("type"), "id": hex(int(stc_param[id_loc[0]:id_loc[1]], 16))}
 
