@@ -247,7 +247,7 @@ dr_parse_fw_modify_arguments_dic = {
 }
 
 def dr_parse_fw_modify_pattern(raw):
-    action_type = int(raw[0:1], 16)
+    action_type = int(raw[0:2], 16)
     return dr_parse_fw_modify_pattern_dic.get(action_type)(raw)
 
 def parse_fw_modify_pattern_rd_bin_output(pattern_index, load_to_db, file, num_of_pat):
@@ -267,8 +267,11 @@ def parse_fw_modify_pattern_rd_bin_output(pattern_index, load_to_db, file, num_o
         while read_sz:
             data = bin_file.read(MODIFY_PATTERN_BYTES_SZ)
             if data:
-                data = hex(int.from_bytes(data, byteorder='big'))
-                pat_dic = dr_parse_fw_modify_pattern(data[2:])
+                data = hex(int.from_bytes(data, byteorder='big'))[2:]
+                len_data = len(data)
+                if(len_data < 2 * MODIFY_PATTERN_BYTES_SZ):
+                    data = (((2 * MODIFY_PATTERN_BYTES_SZ) - len_data) * '0') + data
+                pat_dic = dr_parse_fw_modify_pattern(data)
                 arr.append(pat_dic)
                 file_str += ",%s-%s-%s" % (pat_dic.get("raw") ,hex(pat_dic.get("type")), pat_dic.get("text").replace(',', ''))
             read_sz -= MODIFY_PATTERN_BYTES_SZ
