@@ -167,9 +167,8 @@ def dr_parse_insert_inline_action(action_dw_0, action_dw_1, parse_value=True):
     start_anchor = int(action_dw_0[10 : 16], 2)
     field = modify_pattern_anchor_dic.get(start_anchor)
     action["start_anchor"] = field if field != None else start_anchor
-    end_anchor = int(action_dw_0[18 : 24], 2)
-    field = modify_pattern_anchor_dic.get(end_anchor)
-    action["end_anchor"] = field if field != None else end_anchor
+    #Offset in words granularity
+    action["start_offset"] = '%s Bytes' % hex(int(action_dw_0[18 : 23], 2) * 2)
 
     if parse_value:
         action["insert_data_inline"] = int(action_dw_1[0 : 32], 2)
@@ -182,10 +181,10 @@ def dr_parse_insert_by_pointer_action(action_dw_0, action_dw_1):
     start_anchor = int(action_dw_0[10 : 16], 2)
     field = modify_pattern_anchor_dic.get(start_anchor)
     action["start_anchor"] = field if field != None else start_anchor
-    end_anchor = int(action_dw_0[18 : 24], 2)
-    field = modify_pattern_anchor_dic.get(end_anchor)
-    action["end_anchor"] = field if field != None else end_anchor
-    action["size"] = int(action_dw_0[24 : 29], 2)
+    #Offset in words granularity
+    action["start_offset"] = '%s Bytes' % hex(int(action_dw_0[18 : 23], 2) * 2)
+    #Size in words granularity
+    action["size"] = '%s Bytes' % hex(int(action_dw_0[23 : 29], 2) * 2)
     action["attributes"] = int(action_dw_0[29 : 32], 2)
     action["pointer"] = int(action_dw_1[0 : 32], 2)
 
