@@ -323,8 +323,8 @@ def dr_hl_udp_misc_parser(hl_index, mask):
 def dr_hl_tcp_icmp_parser(hl_index, mask):
     offset = int((hl_index - 94) % 3)
     dw_fields = [
-                 [('TCP_seq_numbuer / ICMP_DW1', 32)],
-                 [('TCP_ack_numbuer / ICMP_DW2', 32)],
+                 [('TCP_seq_number / ICMP_DW1', 32)],
+                 [('TCP_ack_number / ICMP_DW2', 32)],
                  [('TCP_window size, TCP_urgent_pointer / ICMP_DW3', 32)]
                 ]
 
