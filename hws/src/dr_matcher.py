@@ -262,7 +262,7 @@ class dr_parse_matcher_attr():
     def __init__(self, data):
         keys = ["mlx5dr_debug_res_type", "matcher_id", "priority",
                 "mode", "sz_row_log", "sz_col_log", "use_rule_idx",
-                "flow_src", "insertion", "distribution"]
+                "flow_src", "insertion", "distribution", "match", "isolated"]
         self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
         if self.data["flow_src"] == "1":
             self.data["flow_src"]  = "FDB ingress"
@@ -280,11 +280,19 @@ class dr_parse_matcher_attr():
         return int(self.data.get("sz_col_log"))
 
     def dump_str(self, verbosity):
-        _keys = ["mlx5dr_debug_res_type", "priority", "log_sz"]
+        _keys = ["mlx5dr_debug_res_type"]
+
+        if self.data.get("isolated") == "True":
+            _keys.extend(["isolated", "log_sz"])
+        else:
+            _keys.extend(["priority", "log_sz"])
+
         if verbosity > 1:
             _keys.extend(["mode", "flow_src"])
         if verbosity > 2:
             _keys.extend(["insertion", "distribution"])
+            if self.data.get("match") != "Default":
+                _keys.append("match")
 
         return dump_obj_str(_keys, self.data)
 
@@ -295,6 +303,8 @@ class dr_parse_matcher_attr():
         self.data["distribution"] = "LINEAR" if self.data.get("distribution") == "1" else "HASH"
         self.data["log_sz"] = "%sX%s" % (self.data.get("sz_row_log"), self.data.get("sz_col_log"))
         self.data["priority"] = hex(self.priority)
+        self.data["match"] = "Always hit" if self.data.get("match") == "1" else "Default"
+        self.data["isolated"] = "True" if self.data.get("isolated") == "1" else ""
 
 
 class dr_parse_matcher_match_template():
