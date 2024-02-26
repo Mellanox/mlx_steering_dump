@@ -40,13 +40,19 @@ class dr_parse_rule():
         return _str
 
 
-def dr_hw_get_ste_from_loc(loc):
+def dr_hw_get_ste_from_loc(loc, hint_loc=[]):
     if loc.gvmi_str != _config_args.get("vhca_id"):
         return None
 
+    if len(hint_loc) == 0:
+        hint_loc = _db._stes_range_db
+
     addr = hex(loc.index)
     fw_ste_index = None
-    for index in _db._stes_range_db:
+    for index in hint_loc:
+        if index == None:
+            continue
+
         _range = _db._stes_range_db.get(index)
         if addr >= _range[0] and addr <= _range[1]:
             fw_ste_index = index
@@ -69,28 +75,31 @@ def dr_parse_rules(matcher, verbosity, tabs):
 
     tbl_type_to_dumps = {
         DR_TBL_TYPE_NIC_RX: [
-            (DR_TBL_TYPE_NIC_RX, matcher.get_fw_ste_0_index()),
+            (DR_TBL_TYPE_NIC_RX, matcher.get_fw_ste_0_index(), [matcher.action_ste_0_id]),
         ],
         DR_TBL_TYPE_NIC_TX: [
-            (DR_TBL_TYPE_NIC_TX, matcher.get_fw_ste_0_index()),
+            (DR_TBL_TYPE_NIC_TX, matcher.get_fw_ste_0_index(), [matcher.action_ste_0_id]),
         ],
         DR_TBL_TYPE_FDB: [
-            (DR_TBL_TYPE_NIC_RX, matcher.get_fw_ste_0_index()),
-            (DR_TBL_TYPE_NIC_TX, matcher.get_fw_ste_1_index()),
+            (DR_TBL_TYPE_NIC_RX, matcher.get_fw_ste_0_index(), [matcher.action_ste_0_id]),
+            (DR_TBL_TYPE_NIC_TX, matcher.get_fw_ste_1_index(), [matcher.action_ste_1_id]),
         ],
     }
     tbl_type = _db._tbl_type_db.get(matcher.data.get("tbl_id"))
     dumps = tbl_type_to_dumps[tbl_type]
 
-    for _tbl_type, match_ste_id in dumps:
-        fw_ste_dic = _db._fw_ste_db[match_ste_id]
+    for _tbl_type, match_ste_id, hint_loc in dumps:
+        fw_ste_dic = _db._fw_ste_db.get(match_ste_id)
+        if fw_ste_dic == None:
+            continue
+
         for ste_addr in fw_ste_dic:
             ste = fw_ste_dic.get(ste_addr)
             rule = dr_parse_rule()
             while ste != None:
                 rule.add_ste(ste, _tbl_type)
                 hit_loc = ste.get_hit_location()
-                ste = dr_hw_get_ste_from_loc(hit_loc)
+                ste = dr_hw_get_ste_from_loc(hit_loc, hint_loc)
             _str += rule.tree_print(verbosity, _tabs, matcher)
 
         progress_bar_i += 1
