@@ -272,8 +272,10 @@ class dr_parse_ste():
                 obj = None
             if obj != None:
                 _str += ' ' + obj.get("type") + ' ' + obj.get("id")
-            if obj is None or verbosity > 2:
-                _str += ' (' + str(self.hit_loc) + ')'
+                if verbosity > 2:
+                    _str += ' (' + str(self.hit_loc) + ')'
+            else:
+                _str += ' ' + str(self.hit_loc)
             _str += '\n'
             flag = True
 
