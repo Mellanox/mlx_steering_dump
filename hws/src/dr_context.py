@@ -9,7 +9,7 @@ from src.dr_common import *
 from src.dr_db import _config_args, _ctx_db, _db
 
 
-def get_mst_dev(rdma_dev_name):
+def get_mst_dev(dev_name):
     status, output = sp.getstatusoutput('mst status -v')
     if status != 0:
         print(output)
@@ -17,8 +17,11 @@ def get_mst_dev(rdma_dev_name):
         exit()
     output_arr = output.split('\n')
 
+    if dev_name.startswith("0000:") == True:
+        dev_name = dev_name[5:]
+
     for l in output_arr:
-        if rdma_dev_name in l:
+        if dev_name in l:
             l_arr = l.split()
             if len(l_arr) > 1 and l_arr[1] != 'NA':
                 return l_arr[1]
