@@ -40,11 +40,11 @@ class dr_parse_rule():
         return _str
 
 
-def dr_hw_get_ste_from_loc(loc, hint_loc=[]):
+def dr_hw_get_ste_from_loc(loc, hint_loc=[], ignore_hint=False):
     if loc.gvmi_str != _config_args.get("vhca_id"):
         return None
 
-    if len(hint_loc) == 0:
+    if ignore_hint:
         hint_loc = _db._stes_range_db
 
     addr = hex(loc.index)
@@ -75,14 +75,14 @@ def dr_parse_rules(matcher, verbosity, tabs):
 
     tbl_type_to_dumps = {
         DR_TBL_TYPE_NIC_RX: [
-            (DR_TBL_TYPE_NIC_RX, matcher.get_fw_ste_0_index(), [matcher.action_ste_0_id]),
+            (DR_TBL_TYPE_NIC_RX, matcher.get_fw_ste_0_index(), matcher.get_ste_arrays(ste_1=False)),
         ],
         DR_TBL_TYPE_NIC_TX: [
-            (DR_TBL_TYPE_NIC_TX, matcher.get_fw_ste_0_index(), [matcher.action_ste_0_id]),
+            (DR_TBL_TYPE_NIC_TX, matcher.get_fw_ste_0_index(), matcher.get_ste_arrays(ste_1=False)),
         ],
         DR_TBL_TYPE_FDB: [
-            (DR_TBL_TYPE_NIC_RX, matcher.get_fw_ste_0_index(), [matcher.action_ste_0_id]),
-            (DR_TBL_TYPE_NIC_TX, matcher.get_fw_ste_1_index(), [matcher.action_ste_1_id]),
+            (DR_TBL_TYPE_NIC_RX, matcher.get_fw_ste_0_index(), matcher.get_ste_arrays(ste_1=False)),
+            (DR_TBL_TYPE_NIC_TX, matcher.get_fw_ste_1_index(), matcher.get_ste_arrays(ste_0=False)),
         ],
     }
     tbl_type = _db._tbl_type_db.get(matcher.data.get("tbl_id"))
