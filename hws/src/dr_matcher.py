@@ -49,6 +49,7 @@ class dr_parse_matcher():
         self.action_ste_1_id = None
         self.aliased_rtc_0_id = None
         self.hash_definer = None
+        self.resizable_arrays = []
         self.fix_data()
         self.save_to_db()
 
@@ -218,6 +219,9 @@ class dr_parse_matcher():
     def add_hash_definer(self, definer):
         self.hash_definer = definer
 
+    def add_resizable_array(self, obj):
+        self.resizable_arrays.append(obj)
+
     def save_to_db(self):
         total_match_fw_stes = 0
 
@@ -256,6 +260,22 @@ class dr_parse_matcher():
 
     def get_fw_ste_1_index(self):
         return self.match_ste_1_id
+
+    def get_ste_arrays(self, ste_0=True, ste_1=True):
+        res = []
+
+        if ste_0 and self.action_ste_0_id != None:
+            res.append(self.action_ste_0_id)
+        if ste_1 and self.action_ste_1_id != None:
+            res.append(self.action_ste_1_id)
+
+        for obj in self.resizable_arrays:
+            if ste_0 and obj.action_ste_0_id != None:
+                res.append(obj.action_ste_0_id)
+            if ste_1 and obj.action_ste_1_id != None:
+                res.append(obj.action_ste_1_id)
+
+        return res
 
 
 class dr_parse_matcher_attr():
@@ -375,3 +395,30 @@ class dr_parse_matcher_action_template():
             _str += _tabs + 'Action combinations: ' + self.data.get("action_combinations") + '\n'
 
         return _str
+
+
+class dr_parse_matcher_resizable_array():
+    def __init__(self, data):
+        keys = ["mlx5dr_debug_res_type", "matcher_id", "action_rtc_0_id",
+                "action_ste_0_id", "action_rtc_1_id", "action_ste_1_id"]
+        self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
+        self.action_ste_0_id = None
+        self.action_ste_1_id = None
+        self.fix_data()
+        self.save_to_db()
+
+    def fix_data(self):
+        ste_id = self.data.get("action_ste_0_id")
+        if ste_id != '-1':
+            self.action_ste_0_id = ste_id
+
+        ste_id = self.data.get("action_ste_1_id")
+        if ste_id != '-1':
+            self.action_ste_1_id = ste_id
+
+    def save_to_db(self):
+        if self.action_ste_0_id != None:
+            _db._fw_ste_indexes_arr.append(self.action_ste_0_id)
+
+        if self.action_ste_1_id != None:
+            _db._fw_ste_indexes_arr.append(self.action_ste_1_id)
