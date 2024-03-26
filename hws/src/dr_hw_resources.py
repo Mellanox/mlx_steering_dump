@@ -88,9 +88,9 @@ class dr_parse_stc():
 stc_param_id_loc_dic = {
     STC_ACTION_HEADER_MODIFY_LIST: {'type': 'MODIFY_LIST', 'loc': (8, 16)},
     STC_ACTION_JUMP_TO_STE_TABLE: {'type': 'FW_STE_TABLE', 'loc': (0, 8)},
-    STC_ACTION_JUMP_TO_TIR: {'type': 'TIR', 'loc': (0, 6)},
-    STC_ACTION_JUMP_TO_FLOW_TABLE: {'type': 'FT', 'loc': (0, 6)},
-    STC_ACTION_JUMP_TO_VPORT: {'type': 'VPORT', 'loc': (0, 4)},
+    STC_ACTION_JUMP_TO_TIR: {'type': 'TIR', 'loc': (2, 8)},
+    STC_ACTION_JUMP_TO_FLOW_TABLE: {'type': 'FT', 'loc': (2, 8)},
+    STC_ACTION_JUMP_TO_VPORT: {'type': 'VPORT', 'loc': (4, 8)},
     STC_ACTION_JUMP_TO_UPLINK: {'type': 'UPLINK'},
     STC_ACTION_JUMP_TO_DROP: {'type': 'DROP'},
 }
