@@ -213,6 +213,7 @@ def call_resource_dump(dev, dev_name, segment, index1, num_of_obj1, num_of_obj2,
     status, output = sp.getstatusoutput(_input)
     # FIXME: "Error" isn't always printed on the first line.
     if status != 0 or ((len(output) >= 10) and ('Error' in output[0:10])):
+        print(_input)
         print(output)
         print('MFT Error')
         exit()
