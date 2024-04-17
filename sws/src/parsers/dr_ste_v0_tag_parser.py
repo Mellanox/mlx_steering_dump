@@ -330,7 +330,7 @@ def mlx5_ste_v0_tag_parser(lookup_type, tag, raw):
     func, inner = switch_tag_parser[lookup_type]
     parsed_tag = func(tag)
 
-    if not raw and (lookup_type not in ["0x22", 0x23]):
+    if not raw and (lookup_type not in ["0x22", "0x23"]):
         parsed_tag = dr_prettify.prettify_tag(parsed_tag)
 
     if inner:
