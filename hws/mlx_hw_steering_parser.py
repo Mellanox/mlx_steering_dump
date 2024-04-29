@@ -340,10 +340,9 @@ if __name__ == "__main__":
         file_path = _config_args.get("file_path")
         verbose = _config_args.get("verbose")
 
-        csv_file = open(file_path, 'r+')
-        load_to_db = False if _config_args.get("dump_hw_resources") else _config_args.get("load_hw_resources")
-        ctxs = dr_parse_csv_file(csv_file, load_to_db)
-        csv_file.close()
+        with open(file_path, 'r+') as csv_file:
+            load_to_db = False if _config_args.get("dump_hw_resources") else _config_args.get("load_hw_resources")
+            ctxs = dr_parse_csv_file(csv_file, load_to_db)
 
         if _config_args.get("dump_hw_resources"):
             csv_file = open(_config_args.get("file_path"), 'a+')
