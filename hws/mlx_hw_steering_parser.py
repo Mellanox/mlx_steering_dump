@@ -3,6 +3,7 @@
 #SPDX-License-Identifier: BSD-3-Clause
 #Copyright (c) 2021 NVIDIA CORPORATION. All rights reserved.
 
+from pathlib import Path
 import sys
 import os
 import argparse
@@ -178,16 +179,11 @@ def dr_parse_csv_file(csv_file, load_to_db):
 #General env initialization
 def env_init():
     if _config_args.get("resourcedump_mem_mode"):
-        tmp_file_path = ''
-        file_path_arr = _config_args.get("file_path").split('/')
-        for i in range(0, len(file_path_arr) - 1):
-            tmp_file_path += file_path_arr[i] + '/'
+        tmp_file_name = 'tmp_' + str(time.time()) + '.bin'
+        tmp_file_path = Path(_config_args.get("file_path")).with_name(tmp_file_name)
+        tmp_file_path.touch()
 
-        tmp_file_path += 'tmp_' + str(time.time()) + '.bin'
-        fd = open(tmp_file_path, 'w+')
-        fd.close()
-
-        _config_args["tmp_file_path"] = tmp_file_path
+        _config_args["tmp_file_path"] = str(tmp_file_path)
         _config_args["tmp_file"] = None
 
 
