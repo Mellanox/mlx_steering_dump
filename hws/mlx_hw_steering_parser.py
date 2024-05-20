@@ -201,7 +201,7 @@ def validate_env_caps():
             print('MFT Error')
             exit()
         output = output.split(', ')
-        if output[0] != 'resourcedump':
+        if 'resourcedump' not in output[0]:
             print('Can not Dump HW resources, no MFT')
             exit()
 
