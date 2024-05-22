@@ -290,7 +290,7 @@ def parse_fw_modify_pattern_rd_bin_output(pattern_index, load_to_db, file, num_o
     arr = []
     read_sz = num_of_pat * MODIFY_PATTERN_BYTES_SZ
     file_str = "%s,%s" % (MLX5DR_DEBUG_RES_TYPE_PATTERN, pattern_index)
-    _config_args["tmp_file"] = open(_config_args.get("tmp_file_path"), 'rb+')
+    _config_args["tmp_file"] = open(_config_args.get("tmp_file_path"), 'rb')
     bin_file = _config_args.get("tmp_file")
 
     #There are 36B of prefix data before first pattern dump

@@ -283,7 +283,7 @@ def dump_hw_resources(load_to_db, dev, dev_name, file):
     dump_counter = _config_args.get("extra_hw_res_counter")
     interactive_progress_bar(0, total_resources, DUMPING_HW_RESOURCES)
     i = 0
-    with open(_config_args.get("tmp_file_path"), 'rb+') as tmp_file:
+    with open(_config_args.get("tmp_file_path"), 'rb') as tmp_file:
         for ft_id in _db._ft_idx_arr:
             query_and_parse_ft_meta_rd_bin_output(ft_id, load_to_db, dev, dev_name, file, tmp_file)
         for stc_index in _db._stc_indexes_arr:
