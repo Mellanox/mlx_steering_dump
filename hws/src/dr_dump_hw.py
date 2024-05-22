@@ -250,7 +250,7 @@ def dump_hw_resources(load_to_db, dev, dev_name, file):
     dump_counter = _config_args.get("extra_hw_res_counter")
     interactive_progress_bar(0, total_resources, DUMPING_HW_RESOURCES)
     i = 0
-    with open(_config_args.get("tmp_file_path"), 'rb+') as tmp_file:
+    with open(_config_args.get("tmp_file_path"), 'rb') as tmp_file:
         for stc_index in _db._stc_indexes_arr:
             output = call_resource_dump(dev, dev_name, "STC", stc_index, None, 'all', None)
             parse_fw_stc_rd_bin_output(stc_index, load_to_db, file, tmp_file)
