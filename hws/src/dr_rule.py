@@ -85,15 +85,15 @@ def dr_parse_rules(matcher, verbosity, tabs):
             (DR_TBL_TYPE_NIC_TX, matcher.get_fw_ste_1_index(), matcher.get_ste_arrays(ste_0=False)),
         ],
         DR_TBL_TYPE_FDB_RX: [
-            (DR_TBL_TYPE_NIC_RX, matcher.get_fw_ste_0_index()),
-            (DR_TBL_TYPE_NIC_TX, matcher.get_fw_ste_1_index()),
+            (DR_TBL_TYPE_NIC_RX, matcher.get_fw_ste_0_index(), matcher.get_ste_arrays(ste_1=False)),
+            (DR_TBL_TYPE_NIC_TX, matcher.get_fw_ste_1_index(), matcher.get_ste_arrays(ste_0=False)),
         ],
         DR_TBL_TYPE_FDB_TX: [
-            (DR_TBL_TYPE_NIC_RX, matcher.get_fw_ste_0_index()),
-            (DR_TBL_TYPE_NIC_TX, matcher.get_fw_ste_1_index()),
+            (DR_TBL_TYPE_NIC_RX, matcher.get_fw_ste_0_index(), matcher.get_ste_arrays(ste_1=False)),
+            (DR_TBL_TYPE_NIC_TX, matcher.get_fw_ste_1_index(), matcher.get_ste_arrays(ste_0=False)),
         ],
         DR_TBL_TYPE_FDB_UNIFIED: [
-            (DR_TBL_TYPE_NIC_RX, matcher.get_fw_ste_0_index()),
+            (DR_TBL_TYPE_NIC_RX, matcher.get_fw_ste_0_index(), matcher.get_ste_arrays(ste_1=False)),
         ],
     }
     tbl_type = _db._tbl_type_db.get(matcher.data.get("tbl_id"))
