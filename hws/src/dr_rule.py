@@ -8,20 +8,28 @@ from src.dr_visual import interactive_progress_bar
 
 
 class dr_parse_rule():
-    def __init__(self):
-        self.rx_ste_arr = []
-        self.tx_ste_arr = []
+    def __init__(self, tbl_type):
+        self.ste_arr = []
+        self.prefix = ''
+        self.tbl_type = tbl_type
+        self.fix_data(tbl_type)
+
+
+    def fix_data(self, tbl_type):
+        if tbl_type == DR_TBL_TYPE_NIC_RX:
+            self.prefix = 'RX STE '
+        elif tbl_type == DR_TBL_TYPE_NIC_TX:
+            self.prefix = 'TX STE '
+        else:
+            self.prefix = 'STE '
 
 
     def dump_str(self, verbosity):
         return 'Rule:\n'
 
 
-    def add_ste(self, ste, rx_tx):
-        if rx_tx == DR_TBL_TYPE_NIC_RX:
-            self.rx_ste_arr.append(ste)
-        else:
-            self.tx_ste_arr.append(ste)
+    def add_ste(self, ste):
+        self.ste_arr.append(ste)
 
 
     def tree_print(self, verbosity, tabs, matcher):
@@ -34,8 +42,10 @@ class dr_parse_rule():
             for i, ste in enumerate(stes):
                 is_last = i == last_i
                 _str += ste.tree_print(verbosity, tabs, prefix, expected_miss_index, is_last)
-        tree_print_stes(self.rx_ste_arr, 'RX STE ', matcher.data["rx_icm_addr"])
-        tree_print_stes(self.tx_ste_arr, 'TX STE ', matcher.data["tx_icm_addr"])
+
+        tree_print_stes(self.ste_arr, self.prefix,
+                        matcher.data["tx_icm_addr"] if self.tbl_type == DR_TBL_TYPE_NIC_TX
+                                                    else matcher.data["rx_icm_addr"])
 
         return _str
 
@@ -93,7 +103,7 @@ def dr_parse_rules(matcher, verbosity, tabs):
             (DR_TBL_TYPE_NIC_TX, matcher.get_fw_ste_1_index(), matcher.get_ste_arrays(ste_0=False)),
         ],
         DR_TBL_TYPE_FDB_UNIFIED: [
-            (DR_TBL_TYPE_NIC_RX, matcher.get_fw_ste_0_index(), matcher.get_ste_arrays(ste_1=False)),
+            (DR_TBL_TYPE_FDB_UNIFIED, matcher.get_fw_ste_0_index(), matcher.get_ste_arrays(ste_1=False)),
         ],
     }
     tbl_type = _db._tbl_type_db.get(matcher.data.get("tbl_id"))
@@ -106,9 +116,9 @@ def dr_parse_rules(matcher, verbosity, tabs):
 
         for ste_addr in fw_ste_dic:
             ste = fw_ste_dic.get(ste_addr)
-            rule = dr_parse_rule()
+            rule = dr_parse_rule(_tbl_type)
             while ste != None:
-                rule.add_ste(ste, _tbl_type)
+                rule.add_ste(ste)
                 hit_loc = ste.get_hit_location()
                 ste = dr_hw_get_ste_from_loc(hit_loc, hint_loc)
             _str += rule.tree_print(verbosity, _tabs, matcher)
