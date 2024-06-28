@@ -278,6 +278,27 @@ def mlx5_ifc_ste_tunnel_header_bits_tag_parser(bin_str):
     ret["tunnel_header_3"] = _val(bin_str[96: 128])
     return ret
 
+def mlx5_ifc_ste_ib_l4_bits_tag_parser(bin_str):
+    ret = {}
+    ret["opcode"] = _val(bin_str[0: 8])
+    ret["qp"] = _val(bin_str[8: 32])
+    ret["se"] = _val(bin_str[32: 33])
+    ret["migreg"] = _val(bin_str[33: 34])
+    ret["ackreq"] = _val(bin_str[34: 35])
+    ret["fecn"] = _val(bin_str[35: 36])
+    ret["becn"] = _val(bin_str[36: 37])
+    ret["bth"] = _val(bin_str[37: 38])
+    ret["deth"] = _val(bin_str[38: 39])
+    ret["dcceth"] = _val(bin_str[39: 40])
+    ret["reserved_at_28"] = _val(bin_str[40: 42])
+    ret["pad_count"] = _val(bin_str[42: 44])
+    ret["tver"] = _val(bin_str[44: 48])
+    ret["pkey"] = _val(bin_str[48: 64])
+    ret["reserved_at_40"] = _val(bin_str[64: 72])
+    ret["deth_source_qp"] = _val(bin_str[72: 96])
+    ret["reserved_at_60"] = _val(bin_str[96: 128])
+    return ret
+
 def mlx5_ifc_ste_def0_v1_bits_parser(bin_str):
     ret = {}
     ret["metadata_reg_c_0"] = _val(bin_str[0: 32])
@@ -673,6 +694,7 @@ switch_tag_parser = {
     DR_STE_V1_LU_TYPE_FLEX_PARSER_1: [mlx5_ifc_ste_v0_flex_parser_bits_tag_parser, False],
     DR_STE_V1_LU_TYPE_FLEX_PARSER_TNL_HEADER: [mlx5_ifc_ste_tunnel_header_v1_bits_tag_parser, False],
     DR_STE_V1_LU_TYPE_TNL_HEADER: [mlx5_ifc_ste_tunnel_header_bits_tag_parser, False],
+    DR_STE_V1_LU_TYPE_IBL4: [mlx5_ifc_ste_ib_l4_bits_tag_parser, False],
 }
 
 switch_definer_parser = {
