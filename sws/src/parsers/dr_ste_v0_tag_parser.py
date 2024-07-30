@@ -268,10 +268,23 @@ def mlx5_ifc_ste_v0_src_gvmi_qp_bits_tag_parser(bin_str):
     return ret
 
 
-def mlx5_ifc_ste_v0_flex_parser_bits_tag_parser(bin_str):
+def mlx5_ifc_ste_v0_flex_parser_0_bits_tag_parser(bin_str):
     ret = {}
-    ret["flex_parser"] = "can't parse fields"
+    ret["flex_parser_3"] = _val(bin_str[0:32])
+    ret["flex_parser_2"] = _val(bin_str[32: 64])
+    ret["flex_parser_1"] = _val(bin_str[64: 96])
+    ret["flex_parser_0"] = _val(bin_str[96: 128])
     return ret
+
+
+def mlx5_ifc_ste_v0_flex_parser_1_bits_tag_parser(bin_str):
+    ret = {}
+    ret["flex_parser_7"] = _val(bin_str[0:32])
+    ret["flex_parser_6"] = _val(bin_str[32: 64])
+    ret["flex_parser_5"] = _val(bin_str[64: 96])
+    ret["flex_parser_4"] = _val(bin_str[96: 128])
+    return ret
+
 
 def mlx5_ifc_ste_tunnel_header_v0_bits_parser(bin_str):
     ret = {}
@@ -314,8 +327,8 @@ switch_tag_parser = {
     "0x18": [mlx5_ifc_ste_v0_general_purpose_bits_tag_parser, False],
     "0x2f": [mlx5_ifc_ste_v0_register_0_bits_tag_parser, False],
     "0x30": [mlx5_ifc_ste_v0_register_1_bits_tag_parser, False],
-    "0x22": [mlx5_ifc_ste_v0_flex_parser_bits_tag_parser, False],
-    "0x23": [mlx5_ifc_ste_v0_flex_parser_bits_tag_parser, False],
+    "0x22": [mlx5_ifc_ste_v0_flex_parser_0_bits_tag_parser, False],
+    "0x23": [mlx5_ifc_ste_v0_flex_parser_1_bits_tag_parser, False],
     "0x34": [mlx5_ifc_ste_tunnel_header_v0_bits_parser, False],
 }
 
@@ -330,7 +343,7 @@ def mlx5_ste_v0_tag_parser(lookup_type, tag, raw):
     func, inner = switch_tag_parser[lookup_type]
     parsed_tag = func(tag)
 
-    if not raw and (lookup_type not in ["0x22", "0x23"]):
+    if not raw:
         parsed_tag = dr_prettify.prettify_tag(parsed_tag)
 
     if inner:
