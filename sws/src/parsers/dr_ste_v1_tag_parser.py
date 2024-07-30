@@ -35,7 +35,8 @@ import src.dr_prettify as dr_prettify
 from src.parsers.dr_ste_v0_tag_parser import mlx5_ifc_ste_v0_general_purpose_bits_tag_parser, \
     mlx5_ifc_ste_v0_eth_l3_ipv6_dst_bits_tag_parser_p, mlx5_ifc_ste_v0_mpls_bits_tag_parser, \
     mlx5_ifc_ste_v0_register_0_bits_tag_parser, mlx5_ifc_ste_v0_register_1_bits_tag_parser, \
-    mlx5_ifc_ste_v0_eth_l3_ipv6_src_bits_tag_parser_p
+    mlx5_ifc_ste_v0_eth_l3_ipv6_src_bits_tag_parser_p, mlx5_ifc_ste_v0_flex_parser_0_bits_tag_parser, \
+    mlx5_ifc_ste_v0_flex_parser_1_bits_tag_parser
 
 
 def mlx5_ifc_ste_v1_unsupported_tag():
@@ -256,13 +257,6 @@ def mlx5_ifc_ste_src_gvmi_qp_v1_bits_tag_parser(bin_str):
     ret["reserved_at_40"] = _val(bin_str[64: 96])
     ret["reserved_at_60"] = _val(bin_str[96: 128])
     return ret
-
-
-def mlx5_ifc_ste_v0_flex_parser_bits_tag_parser(bin_str):
-    ret = {}
-    ret["flex_parser"] = "can't parse fields"
-    return ret
-
 
 def mlx5_ifc_ste_tunnel_header_v1_bits_tag_parser(bin_str):
     ret = {}
@@ -690,8 +684,8 @@ switch_tag_parser = {
     DR_STE_V1_LU_TYPE_SRC_QP_GVMI: [mlx5_ifc_ste_src_gvmi_qp_v1_bits_tag_parser, False],
     DR_STE_V1_LU_TYPE_STEERING_REGISTERS_0: [mlx5_ifc_ste_v0_register_0_bits_tag_parser, False],
     DR_STE_V1_LU_TYPE_STEERING_REGISTERS_1: [mlx5_ifc_ste_v0_register_1_bits_tag_parser, False],
-    DR_STE_V1_LU_TYPE_FLEX_PARSER_0: [mlx5_ifc_ste_v0_flex_parser_bits_tag_parser, False],
-    DR_STE_V1_LU_TYPE_FLEX_PARSER_1: [mlx5_ifc_ste_v0_flex_parser_bits_tag_parser, False],
+    DR_STE_V1_LU_TYPE_FLEX_PARSER_0: [mlx5_ifc_ste_v0_flex_parser_0_bits_tag_parser, False],
+    DR_STE_V1_LU_TYPE_FLEX_PARSER_1: [mlx5_ifc_ste_v0_flex_parser_1_bits_tag_parser, False],
     DR_STE_V1_LU_TYPE_FLEX_PARSER_TNL_HEADER: [mlx5_ifc_ste_tunnel_header_v1_bits_tag_parser, False],
     DR_STE_V1_LU_TYPE_TNL_HEADER: [mlx5_ifc_ste_tunnel_header_bits_tag_parser, False],
     DR_STE_V1_LU_TYPE_IBL4: [mlx5_ifc_ste_ib_l4_bits_tag_parser, False],
@@ -726,8 +720,7 @@ def mlx5_ste_v1_tag_parser(lookup_type, definer_id, tag, raw):
 
     parsed_tag = func(tag)
 
-    if not raw and (lookup_type not in [DR_STE_V1_LU_TYPE_FLEX_PARSER_0, \
-                                        DR_STE_V1_LU_TYPE_FLEX_PARSER_0]):
+    if not raw:
         parsed_tag = dr_prettify.prettify_tag(parsed_tag)
     if inner:
         add_inner_to_key(parsed_tag)
