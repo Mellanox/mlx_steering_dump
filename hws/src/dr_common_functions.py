@@ -137,11 +137,18 @@ def dr_parse_add_action(action_dw_0, action_dw_1, parse_value=True):
 
 def dr_parse_remove_by_size_action(action_dw_0, action_dw_1):
     action = {"type" : "Remove by size"}
-    start_anchor = int(action_dw_0[10 : 16], 2)
+    start_anchor = 0
+
+    if _config_args.get("cx8"):
+        start_anchor = int(action_dw_0[8 : 15], 2)
+        action["start_offset"] = int(action_dw_0[15 : 23], 2)
+    else:
+        start_anchor = int(action_dw_0[10 : 16], 2)
+        action["start_offset"] = int(action_dw_0[18 : 25], 2)
+
     field = modify_pattern_anchor_dic.get(start_anchor)
     action["start_anchor"] = field if field != None else start_anchor
     action["outer_l4_removed"] = int(action_dw_0[16 : 17], 2)
-    action["start_offset"] = int(action_dw_0[18 : 25], 2)
     action["size"] = int(action_dw_0[26 : 32], 2)
 
     return action
@@ -149,8 +156,16 @@ def dr_parse_remove_by_size_action(action_dw_0, action_dw_1):
 
 def dr_parse_remove_header2header_action(action_dw_0, action_dw_1):
     action = {"type" : "Remove header2header"}
-    start_anchor = int(action_dw_0[10 : 16], 2)
-    end_anchor = int(action_dw_0[18 : 24], 2)
+    start_anchor = 0
+    end_anchor = 0
+
+    if _config_args.get("cx8"):
+        start_anchor = int(action_dw_0[8 : 15], 2)
+        end_anchor = int(action_dw_0[15 : 22], 2)
+    else:
+        start_anchor = int(action_dw_0[10 : 16], 2)
+        end_anchor = int(action_dw_0[18 : 24], 2)
+
     field = modify_pattern_anchor_dic.get(start_anchor)
     action["start_anchor"] = field if field != None else start_anchor
     field = modify_pattern_anchor_dic.get(end_anchor)
@@ -164,11 +179,20 @@ def dr_parse_remove_header2header_action(action_dw_0, action_dw_1):
 
 def dr_parse_insert_inline_action(action_dw_0, action_dw_1, parse_value=True):
     action = {"type" : "Insert inline"}
-    start_anchor = int(action_dw_0[10 : 16], 2)
+    start_anchor = 0
+    start_offset = 0
+
+    if _config_args.get("cx8"):
+        start_anchor = int(action_dw_0[8 : 15], 2)
+        start_offset = int(action_dw_0[15 : 23], 2)
+    else:
+        start_anchor = int(action_dw_0[10 : 16], 2)
+        start_offset = int(action_dw_0[16 : 23], 2)
+
     field = modify_pattern_anchor_dic.get(start_anchor)
     action["start_anchor"] = field if field != None else start_anchor
     #Offset in words granularity
-    action["start_offset"] = '%s Bytes' % hex(int(action_dw_0[18 : 23], 2) * 2)
+    action["start_offset"] = '%s Bytes' % hex(start_offset * 2)
 
     if parse_value:
         action["insert_data_inline"] = int(action_dw_1[0 : 32], 2)
@@ -178,11 +202,20 @@ def dr_parse_insert_inline_action(action_dw_0, action_dw_1, parse_value=True):
 
 def dr_parse_insert_by_pointer_action(action_dw_0, action_dw_1):
     action = {"type" : "Insert pointer"}
-    start_anchor = int(action_dw_0[10 : 16], 2)
+    start_anchor = 0
+    start_offset = 0
+
+    if _config_args.get("cx8"):
+        start_anchor = int(action_dw_0[8 : 15], 2)
+        start_offset = int(action_dw_0[15 : 23], 2)
+    else:
+        start_anchor = int(action_dw_0[10 : 16], 2)
+        start_offset = int(action_dw_0[16 : 23], 2)
+
     field = modify_pattern_anchor_dic.get(start_anchor)
     action["start_anchor"] = field if field != None else start_anchor
     #Offset in words granularity
-    action["start_offset"] = '%s Bytes' % hex(int(action_dw_0[18 : 23], 2) * 2)
+    action["start_offset"] = '%s Bytes' % hex(start_offset * 2)
     #Size in words granularity
     action["size"] = '%s Bytes' % hex(int(action_dw_0[23 : 29], 2) * 2)
     action["attributes"] = int(action_dw_0[29 : 32], 2)

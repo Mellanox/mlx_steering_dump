@@ -149,6 +149,7 @@ class dr_parse_context_caps():
         self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
 
         _config_args["fw_version_major"] = int(self.data.get("fw_version").split(".")[0])
+        _config_args["cx8"] = True if (_config_args.get("fw_version_major") >= FW_VERSION_MAJOR_CX8) else False
 
         if _config_args.get("extra_hw_res_pat") == True:
             expected_fw_version = "%s.%s" % (_config_args.get("fw_version_major"), FW_VERSION_MINOR_EXTRA_HW_RES)
