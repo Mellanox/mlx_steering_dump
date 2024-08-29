@@ -36,16 +36,14 @@ class dr_parse_rule():
         _str = tabs + self.dump_str(verbosity)
         tabs = tabs + TAB
 
-        def tree_print_stes(stes, prefix, expected_miss_index):
+        def tree_print_stes(stes, prefix):
             nonlocal _str
             last_i = len(stes) - 1
             for i, ste in enumerate(stes):
                 is_last = i == last_i
-                _str += ste.tree_print(verbosity, tabs, prefix, expected_miss_index, is_last)
+                _str += ste.tree_print(verbosity, tabs, prefix, is_last)
 
-        tree_print_stes(self.ste_arr, self.prefix,
-                        matcher.data["tx_icm_addr"] if self.tbl_type == DR_TBL_TYPE_NIC_TX
-                                                    else matcher.data["rx_icm_addr"])
+        tree_print_stes(self.ste_arr, self.prefix)
 
         return _str
 
