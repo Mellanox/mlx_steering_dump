@@ -216,6 +216,11 @@ def dr_hl_ipv6_addr_parser(hl_index, mask):
     if (hl_index > 79) or (hl_index > 71 and hl_index < 76):
         suffix = DR_HL_INNER
 
+    if hl_index > 75:
+        suffix = '_src' + suffix
+    else:
+        suffix = '_dst' + suffix
+
     _dw_fields = dr_hl_fields_arr_add_suffix(dw_fields, suffix)
     return dr_hl_dw_mask_parser(_dw_fields[offset], mask)
 

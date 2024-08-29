@@ -11,12 +11,16 @@ def fields_handler(_fields, verbosity=0, show_field_val=False):
     _str = ""
     fields = {}
     union_fields = {"smac_47_16_o": 0, "smac_15_0_o": 0, "dmac_47_16_o": 0,
-                    "dmac_15_0_o": 0, "ipv6_address_127_96_o": 0,
-                    "ipv6_address_95_64_o": 0, "ipv6_address_63_32_o": 0,
-                    "ipv6_address_31_0_o": 0, "smac_47_16_i": 0,
+                    "dmac_15_0_o": 0, "ipv6_address_127_96_src_o": 0,
+                    "ipv6_address_95_64_src_o": 0, "ipv6_address_63_32_src_o": 0,
+                    "ipv6_address_31_0_src_o": 0, "smac_47_16_i": 0,
+                    "ipv6_address_127_96_dst_o": 0, "ipv6_address_95_64_dst_o": 0,
+                    "ipv6_address_63_32_dst_o": 0, "ipv6_address_31_0_dst_o": 0,
                     "smac_15_0_i": 0, "dmac_47_16_i": 0, "dmac_15_0_i": 0,
-                    "ipv6_address_127_96_i": 0, "ipv6_address_95_64_i": 0,
-                    "ipv6_address_63_32_i": 0, "ipv6_address_31_0_i": 0}
+                    "ipv6_address_127_96_src_i": 0, "ipv6_address_95_64_src_i": 0,
+                    "ipv6_address_63_32_src_i": 0, "ipv6_address_31_0_src_i": 0,
+                    "ipv6_address_127_96_dst_i": 0, "ipv6_address_95_64_dst_i": 0,
+                    "ipv6_address_63_32_dst_i": 0, "ipv6_address_31_0_dst_i": 0}
 
     for field in _fields:
         _data = _fields.get(field)
@@ -42,23 +46,42 @@ def fields_handler(_fields, verbosity=0, show_field_val=False):
     if union_fields["dmac_47_16_i"] != 0 or union_fields["dmac_15_0_i"] != 0:
         fields["dmac_i"] = (union_fields["dmac_47_16_i"] << 16) | union_fields["dmac_15_0_i"]
 
-    if (union_fields["ipv6_address_127_96_o"] != 0 or
-        union_fields["ipv6_address_95_64_o"] != 0 or
-        union_fields["ipv6_address_63_32_o"] != 0 or
-        union_fields["ipv6_address_31_0_o"] != 0):
-        fields["ipv6_addr_o"] = union_fields["ipv6_address_127_96_o"] << 96
-        fields["ipv6_addr_o"] |= union_fields["ipv6_address_95_64_o"] << 64
-        fields["ipv6_addr_o"] |= union_fields["ipv6_address_63_32_o"] << 32
-        fields["ipv6_addr_o"] |= union_fields["ipv6_address_31_0_o"]
+    if (union_fields["ipv6_address_127_96_src_o"] != 0 or
+        union_fields["ipv6_address_95_64_src_o"] != 0 or
+        union_fields["ipv6_address_63_32_src_o"] != 0 or
+        union_fields["ipv6_address_31_0_src_o"] != 0):
+        fields["ipv6_addr_src_o"] = union_fields["ipv6_address_127_96_src_o"] << 96
+        fields["ipv6_addr_src_o"] |= union_fields["ipv6_address_95_64_src_o"] << 64
+        fields["ipv6_addr_src_o"] |= union_fields["ipv6_address_63_32_src_o"] << 32
+        fields["ipv6_addr_src_o"] |= union_fields["ipv6_address_31_0_src_o"]
 
-    if (union_fields["ipv6_address_127_96_i"] != 0 or
-        union_fields["ipv6_address_95_64_i"] != 0 or
-        union_fields["ipv6_address_63_32_i"] != 0 or
-        union_fields["ipv6_address_31_0_i"] != 0):
-        fields["ipv6_addr_i"] = union_fields["ipv6_address_127_96_i"] << 96
-        fields["ipv6_addr_i"] |= union_fields["ipv6_address_95_64_i"] << 64
-        fields["ipv6_addr_i"] |= union_fields["ipv6_address_63_32_i"] << 32
-        fields["ipv6_addr_i"] |= union_fields["ipv6_address_31_0_i"]
+    if (union_fields["ipv6_address_127_96_dst_o"] != 0 or
+        union_fields["ipv6_address_95_64_dst_o"] != 0 or
+        union_fields["ipv6_address_63_32_dst_o"] != 0 or
+        union_fields["ipv6_address_31_0_dst_o"] != 0):
+        fields["ipv6_addr_dst_o"] = union_fields["ipv6_address_127_96_dst_o"] << 96
+        fields["ipv6_addr_dst_o"] |= union_fields["ipv6_address_95_64_dst_o"] << 64
+        fields["ipv6_addr_dst_o"] |= union_fields["ipv6_address_63_32_dst_o"] << 32
+        fields["ipv6_addr_dst_o"] |= union_fields["ipv6_address_31_0_dst_o"]
+
+
+    if (union_fields["ipv6_address_127_96_dst_i"] != 0 or
+        union_fields["ipv6_address_95_64_dst_i"] != 0 or
+        union_fields["ipv6_address_63_32_dst_i"] != 0 or
+        union_fields["ipv6_address_31_0_dst_i"] != 0):
+        fields["ipv6_addr_dst_i"] = union_fields["ipv6_address_127_96_dst_i"] << 96
+        fields["ipv6_addr_dst_i"] |= union_fields["ipv6_address_95_64_dst_i"] << 64
+        fields["ipv6_addr_dst_i"] |= union_fields["ipv6_address_63_32_dst_i"] << 32
+        fields["ipv6_addr_dst_i"] |= union_fields["ipv6_address_31_0_dst_i"]
+
+    if (union_fields["ipv6_address_127_96_src_i"] != 0 or
+        union_fields["ipv6_address_95_64_src_i"] != 0 or
+        union_fields["ipv6_address_63_32_src_i"] != 0 or
+        union_fields["ipv6_address_31_0_src_i"] != 0):
+        fields["ipv6_addr_src_i"] = union_fields["ipv6_address_127_96_src_i"] << 96
+        fields["ipv6_addr_src_i"] |= union_fields["ipv6_address_95_64_src_i"] << 64
+        fields["ipv6_addr_src_i"] |= union_fields["ipv6_address_63_32_src_i"] << 32
+        fields["ipv6_addr_src_i"] |= union_fields["ipv6_address_31_0_src_i"]
 
     for field in fields:
         if _str != "":
