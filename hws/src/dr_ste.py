@@ -298,20 +298,11 @@ class dr_parse_ste():
 
         return _str
 
-    def dump_miss(self, verbosity, tabs, expected_miss_index):
+    def dump_miss(self, verbosity, tabs):
         if not len(self.fields_dic):
             return ''
 
-        miss_is_expected_loc = (
-            self.miss_loc.gvmi_str == _config_args.get("vhca_id")
-            and
-            hex(self.miss_loc.index) == expected_miss_index
-        )
-        if miss_is_expected_loc and verbosity < 4:
-             return ''
-
-        expected_str = '' if miss_is_expected_loc else ' (NOT expected value)'
-        return tabs + 'Miss address: ' + str(self.miss_loc) + expected_str + '\n'
+        return tabs + 'Miss address: ' + str(self.miss_loc) + '\n'
 
     def dump_raw_ste(self, verbosity, tabs):
         _str = tabs + 'Raw STE:\n'
@@ -328,12 +319,15 @@ class dr_parse_ste():
 
         return _str
 
-    def tree_print(self, verbosity, tabs, prefix, expected_miss_index, is_last):
+    def tree_print(self, verbosity, tabs, prefix, is_last):
         _str = tabs + self.dump_str(verbosity, prefix)
         tabs = tabs + TAB
 
         _str += self.dump_fields(verbosity, tabs)
-        _str += self.dump_miss(verbosity, tabs, expected_miss_index)
+
+        if verbosity > 3:
+            _str += self.dump_miss(verbosity, tabs)
+
         _str += self.dump_actions(verbosity, tabs, is_last)
 
         if verbosity > 2:
