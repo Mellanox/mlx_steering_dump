@@ -329,15 +329,18 @@ class dr_parse_matcher_attr():
 
 class dr_parse_matcher_match_template():
     def __init__(self, data):
-        keys = ["mlx5dr_debug_res_type", "id", "matcher_id", "fc_sz", "flags", "fcr_sz"]
+        keys = ["mlx5dr_debug_res_type", "id", "matcher_id", "fc_sz", "flags", "fcr_sz", "fcc_sz"]
         self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
         self.match_definer = None
         self.range_definer = None
+        self.compare_definer = None
         self.fix_data()
 
     def fix_data(self):
         if self.data.get("fcr_sz") == None:
             self.data["fcr_sz"] = "0"
+        if self.data.get("fcc_sz") == None:
+            self.data["fcc_sz"] = "0"
 
     def dump_str(self, tabs, verbosity):
         _tabs = tabs + TAB
@@ -356,11 +359,18 @@ class dr_parse_matcher_match_template():
                 _str += '\n' + _tabs + 'Range fields:\n' + __tabs + range_definer_str
                 _str = _str.replace(', ', '\n' + __tabs)
 
+            compare_definer_str = ''
+            if self.compare_definer != None:
+                compare_definer_str = self.compare_definer.dump_fields()
+            if len(compare_definer_str) != 0:
+                _str += '\n' + _tabs + 'Compare fields:\n' + __tabs + compare_definer_str
+                _str = _str.replace(', ', '\n' + __tabs)
+
         if verbosity > 2:
             if _str != ':':
                 _str += '\n' + _tabs
             return dump_obj_str(["mlx5dr_debug_res_type", "id", "flags",
-                                 "fc_sz", "fcr_sz"], self.data).replace(":", _str)
+                                 "fc_sz", "fcr_sz", "fcc_sz"], self.data).replace(":", _str)
 
         return dump_obj_str(["mlx5dr_debug_res_type", "id"],
                              self.data).replace(":", _str)
@@ -370,6 +380,9 @@ class dr_parse_matcher_match_template():
 
     def add_range_definer(self, definer):
         self.range_definer = definer
+
+    def add_compare_definer(self, definer):
+        self.compare_definer = definer
 
 
 class dr_parse_matcher_action_template():
