@@ -109,18 +109,18 @@ def compare_ste_op_translate(op, inverse):
     _str = ""
     if inverse == 1:
         if op == 2:
-            _str = "NE(!=)"
+            _str = "!="
         elif op == 1:
-            _str = "GT(>)"
+            _str = ">"
         else:
-            _str = "LT(<)"
+            _str = "<"
     else:
         if op == 2:
-            _str = "EQ(=)"
+            _str = "=="
         elif op == 1:
-            _str = "LE(<=)"
+            _str = "<="
         else:
-            _str = "GE(>=)"
+            _str = ">="
 
     return _str
 
@@ -208,6 +208,8 @@ def raw_ste_parser(raw_ste):
     parsed_tag = {}
 
     if ste["entry_format"] == STE_ENTRY_TYPE_4DW_RANGE_MATCH:
+        arg_0_field = definer_fields.get("dw_selector_4")[0][0]
+        base_0 = ''
         arg_1 = tags.get("dw_selector_arg_1")
         match = int(arg_1[0 : 1], 2)
         base_1_src = int(arg_1[3 : 4], 2)
@@ -216,12 +218,26 @@ def raw_ste_parser(raw_ste):
         base_0_src = int(arg_1[11 : 12], 2)
         inverse_0 = int(arg_1[12 : 13], 2)
         operator_0 = int(arg_1[14 : 16], 2)
-        parsed_tag["operator_0"] = compare_ste_op_translate(operator_0, inverse_0)
+        op = compare_ste_op_translate(operator_0, inverse_0)
         if base_0_src == 0x1:
-            parsed_tag["base_0_src"] = "inline base"
-            parsed_tag["base_0"] = int(tags.get("dw_selector_base_0"), 2)
+            base_0 = hex(int(tags.get("dw_selector_base_0"), 2))
+        else:
+            base_0 = definer_fields.get("dw_selector_2")[0][0]
 
-        ste["parsed_tag"] = parsed_tag
+        _str = "%s %s %s" % (arg_0_field, op, base_0)
+
+        if match == 0x1:
+            arg_1_field = definer_fields.get("dw_selector_5")[0][0]
+            op = compare_ste_op_translate(operator_1, inverse_1)
+            base_1 = ''
+            if base_1_src == 0x1:
+                base_1 = hex(int(tags.get("dw_selector_base_1"), 2))
+            else:
+                base_1 = definer_fields.get("dw_selector_3")[0][0]
+
+            _str = "%s , %s %s %s" % (_str, arg_1_field, op, base_1)
+
+        ste["parsed_tag"] = {"Compare": _str}
         return ste
 
     for selector in definer_fields:

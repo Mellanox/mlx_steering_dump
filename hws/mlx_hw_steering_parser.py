@@ -131,7 +131,7 @@ def dr_parse_csv_file(csv_file, load_to_db):
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_MATCHER_TEMPLATE_HASH_DEFINER:
             last_matcher.add_hash_definer(obj)
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_MATCHER_TEMPLATE_COMPARE_MATCH_DEFINER:
-            last_matcher_template.add_match_definer(obj)
+            last_matcher_template.add_compare_definer(obj)
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_MATCHER_RESIZABLE_ARRAY:
             last_matcher.add_resizable_array(obj)
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_CONTEXT_STC:

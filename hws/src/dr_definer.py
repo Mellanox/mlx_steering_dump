@@ -55,7 +55,7 @@ class dr_parse_definer():
             _dw_fields = self.range_dw_fields
             _byte_fields = self.range_byte_fields
         elif self.data.get("mlx5dr_debug_res_type") == MLX5DR_DEBUG_RES_TYPE_MATCHER_TEMPLATE_COMPARE_MATCH_DEFINER:
-            _dw_fields = self.dw_fields
+            _dw_fields = self.compare_dw_fields
             _byte_fields = {}
         else:
             _dw_fields = self.dw_fields
@@ -172,8 +172,7 @@ class dr_parse_definer():
             _dw_fields["dw_selector_base_1"] = dr_hl_fields_arr_add_prefix("base_1: ", self.dw_fields["dw_selector_3"])
             _dw_fields["dw_selector_arg_0"] = dr_hl_fields_arr_add_prefix("arg_0: ", self.dw_fields["dw_selector_4"])
             _dw_fields["dw_selector_arg_1"] = dr_hl_fields_arr_add_prefix("arg_1: ", self.dw_fields["dw_selector_5"])
-            self.compare_dw_fields = self.dw_fields
-            self.dw_fields = _dw_fields
+            self.compare_dw_fields = _dw_fields
 
         self.fields_arr = dict(self.dw_fields)
         self.fields_arr.update(self.byte_fields)
