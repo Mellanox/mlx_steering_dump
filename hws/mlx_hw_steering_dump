@@ -1,4 +1,26 @@
-#!/bin/sh
+#!/bin/bash
+ORIG_PATH=$(pwd)
 cd /usr/share/mlx-steering-dump/hws
-exec ./mlx_hw_steering_parser.py "$@"
+
+modified_args=()
+on_filename=0
+
+for arg in "$@"; do
+        if [ "$arg" = "-f" ]; then
+                on_filename=1
+                modified_args+=("$arg")
+        elif [ $on_filename -eq 1 ]; then
+                if [ -f "$ORIG_PATH/$arg" ]; then
+                        absolute_path=($ORIG_PATH/$arg)
+                        modified_args+=("$absolute_path")
+                else
+                        modified_args+=("$arg")
+                        on_filename=0
+                fi
+        else
+                modified_args+=("$arg")
+        fi
+done
+
+exec ./mlx_hw_steering_parser.py "${modified_args[@]}"
 
