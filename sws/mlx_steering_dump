@@ -10,7 +10,9 @@ for arg in "$@"; do
                 on_filename=1
                 modified_args+=("$arg")
         elif [ $on_filename -eq 1 ]; then
-                if [ -f "$ORIG_PATH/$arg" ]; then
+                if [ -f "$arg" ]; then
+                        modified_args+=("$arg")
+                elif [ -f "$ORIG_PATH/$arg" ]; then
                         absolute_path=($ORIG_PATH/$arg)
                         modified_args+=("$absolute_path")
                 else
