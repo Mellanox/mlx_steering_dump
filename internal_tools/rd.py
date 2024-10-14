@@ -11,6 +11,7 @@ _projects = {
     "4127" : "tamar",
     "4129" : "carmel",
     "41686" : "viper",
+    "41692" : "mustang",
 }
 
 def parse_args():
