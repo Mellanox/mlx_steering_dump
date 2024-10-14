@@ -157,6 +157,12 @@ class dr_parse_context_caps():
                 print("To dump extra HW resources, please use FW version %s or higher" % expected_fw_version)
                 sys.exit(0)
 
+        expected_fw_version = "%s.%s" % (_config_args.get("fw_version_major"), FW_VERSION_MINOR_STC_ACTION_TYPE_SHIFT)
+        if self.data.get("fw_version") >= expected_fw_version:
+            _config_args["stc_action_type_shift"] = 0x8
+        else:
+            _config_args["stc_action_type_shift"] = 0x0
+
         _config_args["linear_match_definer"] = self.data.get("linear_match_definer")
         _config_args["linear_match_definer_field_name"] = self.data.get("linear_match_definer_field_name")
         if _config_args.get("linear_match_definer") != None:
