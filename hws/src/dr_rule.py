@@ -106,18 +106,28 @@ def dr_parse_rules(matcher, verbosity, tabs):
     }
     tbl_type = _db._tbl_type_db.get(matcher.data.get("tbl_id"))
     dumps = tbl_type_to_dumps[tbl_type]
+    max_linked_list_depth = 15 if matcher.sz_col_log >= 4 else 1 << matcher.sz_col_log
+    rtc_hash_size = 1 << matcher.sz_row_log
+    rule_next_ste_ix_add = max_linked_list_depth * rtc_hash_size
 
     for _tbl_type, match_ste_id, hint_loc in dumps:
         fw_ste_dic = _db._fw_ste_db.get(match_ste_id)
+        min_addr, _ = _db._stes_range_db.get(match_ste_id)
+        max_match_ste_idx = int(min_addr, 16) + rule_next_ste_ix_add - 1
         if fw_ste_dic == None:
             continue
 
         for ste_addr in fw_ste_dic:
             ste = fw_ste_dic.get(ste_addr)
+            if int(ste_addr, 16) > max_match_ste_idx :
+                continue
             rule = dr_parse_rule(_tbl_type)
             while ste != None:
                 rule.add_ste(ste)
                 hit_loc = ste.get_hit_location()
+                if hit_loc.index == int(ste_addr, 16) + rule_next_ste_ix_add:
+                    fw_ste = fw_ste_dic.get(hex(hit_loc.index))
+                    rule.add_ste(fw_ste)
                 ste = dr_hw_get_ste_from_loc(hit_loc, hint_loc)
             _str += rule.tree_print(verbosity, _tabs, matcher)
 

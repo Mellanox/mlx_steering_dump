@@ -50,6 +50,8 @@ class dr_parse_matcher():
         self.aliased_rtc_0_id = None
         self.hash_definer = None
         self.resizable_arrays = []
+        self.sz_row_log = None
+        self.sz_col_log = None
         self.fix_data()
         self.save_to_db()
 
@@ -224,7 +226,6 @@ class dr_parse_matcher():
 
     def save_to_db(self):
         total_match_fw_stes = 0
-
         if self.match_ste_0_id != None:
             _db._fw_ste_indexes_arr.append(self.match_ste_0_id)
             total_match_fw_stes += 1
@@ -292,6 +293,7 @@ class dr_parse_matcher_attr():
             self.data["flow_src"]  = "default"
         self.priority = int(self.data.get("priority")) & 0xffffffff
         self.fix_data()
+        self.save_to_db()
 
     def get_row_log_sz(self):
         return int(self.data.get("sz_row_log"))
@@ -325,6 +327,11 @@ class dr_parse_matcher_attr():
         self.data["priority"] = hex(self.priority)
         self.data["match"] = "Always hit" if self.data.get("match") == "1" else "Default"
         self.data["isolated"] = "True" if self.data.get("isolated") == "1" else ""
+
+    def save_to_db(self):
+        matcher = _db._matchers.get(self.data["matcher_id"])
+        matcher.sz_row_log = self.get_row_log_sz()
+        matcher.sz_col_log = self.get_col_log_sz()
 
 
 class dr_parse_matcher_match_template():
