@@ -280,6 +280,7 @@ class dr_parse_ste():
         self.fields_dic = parsed_ste.get("parsed_tag")
         self.action_arr = parsed_ste.get("actions")
         self.counter_id = parsed_ste.get("counter_id")
+        self.entry_format = parsed_ste.get("entry_format")
         self.parsed = True
 
     def dump_str(self, verbosity, prefix='STE '):
@@ -388,6 +389,12 @@ class dr_parse_ste():
             self.parse()
 
         return self.miss_loc
+
+    def get_entry_format(self):
+        if not(self.parsed):
+            self.parse()
+
+        return self.entry_format
 
     def load_to_db(self):
         _db._fw_ste_db[self.data.get("fw_ste_id")][self.data.get("id")] = self
