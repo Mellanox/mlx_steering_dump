@@ -48,7 +48,7 @@ class dr_parse_rule():
         return _str
 
 
-def dr_hw_get_ste_from_loc(loc, hint_loc=[], ignore_hint=False):
+def dr_hw_get_ste_from_loc(loc, hint_loc=[], ignore_hint=False, curr_matcher_idx=None):
     if loc.gvmi_str != _config_args.get("vhca_id"):
         return None
 
@@ -60,11 +60,15 @@ def dr_hw_get_ste_from_loc(loc, hint_loc=[], ignore_hint=False):
     for index in hint_loc:
         if index == None:
             continue
-
         _range = _db._stes_range_db.get(index)
         if addr >= _range[0] and addr <= _range[1]:
             fw_ste_index = index
             break
+
+    matcher_range = _db._stes_range_db.get(curr_matcher_idx)
+    if curr_matcher_idx:
+        if matcher_range[0] <= addr <= matcher_range[1]:
+            fw_ste_index = curr_matcher_idx
 
     if fw_ste_index == None:
         return None
@@ -114,11 +118,14 @@ def dr_parse_rules(matcher, verbosity, tabs):
 
         for ste_addr in fw_ste_dic:
             ste = fw_ste_dic.get(ste_addr)
+            if ste.get_entry_format() == STE_ENTRY_TYPE_RANGE_MATCH or \
+                ste.get_entry_format() == STE_ENTRY_TYPE_4DW_RANGE_MATCH:
+                    continue
             rule = dr_parse_rule(_tbl_type)
             while ste != None:
                 rule.add_ste(ste)
                 hit_loc = ste.get_hit_location()
-                ste = dr_hw_get_ste_from_loc(hit_loc, hint_loc)
+                ste = dr_hw_get_ste_from_loc(hit_loc, hint_loc, False, match_ste_id)
             _str += rule.tree_print(verbosity, _tabs, matcher)
 
         progress_bar_i += 1
