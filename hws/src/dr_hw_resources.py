@@ -93,6 +93,7 @@ stc_param_id_loc_dic = {
     STC_ACTION_JUMP_TO_VPORT: {'type': 'VPORT', 'loc': (4, 8)},
     STC_ACTION_JUMP_TO_UPLINK: {'type': 'UPLINK'},
     STC_ACTION_JUMP_TO_DROP: {'type': 'DROP'},
+    STC_ACTION_TYPE_ALLOW: {'type': 'ALLOW'},
 }
 
 
@@ -102,8 +103,11 @@ def dr_parse_fw_stc_action_get_obj_id(raw):
     action_type = raw[(40 + stc_action_type_shift):(42 + stc_action_type_shift)]
 
     obj = stc_param_id_loc_dic.get(action_type)
+
     if obj != None:
-        if (action_type == STC_ACTION_JUMP_TO_UPLINK) or (action_type == STC_ACTION_JUMP_TO_DROP):
+        if (action_type == STC_ACTION_JUMP_TO_UPLINK) or \
+           (action_type == STC_ACTION_JUMP_TO_DROP) or \
+           (action_type == STC_ACTION_TYPE_ALLOW):
             return {"type": obj.get("type"), "id": ''}
 
         id_loc = obj.get("loc")
