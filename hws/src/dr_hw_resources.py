@@ -73,7 +73,7 @@ class dr_parse_address():
 
 class dr_parse_stc():
     def __init__(self, data):
-        keys = ["mlx5dr_debug_res_type", "id", "type", "idx"]
+        keys = ["mlx5dr_debug_res_type", "id", "type", "idx", "ib_port"]
         self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
 
     def get_idx(self):
