@@ -10,7 +10,7 @@ class dr_parse_table():
         keys = ["mlx5dr_debug_res_type", "id", "ctx_id", "ft_id", "type",
                 "fw_ft_type", "level", "local_ft_id", "rx_icm_addr",
                 "tx_icm_addr", "local_rx_icm_addr", "local_tx_icm_addr",
-                "miss_tbl"]
+                "miss_tbl", "ib_port", "vport", "other_vport"]
         self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
         self.id = self.data.get("id")
         self.level = int(self.data.get("level"))
@@ -30,8 +30,16 @@ class dr_parse_table():
         if self.data.get("miss_tbl") != "0x0":
              _keys.extend(["miss_tbl"])
 
+        if self.data.get("type") == DR_TBL_TYPE_RDMA_TRANSPORT_RX or \
+           self.data.get("type") == DR_TBL_TYPE_RDMA_TRANSPORT_TX:
+             _keys.extend(["ib_port"])
+
         if verbosity < 2:
             return dump_obj_str(_keys, self.data)
+
+        if self.data.get("type") == DR_TBL_TYPE_RDMA_TRANSPORT_RX or \
+           self.data.get("type") == DR_TBL_TYPE_RDMA_TRANSPORT_TX:
+             _keys.extend(["vport", "other_vport"])
 
         if _config_args.get("shared_device") != None:
             _keys.extend(["local_ft_id"])
