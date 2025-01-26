@@ -223,10 +223,10 @@ def parse_args():
                         help="Skip HW dumped resources parsing.")
     parser.add_argument("-d", dest="device", type=str, default="",
                         help="Provide MST device for HW resources dumping.")
-    parser.add_argument("--pid", dest="dpdk_pid", type=int, default=-1,
-                        help="Trigger DPDK app <PID>.")
-    parser.add_argument("--port", dest="dpdk_port", type=int, default=0,
-                        help="Trigger DPDK app <PORT> newer dpdk supports -1 for all ports (must provide PID with -pid).")
+    parser.add_argument("--pid", dest="app_pid", type=int, default=-1,
+                        help="Trigger DPDK/DOCA app <PID>.")
+    parser.add_argument("--port", dest="app_port", type=int, default=0,
+                        help="Trigger DPDK/DOCA app <PORT> newer dpdk, and doca supports -1 for all ports (must provide PID with -pid).")
     parser.add_argument("--extra_hw_res", type=str, default="", dest="extra_hw_res", metavar="[pat, arg, all]",
                         help = "Request extra HW resources to be dumped. For example: --extra_hw_res pat,arg")
     parser.add_argument("-s", action="store_true", default=False, dest="statistics",
@@ -275,10 +275,10 @@ def parse_args():
         _config_args["parse_hw_resources"] = False
         _config_args["load_hw_resources"] = False
 
-    if (args.dpdk_pid > 0):
-        if dr_trigger.trigger_dump(args.dpdk_pid, args.dpdk_port, args.file_path, 0) is None:
+    if (args.app_pid > 0):
+        if dr_trigger.trigger_dump(args.app_pid, args.app_port, args.file_path, 0) is None:
             sys.exit(-1)
-        _config_args["dpdk_pid"] = args.dpdk_pid
+        _config_args["app_pid"] = args.app_pid
 
     if (os.stat(args.file_path).st_size == 0):
         print("Empty input file, no data to parse")
