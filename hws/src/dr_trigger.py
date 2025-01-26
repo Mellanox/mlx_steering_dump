@@ -82,16 +82,21 @@ def fd_msg(flow_ptr, fd, port, prevent_py_gc):
 
 
 def connect_to_server(server_pid):
-    path = "/var/tmp/dpdk_net_mlx5_%d" % server_pid
-    if (os.path.exists(path) == False):
-        print("DPDK doesn't support steering dump trigger")
+    doca_path = "/var/tmp/doca_mlx5_hws_%d" % server_pid
+    dpdk_path = "/var/tmp/dpdk_net_mlx5_%d" % server_pid
+    if os.path.exists(doca_path) == True:
+        connect_path = doca_path
+    elif os.path.exists(dpdk_path) == True:
+        connect_path = dpdk_path
+    else:
+        print("Steering dump trigger is not supported!")
         sys.exit(1)
 
     sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
     try:
-        sock.connect(path)
+        sock.connect(connect_path)
     except OSError as msg:
-        print("failed to connect to DPDK server: %s" % msg)
+        print("failed to connect to server at address: %s" % connect_path)
         sys.exit(1)
     return sock
 
@@ -126,7 +131,7 @@ def trigger_dump(s_pid, s_port, path, s_flow_ptr):
     global server_pid
     global flow_ptr
 
-    # DPDK support dumping all ports if uint16_max is used
+    # DPDK/DOCA support dumping all ports if uint16_max is used
     if s_port == -1:
         s_port = int(0xffff)
 
@@ -148,7 +153,7 @@ def trigger_dump(s_pid, s_port, path, s_flow_ptr):
 
 def main():
     if len(sys.argv) < 4:
-        print("Example:\n\tpython dr_trigger.py <DPDK_PID> <DPDK_PORT> <dump_file>")
+        print("Example:\n\tpython dr_trigger.py <APP_PID> <APP_PORT> <dump_file>")
         sys.exit(1)
 
     pid = int(sys.argv[1])
