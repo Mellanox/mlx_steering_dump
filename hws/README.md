@@ -40,6 +40,10 @@ Also it can be triggered for a DPDK/DOCA app via:
 
         ./mlx_hw_steering_parser.py --pid <APP PID> -f <dump_file> --skip_dump
 
+ - Developer triggering and parsing a dump with HW resources on remote setup from a DPDK/DOCA app:
+
+        ./mlx_hw_steering_parser.py --pid <APP PID> -f <dump_file> --remote_ip <REMOTE IP> --user_name <USER NAME>
+
 
  ***Please see below "Running syntax" for more info.***
 
@@ -66,6 +70,8 @@ Running syntax
 | --port APP_PORT | Trigger DPDK/DOCA app <PORT> (must provide PID with -pid) |
 | --extra_hw_res [pat, arg, all] | Request extra HW resources to be dumped. For example: -extra_hw_res pat,arg |
 | -s | Show dump statistics, such as STE's distribution |
+| --remote_ip REMOTE_IP | Indicates to extract HW resources from the remote setup <IP> |
+| --user_name USER_NAME | Indicates the user name on the remote setup |
 | -h, --help | It will show the help message and exit |
 
 Required package
@@ -73,3 +79,4 @@ Required package
 **For dumping the app HW resources:**
  - Python3
  - MFT (Version 4.22.0-80 provided with OFED 5.8 or higher)
+ - Pexpect (Only needed when using --remote_ip option)
