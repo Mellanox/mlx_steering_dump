@@ -1,3 +1,8 @@
+#SPDX-License-Identifier: BSD-3-Clause
+#Copyright (c) 2025 NVIDIA CORPORATION. All rights reserved.
+
+import importlib
+
 from src.dr_common import *
 from src.dr_db import _db, _config_args
 from src.dr_hl import dr_hl_dw_parser
@@ -270,3 +275,10 @@ def dr_get_counter_data(idx):
         return ""
 
     return ", packets: %s, octets: %s" % (counter.get("packets"), counter.get("octets"))
+
+def import_library(library_name):
+    try:
+        return importlib.import_module(library_name)
+    except ImportError:
+        raise ImportError("The %s library is not installed. Please install it to use this script." % library_name)
+
