@@ -20,7 +20,7 @@ from src.dr_rule import *
 from src.dr_hw_resources import *
 from src.dr_ste import *
 from src.dr_db import _config_args, _db
-
+from src.dr_remote import dr_connect_to_remote
 
 MAX_SUPPORTED_VERSION = Version("1.0.any_generator")
 
@@ -234,7 +234,7 @@ def parse_args():
     parser.add_argument("--skip_parse", action="store_false", default=True, dest="hw_parse",
                         help="Skip HW dumped resources parsing.")
     parser.add_argument("-d", dest="device", type=str, default="",
-                        help="Provide MST device for HW resources dumping.")
+                        help="Provide MST device for HW resources dumping, or remote MST device if --remote_ip was specified")
     parser.add_argument("--pid", dest="app_pid", type=int, default=-1,
                         help="Trigger DPDK/DOCA app <PID>.")
     parser.add_argument("--port", dest="app_port", type=int, default=0,
@@ -243,6 +243,12 @@ def parse_args():
                         help = "Request extra HW resources to be dumped/parsed. For example: --extra_hw_res pat,arg")
     parser.add_argument("-s", action="store_true", default=False, dest="statistics",
                         help="Show dump statistics.")
+    parser.add_argument("--remote_ip", type=str, default="", dest="remote_ip",
+                        help = "Indicates to extract HW resources from the remote setup <IP>")
+    parser.add_argument("--user_name", type=str, default="", dest="user_name",
+                        help = "Indicates the user name on the remote setup")
+    parser.add_argument("--remote_path", type=str, default="", dest="remote_path",
+                        help = "Indicates the dump tool location on the remote setup, this is optional")
     parser.add_argument("-h", "--help", action="help", default=argparse.SUPPRESS,
                         help='Show this help message and exit.')
 
@@ -267,6 +273,7 @@ def parse_args():
     else:
         _config_args["dump_hw_resources"] = False
 
+    _config_args["args.extra_hw_res"] = args.extra_hw_res
     for hw_res in args.extra_hw_res.split(","):
         if hw_res == "all":
             _config_args["extra_hw_res_pat"] = True
@@ -308,6 +315,16 @@ def parse_args():
     _config_args["hw_resources_present"] = False
 
     _config_args["statistics"] = args.statistics
+
+    if args.remote_ip != "" and args.dump_hw_resources:
+        _config_args["remote"] = True
+        _config_args["remote_ip"] = args.remote_ip
+        _config_args["user_name"] = args.user_name
+        _config_args["dump_tool_remote_path"] = args.remote_path
+        _config_args["password"] = None
+        _config_args["remote_dep_lib"] = False
+        dr_connect_to_remote()
+        sys.exit(0)
 
 
 if __name__ == "__main__":
