@@ -436,3 +436,36 @@ class dr_parse_matcher_resizable_array():
 
         if self.action_ste_1_id != None:
             _db._fw_ste_indexes_arr.append(self.action_ste_1_id)
+
+
+class dr_parse_action_ste_table():
+    def __init__(self, data):
+        keys = ["mlx5dr_debug_res_type", "id", "rx_rtc", "rx_ste",
+                "tx_rtc", "tx_ste"]
+        self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
+        self.id = self.data.get("id")
+        self.rx_ste = None
+        self.tx_ste = None
+        self.fix_data()
+        self.save_to_db()
+
+    def fix_data(self):
+        ste_id = self.data.get("rx_ste")
+        if ste_id != '-1':
+            self.rx_ste = ste_id
+
+        ste_id = self.data.get("tx_ste")
+        if ste_id != '-1':
+            self.tx_ste = ste_id
+
+    def save_to_db(self):
+        if self.rx_ste != None:
+            # Add to the index ranges that need to be dumped.
+            _db._fw_ste_indexes_arr.append(self.rx_ste)
+            # Also add to the list of action STE ranges that will be searched
+            # for rules that use action STEs.
+            _db._action_ste_indexes_arr.append(self.rx_ste)
+
+        if self.tx_ste != None:
+            _db._fw_ste_indexes_arr.append(self.tx_ste)
+            _db._action_ste_indexes_arr.append(self.tx_ste)

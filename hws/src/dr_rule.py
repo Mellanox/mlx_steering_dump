@@ -131,7 +131,7 @@ def dr_parse_rules(matcher, verbosity, tabs):
             while ste != None:
                 rule.add_ste(ste)
                 hit_loc = ste.get_hit_location()
-                ste = dr_hw_get_ste_from_loc(hit_loc, hint_loc, False, match_ste_id)
+                ste = dr_hw_get_ste_from_loc(hit_loc, hint_loc + _db._action_ste_indexes_arr, False, match_ste_id)
             _str += rule.tree_print(verbosity, _tabs, matcher)
 
         progress_bar_i += 1
