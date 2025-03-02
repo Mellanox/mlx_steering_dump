@@ -156,12 +156,6 @@ class dr_parse_matcher():
             col_matcher = _db._matchers.get(self.col_matcher_id)
             _str += tabs +"Resources (C): " + dump_obj_str(_keys, col_matcher.data)
 
-        if _config_args.get("statistics") == True:
-            _str += tabs + self.dump_matcher_statistcs()
-
-            if self.col_matcher_id != "0x0":
-                _str += tabs + col_matcher.dump_matcher_statistcs().replace("Statistics:", "Statistics (C):")
-
         return _str
 
     def tree_print(self, verbosity, tabs):
@@ -179,6 +173,13 @@ class dr_parse_matcher():
                 _str = _str + tabs + col_matcher.attr.dump_str(verbosity).replace(':', ' (C):')
             if verbosity > 0:
                 _str = _str + self.dump_matcher_resources(verbosity, tabs)
+
+            if _config_args.get("statistics") == True:
+                _str += tabs + self.dump_matcher_statistcs()
+
+                if self.col_matcher_id != "0x0":
+                    _str += tabs + col_matcher.dump_matcher_statistcs().replace("Statistics:", "Statistics (C):")
+
             if self.hash_definer != None:
                 definer_str = self.hash_definer.dump_fields()
                 if len(definer_str) != 0:
