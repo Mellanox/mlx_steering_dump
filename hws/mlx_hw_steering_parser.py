@@ -22,6 +22,9 @@ from src.dr_ste import *
 from src.dr_db import _config_args, _db
 
 
+MAX_SUPPORTED_VERSION = Version("1.0.any_generator")
+
+
 # mapping csv records types to it's relevant parser function
 switch_csv_res_type = {
     MLX5DR_DEBUG_RES_TYPE_CONTEXT: dr_parse_context,
@@ -100,6 +103,11 @@ def dr_parse_csv_file(csv_file, load_to_db):
                 obj.load_to_db()
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_CONTEXT:
             ctx = obj
+            version = ctx.dump_version
+            if version > MAX_SUPPORTED_VERSION:
+                raise Exception(f"Version {version} is newer than what the tool "
+                                f"supports ({MAX_SUPPORTED_VERSION}). Please fetch "
+                                "the latest version of the dump tool from GitHub.")
             ctxs.append(ctx)
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_CONTEXT_ATTR:
             ctx.add_attr(obj)

@@ -2,6 +2,7 @@
 #Copyright (c) 2021 NVIDIA CORPORATION. All rights reserved.
 
 
+import re
 import sys
 import subprocess as sp
 
@@ -46,12 +47,33 @@ def get_mst_rdma_dev(dev_name):
 
     return None
 
+class Version():
+    def __init__(self, string):
+        m = re.match(r'(?P<major>\d+)\.(?P<minor>\d+)(\.(?P<generator>.*))?', string)
+        if m is None:
+            raise Exception(f"Could not parse version, expected format "
+                            f"major.minor.generator, got {string}")
+        self.major = int(m.group('major'))
+        self.minor = int(m.group('minor'))
+        self.generator = m.group('generator')
+
+    def __str__(self):
+        return str(self.major) + "." + str(self.minor)
+
+    def __gt__(self, other):
+        if self.major < other.major:
+            return False
+        if self.major > other.major:
+            return True
+        return self.minor > other.minor
+
 class dr_parse_context():
     def __init__(self, data):
         keys = ["mlx5dr_debug_res_type", "id", "hws_support",
                 "dev_name", "debug_version"]
         self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
         self.fix_data()
+        self.dump_version = Version(self.data["debug_version"])
         self.tables = []
         self.attr = None
         self.caps = None
