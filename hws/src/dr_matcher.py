@@ -436,3 +436,53 @@ class dr_parse_matcher_resizable_array():
 
         if self.action_ste_1_id != None:
             _db._fw_ste_indexes_arr.append(self.action_ste_1_id)
+
+
+class dr_parse_action_ste_table():
+    def __init__(self, data):
+        keys = ["mlx5dr_debug_res_type", "id", "rx_rtc", "rx_ste",
+                "tx_rtc", "tx_ste"]
+        self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
+        self.id = self.data.get("id")
+        self.rx_ste = None
+        self.tx_ste = None
+        self.fix_data()
+        self.save_to_db()
+
+    def fix_data(self):
+        ste_id = self.data.get("rx_ste")
+        if ste_id != '-1':
+            self.rx_ste = ste_id
+
+        ste_id = self.data.get("tx_ste")
+        if ste_id != '-1':
+            self.tx_ste = ste_id
+
+    def save_to_db(self):
+        if self.rx_ste != None:
+            _db._fw_ste_indexes_arr.append(self.rx_ste)
+
+        if self.tx_ste != None:
+            _db._fw_ste_indexes_arr.append(self.tx_ste)
+
+    def dump_str(self, verbosity):
+        _keys = ["mlx5dr_debug_res_type", "id", "rx_rtc", "rx_ste", "tx_rtc", "tx_ste"]
+        return dump_obj_str(_keys, self.data)
+
+    def tree_print(self, verbosity, tabs):
+        _str = tabs + self.dump_str(verbosity)
+        tabs = tabs + TAB
+        rx_range = _db._stes_range_db.get(self.rx_ste)
+        if rx_range:
+            _str += tabs + f"RX STE range {rx_range[0]} {rx_range[1]}\n"
+        tx_range = _db._stes_range_db.get(self.tx_ste)
+        if tx_range:
+            _str += tabs + f"TX STE range {tx_range[0]} {tx_range[1]}\n"
+        return _str
+
+    def __eq__(self, other):
+        return self.rx_ste == other.rx_ste
+
+
+    def __lt__(self, other):
+        return self.rx_ste < other.rx_ste

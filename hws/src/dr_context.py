@@ -53,6 +53,7 @@ class dr_parse_context():
         self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
         self.fix_data()
         self.tables = []
+        self.action_ste_tables = []
         self.attr = None
         self.caps = None
         self.send_engine = []
@@ -92,6 +93,9 @@ class dr_parse_context():
         for t in sorted(self.tables):
             _str = _str + t.tree_print(verbosity, tabs)
 
+        for t in sorted(self.action_ste_tables):
+            _str = _str + t.tree_print(verbosity, tabs)
+
         return _str
 
     def fix_data(self):
@@ -99,6 +103,9 @@ class dr_parse_context():
 
     def add_table(self, table):
         self.tables.append(table)
+
+    def add_action_ste_table(self, table):
+        self.action_ste_tables.append(table)
 
     def add_attr(self, attr):
         self.attr = attr
