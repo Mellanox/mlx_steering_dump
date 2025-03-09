@@ -49,6 +49,7 @@ switch_csv_res_type = {
     MLX5DR_DEBUG_RES_TYPE_CONTEXT_STC: dr_parse_stc,
     MLX5DR_DEBUG_RES_TYPE_PATTERN: dr_parse_pattern,
     MLX5DR_DEBUG_RES_TYPE_ARGUMENT: dr_parse_argument,
+    MLX5DR_DEBUG_RES_TYPE_COUNTER: dr_parse_res_counter,
 }
 
 unsupported_obj_list = []
@@ -96,6 +97,9 @@ def dr_parse_csv_file(csv_file, load_to_db):
             if load_to_db:
                 obj.load_to_db()
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_ARGUMENT:
+            if load_to_db:
+                obj.load_to_db()
+        elif line[0] == MLX5DR_DEBUG_RES_TYPE_COUNTER:
             if load_to_db:
                 obj.load_to_db()
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_PATTERN:
@@ -235,8 +239,8 @@ def parse_args():
                         help="Trigger DPDK/DOCA app <PID>.")
     parser.add_argument("--port", dest="app_port", type=int, default=0,
                         help="Trigger DPDK/DOCA app <PORT> newer dpdk, and doca supports -1 for all ports (must provide PID with -pid).")
-    parser.add_argument("--extra_hw_res", type=str, default="", dest="extra_hw_res", metavar="[pat, arg, all]",
-                        help = "Request extra HW resources to be dumped. For example: --extra_hw_res pat,arg")
+    parser.add_argument("--extra_hw_res", type=str, default="", dest="extra_hw_res", metavar="[pat, arg, counter, all]",
+                        help = "Request extra HW resources to be dumped/parsed. For example: --extra_hw_res pat,arg")
     parser.add_argument("-s", action="store_true", default=False, dest="statistics",
                         help="Show dump statistics.")
     parser.add_argument("-h", "--help", action="help", default=argparse.SUPPRESS,
@@ -252,6 +256,7 @@ def parse_args():
 
     _config_args["extra_hw_res_arg"] = False
     _config_args["extra_hw_res_pat"] = False
+    _config_args["extra_hw_res_counter"] = False
 
     if (args.dump_hw_resources):
         _config_args["dump_hw_resources"] = True
@@ -259,22 +264,24 @@ def parse_args():
             _config_args["device"] = None
         else:
             _config_args["device"] = args.device
-
-        for hw_res in args.extra_hw_res.split(","):
-            if hw_res == "all":
-                _config_args["extra_hw_res_pat"] = True
-                _config_args["extra_hw_res_arg"] = True
-                break
-            elif hw_res == "pat":
-                _config_args["extra_hw_res_pat"] = True
-            elif hw_res == "arg":
-                _config_args["extra_hw_res_arg"] = True
-
-        if _config_args.get("extra_hw_res_arg") and not(_config_args.get("extra_hw_res_pat")):
-            _config_args["extra_hw_res_arg"] = False
-
     else:
         _config_args["dump_hw_resources"] = False
+
+    for hw_res in args.extra_hw_res.split(","):
+        if hw_res == "all":
+            _config_args["extra_hw_res_pat"] = True
+            _config_args["extra_hw_res_arg"] = True
+            _config_args["extra_hw_res_counter"] = True
+            break
+        elif hw_res == "pat":
+            _config_args["extra_hw_res_pat"] = True
+        elif hw_res == "arg":
+            _config_args["extra_hw_res_arg"] = True
+        elif hw_res == "counter":
+            _config_args["extra_hw_res_counter"] = True
+
+    if _config_args.get("extra_hw_res_arg") == True and not(_config_args.get("extra_hw_res_pat")):
+        _config_args["extra_hw_res_arg"] = False
 
     if (args.hw_parse):
         _config_args["parse_hw_resources"] = True

@@ -94,6 +94,7 @@ stc_param_id_loc_dic = {
     STC_ACTION_JUMP_TO_UPLINK: {'type': 'UPLINK'},
     STC_ACTION_JUMP_TO_DROP: {'type': 'DROP'},
     STC_ACTION_TYPE_ALLOW: {'type': 'ALLOW'},
+    STC_ACTION_TYPE_FLOW_COUNTER: {'type': 'FLOW_COUNTER', 'loc': (0,8)},
 }
 
 
@@ -157,6 +158,18 @@ class dr_parse_argument():
 
     def load_to_db(self):
         _db._argument_db[self.get_index()] = self.data.get("data")
+
+
+class dr_parse_res_counter():
+    def __init__(self, data):
+        keys = ["mlx5dr_debug_res_type", "counter_index", "index", "packets", "octets"]
+        self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
+
+    def get_index(self):
+        return self.data.get("index")
+
+    def load_to_db(self):
+        _db._counters_db[self.get_index()] = {"packets": self.data.get("packets"), "octets": self.data.get("octets")}
 
 
 def dr_parse_fw_modify_argument_set(raw):
