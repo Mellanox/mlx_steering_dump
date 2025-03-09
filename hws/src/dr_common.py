@@ -199,10 +199,17 @@ def hit_location_calc(next_table_base_63_48, next_table_base_39_32, next_table_b
     address |= next_table_base_31_5 << 5
     return ste_location(gvmi, address)
 
+_segments_dic = {
+    "STC": "0x1036",
+    "FW_STE": "0x1351",
+    "HW_MODIFY_PATT": "0x103d",
+    "MODIFY_ARGUMENT": "0x1037",
+    "FLOW_COUNTER": "0x1318",
+}
 
 def call_resource_dump(dev, dev_name, segment, index1, num_of_obj1, num_of_obj2, depth):
     _input = 'resourcedump dump -d ' + dev
-    _input += ' --segment ' + segment
+    _input += ' --segment ' + _segments_dic.get(segment)
     _input += ' --index1 ' + index1
     if num_of_obj1 != None:
         _input += ' --num-of-obj1 ' + num_of_obj1
