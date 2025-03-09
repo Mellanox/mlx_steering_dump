@@ -4,7 +4,8 @@
 from src.dr_common import *
 from src.dr_db import _db, _config_args
 from src.dr_hl import _fields_text_values
-from src.dr_action import action_pretiffy,dr_ste_parse_ste_actions_arr
+from src.dr_action import dr_ste_parse_ste_actions_arr
+from src.dr_common_functions import dr_get_counter_data
 
 
 def fields_handler(_fields, verbosity=0, show_field_val=False):
@@ -296,7 +297,7 @@ class dr_parse_ste():
         flag = False
 
         if self.counter_id != 0:
-            _str += _tabs + 'Counter: ' + hex(self.counter_id) + '\n'
+            _str += "%sCounter: idx: %s%s\n" % (_tabs, hex(self.counter_id), dr_get_counter_data(self.counter_id))
             flag = True
 
         for action in self.action_arr:

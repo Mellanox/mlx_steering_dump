@@ -45,6 +45,9 @@ def parse_fw_stc_rd_bin_output(stc_index, load_to_db, file):
                 elif obj.get("type") == 'MODIFY_LIST':
                     _db._arg_obj_indexes_dic[obj.get("id")] = ''
 
+                elif obj.get("type") == 'FLOW_COUNTER':
+                    _db._flow_counter_indexes_dic[obj.get("id")] = ''
+
                 else:
                     _dests[addr] = obj
 
@@ -181,9 +184,40 @@ def parse_fw_modify_argument_rd_bin_output(arg_index,  load_to_db, file):
         _db._argument_db.update(arg_dic)
 
 
+def parse_fw_counter_rd_bin_output(counter_index,  load_to_db, file):
+    counters_dic = {}
+    file_str = "%s,%s" % (MLX5DR_DEBUG_RES_TYPE_COUNTER, counter_index)
+    _config_args["tmp_file"] = open(_config_args.get("tmp_file_path"), 'rb+')
+    bin_file = _config_args.get("tmp_file")
+
+    #There are 36B of prefix data before first pattern dump
+    data = bin_file.read(36)
+
+    while data:
+        #Leading zeros will be ignored, add zero to keep alignment
+        data = "0%s" % hex(int.from_bytes(data, byteorder='big'))
+        data_type = data[3:8]
+        if data_type == RESOURCE_DUMP_SEGMENT_TYPE_FLOW_COUNTER_BIN:
+            index = hex(int(data[16:24], 16))
+            file_str = "%s,%s,%s" % (MLX5DR_DEBUG_RES_TYPE_COUNTER, counter_index, index)
+            packets = hex((int(data[32:40], 16) << 32) | int(data[40:48], 16))
+            octets = hex((int(data[48:56], 16) << 32) | int(data[56:64], 16))
+            file_str += ",%s" % packets
+            file_str += ",%s" % octets
+            file.write("%s\n" % file_str)
+            if load_to_db:
+                counters_dic[index] = {"packets": packets, "octets": octets}
+
+        #16B(Args data) + 16(Prefix)
+        data = bin_file.read(32)
+
+    if load_to_db:
+        _db._counters_db.update(counters_dic)
+
 def dump_hw_resources(load_to_db, dev, dev_name, file):
     total_resources = _config_args.get("total_resources")
     dump_arg = _config_args.get("extra_hw_res_arg")
+    dump_counter = _config_args.get("extra_hw_res_counter")
     interactive_progress_bar(0, total_resources, DUMPING_HW_RESOURCES)
     i = 0
     for stc_index in _db._stc_indexes_arr:
@@ -208,6 +242,12 @@ def dump_hw_resources(load_to_db, dev, dev_name, file):
         for arg_index in _db._arg_obj_indexes_dic:
             output = call_resource_dump(dev, dev_name, "MODIFY_ARGUMENT", arg_index, None, 'all', None)
             parse_fw_modify_argument_rd_bin_output(arg_index,  load_to_db, file)
+
+    #Dump Counters
+    if dump_counter == True:
+        for counter_idx in _db._flow_counter_indexes_dic:
+            output = call_resource_dump(dev, dev_name, "FLOW_COUNTER", counter_idx, 'all', None, None)
+            parse_fw_counter_rd_bin_output(counter_idx,  load_to_db, file)
 
 
 def dr_hw_data_engine(obj, file):

@@ -1,5 +1,5 @@
 from src.dr_common import *
-from src.dr_db import _config_args
+from src.dr_db import _db, _config_args
 from src.dr_hl import dr_hl_dw_parser
 
 
@@ -259,3 +259,14 @@ def dr_parse_add_field_action(action_dw_0, action_dw_1):
     action["src_right_shifter"] = src_right_shifter
 
     return action
+
+
+def dr_get_counter_data(idx):
+    if _config_args.get("extra_hw_res_counter") == False:
+        return ""
+
+    counter = _db._counters_db.get(hex(idx))
+    if counter == None:
+        return ""
+
+    return ", packets: %s, octets: %s" % (counter.get("packets"), counter.get("octets"))
