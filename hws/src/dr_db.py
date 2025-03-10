@@ -16,6 +16,8 @@ class _ctx_db:
         self._ft_indexes_arr = []
         #Store FW STE's indexes
         self._fw_ste_indexes_arr = []
+        #Store action STE indexes
+        self._action_ste_indexes_arr = []
         #Store STC's indexes
         self._stc_indexes_arr = []
         #This hash table holds the FW STE's, as obj index as the key,

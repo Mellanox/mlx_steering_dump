@@ -50,6 +50,7 @@ switch_csv_res_type = {
     MLX5DR_DEBUG_RES_TYPE_PATTERN: dr_parse_pattern,
     MLX5DR_DEBUG_RES_TYPE_ARGUMENT: dr_parse_argument,
     MLX5DR_DEBUG_RES_TYPE_COUNTER: dr_parse_res_counter,
+    MLX5DR_DEBUG_RES_TYPE_ACTION_STE_TABLE: dr_parse_action_ste_table,
 }
 
 unsupported_obj_list = []
@@ -165,6 +166,8 @@ def dr_parse_csv_file(csv_file, load_to_db):
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_HW_RRESOURCES_DUMP_END:
             if last_fw_ste != None:
                 last_fw_ste.add_stes_range(min_ste_addr, max_ste_addr)
+        elif line[0] == MLX5DR_DEBUG_RES_TYPE_ACTION_STE_TABLE:
+            pass
         else:
             if line[0] not in unsupported_obj_list:
                 unsupported_obj_list.append(line[0])
