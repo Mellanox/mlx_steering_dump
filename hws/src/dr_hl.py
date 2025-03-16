@@ -584,6 +584,29 @@ def dr_hl_psp_parser(hl_index, mask):
 
     return dr_hl_dw_mask_parser(dw_fields[offset], mask)
 
+def dr_hl_bth_payload_parser(hl_index, mask):
+    offset = int((hl_index - 216) % 16)
+    dw_fields = [
+                 [('bth_payload_0', 32)],
+                 [('bth_payload_1', 32)],
+                 [('bth_payload_2', 32)],
+                 [('bth_payload_3', 32)],
+                 [('bth_payload_4', 32)],
+                 [('bth_payload_5', 32)],
+                 [('bth_payload_6', 32)],
+                 [('bth_payload_7', 32)],
+                 [('bth_payload_8', 32)],
+                 [('bth_payload_9', 32)],
+                 [('bth_payload_10', 32)],
+                 [('bth_payload_11', 32)],
+                 [('bth_payload_12', 32)],
+                 [('bth_payload_13', 32)],
+                 [('bth_payload_14', 32)],
+                 [('bth_payload_15', 32)],
+                ]
+
+    return dr_hl_dw_mask_parser(dw_fields[offset], mask)
+
 """ dr_hl_dw_parser(hl_index, mask):
 This function describes the header layout.
 Parameters:
@@ -667,5 +690,7 @@ def dr_hl_dw_parser(hl_index, mask):
         return dr_hl_macsec_parser(hl_index, mask)
     elif hl_index in range(167, 178):
         return dr_hl_psp_parser(hl_index, mask)
+    elif hl_index in range(216, 232):
+        return dr_hl_bth_payload_parser(hl_index, mask)
     else:
         return []
