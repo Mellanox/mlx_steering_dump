@@ -243,7 +243,7 @@ def parse_args():
     parser.add_argument("--port", dest="app_port", type=int, default=0,
                         help="Trigger DPDK/DOCA app <PORT> newer dpdk, and doca supports -1 for all ports (must provide PID with -pid).")
     parser.add_argument("--extra_hw_res", type=str, default="", dest="extra_hw_res", metavar="[pat, arg, counter, all]",
-                        help = "Request extra HW resources to be dumped/parsed. For example: --extra_hw_res pat,arg")
+                        help = "Request extra HW resources to be dumped/parsed. \'all\' option will dump all the HW resources supported by current FW. Usage example: --extra_hw_res pat,arg")
     parser.add_argument("-s", action="store_true", default=False, dest="statistics",
                         help="Show dump statistics.")
     parser.add_argument("--remote_ip", type=str, default="", dest="remote_ip",
@@ -263,6 +263,7 @@ def parse_args():
     else:
         _config_args["file_path"] = args.file_path
 
+    _config_args["extra_hw_res_all"] = False
     _config_args["extra_hw_res_arg"] = False
     _config_args["extra_hw_res_pat"] = False
     _config_args["extra_hw_res_counter"] = False
@@ -279,6 +280,7 @@ def parse_args():
     _config_args["args.extra_hw_res"] = args.extra_hw_res
     for hw_res in args.extra_hw_res.split(","):
         if hw_res == "all":
+            _config_args["extra_hw_res_all"] = True
             _config_args["extra_hw_res_pat"] = True
             _config_args["extra_hw_res_arg"] = True
             _config_args["extra_hw_res_counter"] = True

@@ -52,7 +52,7 @@ Running syntax
 
     ./mlx_hw_steering_parser.py -f <FILE_PATH> [-v] [--skip_dump] [-d DEVICE]
                                 [--pid APP_PID] [--port APP_PORT] [--skip_parse]
-                                [--extra_hw_res [pat, arg, all]] [-s] [-h]
+                                [--extra_hw_res [pat, arg, counter, all]] [-s] [-h]
 
 ***arguments:***
 | Flag | Description |
@@ -68,7 +68,7 @@ Running syntax
 | -d DEVICE | Provide MST device, otherwise it will be guessed automatically |
 | --pid APP_PID | Trigger DPDK/DOCA app <PID> |
 | --port APP_PORT | Trigger DPDK/DOCA app <PORT> (must provide PID with -pid) |
-| --extra_hw_res [pat, arg, all] | Request extra HW resources to be dumped. For example: -extra_hw_res pat,arg |
+| --extra_hw_res [pat, arg, counter, all] | Request extra HW resources to be dumped/parsed. 'all' option will dump all the HW resources supported by current FW. Usage example: -extra_hw_res pat,arg |
 | -s | Show dump statistics, such as STE's distribution |
 | --remote_ip REMOTE_IP | Indicates to extract HW resources from the remote setup <IP> |
 | --user_name USER_NAME | Indicates the user name on the remote setup |

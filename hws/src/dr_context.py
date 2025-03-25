@@ -177,14 +177,20 @@ class dr_parse_context_caps():
             if _config_args.get("extra_hw_res_pat") == True:
                 expected_fw_version = "%s.%s" % (_config_args.get("fw_version_major"), FW_VERSION_MINOR_EXTRA_HW_RES)
                 if self.data.get("fw_version") < expected_fw_version:
-                    print("To dump Pattern/Argument HW resources, please use FW version %s or higher" % expected_fw_version)
-                    sys.exit(0)
+                    if _config_args.get("extra_hw_res_all") == True:
+                        _config_args["dump_hw_resources"] = False
+                    else:
+                        print("To dump Pattern/Argument HW resources, please use FW version %s or higher" % expected_fw_version)
+                        sys.exit(0)
 
             if _config_args.get("extra_hw_res_counter") == True:
                 expected_fw_version = "%s.%s" % (_config_args.get("fw_version_major"), FW_VERSION_MINOR_EXTRA_HW_RES_COUNTER)
                 if self.data.get("fw_version") < expected_fw_version:
-                    print("To dump Counter HW resources, please use FW version %s or higher" % expected_fw_version)
-                    sys.exit(0)
+                    if _config_args.get("extra_hw_res_all") == True:
+                        _config_args["extra_hw_res_counter"] = False
+                    else:
+                        print("To dump Counter HW resources, please use FW version %s or higher" % expected_fw_version)
+                        sys.exit(0)
 
         expected_fw_version = "%s.%s" % (_config_args.get("fw_version_major"), FW_VERSION_MINOR_STC_ACTION_TYPE_SHIFT)
         if self.data.get("fw_version") >= expected_fw_version:
