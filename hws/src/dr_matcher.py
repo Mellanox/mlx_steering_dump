@@ -125,15 +125,22 @@ class dr_parse_matcher():
     def dump_matcher_statistcs(self):
         row_log_sz = self.attr.get_row_log_sz()
         col_log_sz = self.attr.get_col_log_sz()
+        tbl_type = _db._tbl_type_db.get(self.data.get("tbl_id"))
         _str = "Statistics: distribution: "
-        if self.match_ste_1_id != None:
+        if tbl_type == DR_TBL_TYPE_FDB_UNIFIED:
+            _str += "RX/TX: "
+        elif tbl_type == DR_TBL_TYPE_FDB:
             _str += "RX: "
+
         _str += get_fw_ste_distribution_statistics(self.match_ste_0_id, row_log_sz, col_log_sz)
+
+        if tbl_type == DR_TBL_TYPE_FDB_UNIFIED:
+            return _str + "\n"
+
         if self.match_ste_1_id != None:
             _str += ", TX: " + get_fw_ste_distribution_statistics(self.match_ste_1_id, row_log_sz, col_log_sz)
-        _str += "\n"
 
-        return _str
+        return _str + "\n"
 
 
     def dump_matcher_resources(self, verbosity, tabs):
