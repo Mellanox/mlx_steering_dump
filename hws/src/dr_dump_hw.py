@@ -175,22 +175,22 @@ def parse_fw_modify_argument_rd_bin_output(arg_index,  load_to_db, file):
     file_str = "%s,%s" % (MLX5DR_DEBUG_RES_TYPE_ARGUMENT, arg_index)
     _config_args["tmp_file"] = open(_config_args.get("tmp_file_path"), 'rb+')
     bin_file = _config_args.get("tmp_file")
-	count = 0
+    count = 0
 
-	#First read DW(4B) each time till reaching first argument
-	data = bin_file.read(4)
-	while data:
-	    data = hex(int.from_bytes(data, byteorder='big'))
-	    if data[2:8] == RESOURCE_DUMP_SEGMENT_TYPE_MODIFY_ARG_BIN:
-	        #Seek to the first argument location in the bin_file
-	        bin_file.seek(count)
-	        break
+    #First read DW(4B) each time till reaching first argument
+    data = bin_file.read(4)
+    while data:
+        data = hex(int.from_bytes(data, byteorder='big'))
+        if data[2:8] == RESOURCE_DUMP_SEGMENT_TYPE_MODIFY_ARG_BIN:
+            #Seek to the first argument location in the bin_file
+            bin_file.seek(count)
+            break
 
-	    count += 4
-	    data = bin_file.read(4)
+        count += 4
+        data = bin_file.read(4)
 
-	#Read first argument
-	data = bin_file.read(80)
+    #Read first argument
+    data = bin_file.read(80)
 
     while data:
         data = hex(int.from_bytes(data, byteorder='big'))
@@ -216,22 +216,22 @@ def parse_fw_counter_rd_bin_output(counter_index,  load_to_db, file):
     file_str = "%s,%s" % (MLX5DR_DEBUG_RES_TYPE_COUNTER, counter_index)
     _config_args["tmp_file"] = open(_config_args.get("tmp_file_path"), 'rb+')
     bin_file = _config_args.get("tmp_file")
-	count = 0
+    count = 0
 
-	#First read DW(4B) each time till reaching first counter
-	data = bin_file.read(4)
-	while data:
-	    data = hex(int.from_bytes(data, byteorder='big'))
-	    if data[2:8] == RESOURCE_DUMP_SEGMENT_TYPE_FLOW_COUNTER_BIN:
-	        #Seek to the first counter location in the bin_file
-	        bin_file.seek(count)
-	        break
+    #First read DW(4B) each time till reaching first counter
+    data = bin_file.read(4)
+    while data:
+        data = hex(int.from_bytes(data, byteorder='big'))
+        if data[2:8] == RESOURCE_DUMP_SEGMENT_TYPE_FLOW_COUNTER_BIN:
+            #Seek to the first counter location in the bin_file
+            bin_file.seek(count)
+            break
 
-	    count += 4
-	    data = bin_file.read(4)
+        count += 4
+        data = bin_file.read(4)
 
-	#Read first counter
-	data = bin_file.read(32)
+    #Read first counter
+    data = bin_file.read(32)
 
     while data:
         #Leading zeros will be ignored, add zero to keep alignment
