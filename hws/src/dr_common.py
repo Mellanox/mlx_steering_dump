@@ -246,7 +246,7 @@ def call_resource_dump(dev, dev_name, segment, index1, num_of_obj1, num_of_obj2,
         _input += ' --depth=' + depth
     if _config_args.get("resourcedump_mem_mode"):
         _input += ' --mem ' + dev_name
-        _input += ' --bin ' + _config_args.get("tmp_file_path")
+        _input += ' --bin ' + str(_config_args.get("tmp_file_path"))
 
     vhca_id = _config_args.get("_vhca_id")
     if vhca_id != None and vhca_id != "0":
