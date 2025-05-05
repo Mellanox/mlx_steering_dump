@@ -8,10 +8,9 @@ from src.dr_hw_resources import dr_parse_fw_stc_action_get_obj_id, dr_parse_fw_s
 from src.dr_visual import interactive_progress_bar
 
 
-def parse_fw_stc_rd_bin_output(stc_index, load_to_db, file):
+def parse_fw_stc_rd_bin_output(stc_index, load_to_db, file, bin_file):
     _dests = {}
-    _config_args["tmp_file"] = open(_config_args.get("tmp_file_path"), 'rb+')
-    bin_file = _config_args.get("tmp_file")
+    bin_file.seek(0)
     stc = ''
     count = 0
 
@@ -67,22 +66,18 @@ def parse_fw_stc_rd_bin_output(stc_index, load_to_db, file):
 
         data = bin_file.read(80)
 
-    bin_file.close()
-    _config_args["tmp_file"] = None
-
     if load_to_db:
         _db._term_dest_db.update(_dests)
 
 
-def parse_fw_ste_rd_bin_output(fw_ste_index, load_to_db, file):
+def parse_fw_ste_rd_bin_output(fw_ste_index, load_to_db, file, bin_file):
     min_addr = '0xffffffff'
     max_addr = '0x00000000'
     first_ste = True
     ste_dic = {}
     count = 0
 
-    _config_args["tmp_file"] = open(_config_args.get("tmp_file_path"), 'rb+')
-    bin_file = _config_args.get("tmp_file")
+    bin_file.seek(0)
 
     file.write(MLX5DR_DEBUG_RES_TYPE_FW_STE + ',' + fw_ste_index + '\n')
 
@@ -127,9 +122,6 @@ def parse_fw_ste_rd_bin_output(fw_ste_index, load_to_db, file):
         #Each STE dump contain 64B(STE) + 16(STE prefix)
         data = bin_file.read(80)
 
-    bin_file.close()
-    _config_args["tmp_file"] = None
-
     if load_to_db:
         _db._fw_ste_db[fw_ste_index] = ste_dic
         _db._stes_range_db[fw_ste_index] = (min_addr, max_addr)
@@ -169,12 +161,11 @@ def parse_fw_ste_rd_output(data, fw_ste_index, load_to_db, file):
         _db._stes_range_db[fw_ste_index] = (min_addr, max_addr)
 
 
-def parse_fw_modify_argument_rd_bin_output(arg_index,  load_to_db, file):
+def parse_fw_modify_argument_rd_bin_output(arg_index, load_to_db, file, bin_file):
     arg_dic = {}
     arr = []
     file_str = "%s,%s" % (MLX5DR_DEBUG_RES_TYPE_ARGUMENT, arg_index)
-    _config_args["tmp_file"] = open(_config_args.get("tmp_file_path"), 'rb+')
-    bin_file = _config_args.get("tmp_file")
+    bin_file.seek(0)
     count = 0
 
     #First read DW(4B) each time till reaching first argument
@@ -211,11 +202,10 @@ def parse_fw_modify_argument_rd_bin_output(arg_index,  load_to_db, file):
         _db._argument_db.update(arg_dic)
 
 
-def parse_fw_counter_rd_bin_output(counter_index,  load_to_db, file):
+def parse_fw_counter_rd_bin_output(counter_index, load_to_db, file, bin_file):
     counters_dic = {}
     file_str = "%s,%s" % (MLX5DR_DEBUG_RES_TYPE_COUNTER, counter_index)
-    _config_args["tmp_file"] = open(_config_args.get("tmp_file_path"), 'rb+')
-    bin_file = _config_args.get("tmp_file")
+    bin_file.seek(0)
     count = 0
 
     #First read DW(4B) each time till reaching first counter
@@ -260,34 +250,35 @@ def dump_hw_resources(load_to_db, dev, dev_name, file):
     dump_counter = _config_args.get("extra_hw_res_counter")
     interactive_progress_bar(0, total_resources, DUMPING_HW_RESOURCES)
     i = 0
-    for stc_index in _db._stc_indexes_arr:
-        output = call_resource_dump(dev, dev_name, "STC", stc_index, None, 'all', None)
-        parse_fw_stc_rd_bin_output(stc_index, load_to_db, file)
-        i += 1
-        interactive_progress_bar(i, total_resources, DUMPING_HW_RESOURCES)
+    with open(_config_args.get("tmp_file_path"), 'rb') as tmp_file:
+        for stc_index in _db._stc_indexes_arr:
+            output = call_resource_dump(dev, dev_name, "STC", stc_index, None, 'all', None)
+            parse_fw_stc_rd_bin_output(stc_index, load_to_db, file, tmp_file)
+            i += 1
+            interactive_progress_bar(i, total_resources, DUMPING_HW_RESOURCES)
 
-    #Dump FW STE's
-    for fw_ste_index in _db._fw_ste_indexes_arr:
-        output = call_resource_dump(dev, dev_name, "FW_STE", fw_ste_index, None, 'all', None)
-        if _config_args.get("resourcedump_mem_mode"):
-            parse_fw_ste_rd_bin_output(fw_ste_index, load_to_db, file)
-        else:
-            parse_fw_ste_rd_output(output, fw_ste_index, load_to_db, file)
+        #Dump FW STE's
+        for fw_ste_index in _db._fw_ste_indexes_arr:
+            output = call_resource_dump(dev, dev_name, "FW_STE", fw_ste_index, None, 'all', None)
+            if _config_args.get("resourcedump_mem_mode"):
+                parse_fw_ste_rd_bin_output(fw_ste_index, load_to_db, file, tmp_file)
+            else:
+                parse_fw_ste_rd_output(output, fw_ste_index, load_to_db, file)
 
-        i += 1
-        interactive_progress_bar(i, total_resources, DUMPING_HW_RESOURCES)
+            i += 1
+            interactive_progress_bar(i, total_resources, DUMPING_HW_RESOURCES)
 
-    #Dump Arg's
-    if dump_arg == True:
-        for arg_index in _db._arg_obj_indexes_dic:
-            output = call_resource_dump(dev, dev_name, "MODIFY_ARGUMENT", arg_index, None, 'all', None)
-            parse_fw_modify_argument_rd_bin_output(arg_index,  load_to_db, file)
+        #Dump Arg's
+        if dump_arg == True:
+            for arg_index in _db._arg_obj_indexes_dic:
+                output = call_resource_dump(dev, dev_name, "MODIFY_ARGUMENT", arg_index, None, 'all', None)
+                parse_fw_modify_argument_rd_bin_output(arg_index,  load_to_db, file, tmp_file)
 
-    #Dump Counters
-    if dump_counter == True:
-        for counter_idx in _db._flow_counter_indexes_dic:
-            output = call_resource_dump(dev, dev_name, "FLOW_COUNTER", counter_idx, 'all', None, None)
-            parse_fw_counter_rd_bin_output(counter_idx,  load_to_db, file)
+        #Dump Counters
+        if dump_counter == True:
+            for counter_idx in _db._flow_counter_indexes_dic:
+                output = call_resource_dump(dev, dev_name, "FLOW_COUNTER", counter_idx, 'all', None, None)
+                parse_fw_counter_rd_bin_output(counter_idx,  load_to_db, file, tmp_file)
 
 
 def dr_hw_data_engine(obj, file):
