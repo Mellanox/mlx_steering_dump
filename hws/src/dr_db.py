@@ -52,23 +52,6 @@ class _ctx_db:
         self._counters_db = {}
 
     def load(self, _new):
-        self._definers = _new._definers
-        self._matchers = _new._matchers
-        self._col_matchers = _new._col_matchers
-        self._ft_indexes_arr = _new._ft_indexes_arr
-        self._fw_ste_indexes_arr = _new._fw_ste_indexes_arr
-        self._stc_indexes_arr = _new._stc_indexes_arr
-        self._fw_ste_db = _new._fw_ste_db
-        self._stes_range_db = _new._stes_range_db
-        self._tbl_type_db = _new._tbl_type_db
-        self._tbl_level_db = _new._tbl_level_db
-        self._term_dest_db = _new._term_dest_db
-        self._pattern_db = _new._pattern_db
-        self._argument_db = _new._argument_db
-        self._arg_obj_indexes_dic = _new._arg_obj_indexes_dic
-        self._total_matcher_match_fw_stes = _new._total_matcher_match_fw_stes
-        self._counters_db = _new._counters_db
-
-
+        self.__dict__ = _new.__dict__
 
 _db = _ctx_db()
