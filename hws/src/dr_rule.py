@@ -58,7 +58,7 @@ def dr_hw_get_ste_from_loc(loc, hint_loc=[], ignore_hint=False, curr_matcher_idx
     addr = hex(loc.index)
     fw_ste_index = None
     for index in hint_loc:
-        if index == None:
+        if index is None:
             continue
         _range = _db._stes_range_db.get(index)
         if addr >= _range[0] and addr <= _range[1]:
@@ -70,7 +70,7 @@ def dr_hw_get_ste_from_loc(loc, hint_loc=[], ignore_hint=False, curr_matcher_idx
         if matcher_range[0] <= addr <= matcher_range[1]:
             fw_ste_index = curr_matcher_idx
 
-    if fw_ste_index == None:
+    if fw_ste_index is None:
         return None
 
     fw_ste_stes = _db._fw_ste_db.get(fw_ste_index)
@@ -119,7 +119,7 @@ def dr_parse_rules(matcher, verbosity, tabs):
 
     for _tbl_type, match_ste_id, hint_loc in dumps:
         fw_ste_dic = _db._fw_ste_db.get(match_ste_id)
-        if fw_ste_dic == None:
+        if fw_ste_dic is None:
             continue
 
         for ste_addr in fw_ste_dic:
@@ -128,7 +128,7 @@ def dr_parse_rules(matcher, verbosity, tabs):
                 ste.get_entry_format() == STE_ENTRY_TYPE_4DW_RANGE_MATCH:
                     continue
             rule = dr_parse_rule(_tbl_type)
-            while ste != None:
+            while ste is not None:
                 rule.add_ste(ste)
                 hit_loc = ste.get_hit_location()
                 ste = dr_hw_get_ste_from_loc(hit_loc, hint_loc + _db._action_ste_indexes_arr, False, match_ste_id)

@@ -120,7 +120,7 @@ class dr_dump_action_modify_header(dr_obj):
                 "num_of_ptrn_actions", "ptrn_idx", "arg_idx"]
         self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
         self.ptrn_and_args_arr = []
-        if self.data.get("num_of_ptrn_actions") != None:
+        if self.data.get("num_of_ptrn_actions") is not None:
             num_of_ptrn_actions = int(self.data.get("num_of_ptrn_actions"), 16)
             if num_of_ptrn_actions > 0:
                 self.ptrn_and_args_arr = data[-num_of_ptrn_actions:]

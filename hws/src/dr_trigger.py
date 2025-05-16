@@ -84,9 +84,9 @@ def fd_msg(flow_ptr, fd, port, prevent_py_gc):
 def connect_to_server(server_pid):
     doca_path = "/var/tmp/doca_mlx5_hws_%d" % server_pid
     dpdk_path = "/var/tmp/dpdk_net_mlx5_%d" % server_pid
-    if os.path.exists(doca_path) == True:
+    if os.path.exists(doca_path):
         connect_path = doca_path
-    elif os.path.exists(dpdk_path) == True:
+    elif os.path.exists(dpdk_path):
         connect_path = dpdk_path
     else:
         print("Steering dump trigger is not supported!")

@@ -116,7 +116,7 @@ def dr_action_copy_parser(action):
     length = 32 if length == 0 else length
     field = get_modify_hdr_field(dst_dw_offset, dst_left_shifter, length)
 
-    if field != None:
+    if field is not None:
         action["dst_field"] = field
     else:
         action["dst_offset"] = dst_dw_offset
@@ -128,7 +128,7 @@ def dr_action_copy_parser(action):
     src_right_shifter = int(action_dw_1[18 : 24], 2) - MLX5_MODIFY_HEADER_V1_QW_OFFSET
     field = get_modify_hdr_field(src_dw_offset, src_right_shifter, length)
 
-    if field != None:
+    if field is not None:
         action["src_field"] = field
     else:
         action["src_offset"] = src_dw_offset
@@ -147,7 +147,7 @@ def dr_action_set_parser(action):
     length = 32 if length == 0 else length
     field = get_modify_hdr_field(dw_offset, left_shifter, length)
 
-    if field != None:
+    if field is not None:
         action["field"] = field
     else:
         action["dw_offset"] = dw_offset
@@ -168,7 +168,7 @@ def dr_action_add_parser(action):
     length = 32 if length == 0 else length
     field = get_modify_hdr_field(dw_offset, left_shifter, length)
 
-    if field != None:
+    if field is not None:
         action["field"] = field
     else:
         action["dw_offset"] = dw_offset
@@ -185,7 +185,7 @@ def dr_action_remove_by_size_parser(action):
     action = {"type" : "Remove by size"}
     start_anchor = int(action_dw_0[10 : 16], 2)
     field = MDFY_HDR_ANCHORS.get(start_anchor)
-    action["start_anchor"] = field if field != None else start_anchor
+    action["start_anchor"] = field if field is not None else start_anchor
     action["outer_l4_removed"] = int(action_dw_0[16 : 17], 2)
     action["start_offset"] = int(action_dw_0[18 : 25], 2)
     action["size"] = int(action_dw_0[26 : 32], 2)
@@ -199,9 +199,9 @@ def dr_action_remove_header2header_parser(action):
     start_anchor = int(action_dw_0[10 : 16], 2)
     end_anchor = int(action_dw_0[18 : 24], 2)
     field = MDFY_HDR_ANCHORS.get(start_anchor)
-    action["start_anchor"] = field if field != None else start_anchor
+    action["start_anchor"] = field if field is not None else start_anchor
     field = MDFY_HDR_ANCHORS.get(end_anchor)
-    action["end_anchor"] = field if field != None else end_anchor
+    action["end_anchor"] = field if field is not None else end_anchor
     action["decap"] = int(action_dw_0[28 : 29], 2)
     action["vni_to_cqe"] = int(action_dw_0[29 : 30], 2)
     action["qos_profile "] = int(action_dw_0[30 : 32], 2)
@@ -214,10 +214,10 @@ def dr_action_insert_inline_parser(action):
     action = {"type" : "insert with inline"}
     start_anchor = int(action_dw_0[10 : 16], 2)
     field = MDFY_HDR_ANCHORS.get(start_anchor)
-    action["start_anchor"] = field if field != None else start_anchor
+    action["start_anchor"] = field if field is not None else start_anchor
     end_anchor = int(action_dw_0[18 : 24], 2)
     field = MDFY_HDR_ANCHORS.get(end_anchor)
-    action["end_anchor"] = field if field != None else end_anchor
+    action["end_anchor"] = field if field is not None else end_anchor
     action["insert_data_inline"] = int(action_dw_1[0 : 32], 2)
 
     return action_pretiffy(action)
@@ -228,10 +228,10 @@ def dr_action_insert_pointer_parser(action):
     action = {"type" : "insert with pointer"}
     start_anchor = int(action_dw_0[10 : 16], 2)
     field = MDFY_HDR_ANCHORS.get(start_anchor)
-    action["start_anchor"] = field if field != None else start_anchor
+    action["start_anchor"] = field if field is not None else start_anchor
     end_anchor = int(action_dw_0[18 : 24], 2)
     field = MDFY_HDR_ANCHORS.get(end_anchor)
-    action["end_anchor"] = field if field != None else end_anchor
+    action["end_anchor"] = field if field is not None else end_anchor
     action["size"] = int(action_dw_0[24 : 29], 2)
     action["attributes"] = int(action_dw_0[29 : 32], 2)
     action["pointer"] = int(action_dw_1[0 : 32], 2)
@@ -258,7 +258,7 @@ def dr_ptrn_and_args_parser(arr):
         bin_action = hex_2_bin(_arr[2:])
         action_type = int(bin_action[0 : 8], 2)
         parser = switch_ptrn_args_actions_parser.get(action_type)
-        if parser != None:
+        if parser is not None:
             res = parser(bin_action)
             result += "\n%s%s" % (indent,res)
         else:

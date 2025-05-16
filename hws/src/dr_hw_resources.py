@@ -105,7 +105,7 @@ def dr_parse_fw_stc_action_get_obj_id(raw):
 
     obj = stc_param_id_loc_dic.get(action_type)
 
-    if obj != None:
+    if obj is not None:
         if (action_type == STC_ACTION_JUMP_TO_UPLINK) or \
            (action_type == STC_ACTION_JUMP_TO_DROP) or \
            (action_type == STC_ACTION_TYPE_ALLOW):
@@ -273,27 +273,25 @@ def parse_fw_modify_pattern_rd_bin_output(pattern_index, load_to_db, file, num_o
     arr = []
     read_sz = num_of_pat * MODIFY_PATTERN_BYTES_SZ
     file_str = "%s,%s" % (MLX5DR_DEBUG_RES_TYPE_PATTERN, pattern_index)
-    _config_args["tmp_file"] = open(_config_args.get("tmp_file_path"), 'rb+')
-    bin_file = _config_args.get("tmp_file")
-
-    #There are 36B of prefix data before first pattern dump
-    data = bin_file.read(36)
-    #Segment prefix till pattern data
-    data = bin_file.read(16)
-    data = hex(int.from_bytes(data, byteorder='big'))
-    data_type = data[2:8]
-    if data_type == RESOURCE_DUMP_SEGMENT_TYPE_MODIFY_PAT_BIN:
-        while read_sz:
-            data = bin_file.read(MODIFY_PATTERN_BYTES_SZ)
-            if data:
-                data = hex(int.from_bytes(data, byteorder='big'))[2:]
-                len_data = len(data)
-                if(len_data < 2 * MODIFY_PATTERN_BYTES_SZ):
-                    data = (((2 * MODIFY_PATTERN_BYTES_SZ) - len_data) * '0') + data
-                pat_dic = dr_parse_fw_modify_pattern(data)
-                arr.append(pat_dic)
-                file_str += ",%s-%s-%s" % (pat_dic.get("raw") ,hex(pat_dic.get("type")), pat_dic.get("text").replace(',', ''))
-            read_sz -= MODIFY_PATTERN_BYTES_SZ
+    with open(_config_args.get("tmp_file_path"), 'rb') as bin_file:
+        #There are 36B of prefix data before first pattern dump
+        data = bin_file.read(36)
+        #Segment prefix till pattern data
+        data = bin_file.read(16)
+        data = hex(int.from_bytes(data, byteorder='big'))
+        data_type = data[2:8]
+        if data_type == RESOURCE_DUMP_SEGMENT_TYPE_MODIFY_PAT_BIN:
+            while read_sz:
+                data = bin_file.read(MODIFY_PATTERN_BYTES_SZ)
+                if data:
+                    data = hex(int.from_bytes(data, byteorder='big'))[2:]
+                    len_data = len(data)
+                    if(len_data < 2 * MODIFY_PATTERN_BYTES_SZ):
+                        data = (((2 * MODIFY_PATTERN_BYTES_SZ) - len_data) * '0') + data
+                    pat_dic = dr_parse_fw_modify_pattern(data)
+                    arr.append(pat_dic)
+                    file_str += ",%s-%s-%s" % (pat_dic.get("raw") ,hex(pat_dic.get("type")), pat_dic.get("text").replace(',', ''))
+                read_sz -= MODIFY_PATTERN_BYTES_SZ
 
     file.write("%s\n" % file_str)
 
