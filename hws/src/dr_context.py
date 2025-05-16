@@ -83,7 +83,7 @@ class dr_parse_context():
 
     def load_to_db(self):
         if _config_args.get("dump_hw_resources"):
-            if _config_args.get("device") == None:
+            if _config_args.get("device") is None:
                 _config_args["dev_name"] = self.data.get("dev_name");
                 _config_args["device"] = get_mst_dev(self.data.get("dev_name"))
             else:
@@ -140,7 +140,7 @@ class dr_parse_context_attr():
         self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
         _config_args["vhca_id"] = self.data.get("vhca_id")
         shared_dev_name = None if self.data.get("shared_dev_name") == 'None' else self.data.get("shared_dev_name")
-        if _config_args.get("dump_hw_resources") and shared_dev_name != None:
+        if _config_args.get("dump_hw_resources") and shared_dev_name is not None:
             _config_args["shared_dev_name"] = shared_dev_name
             _config_args["shared_device"] = get_mst_dev(shared_dev_name)
             _config_args["shared_vhca_id"] = self.data.get("shared_vhca_id")
@@ -200,7 +200,7 @@ class dr_parse_context_caps():
 
         _config_args["linear_match_definer"] = self.data.get("linear_match_definer")
         _config_args["linear_match_definer_field_name"] = self.data.get("linear_match_definer_field_name")
-        if _config_args.get("linear_match_definer") != None:
+        if _config_args.get("linear_match_definer") is not None:
             #Add to _definers DB as None so in STE parsing tag parsing will be skipped
             _db._definers[int(_config_args.get("linear_match_definer"))] = None
 

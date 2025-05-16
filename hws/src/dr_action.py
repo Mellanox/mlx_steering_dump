@@ -82,26 +82,26 @@ def dr_action_accelerated_modify_list_parser(action_arr, index):
     for i in range (0, num_of_pat):
         pat_index = hex(modify_actions_pattern_pointer + i)
         pat_arr = _db._pattern_db.get(pat_index)
-        if pat_arr == None:
+        if pat_arr is None:
             if dump_pat == True:
                 output = call_resource_dump(dev, dev_name, "HW_MODIFY_PATT", pat_index, None, None, None)
                 pat_sz = PAT_ARG_BULK_SIZE if (i != num_of_pat - 1) else (number_of_modify_actions % PAT_ARG_BULK_SIZE)
                 pat_arr = parse_fw_modify_pattern_rd_bin_output(pat_index,  load_to_db, file, pat_sz)
 
-        if pat_arr == None:
+        if pat_arr is None:
             continue
 
         arg_index = hex(modify_actions_argument_pointer + i)
         arg_str = _db._argument_db.get(arg_index)
 
-        if arg_str != None:
+        if arg_str is not None:
             for j in range(0, len(pat_arr)):
                 _pat = pat_arr[j]
                 raw_data = ''
                 _arg_handler = dr_parse_fw_modify_arguments_dic.get(_pat.get("type"))
                 #each arg is MODIFY_ARGUMENT_BYTES_SZ bytes & each byte = 2 chars
                 start_substring = 2 * j * MODIFY_ARGUMENT_BYTES_SZ
-                if _arg_handler != None:
+                if _arg_handler is not None:
                     _arg = _arg_handler(arg_str[start_substring : start_substring + (2 * MODIFY_ARGUMENT_BYTES_SZ)])
                     if verbose > 2:
                         raw_data = " (%s %s)" % (_pat.get("raw"), _arg.get("raw"))
@@ -256,7 +256,7 @@ def dr_ste_parse_ste_actions_arr(actions_arr):
         action_dw_0 = actions_arr[index]
         action_type = int(action_dw_0[0 : 8], 2)
         parser = switch_actions_parser.get(action_type)
-        if parser != None:
+        if parser is not None:
             res = parser(actions_arr, index)
             index += res[0]
             result.extend(res[1])

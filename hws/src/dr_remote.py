@@ -53,7 +53,7 @@ def remote_cmd(cmd, host, user, password, time_out=60):
 def build_options():
     op = ""
 
-    if _config_args.get("device") != None:
+    if _config_args.get("device") is not None:
         op += " -d %s " % (_config_args.get("device"))
 
     if _config_args.get("verbose") > 0:
