@@ -304,13 +304,13 @@ def dump_hw_resources(load_to_db, dev, dev_name, file):
             interactive_progress_bar(i, total_resources, DUMPING_HW_RESOURCES)
 
         #Dump Arg's
-        if dump_arg == True:
+        if dump_arg:
             for arg_index in _db._arg_obj_indexes_dic:
                 output = call_resource_dump(dev, dev_name, "MODIFY_ARGUMENT", arg_index, None, 'all', None)
                 parse_fw_modify_argument_rd_bin_output(arg_index,  load_to_db, file, tmp_file)
 
         #Dump Counters
-        if dump_counter == True:
+        if dump_counter:
             for counter_idx in _db._flow_counter_indexes_dic:
                 output = call_resource_dump(dev, dev_name, "FLOW_COUNTER", counter_idx, 'all', None, None)
                 parse_fw_counter_rd_bin_output(counter_idx,  load_to_db, file, tmp_file)

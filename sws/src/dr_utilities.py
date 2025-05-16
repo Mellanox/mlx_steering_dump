@@ -129,11 +129,11 @@ def print_dr(color, *args):
     tab = TAB * g_indent
     str_ = tab + " ".join(map(str, args))
 
-    if COLORED_PRINTS == True:
+    if COLORED_PRINTS:
         sys.stdout.write(color)
 
     sys.stdout.write(str_)
-    if COLORED_PRINTS == True:
+    if COLORED_PRINTS:
         sys.stdout.write(dr_print_color.RESET)
 
 

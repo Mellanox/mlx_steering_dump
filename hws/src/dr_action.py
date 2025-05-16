@@ -86,7 +86,7 @@ def dr_action_accelerated_modify_list_parser(action_arr, index):
         pat_index = hex(modify_actions_pattern_pointer + i)
         pat_arr = _db._pattern_db.get(pat_index)
         if pat_arr is None:
-            if dump_pat == True:
+            if dump_pat:
                 output = call_resource_dump(dev, dev_name, "HW_MODIFY_PATT", pat_index, None, None, None)
                 pat_sz = PAT_ARG_BULK_SIZE if (i != num_of_pat - 1) else leftover
                 pat_arr = parse_fw_modify_pattern_rd_bin_output(pat_index,  load_to_db, file, pat_sz)

@@ -18,7 +18,7 @@ def get_mst_dev(dev_name):
         exit()
     output_arr = output.split('\n')
 
-    if dev_name.startswith("0000:") == True:
+    if dev_name.startswith("0000:"):
         dev_name = dev_name[5:]
 
     for l in output_arr:
@@ -187,20 +187,20 @@ class dr_parse_context_caps():
         _config_args["fw_version_major"] = int(self.data.get("fw_version").split(".")[0])
         _config_args["cx8"] = True if (_config_args.get("fw_version_major") >= FW_VERSION_MAJOR_CX8) else False
 
-        if _config_args.get("dump_hw_resources") == True:
-            if _config_args.get("extra_hw_res_pat") == True:
+        if _config_args.get("dump_hw_resources"):
+            if _config_args.get("extra_hw_res_pat"):
                 expected_fw_version = "%s.%s" % (_config_args.get("fw_version_major"), FW_VERSION_MINOR_EXTRA_HW_RES)
                 if self.data.get("fw_version") < expected_fw_version:
-                    if _config_args.get("extra_hw_res_all") == True:
+                    if _config_args.get("extra_hw_res_all"):
                         _config_args["dump_hw_resources"] = False
                     else:
                         print("To dump Pattern/Argument HW resources, please use FW version %s or higher" % expected_fw_version)
                         sys.exit(0)
 
-            if _config_args.get("extra_hw_res_counter") == True:
+            if _config_args.get("extra_hw_res_counter"):
                 expected_fw_version = "%s.%s" % (_config_args.get("fw_version_major"), FW_VERSION_MINOR_EXTRA_HW_RES_COUNTER)
                 if self.data.get("fw_version") < expected_fw_version:
-                    if _config_args.get("extra_hw_res_all") == True:
+                    if _config_args.get("extra_hw_res_all"):
                         _config_args["extra_hw_res_counter"] = False
                     else:
                         print("To dump Counter HW resources, please use FW version %s or higher" % expected_fw_version)
