@@ -267,7 +267,7 @@ def dr_parse_add_field_action(action_dw_0, action_dw_1):
 
 
 def dr_get_counter_data(idx):
-    if _config_args.get("extra_hw_res_counter") == False:
+    if not _config_args.get("extra_hw_res_counter"):
         return ""
 
     counter = _db._counters_db.get(hex(idx))

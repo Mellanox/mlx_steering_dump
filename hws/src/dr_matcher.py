@@ -181,7 +181,7 @@ class dr_parse_matcher():
             if verbosity > 0:
                 _str = _str + self.dump_matcher_resources(verbosity, tabs)
 
-            if _config_args.get("statistics") == True:
+            if _config_args.get("statistics"):
                 _str += tabs + self.dump_matcher_statistcs()
 
                 if self.col_matcher_id != "0x0":

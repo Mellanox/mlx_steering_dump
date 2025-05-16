@@ -283,7 +283,7 @@ def parse_args():
         elif hw_res == "counter":
             _config_args["extra_hw_res_counter"] = True
 
-    if _config_args.get("extra_hw_res_arg") == True and not(_config_args.get("extra_hw_res_pat")):
+    if _config_args.get("extra_hw_res_arg") and not(_config_args.get("extra_hw_res_pat")):
         _config_args["extra_hw_res_arg"] = False
 
     if (args.hw_parse):
@@ -339,7 +339,7 @@ if __name__ == "__main__":
             csv_file = open(_config_args.get("file_path"), 'a+')
             _config_args["csv_file"] = csv_file
         else:
-            if _config_args.get("hw_resources_present") == False:
+            if not _config_args.get("hw_resources_present"):
                 _config_args["parse_hw_resources"] = False
                 _config_args["load_hw_resources"] = False
 
@@ -358,7 +358,7 @@ if __name__ == "__main__":
                 _config_args["progress_bar_i"] = 0
                 interactive_progress_bar(0, _config_args.get("total_fw_ste"), PARSING_THE_RULES_STR)
 
-            if _config_args.get("csv_file") is not None and _config_args.get("hw_resources_dump_started") == True:
+            if _config_args.get("csv_file") is not None and _config_args.get("hw_resources_dump_started"):
                 csv_file.write(MLX5DR_DEBUG_RES_TYPE_HW_RRESOURCES_DUMP_END + '\n')
 
             output_file.write(ctx.tree_print(verbose, ""))
