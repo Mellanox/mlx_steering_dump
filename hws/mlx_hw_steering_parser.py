@@ -55,16 +55,9 @@ switch_csv_res_type = {
     MLX5DR_DEBUG_RES_TYPE_ACTION_STE_TABLE: dr_parse_action_ste_table,
 }
 
-unsupported_obj_list = []
-
-def print_unsupported_obj_list():
-    if len(unsupported_obj_list) == 0:
-        return None
-    _str = "Unsupported objects detected:"
-    for o in unsupported_obj_list:
-        _str = _str + " " + str(o) + ","
-
-    print(_str[:-1])
+def print_unsupported_obj_list(unsupported_obj_list: list):
+    if unsupported_obj_list:
+        print(f"Unsupported objects detected: {', '.join(unsupported_obj_list)}")
 
 
 def dr_csv_get_obj(line):
@@ -75,7 +68,7 @@ def dr_csv_get_obj(line):
     parser = switch_csv_res_type[line[0]]
     return parser(line)
 
-def dr_parse_csv_file(csv_file: TextIOWrapper, load_to_db: bool) -> list:
+def dr_parse_csv_file(csv_file: TextIOWrapper, load_to_db: bool) -> tuple[list, list]:
     ctxs = []
     ctx = None
     last_table = None
@@ -85,6 +78,7 @@ def dr_parse_csv_file(csv_file: TextIOWrapper, load_to_db: bool) -> list:
     last_fw_ste = None
     min_ste_addr = ''
     max_ste_addr = ''
+    unsupported_obj_list = []
     print("Loading input file ...")
     csv_reader = csv.reader(csv_file)
     for i, line in enumerate(csv_reader):
@@ -197,7 +191,7 @@ def dr_parse_csv_file(csv_file: TextIOWrapper, load_to_db: bool) -> list:
             obj.load_to_db()
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_HW_RRESOURCES_DUMP_START:
             if not load_to_db:
-                return ctxs
+                return ctxs, unsupported_obj_list
             _config_args["hw_resources_present"] = True
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_FW_STE:
             if last_fw_ste is not None:
@@ -218,7 +212,7 @@ def dr_parse_csv_file(csv_file: TextIOWrapper, load_to_db: bool) -> list:
             if line[0] not in unsupported_obj_list:
                 unsupported_obj_list.append(line[0])
 
-    return ctxs
+    return ctxs, unsupported_obj_list
 
 
 #General env initialization
@@ -378,7 +372,7 @@ if __name__ == "__main__":
 
         with open(file_path, 'r+') as csv_file:
             load_to_db = False if _config_args.get("dump_hw_resources") else _config_args.get("load_hw_resources")
-            ctxs = dr_parse_csv_file(csv_file, load_to_db)
+            ctxs, unsupported_obj_list = dr_parse_csv_file(csv_file, load_to_db)
 
         if _config_args.get("dump_hw_resources"):
             csv_file = open(_config_args.get("file_path"), 'a+')
@@ -413,7 +407,7 @@ if __name__ == "__main__":
         print(PARSED_OUTPUT_FILE_STR + output_file_name)
 
         if verbose > 0:
-            print_unsupported_obj_list()
+            print_unsupported_obj_list(unsupported_obj_list)
 
     except OSError as e:
         print(e)
