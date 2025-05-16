@@ -11,6 +11,18 @@ import argparse
 import csv
 import time
 
+MINIMUM_PYTHON_VERSION = (3, 9)
+
+def check_python_version_supported():
+    if sys.version_info < MINIMUM_PYTHON_VERSION:
+        file_name = Path(__file__).name
+        printable_version = '.'.join(map(str, MINIMUM_PYTHON_VERSION))
+        print(f"Error: {file_name} requires Python {printable_version} or newer")
+        sys.exit(1)
+
+# Need to execute this before parsing the rest of the file
+check_python_version_supported()
+
 from src import dr_trigger
 from src.dr_common import *
 from src.dr_context import *
@@ -25,7 +37,6 @@ from src.dr_db import _config_args, _db
 from src.dr_remote import dr_connect_to_remote
 
 MAX_SUPPORTED_VERSION = Version("1.0.any_generator")
-
 
 # mapping csv records types to it's relevant parser function
 switch_csv_res_type = {
