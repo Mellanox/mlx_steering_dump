@@ -65,7 +65,7 @@ def get_adb(args):
 
     mst_dev = args.device.split('/')[3].split('_')[0]
     mst_dev = mst_dev[2:]
-    if _projects.get(mst_dev) == None:
+    if _projects.get(mst_dev) is None:
         print("Please provide an adabe file")
         exit(1)
 

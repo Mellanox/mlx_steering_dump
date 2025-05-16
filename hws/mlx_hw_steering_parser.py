@@ -140,7 +140,7 @@ def dr_parse_csv_file(csv_file, load_to_db):
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_MATCHER_ACTION_TEMPLATE:
             last_matcher.add_action_template(obj)
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_MATCHER_TEMPLATE_MATCH_DEFINER:
-            if last_matcher_template != None:
+            if last_matcher_template is not None:
                 last_matcher_template.add_match_definer(obj)
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_MATCHER_TEMPLATE_RANGE_DEFINER:
             last_matcher_template.add_range_definer(obj)
@@ -161,7 +161,7 @@ def dr_parse_csv_file(csv_file, load_to_db):
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_FT_ANCHORS:
             obj.load_to_db()
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_FW_STE:
-            if last_fw_ste != None:
+            if last_fw_ste is not None:
                 last_fw_ste.add_stes_range(min_ste_addr, max_ste_addr)
             obj.init_fw_ste_db()
             max_ste_addr = '0x00000000'
@@ -171,7 +171,7 @@ def dr_parse_csv_file(csv_file, load_to_db):
                 min_ste_addr = obj.get_min_addr()
                 max_ste_addr = obj.get_max_addr()
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_HW_RRESOURCES_DUMP_END:
-            if last_fw_ste != None:
+            if last_fw_ste is not None:
                 last_fw_ste.add_stes_range(min_ste_addr, max_ste_addr)
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_ACTION_STE_TABLE:
             pass
@@ -194,7 +194,7 @@ def env_init():
 
 def env_destroy():
     csv_file = _config_args.get("csv_file")
-    if csv_file != None:
+    if csv_file is not None:
         csv_file.close()
 
 
@@ -363,7 +363,7 @@ if __name__ == "__main__":
                 _config_args["progress_bar_i"] = 0
                 interactive_progress_bar(0, _config_args.get("total_fw_ste"), PARSING_THE_RULES_STR)
 
-            if _config_args.get("csv_file") != None and _config_args.get("hw_resources_dump_started") == True:
+            if _config_args.get("csv_file") is not None and _config_args.get("hw_resources_dump_started") == True:
                 csv_file.write(MLX5DR_DEBUG_RES_TYPE_HW_RRESOURCES_DUMP_END + '\n')
 
             ctx.pre_parse()

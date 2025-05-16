@@ -11,12 +11,12 @@ def get_fw_ste_distribution_statistics(fw_ste_id, row_log_sz, col_log_sz):
     arr = [0] * (1 << col_log_sz)
     _str = str(arr)
     base_addr = _db._stes_range_db.get(fw_ste_id)
-    if base_addr == None:
+    if base_addr is None:
         return _str
 
     base_addr = int(base_addr[0], 16)
     ste_addr_db = _db._fw_ste_db.get(fw_ste_id)
-    if ste_addr_db == None:
+    if ste_addr_db is None:
         return _str
 
     for addr in ste_addr_db:
@@ -98,15 +98,15 @@ class dr_parse_matcher():
             self.action_ste_1_id = ste_id
 
         aliased_rtc_0_id = self.data.get("aliased_rtc_0_id")
-        if aliased_rtc_0_id != None and aliased_rtc_0_id != '0':
+        if aliased_rtc_0_id is not None and aliased_rtc_0_id != '0':
             self.aliased_rtc_0_id = aliased_rtc_0_id
 
         rx_icm_addr = self.data.get("rx_icm_addr")
-        if rx_icm_addr == None:
+        if rx_icm_addr is None:
             rx_icm_addr = "0x0"
 
         tx_icm_addr = self.data.get("tx_icm_addr")
-        if tx_icm_addr == None:
+        if tx_icm_addr is None:
             tx_icm_addr = "0x0"
 
         self.data["end_ft_id"] = hex(int(self.data.get("end_ft_id")))
@@ -146,16 +146,16 @@ class dr_parse_matcher():
         if verbosity > 1:
             _keys.extend(["end_ft_id"])
             ft_idx = _db._ft_idx_dic.get(self.data.get("end_ft_id"))
-            if ft_idx != None:
+            if ft_idx is not None:
                 self.fix_address(ft_idx[0], ft_idx[1])
 
             if self.data.get("rx_icm_addr") != "0x0":
-                if self.base_addr_0 != None and self.base_addr_0 != "0xffffffff":
+                if self.base_addr_0 is not None and self.base_addr_0 != "0xffffffff":
                     self.data["rx_base_addr"] = self.base_addr_0
                     _keys.extend(["rx_base_addr"])
                 _keys.extend(["rx_icm_addr"])
             if self.data.get("tx_icm_addr") != "0x0":
-                if self.base_addr_1 != None and self.base_addr_1 != "0xffffffff":
+                if self.base_addr_1 is not None and self.base_addr_1 != "0xffffffff":
                     self.data["tx_base_addr"] = self.base_addr_1
                     _keys.extend(["tx_base_addr"])
                 _keys.extend(["tx_icm_addr"])
@@ -181,7 +181,7 @@ class dr_parse_matcher():
         if tbl_type == DR_TBL_TYPE_FDB_UNIFIED:
             return _str + "\n"
 
-        if self.match_ste_1_id != None:
+        if self.match_ste_1_id is not None:
             tx_row_log_sz = self.attr.get_tx_row_log_sz()
             tx_col_log_sz = self.attr.get_tx_col_log_sz()
             _str += ", TX: " + get_fw_ste_distribution_statistics(self.match_ste_1_id, tx_row_log_sz, tx_col_log_sz)
@@ -196,26 +196,26 @@ class dr_parse_matcher():
         ste_0_arr = []
         ste_1_arr = []
 
-        if self.aliased_rtc_0_id != None:
+        if self.aliased_rtc_0_id is not None:
             _keys.append("aliased_rtc_0_id")
-        if self.match_ste_1_id != None:
+        if self.match_ste_1_id is not None:
             _keys.extend(["match_rtc_1_id", "match_ste_1_id"])
 
         _str = tabs + "Resources: " + dump_obj_str(_keys, self.data, end_of_line="")
 
-        if self.action_rtc_0_id != None:
+        if self.action_rtc_0_id is not None:
             rtc_0_arr = [self.action_rtc_0_id]
             ste_0_arr = [self.action_ste_0_id]
 
-        if self.action_rtc_1_id != None:
+        if self.action_rtc_1_id is not None:
             rtc_1_arr = [self.action_rtc_1_id]
             ste_1_arr = [self.action_ste_1_id]
 
         for obj in self.resizable_arrays:
-            if obj.action_rtc_0_id != None:
+            if obj.action_rtc_0_id is not None:
                 rtc_0_arr += [obj.action_rtc_0_id]
                 ste_0_arr += [obj.action_ste_0_id]
-            if obj.action_rtc_1_id != None:
+            if obj.action_rtc_1_id is not None:
                 rtc_1_arr += [obj.action_rtc_1_id]
                 ste_1_arr += [obj.action_ste_1_id]
 
@@ -255,7 +255,7 @@ class dr_parse_matcher():
                 if self.col_matcher_id != "0x0":
                     _str += tabs + col_matcher.dump_matcher_statistcs().replace("Statistics:", "Statistics (C):")
 
-            if self.hash_definer != None:
+            if self.hash_definer is not None:
                 definer_str = self.hash_definer.dump_fields()
                 if len(definer_str) != 0:
                     definer_str = definer_str.replace(', ', '\n' + TAB + tabs)
@@ -309,11 +309,11 @@ class dr_parse_matcher():
     def save_to_db(self):
         total_match_fw_stes = 0
 
-        if self.match_ste_0_id != None:
+        if self.match_ste_0_id is not None:
             _db._fw_ste_indexes_arr.append(self.match_ste_0_id)
             total_match_fw_stes += 1
 
-        if self.match_ste_1_id != None:
+        if self.match_ste_1_id is not None:
             _db._fw_ste_indexes_arr.append(self.match_ste_1_id)
             total_match_fw_stes += 1
 
@@ -322,10 +322,10 @@ class dr_parse_matcher():
             _db._total_matcher_match_fw_stes[0] = _tmp + total_match_fw_stes
 
 
-        if self.action_ste_0_id != None:
+        if self.action_ste_0_id is not None:
             _db._fw_ste_indexes_arr.append(self.action_ste_0_id)
 
-        if self.action_ste_1_id != None:
+        if self.action_ste_1_id is not None:
             _db._fw_ste_indexes_arr.append(self.action_ste_1_id)
 
         _db._matchers[self.id] = self
@@ -348,15 +348,15 @@ class dr_parse_matcher():
     def get_ste_arrays(self, ste_0=True, ste_1=True):
         res = []
 
-        if ste_0 and self.action_ste_0_id != None:
+        if ste_0 and self.action_ste_0_id is not None:
             res.append(self.action_ste_0_id)
-        if ste_1 and self.action_ste_1_id != None:
+        if ste_1 and self.action_ste_1_id is not None:
             res.append(self.action_ste_1_id)
 
         for obj in self.resizable_arrays:
-            if ste_0 and obj.action_ste_0_id != None:
+            if ste_0 and obj.action_ste_0_id is not None:
                 res.append(obj.action_ste_0_id)
-            if ste_1 and obj.action_ste_1_id != None:
+            if ste_1 and obj.action_ste_1_id is not None:
                 res.append(obj.action_ste_1_id)
 
         return res
@@ -386,14 +386,14 @@ class dr_parse_matcher_attr():
 
     def get_tx_row_log_sz(self):
         sz = self.data.get("tx_sz_row_log")
-        if sz != None and sz !='-1':
+        if sz is not None and sz !='-1':
             return int(sz)
 
         return self.get_row_log_sz()
 
     def get_tx_col_log_sz(self):
         sz = self.data.get("tx_sz_col_log")
-        if sz != None and sz !='-1':
+        if sz is not None and sz !='-1':
             return int(sz)
 
         return self.get_col_log_sz()
@@ -426,7 +426,7 @@ class dr_parse_matcher_attr():
 
         tx_sz_row = self.data.get("tx_sz_row_log")
         log_sz_str = "%sX%s" % (self.data.get("sz_row_log"), self.data.get("sz_col_log"))
-        if tx_sz_row != None and tx_sz_row !='-1':
+        if tx_sz_row is not None and tx_sz_row !='-1':
             log_sz_str = "rx %s tx %sX%s" % (log_sz_str, tx_sz_row, self.data.get("tx_sz_col_log"))
         self.data["log_sz"] = log_sz_str
 
@@ -440,30 +440,30 @@ class dr_parse_matcher_match_template():
         self.fix_data()
 
     def fix_data(self):
-        if self.data.get("fcr_sz") == None:
+        if self.data.get("fcr_sz") is None:
             self.data["fcr_sz"] = "0"
-        if self.data.get("fcc_sz") == None:
+        if self.data.get("fcc_sz") is None:
             self.data["fcc_sz"] = "0"
 
     def dump_str(self, tabs, verbosity):
         _tabs = tabs + TAB
         __tabs = _tabs + TAB
         _str = ':'
-        if self.match_definer != None:
+        if self.match_definer is not None:
             definer_str = self.match_definer.dump_fields()
             if len(definer_str) != 0:
                 _str = ':\n' + _tabs + 'Match fields:\n' + __tabs + definer_str
                 _str = _str.replace(', ', '\n' + __tabs)
 
             range_definer_str = ''
-            if self.range_definer != None:
+            if self.range_definer is not None:
                 range_definer_str = self.range_definer.dump_fields()
             if len(range_definer_str) != 0:
                 _str += '\n' + _tabs + 'Range fields:\n' + __tabs + range_definer_str
                 _str = _str.replace(', ', '\n' + __tabs)
 
             compare_definer_str = ''
-            if self.compare_definer != None:
+            if self.compare_definer is not None:
                 compare_definer_str = self.compare_definer.dump_fields()
             if len(compare_definer_str) != 0:
                 _str += '\n' + _tabs + 'Compare fields:\n' + __tabs + compare_definer_str
@@ -549,11 +549,11 @@ class dr_parse_matcher_resizable_array():
                     return True
             return False
 
-        if self.action_ste_0_id != None:
+        if self.action_ste_0_id is not None:
             if not check_id(self.action_ste_0_id):
                 _db._fw_ste_indexes_arr.append(self.action_ste_0_id)
 
-        if self.action_ste_1_id != None:
+        if self.action_ste_1_id is not None:
             if not check_id(self.action_ste_1_id):
                 _db._fw_ste_indexes_arr.append(self.action_ste_1_id)
 
@@ -579,13 +579,13 @@ class dr_parse_action_ste_table():
             self.tx_ste = ste_id
 
     def save_to_db(self):
-        if self.rx_ste != None:
+        if self.rx_ste is not None:
             # Add to the index ranges that need to be dumped.
             _db._fw_ste_indexes_arr.append(self.rx_ste)
             # Also add to the list of action STE ranges that will be searched
             # for rules that use action STEs.
             _db._action_ste_indexes_arr.append(self.rx_ste)
 
-        if self.tx_ste != None:
+        if self.tx_ste is not None:
             _db._fw_ste_indexes_arr.append(self.tx_ste)
             _db._action_ste_indexes_arr.append(self.tx_ste)

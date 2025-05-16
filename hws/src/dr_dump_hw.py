@@ -73,7 +73,7 @@ def parse_fw_stc_rd_bin_output(stc_index, load_to_db, file, bin_file):
         elif data_type[:-1] == RESOURCE_DUMP_SEGMENT_TYPE_ACTION_STC_BIN:
             stc_action = '0x' + data[31:]
             obj = dr_parse_fw_stc_action_get_obj_id(stc_action)
-            if obj != None:
+            if obj is not None:
                 addr = dr_parse_fw_stc_get_addr(stc)
                 write_line = '%s,%s,%s,%s\n' % (MLX5DR_DEBUG_RES_TYPE_ADDRESS, addr, obj.get("type"), obj.get("id"))
                 file.write(write_line)
@@ -320,9 +320,9 @@ def dr_hw_data_engine(obj, file):
     if _config_args.get("dump_hw_resources"):
         load_to_db = _config_args.get("load_hw_resources")
         dev = _config_args.get("shared_device")
-        if dev == None:
+        if dev is None:
             dev = _config_args.get("device")
-            if dev == None:
+            if dev is None:
                 print('Unknown MST device')
                 exit()
             dev_name = _config_args.get("dev_name")

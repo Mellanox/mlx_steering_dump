@@ -95,7 +95,7 @@ def fields_handler(_fields, verbosity=0, show_field_val=False):
 
         if show_field_val:
             tv_field = _fields_text_values.get(field)
-            if tv_field != None:
+            if tv_field is not None:
                 _str += field + ": " + tv_field.get(value)
                 if verbosity > 2:
                     _str += ' (' + hex(value) + ')'
@@ -170,7 +170,7 @@ def raw_ste_parser(raw_ste):
 
     #Get definer
     definer = _db._definers.get(ste["match_definer_context_index"])
-    if definer == None:
+    if definer is None:
         ste["parsed_tag"] = {}
         return ste
 
@@ -246,11 +246,11 @@ def raw_ste_parser(raw_ste):
         count = 0
         tag = tags.get(selector)
         for field in selector_arr:
-            if (field != None):
+            if field is not None:
                 tag_value = int(field[1], 2) & int(tag[count : count + len(field[1])], 2)
                 if tag_value != 0:
                     pre_tag = parsed_tag.get(field[0])
-                    if pre_tag != None:
+                    if pre_tag is not None:
                         parsed_tag[field[0]] = pre_tag | tag_value
                     else:
                         parsed_tag[field[0]] = tag_value
@@ -311,7 +311,7 @@ class dr_parse_ste():
                 obj = _db._term_dest_db.get(hex(self.hit_loc.index))
             else:
                 obj = None
-            if obj != None:
+            if obj is not None:
                 _str += ' ' + obj.get("type") + ' ' + obj.get("id")
                 if verbosity > 2:
                     _str += ' (' + str(self.hit_loc) + ')'

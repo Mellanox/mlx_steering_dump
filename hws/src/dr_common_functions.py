@@ -52,7 +52,7 @@ def get_field(dw_offset, mask, return_field_mask=False):
 
     arr = dr_hl_dw_parser(dw_offset, mask)
 
-    if arr != None and len(arr) > 0:
+    if arr is not None and len(arr) > 0:
         for f in arr:
             if int(f[1], 2) != 0:
                 if return_field_mask:
@@ -80,7 +80,7 @@ def dr_parse_set_action(action_dw_0, action_dw_1, parse_value=True):
     mask = hex_to_bin_str(hex(int(length * "1", 2) << left_shifter), 32)
     res = get_field(dw_offset, mask, True)
 
-    if res != None:
+    if res is not None:
         f = res[0]
         f_mask = res[1]
         field = "%s" % (f)
@@ -112,7 +112,7 @@ def dr_parse_copy_action(action_dw_0, action_dw_1):
     mask = hex_to_bin_str(hex(int(length * "1", 2) << dst_left_shifter), 32)
     res = get_field(dst_dw_offset, mask, True)
 
-    if res != None:
+    if res is not None:
         f = res[0]
         f_mask = res[1]
         dst_field = "%s" % (f)
@@ -135,7 +135,7 @@ def dr_parse_copy_action(action_dw_0, action_dw_1):
     mask = hex_to_bin_str(hex(int(length * "1", 2) << src_right_shifter), 32)
     res = get_field(src_dw_offset, mask, True)
 
-    if res != None:
+    if res is not None:
         f = res[0]
         f_mask = res[1]
         src_field = "%s" % (f)
@@ -164,7 +164,7 @@ def dr_parse_add_action(action_dw_0, action_dw_1, parse_value=True):
     mask = hex_to_bin_str(hex(int(length * "1", 2) << left_shifter), 32)
     res = get_field(dw_offset, mask, True)
 
-    if res != None:
+    if res is not None:
         f = res[0]
         f_mask = res[1]
         field = "%s" % (f)
@@ -197,7 +197,7 @@ def dr_parse_remove_by_size_action(action_dw_0, action_dw_1):
         action["start_offset"] = int(action_dw_0[18 : 25], 2)
 
     field = modify_pattern_anchor_dic.get(start_anchor)
-    action["start_anchor"] = field if field != None else start_anchor
+    action["start_anchor"] = field if field is not None else start_anchor
     action["outer_l4_removed"] = int(action_dw_0[16 : 17], 2)
     action["size"] = int(action_dw_0[26 : 32], 2)
 
@@ -217,9 +217,9 @@ def dr_parse_remove_header2header_action(action_dw_0, action_dw_1):
         end_anchor = int(action_dw_0[18 : 24], 2)
 
     field = modify_pattern_anchor_dic.get(start_anchor)
-    action["start_anchor"] = field if field != None else start_anchor
+    action["start_anchor"] = field if field is not None else start_anchor
     field = modify_pattern_anchor_dic.get(end_anchor)
-    action["end_anchor"] = field if field != None else end_anchor
+    action["end_anchor"] = field if field is not None else end_anchor
     action["decap"] = int(action_dw_0[28 : 29], 2)
     action["vni_to_cqe"] = int(action_dw_0[29 : 30], 2)
     action["qos_profile "] = int(action_dw_0[30 : 32], 2)
@@ -240,7 +240,7 @@ def dr_parse_insert_inline_action(action_dw_0, action_dw_1, parse_value=True):
         start_offset = int(action_dw_0[16 : 23], 2)
 
     field = modify_pattern_anchor_dic.get(start_anchor)
-    action["start_anchor"] = field if field != None else start_anchor
+    action["start_anchor"] = field if field is not None else start_anchor
     #Offset in words granularity
     action["start_offset"] = '%s Bytes' % hex(start_offset * 2)
 
@@ -263,7 +263,7 @@ def dr_parse_insert_by_pointer_action(action_dw_0, action_dw_1):
         start_offset = int(action_dw_0[16 : 23], 2)
 
     field = modify_pattern_anchor_dic.get(start_anchor)
-    action["start_anchor"] = field if field != None else start_anchor
+    action["start_anchor"] = field if field is not None else start_anchor
     #Offset in words granularity
     action["start_offset"] = '%s Bytes' % hex(start_offset * 2)
     #Size in words granularity
@@ -286,7 +286,7 @@ def dr_parse_add_field_action(action_dw_0, action_dw_1):
     mask = hex_to_bin_str(hex(int(length * "1", 2) << dst_left_shifter), 32)
     res = get_field(dst_dw_offset, mask, True)
 
-    if res != None:
+    if res is not None:
         f = res[0]
         f_mask = res[1]
         dst_field = "%s" % (f)
@@ -309,7 +309,7 @@ def dr_parse_add_field_action(action_dw_0, action_dw_1):
     mask = hex_to_bin_str(hex(int(length * "1", 2) << src_right_shifter), 32)
     res = get_field(src_dw_offset, mask, True)
 
-    if res != None:
+    if res is not None:
         f = res[0]
         f_mask = res[1]
         src_field = "%s" % (f)
@@ -330,7 +330,7 @@ def dr_get_counter_data(idx):
         return ""
 
     counter = _db._counters_db.get(hex(idx))
-    if counter == None:
+    if counter is None:
         return ""
 
     return ", packets: %s, octets: %s" % (counter.get("packets"), counter.get("octets"))

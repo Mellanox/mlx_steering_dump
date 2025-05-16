@@ -43,10 +43,10 @@ class dr_parse_table():
         if self.level ==  0:
             return dump_obj_str(_keys, self.data)
 
-        if _config_args.get("shared_device") != None:
+        if _config_args.get("shared_device") is not None:
             _keys.extend(["local_ft_id"])
             ft_idx = _db._ft_idx_dic.get(self.data.get("local_ft_id"))
-            if ft_idx != None:
+            if ft_idx is not None:
                 self.fix_address(ft_idx[0], ft_idx[1], True)
 
             if self.data.get("local_rx_icm_addr") != "0x0":
@@ -56,7 +56,7 @@ class dr_parse_table():
 
         _keys.extend(["ft_id"])
         ft_idx = _db._ft_idx_dic.get(self.data.get("ft_id"))
-        if ft_idx != None:
+        if ft_idx is not None:
             self.fix_address(ft_idx[0], ft_idx[1])
 
         if self.data.get("rx_icm_addr") != "0x0":
@@ -81,21 +81,21 @@ class dr_parse_table():
 
     def fix_data(self):
         rx_icm_addr = self.data.get("rx_icm_addr")
-        if rx_icm_addr == None:
+        if rx_icm_addr is None:
             rx_icm_addr = "0x0"
         tx_icm_addr = self.data.get("tx_icm_addr")
-        if tx_icm_addr == None:
+        if tx_icm_addr is None:
             tx_icm_addr = "0x0"
         local_rx_icm_addr = self.data.get("local_rx_icm_addr")
-        if local_rx_icm_addr == None:
+        if local_rx_icm_addr is None:
             local_rx_icm_addr = "0x0"
         local_tx_icm_addr = self.data.get("local_tx_icm_addr")
-        if local_tx_icm_addr == None:
+        if local_tx_icm_addr is None:
             local_tx_icm_addr = "0x0"
 
         self.data["type"] = dr_table_type[int(self.data["type"])]
-        self.data["ft_id"] = hex(int(self.data.get("ft_id"))) if self.data.get("ft_id") != None else "0x0"
-        self.data["local_ft_id"] = hex(int(self.data.get("local_ft_id"))) if self.data.get("local_ft_id") != None else "0x0"
+        self.data["ft_id"] = hex(int(self.data.get("ft_id"))) if self.data.get("ft_id") is not None else "0x0"
+        self.data["local_ft_id"] = hex(int(self.data.get("local_ft_id"))) if self.data.get("local_ft_id") is not None else "0x0"
 
         if self.level == 0:
             return

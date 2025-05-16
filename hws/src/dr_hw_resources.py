@@ -121,7 +121,7 @@ def dr_parse_fw_stc_action_get_obj_id(raw):
 
     obj = stc_param_id_loc_dic.get(action_type)
 
-    if obj != None:
+    if obj is not None:
         if (action_type == STC_ACTION_JUMP_TO_UPLINK) or \
            (action_type == STC_ACTION_JUMP_TO_DROP) or \
            (action_type == STC_ACTION_TYPE_ALLOW) or \
