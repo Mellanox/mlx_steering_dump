@@ -3,6 +3,7 @@
 #SPDX-License-Identifier: BSD-3-Clause
 #Copyright (c) 2021 NVIDIA CORPORATION. All rights reserved.
 
+from io import TextIOWrapper
 from pathlib import Path
 import sys
 import os
@@ -47,6 +48,8 @@ switch_csv_res_type = {
     MLX5DR_DEBUG_RES_TYPE_FW_STE: dr_parse_fw_ste,
     MLX5DR_DEBUG_RES_TYPE_FW_STE_STATS: dr_parse_fw_ste_stats,
     MLX5DR_DEBUG_RES_TYPE_STE: dr_parse_ste,
+    MLX5DR_DEBUG_RES_TYPE_HW_RRESOURCES_DUMP_START: lambda x: x,    # no-op
+    MLX5DR_DEBUG_RES_TYPE_HW_RRESOURCES_DUMP_END: lambda x: x,      # no-op
     MLX5DR_DEBUG_RES_TYPE_ADDRESS: dr_parse_address,
     MLX5DR_DEBUG_RES_TYPE_CONTEXT_STC: dr_parse_stc,
     MLX5DR_DEBUG_RES_TYPE_PATTERN: dr_parse_pattern,
@@ -76,7 +79,7 @@ def dr_csv_get_obj(line):
     parser = switch_csv_res_type[line[0]]
     return parser(line)
 
-def dr_parse_csv_file(csv_file, load_to_db):
+def dr_parse_csv_file(csv_file: TextIOWrapper, load_to_db: bool) -> list:
     ctxs = []
     ctx = None
     last_table = None
@@ -88,8 +91,11 @@ def dr_parse_csv_file(csv_file, load_to_db):
     max_ste_addr = ''
     print("Loading input file ...")
     csv_reader = csv.reader(csv_file)
-    for line in csv_reader:
+    for i, line in enumerate(csv_reader):
         obj = dr_csv_get_obj(line)
+        if obj is None:
+            print(f"Skipping unknown object on line {i} of {csv_file.name}")
+            continue
         if line[0] == MLX5DR_DEBUG_RES_TYPE_STE:
             obj.load_to_db()
             ste_addr = obj.get_addr()
@@ -118,44 +124,85 @@ def dr_parse_csv_file(csv_file, load_to_db):
                                 "the latest version of the dump tool from GitHub.")
             ctxs.append(ctx)
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_CONTEXT_ATTR:
+            if ctx is None:
+                print("Cannot add attribute without context")
+                continue
             ctx.add_attr(obj)
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_CONTEXT_CAPS:
+            if ctx is None:
+                print("Cannot add caps without context")
+                continue
             ctx.add_caps(obj)
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_CONTEXT_SEND_ENGINE:
             last_send_engine = obj
+            if ctx is None:
+                print("Cannot add send engine without context")
+                continue
             ctx.add_send_engine(obj)
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_CONTEXT_SEND_RING:
+            if last_send_engine is None:
+                print("Cannot add send ring without send engine")
+                continue
             last_send_engine.add_send_ring(obj)
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_TABLE:
             last_table = obj
+            if ctx is None:
+                print("Cannot add table without context")
+                continue
             ctx.add_table(obj)
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_MATCHER:
             last_matcher = obj
+            if last_table is None:
+                print("Cannot add matcher without table")
+                continue
             last_table.add_matcher(obj)
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_MATCHER_ATTR:
+            if last_matcher is None:
+                print("Cannot add matcher attribute without matcher")
+                continue
             last_matcher.add_attr(obj)
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_MATCHER_MATCH_TEMPLATE:
             last_matcher_template = obj
+            if last_matcher is None:
+                print("Cannot add matcher template without matcher")
+                continue
             last_matcher.add_match_template(obj)
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_MATCHER_ACTION_TEMPLATE:
+            if last_matcher is None:
+                print("Cannot add matcher action template without matcher")
+                continue
             last_matcher.add_action_template(obj)
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_MATCHER_TEMPLATE_MATCH_DEFINER:
-            if last_matcher_template is not None:
-                last_matcher_template.add_match_definer(obj)
+            if last_matcher_template is None:
+                print("Cannot add matcher template match definer without matcher template")
+                continue
+            last_matcher_template.add_match_definer(obj)
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_MATCHER_TEMPLATE_RANGE_DEFINER:
+            if last_matcher_template is None:
+                print("Cannot add matcher template range definer without matcher template")
+                continue
             last_matcher_template.add_range_definer(obj)
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_MATCHER_TEMPLATE_HASH_DEFINER:
-            last_matcher.add_hash_definer(obj)
+            if last_matcher_template is None:
+                print("Cannot add matcher template hash definer without matcher template")
+                continue
+            last_matcher_template.add_hash_definer(obj)
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_MATCHER_TEMPLATE_COMPARE_MATCH_DEFINER:
+            if last_matcher_template is None:
+                print("Cannot add matcher template compare match definer without matcher template")
+                continue
             last_matcher_template.add_compare_definer(obj)
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_MATCHER_RESIZABLE_ARRAY:
+            if last_matcher is None:
+                print("Cannot add matcher resizable array without matcher")
+                continue
             last_matcher.add_resizable_array(obj)
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_MATCHER_ACTION_RTC_ARRAY:
             last_matcher.add_resizable_array(obj)
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_CONTEXT_STC:
             obj.load_to_db()
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_HW_RRESOURCES_DUMP_START:
-            if not(load_to_db):
+            if not load_to_db:
                 return ctxs
             _config_args["hw_resources_present"] = True
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_FT_ANCHORS:
@@ -168,13 +215,13 @@ def dr_parse_csv_file(csv_file, load_to_db):
             min_ste_addr = '0xffffffff'
             last_fw_ste = obj
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_FW_STE_STATS:
-                min_ste_addr = obj.get_min_addr()
-                max_ste_addr = obj.get_max_addr()
+            min_ste_addr = obj.get_min_addr()
+            max_ste_addr = obj.get_max_addr()
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_HW_RRESOURCES_DUMP_END:
             if last_fw_ste is not None:
                 last_fw_ste.add_stes_range(min_ste_addr, max_ste_addr)
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_ACTION_STE_TABLE:
-            pass
+            print("Action STE table is not supported yet")
         else:
             if line[0] not in unsupported_obj_list:
                 unsupported_obj_list.append(line[0])
