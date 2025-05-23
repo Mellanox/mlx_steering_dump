@@ -28,7 +28,7 @@ def get_fw_ste_distribution_statistics(fw_ste_id, row_log_sz, col_log_sz):
 
     return _str
 
-class dr_parse_matcher():
+class dr_parse_matcher(Printable):
     def __init__(self, data):
         keys = ["mlx5dr_debug_res_type", "id", "tbl_id", "num_of_mt",
                 "end_ft_id", "col_matcher_id", "match_rtc_0_id", "match_ste_0_id",
@@ -233,49 +233,60 @@ class dr_parse_matcher():
 
         return _str
 
-    def tree_print(self, verbosity, tabs):
+
+    def dump_obj(self, verbosity: int, transform_for_print: bool) -> dict:
         if self.id in _db._col_matchers:
-            return ''
-        _str = tabs + self.dump_str(verbosity)
-        tabs = tabs + TAB
+            return {}
+
+        out = {
+            "attr": self.attr.dump_str(verbosity),
+        }
+
         tbl_level = _db._tbl_level_db.get(self.data.get("tbl_id"))
         col_matcher = _db._matchers.get(self.col_matcher_id)
-
-        _str = _str + tabs + self.attr.dump_str(verbosity)
-
         if tbl_level != DR_ROOT_TBL_LEVEL:
-            if col_matcher and verbosity > 0:
-                _str = _str + tabs + col_matcher.attr.dump_str(verbosity).replace(':', ' (C):')
-            if verbosity > 0:
-                _str = _str + self.dump_matcher_resources(verbosity, tabs)
-
-            if _config_args.get("statistics"):
-                _str += tabs + self.dump_matcher_statistics()
-
-                if self.col_matcher_id != "0x0":
-                    _str += tabs + col_matcher.dump_matcher_statistics().replace("Statistics:", "Statistics (C):")
+            if col_matcher:
+                out["col_matcher_attr"] = col_matcher.attr.dump_str(verbosity)
+                out["col_matcher_statistics"] = col_matcher.dump_matcher_statistics()
+            out["matcher_resources"] = self.dump_matcher_resources(verbosity, "")
+            out["statistics"] = self.dump_matcher_statistics()
 
             if self.hash_definer is not None:
-                definer_str = self.hash_definer.dump_fields()
-                if len(definer_str) != 0:
-                    definer_str = definer_str.replace(', ', '\n' + TAB + tabs)
-                    _str += tabs + 'Hash fields:\n' + tabs + TAB + definer_str + '\n'
-            for mt in self.match_template:
-                _str = _str + tabs + mt.dump_str(tabs, verbosity)
-            for at in self.action_templates:
-                _str = _str + tabs + at.dump_str(tabs, verbosity)
+                out["hash_fields"] = self.hash_definer.dump_fields()
 
-        if _config_args.get("parse_hw_resources") and (tbl_level != DR_ROOT_TBL_LEVEL):
-            _str += tabs + 'Rules:\n'
-            _rules_str = dr_parse_rules(self, verbosity, tabs)
-            if col_matcher:
-                _rules_str += dr_parse_rules(col_matcher, verbosity, tabs)
-            if _rules_str != "":
-                _str += _rules_str
+            out["match_templates"] = [mt.dump_str('', verbosity) for mt in self.match_template]
+            out["action_templates"] = [at.dump_str('', verbosity) for at in self.action_templates]
+
+            if _config_args.get("parse_hw_resources"):
+                out["rules"] = dr_parse_rules(self, verbosity, '')
+                if col_matcher:
+                    out["rules"] += dr_parse_rules(col_matcher, verbosity, '')
+
+        if not transform_for_print:
+            return {"data": self.data} | out
+
+        if "col_matcher_attr" in out:
+            if verbosity == 0:
+                out.pop("col_matcher_attr")
             else:
-                _str += tabs + TAB + "No rules\n"
+                out["col_matcher_attr"] = out["col_matcher_attr"].replace(':', ' (C):')
+        if verbosity == 0:
+            out.pop("matcher_resources", None)
+        if not _config_args.get("statistics"):
+            out.pop("statistics", None)
+            out.pop("col_matcher_statistics", None)
+        if "col_matcher_statistics" in out:
+            if self.col_matcher_id == "0x0":
+                out.pop("col_matcher_statistics")
+            else:
+                out["col_matcher_statistics"] = out["col_matcher_statistics"].replace("Statistics:", "Statistics (C):")
+        if "hash_fields" in out:
+            out["hash_fields"] = {'Hash fields:': out["hash_fields"]}
 
-        return _str
+        if "rules" in out:
+            out["rules"] = {'Rules:': out["rules"] or "No rules"}
+
+        return {self.dump_str(verbosity): list(out.values())}
 
     def add_attr(self, attr):
         self.attr = attr

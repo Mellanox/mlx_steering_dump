@@ -71,7 +71,7 @@ class dr_parse_table(Printable):
             return {
                 "data": self.data,
                 "matchers": [
-                    m.tree_print(verbosity, '')
+                    m.dump_obj(verbosity, False)
                     for m in sorted(self.matchers)
                 ]
             }
@@ -87,7 +87,7 @@ class dr_parse_table(Printable):
                 self.col_matcher_ids[m.data["col_matcher_id"]] = ""
 
         return {
-            self.dump_str(verbosity): [m.tree_print(verbosity, '') for m in matchers]
+            self.dump_str(verbosity): [m.dump_obj(verbosity, True) for m in matchers]
         }
 
     def fix_data(self):

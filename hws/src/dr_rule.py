@@ -79,7 +79,6 @@ def dr_hw_get_ste_from_loc(loc, hint_loc=[], ignore_hint=False, curr_matcher_idx
 
 def dr_parse_rules(matcher, verbosity, tabs):
     _str = ''
-    _tabs = tabs + TAB
     progress_bar_i = _config_args.get("progress_bar_i")
     progress_bar_total = _db._total_matcher_match_fw_stes[0]
     if progress_bar_i == 0:
@@ -132,7 +131,7 @@ def dr_parse_rules(matcher, verbosity, tabs):
                 rule.add_ste(ste)
                 hit_loc = ste.get_hit_location()
                 ste = dr_hw_get_ste_from_loc(hit_loc, hint_loc + _db._action_ste_indexes_arr, False, match_ste_id)
-            _str += rule.tree_print(verbosity, _tabs, matcher)
+            _str += rule.tree_print(verbosity, tabs, matcher)
 
         progress_bar_i += 1
         interactive_progress_bar(progress_bar_i, progress_bar_total, PARSING_THE_RULES_STR)
