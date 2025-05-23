@@ -166,7 +166,7 @@ class dr_parse_matcher():
         return dump_obj_str(_keys, self.data)
 
 
-    def dump_matcher_statistcs(self):
+    def dump_matcher_statistics(self) -> str:
         row_log_sz = self.attr.get_row_log_sz()
         col_log_sz = self.attr.get_col_log_sz()
         tbl_type = _db._tbl_type_db.get(self.data.get("tbl_id"))
@@ -250,10 +250,10 @@ class dr_parse_matcher():
                 _str = _str + self.dump_matcher_resources(verbosity, tabs)
 
             if _config_args.get("statistics"):
-                _str += tabs + self.dump_matcher_statistcs()
+                _str += tabs + self.dump_matcher_statistics()
 
                 if self.col_matcher_id != "0x0":
-                    _str += tabs + col_matcher.dump_matcher_statistcs().replace("Statistics:", "Statistics (C):")
+                    _str += tabs + col_matcher.dump_matcher_statistics().replace("Statistics:", "Statistics (C):")
 
             if self.hash_definer is not None:
                 definer_str = self.hash_definer.dump_fields()
