@@ -50,6 +50,14 @@ class dr_dump_action_unsupported(dr_obj):
     def dump_str(self):
         return "UNSUPPORTED_ACTION"
 
+class dr_dump_action_unsupported_rec_type(dr_obj):
+    def __init__(self, data):
+        keys = ["dr_dump_rec_type"]
+        self.data = {}
+        self.data["dr_dump_rec_type"] = data
+
+    def dump_str(self):
+        return "UNSUPPORTED_ACTION"
 
 class dr_dump_action_drop(dr_obj):
     def __init__(self, data):
