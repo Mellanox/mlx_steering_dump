@@ -110,7 +110,7 @@ def dr_report_unsupported_objects():
             print("Err: Unsupported rule related object: ", dr_rec_type)
         elif dr_rec_type_is_action(dr_rec_type):
             if dump_ctx.rule:
-                action = dr_dump_action_unsupported(line)
+                action = dr_dump_action_unsupported(dr_rec_type)
                 dump_ctx.rule.add_action(action)
             else:
                 print("Err: Unsupported domain related object: ", dr_rec_type)
