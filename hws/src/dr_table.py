@@ -4,7 +4,7 @@
 from src.dr_common import *
 from src.dr_db import _db, _config_args
 
-class dr_parse_table():
+class dr_parse_table(Printable):
     def __init__(self, data):
         keys = ["mlx5dr_debug_res_type", "id", "ctx_id", "ft_id", "type",
                 "fw_ft_type", "level", "local_ft_id", "rx_icm_addr",
@@ -66,18 +66,29 @@ class dr_parse_table():
 
         return dump_obj_str(_keys, self.data)
 
-    def tree_print(self, verbosity, tabs):
-        _str = tabs + self.dump_str(verbosity)
-        tabs = tabs + TAB
+    def dump_obj(self, verbosity: int, transform_for_print: bool) -> dict:
+        if not transform_for_print:
+            return {
+                "data": self.data,
+                "matchers": [
+                    m.tree_print(verbosity, '')
+                    for m in sorted(self.matchers)
+                ]
+            }
 
+        matchers = []
         for m in sorted(self.matchers):
             if verbosity < 2 and m.data["id"] in self.col_matcher_ids:
                 continue
-            _str = _str + m.tree_print(verbosity, tabs)
+            if not m:
+                continue
+            matchers.append(m)
             if verbosity < 2 and m.data["col_matcher_id"] != "0x0":
                 self.col_matcher_ids[m.data["col_matcher_id"]] = ""
 
-        return _str
+        return {
+            self.dump_str(verbosity): [m.tree_print(verbosity, '') for m in matchers]
+        }
 
     def fix_data(self):
         rx_icm_addr = self.data.get("rx_icm_addr", "0x0")

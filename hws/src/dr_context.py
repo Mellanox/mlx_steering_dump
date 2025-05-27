@@ -122,7 +122,7 @@ class dr_parse_context(Printable):
                 for se in self.send_engine
             ],
             "tables": [
-                t.tree_print(verbosity, '')
+                t.dump_obj(verbosity, transform_for_print)
                 for t in sorted(self.tables)
             ]
         }
