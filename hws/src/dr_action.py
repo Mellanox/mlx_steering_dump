@@ -79,13 +79,16 @@ def dr_action_accelerated_modify_list_parser(action_arr, index):
     dev_name = _config_args.get("_dev_name")
     file = _config_args.get("csv_file")
     num_of_pat = int((number_of_modify_actions + PAT_ARG_BULK_SIZE - 1) // PAT_ARG_BULK_SIZE)#Addition to ceiling division
+    leftover = number_of_modify_actions % PAT_ARG_BULK_SIZE
+    if leftover == 0:
+        leftover = PAT_ARG_BULK_SIZE
     for i in range (0, num_of_pat):
         pat_index = hex(modify_actions_pattern_pointer + i)
         pat_arr = _db._pattern_db.get(pat_index)
         if pat_arr == None:
             if dump_pat == True:
                 output = call_resource_dump(dev, dev_name, "HW_MODIFY_PATT", pat_index, None, None, None)
-                pat_sz = PAT_ARG_BULK_SIZE if (i != num_of_pat - 1) else (number_of_modify_actions % PAT_ARG_BULK_SIZE)
+                pat_sz = PAT_ARG_BULK_SIZE if (i != num_of_pat - 1) else leftover
                 pat_arr = parse_fw_modify_pattern_rd_bin_output(pat_index,  load_to_db, file, pat_sz)
 
         if pat_arr == None:
