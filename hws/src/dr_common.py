@@ -1,6 +1,7 @@
 #SPDX-License-Identifier: BSD-3-Clause
 #Copyright (c) 2021 NVIDIA CORPORATION. All rights reserved.
 
+from abc import ABC, abstractmethod
 import subprocess as sp
 from src.dr_db import _config_args
 
@@ -76,6 +77,14 @@ def dump_obj_str(keys, data, end_of_line="\n"):
             _str = _str + ", "
 
     return _str + end_of_line
+
+
+class Printable(ABC):
+    Value = dict | list | str
+
+    @abstractmethod
+    def dump_obj(self, verbosity: int, transform_for_print: bool) -> Value:
+        raise NotImplementedError("dump_obj is not implemented")
 
 
 MLX5DR_DEBUG_RES_TYPE_CONTEXT = "4000"
