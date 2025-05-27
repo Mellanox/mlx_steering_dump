@@ -83,6 +83,62 @@ def dr_csv_get_obj(line):
     parser = SWITCH_CSV_RES_TYPE[res_type]
     return parser(line)
 
+
+def pretty_obj_repr(obj, indent: int = 0) -> str:
+    """
+    Return a string representation of an object with indentation, but without
+    the structural markers, '{', '[', and so on, of JSON. Almost like YAML but
+    with only the indentation.
+
+    To keep the existing compact representation, only dict values are indented.
+    Trailing whitespace is stripped to avoid doubling newlines. Leading
+    whitespace is preserved to preserve the behaviour of a bug in
+    dr_parse_matcher_match_template. Interior newlines get indented to preserve
+    formatting. A final trailing newline is always added.
+
+    >>> print(pretty_obj_repr({"a": 1, "b": "multiline\\nvalue"}))
+    a
+        1
+    b
+        multiline
+        value
+    <BLANKLINE>
+
+    >>> print(pretty_obj_repr([1, "2", [3, "4\\n\\t ", "5 ", " 6"]]))
+    1
+    2
+    3
+    4
+    5
+     6
+    <BLANKLINE>
+
+    >>> print(pretty_obj_repr(
+    ...     ["top-level-value", {"key": ["list", "of", "values"]}, {"key": "another-value"}]
+    ... ))
+    top-level-value
+    key
+        list
+        of
+        values
+    key
+        another-value
+    <BLANKLINE>
+    """
+    indentation = TAB * indent
+    def literal(val):
+        return indentation + str(val).rstrip().replace("\n", "\n" + indentation) + "\n"
+
+    if isinstance(obj, dict):
+        s = "".join([literal(k) + pretty_obj_repr(v, indent + 1) for k, v in obj.items()])
+        return s
+    elif isinstance(obj, list):
+        s = "".join([pretty_obj_repr(v, indent) for v in obj])
+        return s
+    else:
+        return literal(obj)
+
+
 def dr_parse_csv_file(csv_file: TextIOWrapper, load_to_db: bool) -> tuple[list, list]:
     ctxs = []
     ctx = None
