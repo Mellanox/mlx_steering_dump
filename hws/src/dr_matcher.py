@@ -239,14 +239,14 @@ class dr_parse_matcher(Printable):
             return {}
 
         out = {
-            "attr": self.attr.dump_str(verbosity),
+            "attr": self.attr.dump_obj(verbosity, transform_for_print),
         }
 
         tbl_level = _db._tbl_level_db.get(self.data.get("tbl_id"))
         col_matcher = _db._matchers.get(self.col_matcher_id)
         if tbl_level != DR_ROOT_TBL_LEVEL:
             if col_matcher:
-                out["col_matcher_attr"] = col_matcher.attr.dump_str(verbosity)
+                out["col_matcher_attr"] = col_matcher.attr.dump_obj(verbosity, transform_for_print)
                 out["col_matcher_statistics"] = col_matcher.dump_matcher_statistics()
             out["matcher_resources"] = self.dump_matcher_resources(verbosity, "")
             out["statistics"] = self.dump_matcher_statistics()
@@ -373,7 +373,7 @@ class dr_parse_matcher(Printable):
         return res
 
 
-class dr_parse_matcher_attr():
+class dr_parse_matcher_attr(Printable):
     def __init__(self, data):
         keys = ["mlx5dr_debug_res_type", "matcher_id", "priority",
                 "mode", "sz_row_log", "sz_col_log", "use_rule_idx",
@@ -440,6 +440,13 @@ class dr_parse_matcher_attr():
         if tx_sz_row is not None and tx_sz_row !='-1':
             log_sz_str = "rx %s tx %sX%s" % (log_sz_str, tx_sz_row, self.data.get("tx_sz_col_log"))
         self.data["log_sz"] = log_sz_str
+
+
+    def dump_obj(self, verbosity: int, transform_for_print: bool) -> dict | str:
+        if not transform_for_print:
+            return self.data
+
+        return self.dump_str(verbosity)
 
 class dr_parse_matcher_match_template():
     def __init__(self, data):
