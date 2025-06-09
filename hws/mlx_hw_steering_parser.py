@@ -4,6 +4,7 @@
 #Copyright (c) 2021 NVIDIA CORPORATION. All rights reserved.
 
 from io import TextIOWrapper
+import json
 from pathlib import Path
 import sys
 import os
@@ -357,6 +358,8 @@ def parse_args():
                         help = "Indicates the user name on the remote setup")
     parser.add_argument("--remote_path", type=str, default="", dest="remote_path",
                         help = "Indicates the dump tool location on the remote setup, this is optional")
+    parser.add_argument("--json", action="store_true", default=False, dest="json",
+                        help = "Emit the steering dump as JSON.")
     parser.add_argument("-h", "--help", action="help", default=argparse.SUPPRESS,
                         help='Show this help message and exit.')
 
@@ -367,6 +370,8 @@ def parse_args():
         sys.exit(0)
     else:
         _config_args["file_path"] = args.file_path
+
+    _config_args["json"] = args.json
 
     _config_args["extra_hw_res_all"] = False
     _config_args["extra_hw_res_arg"] = False
@@ -456,7 +461,8 @@ if __name__ == "__main__":
                 _config_args["parse_hw_resources"] = False
                 _config_args["load_hw_resources"] = False
 
-        output_file_name = file_path + ".parsed"
+        output_file_suffix = ".json" if _config_args.get("json") else ".parsed"
+        output_file_name = file_path + output_file_suffix
         output_file = open(output_file_name, 'w+')
 
         for ctx in ctxs:
@@ -475,7 +481,11 @@ if __name__ == "__main__":
                 csv_file.write(MLX5DR_DEBUG_RES_TYPE_HW_RRESOURCES_DUMP_END + '\n')
 
             ctx.pre_parse()
-            output_file.write(ctx.tree_print(verbose, ""))
+            obj = ctx.tree_print(verbose, "")
+            if _config_args.get("json"):
+                output_file.write(json.dumps({"context": obj}, indent=4))
+            else:
+                output_file.write(pretty_obj_repr(obj))
 
         print("")#empty line
         print(OUTPUT_FILE_STR + file_path)
