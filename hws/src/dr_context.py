@@ -116,7 +116,7 @@ class dr_parse_context(Printable):
     def dump_obj(self, verbosity: int, transform_for_print: bool) -> dict:
         obj = {
             "attr": self.attr.dump_obj(verbosity, transform_for_print),
-            "caps": self.caps.dump_str(verbosity),
+            "caps": self.caps.dump_obj(verbosity, transform_for_print),
             "send_engine": [
                 se.dump_obj(verbosity, transform_for_print)
                 for se in self.send_engine
@@ -258,6 +258,12 @@ class dr_parse_context_caps():
                           "linear_match_definer_field_name"])
 
         return dump_obj_str(_keys, self.data)
+
+    def dump_obj(self, verbosity: int, transform_for_print: bool) -> dict | str:
+        if not transform_for_print:
+            return {"data": self.data}
+
+        return self.dump_str(verbosity)
 
 
 class dr_parse_context_send_engine(Printable):
