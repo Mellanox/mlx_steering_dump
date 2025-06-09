@@ -263,7 +263,7 @@ class dr_parse_matcher(Printable):
             if self.hash_definer is not None:
                 out["hash_fields"] = self.hash_definer.dump_fields()
 
-            out["match_templates"] = [mt.dump_str('', verbosity) for mt in self.match_template]
+            out["match_templates"] = [mt.dump_obj(verbosity, transform_for_print) for mt in self.match_template]
             out["action_templates"] = [at.dump_obj(verbosity, transform_for_print) for at in self.action_templates]
 
             if _config_args.get("parse_hw_resources"):
@@ -457,7 +457,7 @@ class dr_parse_matcher_attr(Printable):
 
         return self.dump_str(verbosity)
 
-class dr_parse_matcher_match_template():
+class dr_parse_matcher_match_template(Printable):
     def __init__(self, data):
         keys = ["mlx5dr_debug_res_type", "id", "matcher_id", "fc_sz", "flags", "fcr_sz", "fcc_sz"]
         self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
@@ -472,38 +472,45 @@ class dr_parse_matcher_match_template():
         if self.data.get("fcc_sz") is None:
             self.data["fcc_sz"] = "0"
 
-    def dump_str(self, tabs, verbosity):
-        _tabs = tabs + TAB
-        __tabs = _tabs + TAB
-        _str = ':'
+    def dump_obj(self, verbosity: int, transform_for_print: bool) -> dict | str:
+        def prettify_field_name(name: str) -> str:
+            return name.replace('_', ' ').capitalize() + ":"
+
+        obj = {}
         if self.match_definer is not None:
-            definer_str = self.match_definer.dump_fields()
-            if len(definer_str) != 0:
-                _str = ':\n' + _tabs + 'Match fields:\n' + __tabs + definer_str
-                _str = _str.replace(', ', '\n' + __tabs)
+            obj["match_fields"] = self.match_definer.dump_fields()
 
-            range_definer_str = ''
-            if self.range_definer is not None:
-                range_definer_str = self.range_definer.dump_fields()
-            if len(range_definer_str) != 0:
-                _str += '\n' + _tabs + 'Range fields:\n' + __tabs + range_definer_str
-                _str = _str.replace(', ', '\n' + __tabs)
+        if self.range_definer is not None:
+            obj["range_fields"] = self.range_definer.dump_fields()
 
-            compare_definer_str = ''
-            if self.compare_definer is not None:
-                compare_definer_str = self.compare_definer.dump_fields()
-            if len(compare_definer_str) != 0:
-                _str += '\n' + _tabs + 'Compare fields:\n' + __tabs + compare_definer_str
-                _str = _str.replace(', ', '\n' + __tabs)
+        if self.compare_definer is not None:
+            obj["compare_fields"] = self.compare_definer.dump_fields()
 
-        if verbosity > 2:
-            if _str != ':':
-                _str += '\n' + _tabs
-            return dump_obj_str(["mlx5dr_debug_res_type", "id", "flags",
-                                 "fc_sz", "fcr_sz", "fcc_sz"], self.data).replace(":", _str)
+        if not transform_for_print:
+            return {"data": self.data} | obj
 
-        return dump_obj_str(["mlx5dr_debug_res_type", "id"],
-                             self.data).replace(":", _str)
+        base_obj = dump_obj_str(["mlx5dr_debug_res_type", "id"], self.data)
+        # The current version adds a space for some reason. If we may break
+        # compatibility, it should be removed.
+        maybe_obj_suffix = [" " + dump_obj_str(
+                ["flags", "fc_sz", "fcr_sz", "fcc_sz"], self.data
+            )
+        ] if verbosity > 2 else []
+
+        # prettify the keys and values and drop empty values
+        pretty_obj = {
+            prettify_field_name(k): v.replace(', ', '\n')
+            for k, v in obj.items() if v
+        }
+
+        if pretty_obj:
+            return {
+                base_obj: [
+                    pretty_obj,
+                    *maybe_obj_suffix,
+                ]
+            }
+        return base_obj.rstrip() + "".join(maybe_obj_suffix)
 
     def add_match_definer(self, definer):
         self.match_definer = definer
