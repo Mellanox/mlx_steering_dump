@@ -255,7 +255,7 @@ class dr_parse_matcher(Printable):
                 out["hash_fields"] = self.hash_definer.dump_fields()
 
             out["match_templates"] = [mt.dump_str('', verbosity) for mt in self.match_template]
-            out["action_templates"] = [at.dump_str('', verbosity) for at in self.action_templates]
+            out["action_templates"] = [at.dump_obj(verbosity, transform_for_print) for at in self.action_templates]
 
             if _config_args.get("parse_hw_resources"):
                 out["rules"] = dr_parse_rules(self, verbosity, transform_for_print)
@@ -499,16 +499,14 @@ class dr_parse_matcher_match_template():
         self.compare_definer = definer
 
 
-class dr_parse_matcher_action_template():
+class dr_parse_matcher_action_template(Printable):
     def __init__(self, data):
         keys = ["mlx5dr_debug_res_type", "id", "matcher_id", "only_term",
                 "num_of_action_stes", "num_of_actions"]
         self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
         self.num_actions = int(self.data.get("num_of_actions"))
         if self.num_actions > 0:
-            self.data["action_combinations"] = data[6]#Actions combinations start index is 6
-            for ac in data[7:]:#Actions combinations start index is 6, 7 for the second
-                self.data["action_combinations"] += ', ' + ac
+            self.data["action_combinations"] = data[6:] # Actions combinations start index is 6
 
     def dump_str(self, tabs, verbosity):
         _keys = ["mlx5dr_debug_res_type", "id"]
@@ -519,9 +517,15 @@ class dr_parse_matcher_action_template():
         _str = dump_obj_str(_keys, self.data)
 
         if self.num_actions > 0:
-            _str += _tabs + 'Action combinations: ' + self.data.get("action_combinations") + '\n'
+            _str += _tabs + 'Action combinations: ' + ", ".join(self.data.get("action_combinations")) + '\n'
 
         return _str
+
+    def dump_obj(self, verbosity: int, transform_for_print: bool) -> dict | str:
+        if not transform_for_print:
+            return self.data
+
+        return self.dump_str('', verbosity)
 
 
 class dr_parse_matcher_resizable_array():
