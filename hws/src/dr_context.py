@@ -115,7 +115,7 @@ class dr_parse_context(Printable):
 
     def dump_obj(self, verbosity: int, transform_for_print: bool) -> dict:
         obj = {
-            "attr": self.attr.dump_str(verbosity),
+            "attr": self.attr.dump_obj(verbosity, transform_for_print),
             "caps": self.caps.dump_str(verbosity),
             "send_engine": [
                 se.dump_obj(verbosity, transform_for_print)
@@ -180,6 +180,12 @@ class dr_parse_context_attr():
             arr.extend(["shared_dev_name", "shared_vhca_id"])
 
         return dump_obj_str(arr, self.data)
+
+    def dump_obj(self, verbosity: int, transform_for_print: bool) -> dict | str:
+        if not transform_for_print:
+            return {"data": self.data}
+
+        return self.dump_str(verbosity)
 
 
 class dr_parse_context_caps():
