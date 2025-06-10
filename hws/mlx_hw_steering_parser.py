@@ -39,7 +39,7 @@ from src.dr_remote import dr_connect_to_remote
 MAX_SUPPORTED_VERSION = Version("1.0.any_generator")
 
 # mapping csv records types to it's relevant parser function
-switch_csv_res_type = {
+SWITCH_CSV_RES_TYPE = {
     MLX5DR_DEBUG_RES_TYPE_CONTEXT: dr_parse_context,
     MLX5DR_DEBUG_RES_TYPE_CONTEXT_ATTR: dr_parse_context_attr,
     MLX5DR_DEBUG_RES_TYPE_CONTEXT_CAPS: dr_parse_context_caps,
@@ -77,10 +77,10 @@ def print_unsupported_obj_list(unsupported_obj_list: list):
 
 def dr_csv_get_obj(line):
     res_type = line[0]
-    if res_type not in switch_csv_res_type.keys():
+    if res_type not in SWITCH_CSV_RES_TYPE.keys():
         return None
 
-    parser = switch_csv_res_type[line[0]]
+    parser = SWITCH_CSV_RES_TYPE[res_type]
     return parser(line)
 
 def dr_parse_csv_file(csv_file: TextIOWrapper, load_to_db: bool) -> tuple[list, list]:
