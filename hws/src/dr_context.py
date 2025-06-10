@@ -118,7 +118,7 @@ class dr_parse_context(Printable):
             "attr": self.attr.dump_str(verbosity),
             "caps": self.caps.dump_str(verbosity),
             "send_engine": [
-                se.tree_print(verbosity, '')
+                se.dump_obj(verbosity, transform_for_print)
                 for se in self.send_engine
             ],
             "tables": [
@@ -254,7 +254,7 @@ class dr_parse_context_caps():
         return dump_obj_str(_keys, self.data)
 
 
-class dr_parse_context_send_engine():
+class dr_parse_context_send_engine(Printable):
     def __init__(self, data):
         keys = ["mlx5dr_debug_res_type", "ctx_id", "id", "used_entries",
                 "th_entries", "rings", "num_entries", "err", "ci", "pi",
@@ -267,14 +267,17 @@ class dr_parse_context_send_engine():
                              "used_entries", "th_entries", "rings",
                              "num_entries", "err", "ci", "pi"], self.data)
 
-    def tree_print(self, verbosity, tabs):
-        _str = tabs + self.dump_str(verbosity)
-        tabs = tabs + TAB
+    def dump_obj(self, verbosity: int, transform_for_print: bool) -> dict:
+        obj = {
+            "send_ring": [sr.dump_str(verbosity) for sr in self.send_ring]
+        }
 
-        for sr in self.send_ring:
-            _str = _str + tabs + sr.dump_str(verbosity)
+        if not transform_for_print:
+            return {"data": self.data} | obj
 
-        return _str
+        return {
+            self.dump_str(verbosity): obj["send_ring"]
+        }
 
     def add_send_ring(self, send_ring):
         self.send_ring.append(send_ring)
