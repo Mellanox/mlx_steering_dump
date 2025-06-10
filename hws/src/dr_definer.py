@@ -4,7 +4,7 @@
 from src.dr_common import *
 from src.dr_hl import *
 from src.dr_db import _db
-from src.dr_ste import fields_handler
+from src.dr_ste import combine_union_fields, printable_fields
 
 def byte_mask_builder(hl_byte_offset):
     return lambda byte_tag : ((hl_byte_offset * BYTE_SZ) * "0") + byte_tag + (((3 - hl_byte_offset) * BYTE_SZ) * "0")
@@ -47,8 +47,7 @@ class dr_parse_definer():
                                  "byte_selector_5", "byte_selector_6", "byte_selector_7"],
                                  self.data)
 
-    def dump_fields(self):
-        _str = ""
+    def dump_fields(self, verbosity: int, format_for_print: bool) -> dict | list:
         tmp_arr = []
         fields = {}
         if self.data.get("mlx5dr_debug_res_type") == MLX5DR_DEBUG_RES_TYPE_MATCHER_TEMPLATE_RANGE_DEFINER:
@@ -78,7 +77,12 @@ class dr_parse_definer():
             else:
                 fields[_key] = _data
 
-        return fields_handler(fields)
+        combined_fields = combine_union_fields(fields)
+
+        if not format_for_print:
+            return combined_fields
+
+        return printable_fields(combined_fields, verbosity, False)
 
     def definer_dws_parser(self):
         fields_dic = {}

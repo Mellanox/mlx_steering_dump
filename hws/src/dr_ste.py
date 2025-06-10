@@ -3,13 +3,18 @@
 
 from src.dr_common import *
 from src.dr_db import _db, _config_args
-from src.dr_hl import _fields_text_values
+from src.dr_hl import FIELDS_TEXT_VALUES
 from src.dr_action import dr_ste_parse_ste_actions_arr
 from src.dr_common_functions import dr_get_counter_data
 
 
-def fields_handler(_fields, verbosity=0, show_field_val=False):
-    _str = ""
+def combine_union_fields(_fields: dict[str, int]) -> dict[str, int]:
+    """
+    Combine union fields into a single field
+
+    >>> combine_union_fields({"smac_47_16_o": 0x1234, "smac_15_0_o": 0x5678})
+    {'smac_o': 305419896} # in hex, this is 0x12345678
+    """
     fields = {}
     union_fields = {"smac_47_16_o": 0, "smac_15_0_o": 0, "dmac_47_16_o": 0,
                     "dmac_15_0_o": 0, "ipv6_address_127_96_src_o": 0,
@@ -84,27 +89,24 @@ def fields_handler(_fields, verbosity=0, show_field_val=False):
         fields["ipv6_addr_src_i"] |= union_fields["ipv6_address_63_32_src_i"] << 32
         fields["ipv6_addr_src_i"] |= union_fields["ipv6_address_31_0_src_i"]
 
-    for field in fields:
-        if _str != "":
-            _str += ", "
+    return fields
 
+def printable_fields(_fields, verbosity: int, show_field_val: bool) -> list[str]:
+    fields = combine_union_fields(_fields)
+    field_strings = []
+    for field in fields:
         value = fields.get(field)
         if type(value) == str:
-            _str += field + ": " + value
+            field_strings.append(field + ": " + value)
             continue
 
-        if show_field_val:
-            tv_field = _fields_text_values.get(field)
-            if tv_field is not None:
-                _str += field + ": " + tv_field.get(value)
-                if verbosity > 2:
-                    _str += ' (' + hex(value) + ')'
-            else:
-                _str += field + ": " + hex(value)
+        if show_field_val and (tv_field := FIELDS_TEXT_VALUES.get(field)):
+            suffix = ' (' + hex(value) + ')' if verbosity > 2 else ""
+            field_strings.append(field + ": " + tv_field.get(value) + suffix)
         else:
-            _str += field + ": " + hex(value)
+            field_strings.append(field + ": " + hex(value))
 
-    return _str
+    return field_strings
 
 def compare_ste_op_translate(op, inverse):
     _str = ""
@@ -333,7 +335,7 @@ class dr_parse_ste():
 
         _str = tabs + 'Tag:\n'
         tabs = tabs + TAB
-        fields_handler_str = fields_handler(self.fields_dic, verbosity, True)
+        fields_handler_str = fields_string(combine_union_fields(self.fields_dic), verbosity, True)
         if fields_handler_str == '':
             _str += tabs + 'Empty Tag\n'
         else:

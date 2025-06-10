@@ -261,7 +261,7 @@ class dr_parse_matcher(Printable):
             out["statistics"] = self.dump_matcher_statistics()
 
             if self.hash_definer is not None:
-                out["hash_fields"] = self.hash_definer.dump_fields()
+                out["hash_fields"] = self.hash_definer.dump_fields(verbosity, transform_for_print)
 
             out["match_templates"] = [mt.dump_obj(verbosity, transform_for_print) for mt in self.match_template]
             out["action_templates"] = [at.dump_obj(verbosity, transform_for_print) for at in self.action_templates]
@@ -478,13 +478,13 @@ class dr_parse_matcher_match_template(Printable):
 
         obj = {}
         if self.match_definer is not None:
-            obj["match_fields"] = self.match_definer.dump_fields()
+            obj["match_fields"] = self.match_definer.dump_fields(verbosity, transform_for_print)
 
         if self.range_definer is not None:
-            obj["range_fields"] = self.range_definer.dump_fields()
+            obj["range_fields"] = self.range_definer.dump_fields(verbosity, transform_for_print)
 
         if self.compare_definer is not None:
-            obj["compare_fields"] = self.compare_definer.dump_fields()
+            obj["compare_fields"] = self.compare_definer.dump_fields(verbosity, transform_for_print)
 
         if not transform_for_print:
             return {"data": self.data} | obj
@@ -499,7 +499,7 @@ class dr_parse_matcher_match_template(Printable):
 
         # prettify the keys and values and drop empty values
         pretty_obj = {
-            prettify_field_name(k): v.replace(', ', '\n')
+            prettify_field_name(k): '\n'.join(v)
             for k, v in obj.items() if v
         }
 
