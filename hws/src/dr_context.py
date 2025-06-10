@@ -67,7 +67,7 @@ class Version():
             return True
         return self.minor > other.minor
 
-class dr_parse_context():
+class dr_parse_context(Printable):
     def __init__(self, data):
         keys = ["mlx5dr_debug_res_type", "id", "hws_support",
                 "dev_name", "debug_version"]
@@ -112,23 +112,36 @@ class dr_parse_context():
                 if base_addr is not None:
                     matcher.add_base_addr_1(base_addr[0])
 
-    def tree_print(self, verbosity, tabs):
-        _str = tabs + self.dump_str(verbosity)
-        tabs = tabs + TAB
 
-        _str = _str + tabs + self.attr.dump_str(verbosity)
+    def dump_obj(self, verbosity: int, transform_for_print: bool) -> dict:
+        obj = {
+            "attr": self.attr.dump_str(verbosity),
+            "caps": self.caps.dump_str(verbosity),
+            "send_engine": [
+                se.tree_print(verbosity, '')
+                for se in self.send_engine
+            ],
+            "tables": [
+                t.tree_print(verbosity, '')
+                for t in sorted(self.tables)
+            ]
+        }
 
-        if verbosity > 0:
-            _str = _str + tabs + self.caps.dump_str(verbosity)
+        if not transform_for_print:
+            return {"data": self.data} | obj
 
-        if verbosity > 3:
-            for se in self.send_engine:
-                _str = _str + se.tree_print(verbosity, tabs)
+        # The printable text format treats these as inline (without indentation)
+        maybe_caps = [obj["caps"]] if verbosity > 0 else []
+        maybe_send_engine = obj["send_engine"] if verbosity > 3 else []
 
-        for t in sorted(self.tables):
-            _str = _str + t.tree_print(verbosity, tabs)
-
-        return _str
+        return {
+            self.dump_str(verbosity): [
+                obj["attr"],
+                *maybe_caps,
+                *maybe_send_engine,
+                *obj["tables"],
+            ]
+        }
 
     def fix_data(self):
         self.data["hws_support"] = "True" if self.data["hws_support"] == "1" else "False"

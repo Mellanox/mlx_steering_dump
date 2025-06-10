@@ -461,7 +461,8 @@ if __name__ == "__main__":
                 _config_args["parse_hw_resources"] = False
                 _config_args["load_hw_resources"] = False
 
-        output_file_suffix = ".json" if _config_args.get("json") else ".parsed"
+        json_format = _config_args.get("json")
+        output_file_suffix = ".json" if json_format else ".parsed"
         output_file_name = file_path + output_file_suffix
         output_file = open(output_file_name, 'w+')
 
@@ -481,9 +482,9 @@ if __name__ == "__main__":
                 csv_file.write(MLX5DR_DEBUG_RES_TYPE_HW_RRESOURCES_DUMP_END + '\n')
 
             ctx.pre_parse()
-            obj = ctx.tree_print(verbose, "")
-            if _config_args.get("json"):
-                output_file.write(json.dumps({"context": obj}, indent=4))
+            obj = ctx.dump_obj(verbose, transform_for_print=not json_format)
+            if json_format:
+                output_file.write(json.dumps(obj, indent=4))
             else:
                 output_file.write(pretty_obj_repr(obj))
 
