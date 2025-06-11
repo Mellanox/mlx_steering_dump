@@ -258,9 +258,9 @@ class dr_parse_matcher(Printable):
             out["action_templates"] = [at.dump_str('', verbosity) for at in self.action_templates]
 
             if _config_args.get("parse_hw_resources"):
-                out["rules"] = dr_parse_rules(self, verbosity, '')
+                out["rules"] = dr_parse_rules(self, verbosity, transform_for_print)
                 if col_matcher:
-                    out["rules"] += dr_parse_rules(col_matcher, verbosity, '')
+                    out["rules"] += dr_parse_rules(col_matcher, verbosity, transform_for_print)
 
         if not transform_for_print:
             return {"data": self.data} | out
