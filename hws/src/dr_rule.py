@@ -7,7 +7,7 @@ from src.dr_ste import *
 from src.dr_visual import interactive_progress_bar
 
 
-class dr_parse_rule():
+class dr_parse_rule(Printable):
     def __init__(self, tbl_type):
         self.ste_arr = []
         self.prefix = ''
@@ -32,16 +32,22 @@ class dr_parse_rule():
         self.ste_arr.append(ste)
 
 
-    def tree_print(self, verbosity, tabs, matcher):
-        _str = tabs + self.dump_str(verbosity)
-        tabs = tabs + TAB
-
+    def dump_obj(self, verbosity, transform_for_print: bool) -> dict:
+        stes = []
         last_i = len(self.ste_arr) - 1
         for i, ste in enumerate(self.ste_arr):
             is_last = i == last_i
-            _str += ste.tree_print(verbosity, tabs, self.prefix, is_last)
+            stes.append(ste.tree_print(verbosity, "", self.prefix, is_last))
 
-        return _str
+        if not transform_for_print:
+            return {
+                "tbl_type": self.tbl_type,
+                "stes": stes,
+            }
+
+        return {
+            self.dump_str(verbosity): stes,
+        }
 
 
 def dr_hw_get_ste_from_loc(loc, hint_loc=[], ignore_hint=False, curr_matcher_idx=None):
@@ -127,7 +133,7 @@ def dr_parse_rules(matcher, verbosity: int, transform_for_print: bool) -> list:
                 rule.add_ste(ste)
                 hit_loc = ste.get_hit_location()
                 ste = dr_hw_get_ste_from_loc(hit_loc, hint_loc + _db._action_ste_indexes_arr, False, match_ste_id)
-            rules.append(rule.tree_print(verbosity, '', matcher))
+            rules.append(rule.dump_obj(verbosity, transform_for_print))
 
         progress_bar_i += 1
         interactive_progress_bar(progress_bar_i, progress_bar_total, PARSING_THE_RULES_STR)
