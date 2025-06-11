@@ -269,7 +269,7 @@ class dr_parse_context_send_engine(Printable):
 
     def dump_obj(self, verbosity: int, transform_for_print: bool) -> dict:
         obj = {
-            "send_ring": [sr.dump_str(verbosity) for sr in self.send_ring]
+            "send_ring": [sr.dump_obj(verbosity, transform_for_print) for sr in self.send_ring]
         }
 
         if not transform_for_print:
@@ -283,7 +283,7 @@ class dr_parse_context_send_engine(Printable):
         self.send_ring.append(send_ring)
 
 
-class dr_parse_context_send_ring():
+class dr_parse_context_send_ring(Printable):
     def __init__(self, data):
         keys = ["mlx5dr_debug_res_type", "ctx_id", "id", "send_engine_index",
                 "cqn", "cq_cons_index", "cq_ncqe_mask", "cq_buf_sz",
@@ -298,3 +298,9 @@ class dr_parse_context_send_ring():
                              "cq_cqe_log_sz", "cq_poll_wqe", "cq_cqe_sz",
                              "sqn", "sq_obj_id", "sq_cur_post",
                              "sq_buf_mask"], self.data)
+
+    def dump_obj(self, verbosity: int, transform_for_print: bool) -> dict | str:
+        if not transform_for_print:
+            return self.data
+
+        return self.dump_str(verbosity)
