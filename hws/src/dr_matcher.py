@@ -189,7 +189,7 @@ class dr_parse_matcher(Printable):
         return _str + "\n"
 
 
-    def dump_matcher_resources(self, verbosity, tabs):
+    def dump_matcher_resources_obj(self, verbosity: int, transform_for_print: bool) -> dict | list:
         _keys = ["match_rtc_0_id", "match_ste_0_id"]
         rtc_0_arr = []
         rtc_1_arr = []
@@ -200,8 +200,6 @@ class dr_parse_matcher(Printable):
             _keys.append("aliased_rtc_0_id")
         if self.match_ste_1_id is not None:
             _keys.extend(["match_rtc_1_id", "match_ste_1_id"])
-
-        _str = tabs + "Resources: " + dump_obj_str(_keys, self.data, end_of_line="")
 
         if self.action_rtc_0_id is not None:
             rtc_0_arr = [self.action_rtc_0_id]
@@ -219,19 +217,30 @@ class dr_parse_matcher(Printable):
                 rtc_1_arr += [obj.action_rtc_1_id]
                 ste_1_arr += [obj.action_ste_1_id]
 
-        if len(rtc_0_arr) != 0:
-            _str += ", action_rtc_0: [%s], action_ste_0: [%s]" % (", ".join(rtc_0_arr), ", ".join(ste_0_arr))
-
-        if len(rtc_1_arr) != 0:
-            _str += ", action_rtc_1: [%s], action_ste_1: [%s]" % (", ".join(rtc_1_arr), ", ".join(ste_1_arr))
-
-        _str += "\n"
-
+        col_matcher_data = None
         if self.col_matcher_id != "0x0":
-            col_matcher = _db._matchers.get(self.col_matcher_id)
-            _str += tabs +"Resources (C): " + dump_obj_str(_keys, col_matcher.data)
+            col_matcher_data = _db._matchers.get(self.col_matcher_id).data
 
-        return _str
+        if not transform_for_print:
+            matcher_data = {k: v for k, v in self.data.items() if k in _keys}
+            return {
+                "matcher_data": matcher_data,
+                "col_matcher_data": col_matcher_data,
+            }
+
+        out = [
+            "Resources: " + dump_obj_str(_keys, self.data)
+        ]
+
+        if rtc_0_arr:
+            out.append("action_rtc_0: [%s], action_ste_0: [%s]" % (", ".join(rtc_0_arr), ", ".join(ste_0_arr)))
+
+        if rtc_1_arr:
+            out.append("action_rtc_1: [%s], action_ste_1: [%s]" % (", ".join(rtc_1_arr), ", ".join(ste_1_arr)))
+        if col_matcher_data is not None:
+            out.append("Resources (C): " + dump_obj_str(_keys, col_matcher_data))
+
+        return out
 
 
     def dump_obj(self, verbosity: int, transform_for_print: bool) -> dict:
@@ -248,7 +257,7 @@ class dr_parse_matcher(Printable):
             if col_matcher:
                 out["col_matcher_attr"] = col_matcher.attr.dump_obj(verbosity, transform_for_print)
                 out["col_matcher_statistics"] = col_matcher.dump_matcher_statistics()
-            out["matcher_resources"] = self.dump_matcher_resources(verbosity, "")
+            out["matcher_resources"] = self.dump_matcher_resources_obj(verbosity, transform_for_print)
             out["statistics"] = self.dump_matcher_statistics()
 
             if self.hash_definer is not None:
