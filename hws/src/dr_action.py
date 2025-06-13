@@ -1,11 +1,13 @@
 #SPDX-License-Identifier: BSD-3-Clause
 #Copyright (c) 2021 NVIDIA CORPORATION. All rights reserved.
 
+from collections.abc import Callable
 from src.dr_common import *
 from src.dr_db import _config_args, _db
 from src.dr_hw_resources import parse_fw_modify_pattern_rd_bin_output, dr_parse_fw_modify_arguments_dic
 from src.dr_common_functions import *
 
+ActionParser = Callable[[list, int], tuple[int, list]]
 
 def dr_action_nope_parser(action_arr, index):
     return (1, [''])
@@ -15,49 +17,49 @@ def dr_action_copy_parser(action_arr, index):
     action_dw_1 = action_arr[index + 1]
     action = dr_parse_copy_action(action_dw_0, action_dw_1)
 
-    return (2, [action_pretiffy(action)])
+    return (2, [action])
 
 def dr_action_set_parser(action_arr, index):
     action_dw_0 = action_arr[index]
     action_dw_1 = action_arr[index + 1]
     action = dr_parse_set_action(action_dw_0, action_dw_1)
 
-    return (2, [action_pretiffy(action)])
+    return (2, [action])
 
 def dr_action_add_parser(action_arr, index):
     action_dw_0 = action_arr[index]
     action_dw_1 = action_arr[index + 1]
     action = dr_parse_add_action(action_dw_0, action_dw_1)
 
-    return (2, [action_pretiffy(action)])
+    return (2, [action])
 
 def dr_action_remove_by_size_parser(action_arr, index):
     action_dw_0 = action_arr[index]
     action_dw_1 = action_arr[index + 1]
     action = dr_parse_remove_by_size_action(action_dw_0, action_dw_1)
 
-    return (1, [action_pretiffy(action)])
+    return (1, [action])
 
 def dr_action_remove_header2header_parser(action_arr, index):
     action_dw_0 = action_arr[index]
     action_dw_1 = action_arr[index + 1]
     action = dr_parse_remove_header2header_action(action_dw_0, action_dw_1)
 
-    return (1, [action_pretiffy(action)])
+    return (1, [action])
 
 def dr_action_insert_inline_parser(action_arr, index):
     action_dw_0 = action_arr[index]
     action_dw_1 = action_arr[index + 1]
     action = dr_parse_insert_inline_action(action_dw_0, action_dw_1)
 
-    return (2, [action_pretiffy(action)])
+    return (2, [action])
 
 def dr_action_insert_pointer_parser(action_arr, index):
     action_dw_0 = action_arr[index]
     action_dw_1 = action_arr[index + 1]
     action = dr_parse_insert_by_pointer_action(action_dw_0, action_dw_1)
 
-    return (2, [action_pretiffy(action)])
+    return (2, [action])
 
 def dr_action_accelerated_modify_list_parser(action_arr, index):
     verbose = _config_args.get("verbose")
@@ -70,7 +72,7 @@ def dr_action_accelerated_modify_list_parser(action_arr, index):
     action["pat_idx"] = modify_actions_pattern_pointer
     action["num_of_actions"] = number_of_modify_actions
     action["arg_idx"] = modify_actions_argument_pointer
-    output_arr = [action_pretiffy(action)]
+    output_arr = [action]
     dump_arg = _config_args.get("extra_hw_res_arg")
     dump_pat = _config_args.get("extra_hw_res_pat")
 
@@ -130,14 +132,14 @@ def dr_action_counter_parser(action_arr, index):
     action = {"type" : "Counter"}
     action["counter_id"] = int(action_dw_0[8 : 32], 2)
 
-    return (1, [action_pretiffy(action)])
+    return (1, [action])
 
 def dr_action_flow_tag_parser(action_arr, index):
     action_dw_0 = action_arr[index]
     action = {"type" : "Flow tag"}
     action["flow_tag"] = int(action_dw_0[8 : 32], 2)
 
-    return (1, [action_pretiffy(action)])
+    return (1, [action])
 
 def aso_decoder(aso_32, aso_context_number, dest_reg_id, aso_context_type, aso_fields, take_from_reg=False):
     _str = 'ASO_32' if aso_32 else 'ASO'
@@ -217,27 +219,27 @@ def dr_action_ipsec_enc_parser(action_arr, index):
     action = {"type" : "IPsec encryption"}
     action["sadb_ctx_idx"] = int(action_dw_0[8 : 32], 2)
 
-    return (1, [action_pretiffy(action)])
+    return (1, [action])
 
 def dr_action_ipsec_dec_parser(action_arr, index):
     action_dw_0 = action_arr[index]
     action = {"type" : "IPsec decryption"}
     action["sadb_ctx_idx"] = int(action_dw_0[8 : 32], 2)
 
-    return (1, [action_pretiffy(action)])
+    return (1, [action])
 
 def dr_action_psp_enc_parser(action_arr, index):
     action_dw_0 = action_arr[index]
     action = {"type" : "PSP encryption"}
     action["sadb_ctx_idx"] = int(action_dw_0[8 : 32], 2)
 
-    return (1, [action_pretiffy(action)])
+    return (1, [action])
 
 def dr_action_psp_dec_parser(action_arr, index):
     action_dw_0 = action_arr[index]
     action = {"type" : "PSP decryption"}
 
-    return (1, [action_pretiffy(action)])
+    return (1, [action])
 
 def dr_action_trailer_parser(action_arr, index):
     action_dw_0 = action_arr[index]
@@ -271,7 +273,7 @@ def dr_action_add_field_parser(action_arr, index):
     action_dw_1 = action_arr[index + 1]
     action = dr_parse_add_field_action(action_dw_0, action_dw_1)
 
-    return (2, [action_pretiffy(action)])
+    return (2, [action])
 
 def dr_action_gen_cqe(action_arr, index):
     action_dw_0 = action_arr[index]
@@ -289,7 +291,7 @@ def dr_action_gen_cqe(action_arr, index):
 
     return (2, [action_pretiffy(action)])
 
-switch_actions_parser = {
+switch_actions_parser: dict[int, ActionParser] = {
     DR_ACTION_NOPE: dr_action_nope_parser,
     DR_ACTION_COPY: dr_action_copy_parser,
     DR_ACTION_SET: dr_action_set_parser,
@@ -325,6 +327,5 @@ def dr_ste_parse_ste_actions_arr(actions_arr):
             result.extend(res[1])
         else:
             index += 1
-
     return result
 

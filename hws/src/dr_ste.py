@@ -5,7 +5,7 @@ from src.dr_common import *
 from src.dr_db import _db, _config_args
 from src.dr_hl import FIELDS_TEXT_VALUES
 from src.dr_action import dr_ste_parse_ste_actions_arr
-from src.dr_common_functions import dr_get_counter_data
+from src.dr_common_functions import action_pretiffy, dr_get_counter_data
 
 
 def combine_union_fields(_fields: dict[str, int]) -> dict[str, int]:
@@ -318,8 +318,15 @@ class dr_parse_ste():
         if not transform_for_print:
             return obj
 
+        def maybe_pretiffy_action(maybe_action):
+            """modify_header action patterns are already parsed in the CSV file"""
+            if type(maybe_action) is dict:
+                return action_pretiffy(maybe_action)
+            return maybe_action
+
         maybe_counter = f"Counter: idx: {hex(counter['idx'])}" if counter["idx"] != 0 else None
         maybe_gotos = None
+        modify_actions = [maybe_pretiffy_action(a) for a in obj["modify_actions"]]
         gotos = obj["go_to"]
         if gotos:
             maybe_id_str = f" {gotos['id']}" if "id" in gotos else ""
@@ -334,7 +341,7 @@ class dr_parse_ste():
                     loc_str += ' (log_sz: ' + hex(self.hit_loc.log_sz) + ')'
             loc_str = ' ' + gotos['loc']
             maybe_gotos = f"Go To:{maybe_type_str}{maybe_id_str}{loc_str}"
-        filtered_actions = [a for a in [maybe_counter, *obj["modify_actions"], maybe_gotos] if a]
+        filtered_actions = [a for a in [maybe_counter, *modify_actions, maybe_gotos] if a]
         return {"Actions:": filtered_actions} if filtered_actions else {}
 
     def dump_fields_str(self, verbosity, tabs):
