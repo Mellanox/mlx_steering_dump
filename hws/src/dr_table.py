@@ -80,18 +80,10 @@ class dr_parse_table():
         return _str
 
     def fix_data(self):
-        rx_icm_addr = self.data.get("rx_icm_addr")
-        if rx_icm_addr is None:
-            rx_icm_addr = "0x0"
-        tx_icm_addr = self.data.get("tx_icm_addr")
-        if tx_icm_addr is None:
-            tx_icm_addr = "0x0"
-        local_rx_icm_addr = self.data.get("local_rx_icm_addr")
-        if local_rx_icm_addr is None:
-            local_rx_icm_addr = "0x0"
-        local_tx_icm_addr = self.data.get("local_tx_icm_addr")
-        if local_tx_icm_addr is None:
-            local_tx_icm_addr = "0x0"
+        rx_icm_addr = self.data.get("rx_icm_addr", "0x0")
+        tx_icm_addr = self.data.get("tx_icm_addr", "0x0")
+        local_rx_icm_addr = self.data.get("local_rx_icm_addr", "0x0")
+        local_tx_icm_addr = self.data.get("local_tx_icm_addr", "0x0")
 
         self.data["type"] = dr_table_type[int(self.data["type"])]
         self.data["ft_id"] = hex(int(self.data.get("ft_id"))) if self.data.get("ft_id") is not None else "0x0"
