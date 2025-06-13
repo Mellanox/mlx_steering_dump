@@ -290,64 +290,66 @@ class dr_parse_ste():
         _str = prefix + self.data.get("id") + ':\n'
         return _str
 
-    def dump_actions(self, verbosity, tabs, is_last):
-        if not(self.parsed):
+    def dump_actions(self, verbosity: int, is_last: bool, transform_for_print: bool) -> dict:
+        if not self.parsed:
             self.parse()
 
-        _str = tabs + 'Actions:\n'
-        _tabs = tabs + TAB
-        flag = False
-
+        counter = {"idx": self.counter_id}
         if self.counter_id != 0:
-            _str += "%sCounter: idx: %s%s\n" % (_tabs, hex(self.counter_id), dr_get_counter_data(self.counter_id))
-            flag = True
+            counter["data"] = dr_get_counter_data(self.counter_id)
 
-        for action in self.action_arr:
-            if action != '':
-                _str += _tabs + action
-                flag = True
-
+        goto = None
         if is_last or verbosity > 3:
-            _str += _tabs + 'Go To:'
+            goto = {
+                "loc": str(self.hit_loc),
+            }
             if self.hit_loc.gvmi_str == _config_args.get("vhca_id"):
-                obj = _db._term_dest_db.get(hex(self.hit_loc.index))
-            else:
-                obj = None
-            if obj is not None:
-                _str += ' ' + obj.get("type") + ' ' + obj.get("id")
+                dest = _db._term_dest_db.get(hex(self.hit_loc.index))
+                if dest is not None:
+                    goto["type"] = dest.get("type")
+                    goto["id"] = dest.get("id")
+
+        obj = {
+            "counter": counter,
+            "modify_actions": self.action_arr,
+            "go_to": goto,
+        }
+
+        if not transform_for_print:
+            return obj
+
+        maybe_counter = f"Counter: idx: {hex(counter['idx'])}" if counter["idx"] != 0 else None
+        maybe_gotos = None
+        gotos = obj["go_to"]
+        if gotos:
+            maybe_id_str = f" {gotos['id']}" if "id" in gotos else ""
+            maybe_type_str = f" {gotos['type']}" if "type" in gotos else ""
+            loc_str = ''
+            if maybe_id_str and maybe_type_str:
                 if verbosity > 2:
-                    _str += ' (' + str(self.hit_loc) + ')'
+                    loc_str = f" ({gotos['loc']})"
             else:
-                _str += ' ' + str(self.hit_loc)
+                loc_str = str(self.hit_loc)
                 if self.hit_loc.log_sz > 0:
-                    _str += ' (log_sz: ' + hex(self.hit_loc.log_sz) + ')'
-            _str += '\n'
-            flag = True
+                    loc_str += ' (log_sz: ' + hex(self.hit_loc.log_sz) + ')'
+            loc_str = ' ' + gotos['loc']
+            maybe_gotos = f"Go To:{maybe_type_str}{maybe_id_str}{loc_str}"
+        filtered_actions = [a for a in [maybe_counter, *obj["modify_actions"], maybe_gotos] if a]
+        return {"Actions:": filtered_actions} if filtered_actions else {}
 
-        if flag:
-            return _str
-        else:
-            return ''
-
-    def dump_fields(self, verbosity, tabs):
-        if not(self.parsed):
+    def dump_fields_str(self, verbosity, tabs):
+        if not self.parsed:
             self.parse()
 
         _str = tabs + 'Tag:\n'
         tabs = tabs + TAB
-        fields_handler_str = fields_string(combine_union_fields(self.fields_dic), verbosity, True)
-        if fields_handler_str == '':
+        formatted_fields = printable_fields(combine_union_fields(self.fields_dic), verbosity, True)
+        if not formatted_fields:
             _str += tabs + 'Empty Tag\n'
         else:
-            _str += tabs + fields_handler_str + '\n'
+            _str += tabs + ", ".join(formatted_fields) + '\n'
 
         return _str
-
-    def dump_miss(self, verbosity, tabs):
-        if not len(self.fields_dic):
-            return ''
-
-        return tabs + 'Miss address: ' + str(self.miss_loc) + '\n'
 
     def dump_raw_ste(self, verbosity, tabs):
         _str = tabs + 'Raw STE:\n'
@@ -364,21 +366,45 @@ class dr_parse_ste():
 
         return _str
 
-    def tree_print(self, verbosity, tabs, prefix, is_last):
-        _str = tabs + self.dump_str(verbosity, prefix)
-        tabs = tabs + TAB
-
-        _str += self.dump_fields(verbosity, tabs)
+    def dump_object(
+        self,
+        verbosity: int,
+        prefix: str,
+        is_last: bool,
+        transform_for_print: bool,
+    ) -> dict:
+        """
+        We can't make dr_parse_ste Printable because this function needs to know
+        whether the STE is the last one in the array, so the function signature
+        won't match.
+        """
+        if not self.parsed:
+            self.parse()
+        out = {
+            "fields": self.fields_dic,
+        }
 
         if verbosity > 3:
-            _str += self.dump_miss(verbosity, tabs)
+            out["miss"] = self.miss_loc.__dict__
 
-        _str += self.dump_actions(verbosity, tabs, is_last)
+        # Add this after "fields" to preserve the existing order of the items
+        out["actions"] = self.dump_actions(verbosity, is_last, transform_for_print)
+
+        if not transform_for_print:
+            return {"data": self.data} | out
 
         if verbosity > 2:
-            _str += self.dump_raw_ste(verbosity, tabs)
+            out["raw_ste"] = self.dump_raw_ste(verbosity, '')
 
-        return _str
+        if "miss" in out:
+            if not self.fields_dic:
+                out.pop("miss")
+            else:
+                out["miss"] = 'Miss address: ' + str(self.miss_loc)
+
+        out["fields"] = self.dump_fields_str(verbosity, '')
+
+        return {self.dump_str(verbosity, prefix): list(out.values())}
 
     def get_addr(self):
         return self.data.get("id")

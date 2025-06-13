@@ -37,7 +37,7 @@ class dr_parse_rule(Printable):
         last_i = len(self.ste_arr) - 1
         for i, ste in enumerate(self.ste_arr):
             is_last = i == last_i
-            stes.append(ste.tree_print(verbosity, "", self.prefix, is_last))
+            stes.append(ste.dump_object(verbosity, self.prefix, is_last, transform_for_print))
 
         if not transform_for_print:
             return {
