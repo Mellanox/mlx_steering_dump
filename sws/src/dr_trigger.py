@@ -83,7 +83,7 @@ def fd_msg(flow_ptr, fd, port, prevent_py_gc):
 
 def connect_to_server(server_pid):
     path = "/var/tmp/dpdk_net_mlx5_%d" % server_pid
-    if (os.path.exists(path) == False):
+    if not os.path.exists(path):
         print("DPDK doesn't support steering dump trigger")
         sys.exit(1)
 
