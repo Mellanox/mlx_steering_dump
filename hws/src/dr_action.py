@@ -256,6 +256,22 @@ def dr_action_add_field_parser(action_arr, index):
 
     return (2, [action_pretiffy(action)])
 
+def dr_action_gen_cqe(action_arr, index):
+    action_dw_0 = action_arr[index]
+    action_dw_1 = action_arr[index + 1]
+    action = {"type" : "GEN CQE"}
+
+    start_reg_id = int(action_dw_0[22 : 27], 2)
+    if start_reg_id >= len(ACTION_GEN_CQE_START_REG_STR_ARR):
+        action["start_reg_id"] = start_reg_id
+    else:
+        action["start_reg_id"] = ACTION_GEN_CQE_START_REG_STR_ARR[int(action_dw_0[22 : 27], 2)]
+
+    action["reg_count"] = ACTION_GEN_CQE_REG_COUNT_GRAN * int(action_dw_0[27 : 32], 2)
+    action["CQN"] = hex(int(action_dw_1[8 : 32], 2))
+
+    return (2, [action_pretiffy(action)])
+
 switch_actions_parser = {
     DR_ACTION_NOPE: dr_action_nope_parser,
     DR_ACTION_COPY: dr_action_copy_parser,
@@ -276,6 +292,7 @@ switch_actions_parser = {
     DR_ACTION_PSP_ENC: dr_action_psp_enc_parser,
     DR_ACTION_PSP_DEC: dr_action_psp_dec_parser,
     DR_ACTION_ASO_32: dr_action_aso_32_parser,
+    DR_ACTION_GEN_CQE: dr_action_gen_cqe,
 }
 
 def dr_ste_parse_ste_actions_arr(actions_arr):
