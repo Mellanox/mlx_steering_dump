@@ -139,8 +139,43 @@ def dr_action_flow_tag_parser(action_arr, index):
 
     return (1, [action_pretiffy(action)])
 
+def aso_decoder(aso_32, aso_context_number, dest_reg_id, aso_context_type, aso_fields):
+    _str = 'ASO_32' if aso_32 else 'ASO'
+    _str += ': ctx_idx: ' + hex(aso_context_number)
+    _str += ', type: '
+    if aso_context_type > len(ASO_CONTEXT_TYPE_STR_ARR):
+        _str += hex(aso_context_type)
+    else:
+        _str += ASO_CONTEXT_TYPE_STR_ARR[aso_context_type] + ' (' + hex(aso_context_type) + ')'
+
+    _str += ', dest_reg_id: ' + hex(dest_reg_id)
+
+    if aso_context_type != ASO_CONTEXT_TYPE_IPSEC:
+        _str += ', fields: ' + hex(aso_fields)
+    if aso_context_type == ASO_CONTEXT_TYPE_CONN_TRACK:
+        _str += ' [direction: ' + hex(aso_fields & 0x1) + ']'
+    elif aso_context_type == ASO_CONTEXT_TYPE_POLICERS:
+        aso_init_colors = ["RED", "YELLOW", "GREEN", "UNDEFINED"]
+        _str += ' [line_id: ' + hex(aso_fields & 0x1)
+        init_color_val = (aso_fields & 0x6) >> 1
+        _str += ', initial_color: ' + aso_init_colors[init_color_val] + '(' + hex(init_color_val) + ')]'
+    elif aso_context_type == ASO_CONTEXT_TYPE_FIRST_HIT:
+        _str += ' [line_id: ' + hex(aso_fields & 0x1ff)
+        _str += ', set_bit: ' + hex((aso_fields & 0x200) >> 9) + ']'
+    elif aso_context_type == ASO_CONTEXT_TYPE_ENTROPY:
+        _str += ' [policy_index_last: ' + hex(aso_fields & 0x1) + ']'
+    elif aso_context_type == ASO_CONTEXT_TYPE_BUFF_MGMT:
+        _str += ' [line_id: ' + hex(aso_fields & 0x7)
+        _str += ', credits_to_consume: ' + hex((aso_fields & 0xf0) >> 4) + ']'
+    elif aso_context_type == ASO_CONTEXT_TYPE_MEMORY:
+        _str += ' [line_id: ' + hex(aso_fields & 0x7)
+        _str += ', opcode: ' + hex((aso_fields & 0xf0) >> 4) + ']'
+
+    _str += '\n'
+
+    return (2, [_str])
+
 def dr_action_aso_parser(action_arr, index):
-    _str = ''
     action_dw_0 = action_arr[index]
     action_dw_1 = action_arr[index + 1]
     aso_context_number = int(action_dw_0[8 : 32], 2)
@@ -148,27 +183,17 @@ def dr_action_aso_parser(action_arr, index):
     aso_context_type = int(action_dw_1[4 : 8], 2)
     aso_fields = int(action_dw_1[16 : 32], 2)
 
-    _str = 'ASO: ctx_idx: ' + hex(aso_context_number)
-    _str += ', type: '
-    if aso_context_type > 0x5:
-        _str += hex(aso_context_type)
-    else:
-        aso_context_type_arr = ["IPSec", "Connection Tracking", "Policers", "Race Avoidance", "First Hit", "MACSEC"]
-        _str += aso_context_type_arr[aso_context_type] + ' (' + hex(aso_context_type) + ')'
+    return aso_decoder(False, aso_context_number, dest_reg_id, aso_context_type, aso_fields)
 
-    _str += ', dest_reg_id: ' + hex(dest_reg_id)
+def dr_action_aso_32_parser(action_arr, index):
+    action_dw_0 = action_arr[index]
+    action_dw_1 = action_arr[index + 1]
+    aso_context_number = int(action_dw_1[0 : 32], 2)
+    dest_reg_id = int(action_dw_0[12 : 16], 2)
+    aso_context_type = int(action_dw_0[16 : 20], 2)
+    aso_fields = int(action_dw_0[22 : 32], 2)
 
-    if aso_context_type != 0x0:
-        _str += ', fields: ' + hex(aso_fields)
-    if aso_context_type == 0x2:
-        aso_init_colors = ["RED", "YELLOW", "GREEN", "UNDEFINED"]
-        _str += ' [line_id: ' + hex(aso_fields & 0x1)
-        init_color_val = (aso_fields & 0x6) >> 1
-        _str += ', initial_color: ' + aso_init_colors[init_color_val] + '(' + hex(init_color_val) + ')]'
-
-    _str += '\n'
-
-    return (2, [_str])
+    return aso_decoder(True, aso_context_number, dest_reg_id, aso_context_type, aso_fields)
 
 def dr_action_ipsec_enc_parser(action_arr, index):
     action_dw_0 = action_arr[index]
@@ -250,6 +275,7 @@ switch_actions_parser = {
     DR_ACTION_ADD_FIELD : dr_action_add_field_parser,
     DR_ACTION_PSP_ENC: dr_action_psp_enc_parser,
     DR_ACTION_PSP_DEC: dr_action_psp_dec_parser,
+    DR_ACTION_ASO_32: dr_action_aso_32_parser,
 }
 
 def dr_ste_parse_ste_actions_arr(actions_arr):
