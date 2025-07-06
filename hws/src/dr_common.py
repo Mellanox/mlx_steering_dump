@@ -147,6 +147,7 @@ DR_ACTION_COUNTER = 0x14
 DR_ACTION_ADD_FIELD = 0x1b
 DR_ACTION_PSP_ENC = 0x1f
 DR_ACTION_PSP_DEC = 0x20
+DR_ACTION_ASO_32 = 0x23
 
 def hex_to_bin_str(_n, _len):
     n = str(bin(int(_n, 16)))[2:]
@@ -440,6 +441,21 @@ modify_pattern_anchor_dic = {
     0x3A: "IN2_MPLS_END",
     0x3B: "IN2_IP_END",
 }
+
+
+ASO_CONTEXT_TYPE_STR_ARR = ["IPSec", "Connection Tracking", "Policers", "Race Avoidance",
+                            "First Hit", "MACSEC", "Entropy", "Multipath", "Buffer Management",
+                            "memory"]
+ASO_CONTEXT_TYPE_IPSEC = 0x0
+ASO_CONTEXT_TYPE_CONN_TRACK = 0x1
+ASO_CONTEXT_TYPE_POLICERS = 0x2
+ASO_CONTEXT_TYPE_RACE_AVOIDANCE = 0x3
+ASO_CONTEXT_TYPE_FIRST_HIT = 0x4
+ASO_CONTEXT_TYPE_MACSEC = 0x5
+ASO_CONTEXT_TYPE_ENTROPY = 0x6
+ASO_CONTEXT_TYPE_MULTIPATH = 0x7
+ASO_CONTEXT_TYPE_BUFF_MGMT = 0x8
+ASO_CONTEXT_TYPE_MEMORY = 0x9
 
 
 FW_VERSION_MAJOR_CX6 = 22
