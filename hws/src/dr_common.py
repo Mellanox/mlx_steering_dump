@@ -148,6 +148,7 @@ DR_ACTION_ADD_FIELD = 0x1b
 DR_ACTION_PSP_ENC = 0x1f
 DR_ACTION_PSP_DEC = 0x20
 DR_ACTION_ASO_32 = 0x23
+DR_ACTION_GEN_CQE = 0x28
 
 def hex_to_bin_str(_n, _len):
     n = str(bin(int(_n, 16)))[2:]
@@ -456,6 +457,12 @@ ASO_CONTEXT_TYPE_ENTROPY = 0x6
 ASO_CONTEXT_TYPE_MULTIPATH = 0x7
 ASO_CONTEXT_TYPE_BUFF_MGMT = 0x8
 ASO_CONTEXT_TYPE_MEMORY = 0x9
+
+
+ACTION_GEN_CQE_START_REG_STR_ARR = ["metadata_reg_c_0", "metadata_reg_c_2", "metadata_reg_c_4",
+                                    "metadata_reg_c_6", "metadata_reg_c_8", "metadata_reg_c_10",
+                                    "metadata_reg_c_12", "metadata_reg_c_14"]
+ACTION_GEN_CQE_REG_COUNT_GRAN = 0x2
 
 
 FW_VERSION_MAJOR_CX6 = 22
