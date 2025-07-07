@@ -95,6 +95,7 @@ MLX5DR_DEBUG_RES_TYPE_MATCHER_TEMPLATE_HASH_DEFINER = "4205"
 MLX5DR_DEBUG_RES_TYPE_MATCHER_TEMPLATE_RANGE_DEFINER = "4206"
 MLX5DR_DEBUG_RES_TYPE_MATCHER_TEMPLATE_COMPARE_MATCH_DEFINER = "4207"
 MLX5DR_DEBUG_RES_TYPE_MATCHER_RESIZABLE_ARRAY = "4208"
+MLX5DR_DEBUG_RES_TYPE_MATCHER_ACTION_RTC_ARRAY = "4209"
 
 MLX5DR_DEBUG_RES_TYPE_ACTION_STE_TABLE = "4300"
 
@@ -146,6 +147,8 @@ DR_ACTION_COUNTER = 0x14
 DR_ACTION_ADD_FIELD = 0x1b
 DR_ACTION_PSP_ENC = 0x1f
 DR_ACTION_PSP_DEC = 0x20
+DR_ACTION_ASO_32 = 0x23
+DR_ACTION_GEN_CQE = 0x28
 
 def hex_to_bin_str(_n, _len):
     n = str(bin(int(_n, 16)))[2:]
@@ -439,6 +442,27 @@ modify_pattern_anchor_dic = {
     0x3A: "IN2_MPLS_END",
     0x3B: "IN2_IP_END",
 }
+
+
+ASO_CONTEXT_TYPE_STR_ARR = ["IPSec", "Connection Tracking", "Policers", "Race Avoidance",
+                            "First Hit", "MACSEC", "Entropy", "Multipath", "Buffer Management",
+                            "memory"]
+ASO_CONTEXT_TYPE_IPSEC = 0x0
+ASO_CONTEXT_TYPE_CONN_TRACK = 0x1
+ASO_CONTEXT_TYPE_POLICERS = 0x2
+ASO_CONTEXT_TYPE_RACE_AVOIDANCE = 0x3
+ASO_CONTEXT_TYPE_FIRST_HIT = 0x4
+ASO_CONTEXT_TYPE_MACSEC = 0x5
+ASO_CONTEXT_TYPE_ENTROPY = 0x6
+ASO_CONTEXT_TYPE_MULTIPATH = 0x7
+ASO_CONTEXT_TYPE_BUFF_MGMT = 0x8
+ASO_CONTEXT_TYPE_MEMORY = 0x9
+
+
+ACTION_GEN_CQE_START_REG_STR_ARR = ["metadata_reg_c_0", "metadata_reg_c_2", "metadata_reg_c_4",
+                                    "metadata_reg_c_6", "metadata_reg_c_8", "metadata_reg_c_10",
+                                    "metadata_reg_c_12", "metadata_reg_c_14"]
+ACTION_GEN_CQE_REG_COUNT_GRAN = 0x2
 
 
 FW_VERSION_MAJOR_CX6 = 22
