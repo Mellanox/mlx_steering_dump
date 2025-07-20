@@ -51,7 +51,7 @@ data: a dictionary to print the data from acording to the keys.
 Return:
 Returns the output string.
 """
-def dump_obj_str(keys, data):
+def dump_obj_str(keys, data, end_of_line="\n"):
     _str = ""
     length = len(keys)
     for i in range(length):
@@ -74,7 +74,7 @@ def dump_obj_str(keys, data):
         if i < (length - 1):
             _str = _str + ", "
 
-    return _str + "\n"
+    return _str + end_of_line
 
 
 MLX5DR_DEBUG_RES_TYPE_CONTEXT = "4000"
