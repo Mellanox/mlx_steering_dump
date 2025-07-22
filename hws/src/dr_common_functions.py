@@ -8,6 +8,18 @@ from src.dr_db import _db, _config_args
 from src.dr_hl import dr_hl_dw_parser
 
 
+def get_field_left_shift(f_mask):
+    f_mask = int(f_mask, 2)
+    if f_mask == 0:
+        return 0
+
+    count = 0
+    while (f_mask & 0x1) != 1:
+        count += 1
+        f_mask = f_mask >> 1
+
+    return count
+
 def action_pretiffy(action, line_break=True):
     action_type = action.get("type")
     _str = action_type
@@ -32,7 +44,7 @@ def action_pretiffy(action, line_break=True):
     return _str
 
 
-def get_field(dw_offset, mask):
+def get_field(dw_offset, mask, return_field_mask=False):
     fw_version_major = _config_args.get("fw_version_major")
     if fw_version_major < FW_VERSION_MAJOR_CX7:
         if dw_offset > FLEX_PARSER_0_HL_OFFSET:
@@ -43,7 +55,10 @@ def get_field(dw_offset, mask):
     if arr != None and len(arr) > 0:
         for f in arr:
             if int(f[1], 2) != 0:
-                return f[0]
+                if return_field_mask:
+                    return f
+                else:
+                    return f[0]
 
     return None
 
@@ -53,6 +68,7 @@ def dr_parse_nope_action(action_dw_0, action_dw_1):
 
 
 def dr_parse_set_action(action_dw_0, action_dw_1, parse_value=True):
+    verbose = _config_args.get("verbose")
     action = {"type" : "Set"}
     dw_offset = int(action_dw_0[8 : 16], 2)
     left_shifter = int(action_dw_0[18 : 24], 2)
@@ -62,21 +78,29 @@ def dr_parse_set_action(action_dw_0, action_dw_1, parse_value=True):
     length = int(action_dw_0[24 : 32], 2)
     length = 32 if length == 0 else length
     mask = hex_to_bin_str(hex(int(length * "1", 2) << left_shifter), 32)
-    res = get_field(dw_offset, mask)
+    res = get_field(dw_offset, mask, True)
 
     if res != None:
-        action["field"] = "%s (%s)" % (res, hex(dw_offset))
+        f = res[0]
+        f_mask = res[1]
+        field = "%s" % (f)
+        if verbose > 2:
+            field += " (DW: %s, dw_left_shifter: %s)" % (hex(dw_offset), hex(left_shifter))
+
+        action["field"] = field
+        action["field_offset"] = get_field_left_shift(f_mask)
     else:
         action["dw_offset"] = dw_offset
+        action["left_shifter"] = left_shifter
 
     action["length"] = length
-    action["left_shifter"] = left_shifter
     if parse_value:
         action["inline_data"] = int(action_dw_1, 2)
 
     return action
 
 def dr_parse_copy_action(action_dw_0, action_dw_1):
+    verbose = _config_args.get("verbose")
     action = {"type" : "Copy"}
     dst_dw_offset = int(action_dw_0[8 : 16], 2)
     dst_left_shifter = int(action_dw_0[18 : 24], 2)
@@ -86,14 +110,21 @@ def dr_parse_copy_action(action_dw_0, action_dw_1):
     length = int(action_dw_0[24 : 32], 2)
     length = 32 if length == 0 else length
     mask = hex_to_bin_str(hex(int(length * "1", 2) << dst_left_shifter), 32)
-    res = get_field(dst_dw_offset, mask)
+    res = get_field(dst_dw_offset, mask, True)
 
     if res != None:
-        action["dst_field"] = "%s (%s)" % (res, hex(dst_dw_offset))
+        f = res[0]
+        f_mask = res[1]
+        dst_field = "%s" % (f)
+        if verbose > 2:
+            dst_field += " (DW: %s, dw_left_shifter: %s)" % (hex(dst_dw_offset), hex(dst_left_shifter))
+
+        action["dst_field"] = dst_field
+        action["dst_field_offset"] = get_field_left_shift(f_mask)
     else:
         action["dst_dw_offset"] = dst_dw_offset
+        action["dst_left_shifter"] = dst_left_shifter
 
-    action["dst_left_shifter"] = dst_left_shifter
     action["length"] = length
 
     src_dw_offset = int(action_dw_1[8 : 16], 2)
@@ -102,19 +133,26 @@ def dr_parse_copy_action(action_dw_0, action_dw_1):
         src_right_shifter -= 32
 
     mask = hex_to_bin_str(hex(int(length * "1", 2) << src_right_shifter), 32)
-    res = get_field(src_dw_offset, mask)
+    res = get_field(src_dw_offset, mask, True)
 
     if res != None:
-        action["src_field"] = "%s (%s)" % (res, hex(src_dw_offset))
+        f = res[0]
+        f_mask = res[1]
+        src_field = "%s" % (f)
+        if verbose > 2:
+            src_field += " (DW: %s, dw_left_shifter: %s)" % (hex(src_dw_offset), hex(src_right_shifter))
+
+        action["src_field"] = src_field
+        action["src_field_offset"] = get_field_left_shift(f_mask)
     else:
         action["src_dw_offset"] = src_dw_offset
-
-    action["src_right_shifter"] = src_right_shifter
+        action["src_right_shifter"] = src_right_shifter
 
     return action
 
 
 def dr_parse_add_action(action_dw_0, action_dw_1, parse_value=True):
+    verbose = _config_args.get("verbose")
     action = {"type" : "Add"}
     dw_offset = int(action_dw_0[8 : 16], 2)
     left_shifter = int(action_dw_0[18 : 24], 2)
@@ -124,15 +162,22 @@ def dr_parse_add_action(action_dw_0, action_dw_1, parse_value=True):
     length = int(action_dw_0[24 : 32], 2)
     length = 32 if length == 0 else length
     mask = hex_to_bin_str(hex(int(length * "1", 2) << left_shifter), 32)
-    res = get_field(dw_offset, mask)
+    res = get_field(dw_offset, mask, True)
 
     if res != None:
-        action["field"] = "%s (%s)" % (res, hex(dw_offset))
+        f = res[0]
+        f_mask = res[1]
+        field = "%s" % (f)
+        if verbose > 2:
+            field += " (DW: %s, dw_left_shifter: %s)" % (hex(dw_offset), hex(left_shifter))
+
+        action["field"] = field
+        action["field_offset"] = get_field_left_shift(f_mask)
     else:
         action["dw_offset"] = dw_offset
+        action["left_shifter"] = left_shifter
 
     action["length"] = length
-    action["left_shifter"] = left_shifter
 
     if parse_value:
         action["value"] = int(action_dw_1, 2)
@@ -229,6 +274,7 @@ def dr_parse_insert_by_pointer_action(action_dw_0, action_dw_1):
     return action
 
 def dr_parse_add_field_action(action_dw_0, action_dw_1):
+    verbose = _config_args.get("verbose")
     action = {"type" : "Add Field"}
     dst_dw_offset = int(action_dw_0[8 : 16], 2)
     dst_left_shifter = int(action_dw_0[18 : 24], 2)
@@ -238,14 +284,21 @@ def dr_parse_add_field_action(action_dw_0, action_dw_1):
     length = int(action_dw_0[24 : 32], 2)
     length = 32 if length == 0 else length
     mask = hex_to_bin_str(hex(int(length * "1", 2) << dst_left_shifter), 32)
-    res = get_field(dst_dw_offset, mask)
+    res = get_field(dst_dw_offset, mask, True)
 
     if res != None:
-        action["dst_field"] = "%s (%s)" % (res, hex(dst_dw_offset))
+        f = res[0]
+        f_mask = res[1]
+        dst_field = "%s" % (f)
+        if verbose > 2:
+            dst_field += " (DW: %s, dw_left_shifter: %s)" % (hex(dst_dw_offset), hex(dst_left_shifter))
+
+        action["dst_field"] = dst_field
+        action["dst_field_offset"] = get_field_left_shift(f_mask)
     else:
         action["dst_dw_offset"] = dst_dw_offset
+        action["dst_left_shifter"] = dst_left_shifter
 
-    action["dst_left_shifter"] = dst_left_shifter
     action["length"] = length
 
     src_dw_offset = int(action_dw_1[8 : 16], 2)
@@ -254,14 +307,20 @@ def dr_parse_add_field_action(action_dw_0, action_dw_1):
         src_right_shifter -= 32
 
     mask = hex_to_bin_str(hex(int(length * "1", 2) << src_right_shifter), 32)
-    res = get_field(src_dw_offset, mask)
+    res = get_field(src_dw_offset, mask, True)
 
     if res != None:
-        action["src_field"] = "%s (%s)" % (res, hex(src_dw_offset))
+        f = res[0]
+        f_mask = res[1]
+        src_field = "%s" % (f)
+        if verbose > 2:
+            src_field += " (DW: %s, dw_left_shifter: %s)" % (hex(src_dw_offset), hex(src_right_shifter))
+
+        action["src_field"] = src_field
+        action["src_field_offset"] = get_field_left_shift(f_mask)
     else:
         action["src_dw_offset"] = src_dw_offset
-
-    action["src_right_shifter"] = src_right_shifter
+        action["src_right_shifter"] = src_right_shifter
 
     return action
 
