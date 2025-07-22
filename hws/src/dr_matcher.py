@@ -43,6 +43,10 @@ class dr_parse_matcher():
         self.match_template = []
         self.action_templates = []
         self.col_matcher_id = self.data.get("col_matcher_id")
+        self.match_rtc_0_id = None
+        self.match_rtc_1_id = None
+        self.action_rtc_0_id = None
+        self.action_rtc_1_id = None
         self.match_ste_0_id = None
         self.match_ste_1_id = None
         self.action_ste_0_id = None
@@ -58,6 +62,22 @@ class dr_parse_matcher():
         tbl_level = _db._tbl_level_db.get(self.data.get("tbl_id"))
         if tbl_level == DR_ROOT_TBL_LEVEL:
             return
+
+        rtc_id = self.data.get("match_rtc_0_id")
+        if rtc_id != '0':
+            self.match_rtc_0_id = rtc_id
+
+        rtc_id = self.data.get("match_rtc_1_id")
+        if rtc_id != '0':
+            self.match_rtc_1_id = rtc_id
+
+        rtc_id = self.data.get("action_rtc_0_id")
+        if rtc_id != '0':
+            self.action_rtc_0_id = rtc_id
+
+        rtc_id = self.data.get("action_rtc_1_id")
+        if rtc_id != '0':
+            self.action_rtc_1_id = rtc_id
 
         ste_id = self.data.get("match_ste_0_id")
         if ste_id != '-1':
@@ -145,19 +165,41 @@ class dr_parse_matcher():
 
     def dump_matcher_resources(self, verbosity, tabs):
         _keys = ["match_rtc_0_id", "match_ste_0_id"]
+        rtc_0_arr = []
+        rtc_1_arr = []
+        ste_0_arr = []
+        ste_1_arr = []
 
         if self.aliased_rtc_0_id != None:
             _keys.append("aliased_rtc_0_id")
         if self.match_ste_1_id != None:
             _keys.extend(["match_rtc_1_id", "match_ste_1_id"])
 
-        if self.action_ste_0_id != None:
-            _keys.extend(["action_rtc_0_id", "action_ste_0_id"])
+        _str = tabs + "Resources: " + dump_obj_str(_keys, self.data, end_of_line="")
 
-        if self.action_ste_1_id != None:
-            _keys.extend(["action_rtc_1_id", "action_ste_1_id"])
+        if self.action_rtc_0_id != None:
+            rtc_0_arr = [self.action_rtc_0_id]
+            ste_0_arr = [self.action_ste_0_id]
 
-        _str = tabs + "Resources: " + dump_obj_str(_keys, self.data)
+        if self.action_rtc_1_id != None:
+            rtc_1_arr = [self.action_rtc_1_id]
+            ste_1_arr = [self.action_ste_1_id]
+
+        for obj in self.resizable_arrays:
+            if obj.action_rtc_0_id != None:
+                rtc_0_arr += [obj.action_rtc_0_id]
+                ste_0_arr += [obj.action_ste_0_id]
+            if obj.action_rtc_1_id != None:
+                rtc_1_arr += [obj.action_rtc_1_id]
+                ste_1_arr += [obj.action_ste_1_id]
+
+        if len(rtc_0_arr) != 0:
+            _str += ", action_rtc_0: [%s], action_ste_0: [%s]" % (", ".join(rtc_0_arr), ", ".join(ste_0_arr))
+
+        if len(rtc_1_arr) != 0:
+            _str += ", action_rtc_1: [%s], action_ste_1: [%s]" % (", ".join(rtc_1_arr), ", ".join(ste_1_arr))
+
+        _str += "\n"
 
         if self.col_matcher_id != "0x0":
             col_matcher = _db._matchers.get(self.col_matcher_id)
@@ -423,12 +465,22 @@ class dr_parse_matcher_resizable_array():
         keys = ["mlx5dr_debug_res_type", "matcher_id", "action_rtc_0_id",
                 "action_ste_0_id", "action_rtc_1_id", "action_ste_1_id"]
         self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
+        self.action_rtc_0_id = None
+        self.action_rtc_1_id = None
         self.action_ste_0_id = None
         self.action_ste_1_id = None
         self.fix_data()
         self.save_to_db()
 
     def fix_data(self):
+        rtc_id = self.data.get("action_rtc_0_id")
+        if rtc_id != '0':
+            self.action_rtc_0_id = rtc_id
+
+        rtc_id = self.data.get("action_rtc_1_id")
+        if rtc_id != '0':
+            self.action_rtc_1_id = rtc_id
+
         ste_id = self.data.get("action_ste_0_id")
         if ste_id != '-1':
             self.action_ste_0_id = ste_id
