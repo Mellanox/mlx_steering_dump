@@ -186,15 +186,10 @@ def env_init():
         tmp_file_path = Path(_config_args.get("file_path")).with_name(tmp_file_name)
         tmp_file_path.touch()
 
-        _config_args["tmp_file_path"] = str(tmp_file_path)
-        _config_args["tmp_file"] = None
+        _config_args["tmp_file_path"] = tmp_file_path
 
 
 def env_destroy():
-    tmp_file = _config_args.get("tmp_file")
-    if tmp_file != None:
-        tmp_file.close()
-
     csv_file = _config_args.get("csv_file")
     if csv_file != None:
         csv_file.close()
