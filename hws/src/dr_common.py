@@ -206,6 +206,7 @@ def hit_location_calc(next_table_base_63_48, next_table_base_39_32, next_table_b
     gvmi = next_table_base_63_48
     address = next_table_base_39_32 << 32
     address |= next_table_base_31_5 << 5
+    address = address & (address - 1)
     return ste_location(gvmi, address)
 
 _segments_dic = {
