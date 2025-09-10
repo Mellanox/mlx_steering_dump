@@ -175,7 +175,7 @@ STC_ACTION_JUMP_TO_UPLINK = '86'
 
 
 class ste_location():
-    def __init__(self, gvmi, address):
+    def __init__(self, gvmi, address, size=1):
         self.gvmi = gvmi
         self.gvmi_str = str(gvmi)
         # This field is not currently used:
@@ -184,6 +184,18 @@ class ste_location():
         # This field is not currently used:
         # If it becomes used, bits 47:40 need to be found somewhere.
         # self.global_va = (gvmi << 48) | address
+        # self.log_sz = 0 if (size == 1) else size
+        self.log_sz = 0
+        if size > 1:
+            self.calc_log_sz(size)
+
+    def calc_log_sz(size):
+        count = 0
+        while (size & 0x1) != 0x1:
+            count +=1
+            size == size >> 1
+
+        self.log_sz = count
 
     def __str__(self):
         _str = ''
@@ -206,8 +218,9 @@ def hit_location_calc(next_table_base_63_48, next_table_base_39_32, next_table_b
     gvmi = next_table_base_63_48
     address = next_table_base_39_32 << 32
     address |= next_table_base_31_5 << 5
+    size = (((address ^ (address - 1)) + 1) >> 1) >> 5
     address = address & (address - 1)
-    return ste_location(gvmi, address)
+    return ste_location(gvmi, address, size)
 
 _segments_dic = {
     "STC": "0x1036",

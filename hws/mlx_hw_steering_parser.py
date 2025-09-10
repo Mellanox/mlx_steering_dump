@@ -369,6 +369,7 @@ if __name__ == "__main__":
             if _config_args.get("csv_file") != None and _config_args.get("hw_resources_dump_started") == True:
                 csv_file.write(MLX5DR_DEBUG_RES_TYPE_HW_RRESOURCES_DUMP_END + '\n')
 
+            ctx.pre_parse()
             output_file.write(ctx.tree_print(verbose, ""))
 
         print("")#empty line

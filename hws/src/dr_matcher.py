@@ -52,6 +52,8 @@ class dr_parse_matcher():
         self.action_ste_0_id = None
         self.action_ste_1_id = None
         self.aliased_rtc_0_id = None
+        self.base_addr_0 = None
+        self.base_addr_1 = None
         self.hash_definer = None
         self.resizable_arrays = []
         self.fix_data()
@@ -132,8 +134,14 @@ class dr_parse_matcher():
         if verbosity > 1:
             _keys.extend(["end_ft_id"])
             if self.data.get("rx_icm_addr") != "0x0":
+                if self.base_addr_0 != None and self.base_addr_0 != "0xffffffff":
+                    self.data["rx_base_addr"] = self.base_addr_0
+                    _keys.extend(["rx_base_addr"])
                 _keys.extend(["rx_icm_addr"])
             if self.data.get("tx_icm_addr") != "0x0":
+                if self.base_addr_1 != None and self.base_addr_1 != "0xffffffff":
+                    self.data["tx_base_addr"] = self.base_addr_1
+                    _keys.extend(["tx_base_addr"])
                 _keys.extend(["tx_icm_addr"])
 
         if verbosity > 2:
@@ -271,6 +279,14 @@ class dr_parse_matcher():
 
     def add_resizable_array(self, obj):
         self.resizable_arrays.append(obj)
+
+    def add_base_addr_0(self, addr):
+        self.base_addr_0 = addr
+        _db._term_dest_db[addr] = {"type": "matcher", "id": self.id}
+
+    def add_base_addr_1(self, addr):
+        self.base_addr_1 = addr
+        _db._term_dest_db[addr] = {"type": "matcher", "id": self.id}
 
     def save_to_db(self):
         total_match_fw_stes = 0
