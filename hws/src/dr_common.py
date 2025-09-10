@@ -180,7 +180,7 @@ class ste_location():
         self.gvmi_str = str(gvmi)
         # This field is not currently used:
         # self.address = address
-        self.index = (address >> 6) & 0xffffffff
+        self.index = address & 0xffffffff
         # This field is not currently used:
         # If it becomes used, bits 47:40 need to be found somewhere.
         # self.global_va = (gvmi << 48) | address
@@ -209,17 +209,17 @@ class ste_location():
 
 def miss_location_calc(miss_address_63_48, miss_address_39_32, miss_address_31_6):
     gvmi = miss_address_63_48
-    address = miss_address_39_32 << 32
-    address |= miss_address_31_6 << 6
+    address = miss_address_39_32 << 26
+    address |= miss_address_31_6
     return ste_location(gvmi, address)
 
 
 def hit_location_calc(next_table_base_63_48, next_table_base_39_32, next_table_base_31_5):
     gvmi = next_table_base_63_48
-    address = next_table_base_39_32 << 32
-    address |= next_table_base_31_5 << 5
-    size = (((address ^ (address - 1)) + 1) >> 1) >> 5
-    address = address & (address - 1)
+    address = next_table_base_39_32 << 27
+    address |= next_table_base_31_5
+    size = ((address ^ (address - 1)) + 1) >> 1
+    address = (address & (address - 1)) >> 1
     return ste_location(gvmi, address, size)
 
 _segments_dic = {
