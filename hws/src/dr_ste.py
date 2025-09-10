@@ -317,6 +317,8 @@ class dr_parse_ste():
                     _str += ' (' + str(self.hit_loc) + ')'
             else:
                 _str += ' ' + str(self.hit_loc)
+                if self.hit_loc.log_sz > 0:
+                    _str += ' (log_sz: ' + hex(self.hit_loc.log_sz) + ')'
             _str += '\n'
             flag = True
 

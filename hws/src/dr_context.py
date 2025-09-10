@@ -98,6 +98,20 @@ class dr_parse_context():
                              "hws_support", "dev_name", "debug_version"],
                              self.data)
 
+    def pre_parse(self):
+        # Load matchers base address
+        for matcher_key in _db._matchers:
+            matcher = _db._matchers.get(matcher_key)
+            if matcher.match_ste_0_id != None:
+                base_addr = _db._stes_range_db.get(matcher.match_ste_0_id)
+                if base_addr != None:
+                    matcher.add_base_addr_0(base_addr[0])
+
+            if matcher.match_ste_1_id != None:
+                base_addr = _db._stes_range_db.get(matcher.match_ste_1_id)
+                if base_addr != None:
+                    matcher.add_base_addr_1(base_addr[0])
+
     def tree_print(self, verbosity, tabs):
         _str = tabs + self.dump_str(verbosity)
         tabs = tabs + TAB
