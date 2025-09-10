@@ -95,6 +95,7 @@ stc_param_id_loc_dic = {
     STC_ACTION_JUMP_TO_DROP: {'type': 'DROP'},
     STC_ACTION_TYPE_ALLOW: {'type': 'ALLOW'},
     STC_ACTION_TYPE_FLOW_COUNTER: {'type': 'FLOW_COUNTER', 'loc': (0,8)},
+    STC_ACTION_JUMP_TO_QP: {'type': 'DEST_RDMA_RESP'},
 }
 
 
@@ -108,7 +109,8 @@ def dr_parse_fw_stc_action_get_obj_id(raw):
     if obj != None:
         if (action_type == STC_ACTION_JUMP_TO_UPLINK) or \
            (action_type == STC_ACTION_JUMP_TO_DROP) or \
-           (action_type == STC_ACTION_TYPE_ALLOW):
+           (action_type == STC_ACTION_TYPE_ALLOW) or \
+           (action_type == STC_ACTION_JUMP_TO_QP):
             return {"type": obj.get("type"), "id": ''}
 
         id_loc = obj.get("loc")
