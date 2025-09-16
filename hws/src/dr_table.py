@@ -4,7 +4,6 @@
 from src.dr_common import *
 from src.dr_db import _db, _config_args
 
-
 class dr_parse_table():
     def __init__(self, data):
         keys = ["mlx5dr_debug_res_type", "id", "ctx_id", "ft_id", "type",
@@ -41,14 +40,25 @@ class dr_parse_table():
            self.data.get("type") == DR_TBL_TYPE_RDMA_TRANSPORT_TX:
              _keys.extend(["vport", "other_vport"])
 
+        if self.level ==  0:
+            return dump_obj_str(_keys, self.data)
+
         if _config_args.get("shared_device") != None:
             _keys.extend(["local_ft_id"])
+            ft_idx = _db._ft_idx_dic.get(self.data.get("local_ft_id"))
+            if ft_idx != None:
+                self.fix_address(ft_idx[0], ft_idx[1], True)
+
             if self.data.get("local_rx_icm_addr") != "0x0":
                 _keys.extend(["local_rx_icm_addr"])
             if self.data.get("local_tx_icm_addr") != "0x0":
                 _keys.extend(["local_tx_icm_addr"])
 
         _keys.extend(["ft_id"])
+        ft_idx = _db._ft_idx_dic.get(self.data.get("ft_id"))
+        if ft_idx != None:
+            self.fix_address(ft_idx[0], ft_idx[1])
+
         if self.data.get("rx_icm_addr") != "0x0":
             _keys.extend(["rx_icm_addr"])
         if self.data.get("tx_icm_addr") != "0x0":
@@ -87,17 +97,37 @@ class dr_parse_table():
         self.data["ft_id"] = hex(int(self.data.get("ft_id"))) if self.data.get("ft_id") != None else "0x0"
         self.data["local_ft_id"] = hex(int(self.data.get("local_ft_id"))) if self.data.get("local_ft_id") != None else "0x0"
 
-        if self.data.get("type") == DR_TBL_TYPE_NIC_TX:
+        if self.level == 0:
+            return
+
+        if rx_icm_addr == "0x0" and self.data.get("ft_id") != "0x0":
+            _db._ft_idx_arr.append(self.data.get("ft_id"))
+        else:
+            self.fix_address(rx_icm_addr, tx_icm_addr)
+
+        if local_rx_icm_addr == "0x0" and self.data.get("local_ft_id") != "0x0":
+            _db._ft_idx_arr.append(self.data.get("local_ft_id"))
+        else:
+            self.fix_address(local_rx_icm_addr, local_tx_icm_addr, True)
+
+
+    def fix_address(self, rx_icm_addr, tx_icm_addr, local=False):
+        _tbl_type = self.data.get("type")
+        if _tbl_type == DR_TBL_TYPE_NIC_TX or\
+           _tbl_type == DR_TBL_TYPE_RDMA_TRANSPORT_TX:
             tx_icm_addr = rx_icm_addr
             rx_icm_addr = "0x0"
-            if _config_args.get("shared_device") != None:
-                local_tx_icm_addr = local_rx_icm_addr
-                local_rx_icm_addr = "0x0"
 
-        self.data["rx_icm_addr"] = rx_icm_addr
-        self.data["tx_icm_addr"] = tx_icm_addr
-        self.data["local_rx_icm_addr"] = local_rx_icm_addr
-        self.data["local_tx_icm_addr"] = local_tx_icm_addr
+        if _tbl_type == DR_TBL_TYPE_NIC_RX or\
+           _tbl_type == DR_TBL_TYPE_RDMA_TRANSPORT_RX:
+            tx_icm_addr = "0x0"
+
+        if local == True:
+            self.data["local_rx_icm_addr"] = rx_icm_addr
+            self.data["local_tx_icm_addr"] = tx_icm_addr
+        else:
+            self.data["rx_icm_addr"] = rx_icm_addr
+            self.data["tx_icm_addr"] = tx_icm_addr
 
     def add_matcher(self, matcher):
         self.matchers.append(matcher)

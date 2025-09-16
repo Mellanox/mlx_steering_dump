@@ -50,6 +50,9 @@ class _ctx_db:
         self._flow_counter_indexes_dic = {}
         #This hash table holds indexes as keys, and info structure about them
         self._counters_db = {}
+        #This will save FT anchor index
+        self._ft_idx_arr = []
+        self._ft_idx_dic = {}
 
     def load(self, _new):
         self._definers = _new._definers
@@ -68,7 +71,7 @@ class _ctx_db:
         self._arg_obj_indexes_dic = _new._arg_obj_indexes_dic
         self._total_matcher_match_fw_stes = _new._total_matcher_match_fw_stes
         self._counters_db = _new._counters_db
-
-
+        self._ft_idx_arr = _new._ft_idx_arr
+        self._ft_idx_dic = _new._ft_idx_dic
 
 _db = _ctx_db()

@@ -53,6 +53,7 @@ switch_csv_res_type = {
     MLX5DR_DEBUG_RES_TYPE_ARGUMENT: dr_parse_argument,
     MLX5DR_DEBUG_RES_TYPE_COUNTER: dr_parse_res_counter,
     MLX5DR_DEBUG_RES_TYPE_ACTION_STE_TABLE: dr_parse_action_ste_table,
+    MLX5DR_DEBUG_RES_TYPE_FT_ANCHORS: dr_parse_ft_anchor,
 }
 
 unsupported_obj_list = []
@@ -157,6 +158,8 @@ def dr_parse_csv_file(csv_file, load_to_db):
             if not(load_to_db):
                 return ctxs
             _config_args["hw_resources_present"] = True
+        elif line[0] == MLX5DR_DEBUG_RES_TYPE_FT_ANCHORS:
+            obj.load_to_db()
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_FW_STE:
             if last_fw_ste != None:
                 last_fw_ste.add_stes_range(min_ste_addr, max_ste_addr)
@@ -329,7 +332,6 @@ def parse_args():
         _config_args["remote_dep_lib"] = False
         dr_connect_to_remote()
         sys.exit(0)
-
 
 if __name__ == "__main__":
     try:

@@ -109,15 +109,27 @@ class dr_parse_matcher():
         if tx_icm_addr == None:
             tx_icm_addr = "0x0"
 
+        self.data["end_ft_id"] = hex(int(self.data.get("end_ft_id")))
+
+        if rx_icm_addr == "0x0" and self.data.get("end_ft_id") != "0x0":
+            _db._ft_idx_arr.append(self.data.get("end_ft_id"))
+        else:
+            self.fix_address(rx_icm_addr, tx_icm_addr)
+
+    def fix_address(self, rx_icm_addr, tx_icm_addr):
         _tbl_type = _db._tbl_type_db.get(self.data.get("tbl_id"))
-        if _tbl_type == DR_TBL_TYPE_NIC_TX:
+        if _tbl_type == DR_TBL_TYPE_NIC_TX or \
+           _tbl_type == DR_TBL_TYPE_RDMA_TRANSPORT_TX:
             tx_icm_addr = rx_icm_addr
             rx_icm_addr = "0x0"
 
+        if _tbl_type == DR_TBL_TYPE_NIC_RX or \
+           _tbl_type == DR_TBL_TYPE_RDMA_TRANSPORT_RX:
+            tx_icm_addr = "0x0"
+
+
         self.data["rx_icm_addr"] = rx_icm_addr
         self.data["tx_icm_addr"] = tx_icm_addr
-
-        self.data["end_ft_id"] = hex(int(self.data.get("end_ft_id")))
 
 
     def __eq__(self, other):
@@ -133,6 +145,10 @@ class dr_parse_matcher():
 
         if verbosity > 1:
             _keys.extend(["end_ft_id"])
+            ft_idx = _db._ft_idx_dic.get(self.data.get("end_ft_id"))
+            if ft_idx != None:
+                self.fix_address(ft_idx[0], ft_idx[1])
+
             if self.data.get("rx_icm_addr") != "0x0":
                 if self.base_addr_0 != None and self.base_addr_0 != "0xffffffff":
                     self.data["rx_base_addr"] = self.base_addr_0
