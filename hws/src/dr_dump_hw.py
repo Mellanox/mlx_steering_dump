@@ -8,6 +8,42 @@ from src.dr_hw_resources import dr_parse_fw_stc_action_get_obj_id, dr_parse_fw_s
 from src.dr_visual import interactive_progress_bar
 
 
+def query_and_parse_ft_meta_rd_bin_output(ft_id, load_to_db, dev, dev_name, file):
+    output = call_resource_dump(dev, dev_name, "QUERY_FT_META", ft_id, None, None, None)
+    _config_args["tmp_file"] = open(_config_args.get("tmp_file_path"), 'rb+')
+    bin_file = _config_args.get("tmp_file")
+    stc = ''
+    count = 0
+
+    #First read DW(4B) each time till reaching FT META
+    data = bin_file.read(4)
+    while data:
+        data = hex(int.from_bytes(data, byteorder='big'))
+        if data[2:8] == RESOURCE_DUMP_SEGMENT_TYPE_FT_META_BIN:
+            #Seek to FT META location in the bin_file
+            bin_file.seek(count)
+            break
+
+        count += 4
+        data = bin_file.read(4)
+
+    #Read FT META
+    data = bin_file.read(112)
+    if len(data) == 112:
+        data = hex(int.from_bytes(data, byteorder='big'))
+        rx_icm_addr = "0x" + data[192:200]
+        tx_icm_addr = "0x" + data[200:208]
+        _db._ft_idx_dic[ft_id] = (rx_icm_addr, tx_icm_addr)
+        write_line = '%s,%s,%s,%s\n' % (MLX5DR_DEBUG_RES_TYPE_FT_ANCHORS, ft_id, rx_icm_addr, tx_icm_addr)
+        file.write(write_line)
+        if load_to_db:
+            if rx_icm_addr != "0x0":
+                _db._term_dest_db[rx_icm_addr] = {"type": "FT", "id": ft_id}
+            if tx_icm_addr != "0x0":
+                _db._term_dest_db[tx_icm_addr] = {"type": "FT", "id": ft_id}
+
+
+
 def parse_fw_stc_rd_bin_output(stc_index, load_to_db, file):
     _dests = {}
     _config_args["tmp_file"] = open(_config_args.get("tmp_file_path"), 'rb+')
@@ -260,6 +296,10 @@ def dump_hw_resources(load_to_db, dev, dev_name, file):
     dump_counter = _config_args.get("extra_hw_res_counter")
     interactive_progress_bar(0, total_resources, DUMPING_HW_RESOURCES)
     i = 0
+
+    for ft_id in _db._ft_idx_arr:
+        query_and_parse_ft_meta_rd_bin_output(ft_id, load_to_db, dev, dev_name, file)
+
     for stc_index in _db._stc_indexes_arr:
         output = call_resource_dump(dev, dev_name, "STC", stc_index, None, 'all', None)
         parse_fw_stc_rd_bin_output(stc_index, load_to_db, file)

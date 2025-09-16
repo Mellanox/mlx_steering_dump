@@ -6,6 +6,21 @@ from src.dr_db import _db, _config_args
 from src.dr_common_functions import *
 
 
+class dr_parse_ft_anchor():
+    def __init__(self, data):
+        keys = ["mlx5dr_debug_res_type", "ft_id", "rx_icm_addr", "tx_icm_addr"]
+        self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
+
+    def load_to_db(self):
+        ft_id = self.data.get("ft_id")
+        rx_icm_addr = self.data.get("rx_icm_addr")
+        tx_icm_addr = self.data.get("tx_icm_addr")
+        _db._ft_idx_dic[ft_id] = (rx_icm_addr, tx_icm_addr)
+        if rx_icm_addr != "0x0":
+            _db._term_dest_db[rx_icm_addr] = {"type": "FT", "id": ft_id}
+        if tx_icm_addr != "0x0":
+            _db._term_dest_db[tx_icm_addr] = {"type": "FT", "id": ft_id}
+
 class dr_parse_fw_ste():
     def __init__(self, data):
         keys = ["mlx5dr_debug_res_type", "id"]
