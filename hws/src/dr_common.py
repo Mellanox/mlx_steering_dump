@@ -473,6 +473,10 @@ ASO_CONTEXT_TYPE_MULTIPATH = 0x7
 ASO_CONTEXT_TYPE_BUFF_MGMT = 0x8
 ASO_CONTEXT_TYPE_MEMORY = 0x9
 
+URISC_INSTRUCTION_ARR = ["LOAD", "STORE", "INC", "XOR", "OR", "AND", "FFS_ID_MSB", "FFS_BITMAP_MSB",
+                         "FFS_ID_LSB", "FFS_BITMAP_LSB", "RESET", "FFS_AND_RESET_ID_MSB",
+                         "FFS_AND_RESET_BITMAP_MSB", "FFS_AND_RESET_ID_LSB", "FFS_AND_RESET_BITMAP_LSB"]
+
 
 ACTION_GEN_CQE_START_REG_STR_ARR = ["metadata_reg_c_0", "metadata_reg_c_2", "metadata_reg_c_4",
                                     "metadata_reg_c_6", "metadata_reg_c_8", "metadata_reg_c_10",

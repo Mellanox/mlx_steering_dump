@@ -180,7 +180,12 @@ def aso_decoder(aso_32, aso_context_number, dest_reg_id, aso_context_type, aso_f
         _str += ', credits_to_consume: ' + hex((aso_fields & 0xf0) >> 4) + ']'
     elif aso_context_type == ASO_CONTEXT_TYPE_MEMORY:
         _str += ' [line_id: ' + hex(aso_fields & 0x7)
-        _str += ', opcode: ' + hex((aso_fields & 0xf0) >> 4) + ']'
+        opcode = (aso_fields & 0xf0) >> 4
+        opcode_str = hex(opcode)
+        if opcode < len(URISC_INSTRUCTION_ARR):
+            opcode_str = '%s (%s)' % (URISC_INSTRUCTION_ARR[opcode], opcode_str)
+
+        _str += ', opcode: ' + opcode_str + ']'
 
     _str += '\n'
 
