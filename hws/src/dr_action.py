@@ -139,9 +139,15 @@ def dr_action_flow_tag_parser(action_arr, index):
 
     return (1, [action_pretiffy(action)])
 
-def aso_decoder(aso_32, aso_context_number, dest_reg_id, aso_context_type, aso_fields):
+def aso_decoder(aso_32, aso_context_number, dest_reg_id, aso_context_type, aso_fields, take_from_reg=False):
     _str = 'ASO_32' if aso_32 else 'ASO'
-    _str += ': ctx_idx: ' + hex(aso_context_number)
+
+    if take_from_reg == True:
+        _str += ' (from register)'
+        _str += ': ctx_idx: ' + hex(aso_context_number & 0xffffffc0)
+    else:
+        _str += ': ctx_idx: ' + hex(aso_context_number)
+
     _str += ', type: '
     if aso_context_type > len(ASO_CONTEXT_TYPE_STR_ARR):
         _str += hex(aso_context_type)
@@ -149,6 +155,11 @@ def aso_decoder(aso_32, aso_context_number, dest_reg_id, aso_context_type, aso_f
         _str += ASO_CONTEXT_TYPE_STR_ARR[aso_context_type] + ' (' + hex(aso_context_type) + ')'
 
     _str += ', dest_reg_id: ' + hex(dest_reg_id)
+
+    if take_from_reg == True:
+        reg_64_id = 2 * (aso_context_number & 0x3f)
+        _str += ', take_from_register: reg_c_%s_%s\n' % (reg_64_id, reg_64_id + 1)
+        return (2, [_str])
 
     if aso_context_type != ASO_CONTEXT_TYPE_IPSEC:
         _str += ', fields: ' + hex(aso_fields)
@@ -189,11 +200,12 @@ def dr_action_aso_32_parser(action_arr, index):
     action_dw_0 = action_arr[index]
     action_dw_1 = action_arr[index + 1]
     aso_context_number = int(action_dw_1[0 : 32], 2)
+    take_from_reg = True if (int(action_dw_0[8 : 9], 2) == 1) else False
     dest_reg_id = int(action_dw_0[12 : 16], 2)
     aso_context_type = int(action_dw_0[16 : 20], 2)
     aso_fields = int(action_dw_0[22 : 32], 2)
 
-    return aso_decoder(True, aso_context_number, dest_reg_id, aso_context_type, aso_fields)
+    return aso_decoder(True, aso_context_number, dest_reg_id, aso_context_type, aso_fields, take_from_reg)
 
 def dr_action_ipsec_enc_parser(action_arr, index):
     action_dw_0 = action_arr[index]
