@@ -35,15 +35,11 @@ class dr_parse_rule():
     def tree_print(self, verbosity, tabs, matcher):
         _str = tabs + self.dump_str(verbosity)
         tabs = tabs + TAB
-
-        def tree_print_stes(stes, prefix):
-            nonlocal _str
-            last_i = len(stes) - 1
-            for i, ste in enumerate(stes):
-                is_last = i == last_i
-                _str += ste.tree_print(verbosity, tabs, prefix, is_last)
-
-        tree_print_stes(self.ste_arr, self.prefix)
+        stes = self.ste_arr
+        last_i = len(stes) - 1
+        for i, ste in enumerate(stes):
+            is_last = i == last_i
+            _str += ste.tree_print(verbosity, tabs, self.prefix, is_last)
 
         return _str
 
