@@ -522,11 +522,19 @@ class dr_parse_matcher_resizable_array():
             self.action_ste_1_id = ste_id
 
     def save_to_db(self):
+        def check_id(_id):
+            for fw_ste_index in _db._fw_ste_indexes_arr:
+                if fw_ste_index == _id:
+                    return True
+            return False
+
         if self.action_ste_0_id != None:
-            _db._fw_ste_indexes_arr.append(self.action_ste_0_id)
+            if not check_id(self.action_ste_0_id):
+                _db._fw_ste_indexes_arr.append(self.action_ste_0_id)
 
         if self.action_ste_1_id != None:
-            _db._fw_ste_indexes_arr.append(self.action_ste_1_id)
+            if not check_id(self.action_ste_1_id):
+                _db._fw_ste_indexes_arr.append(self.action_ste_1_id)
 
 
 class dr_parse_action_ste_table():
