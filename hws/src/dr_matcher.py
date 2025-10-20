@@ -74,11 +74,11 @@ class dr_parse_matcher():
             self.match_rtc_1_id = rtc_id
 
         rtc_id = self.data.get("action_rtc_0_id")
-        if rtc_id != '0':
+        if rtc_id != '0' and rtc_id != '-1':
             self.action_rtc_0_id = rtc_id
 
         rtc_id = self.data.get("action_rtc_1_id")
-        if rtc_id != '0':
+        if rtc_id != '0' and rtc_id != '-1':
             self.action_rtc_1_id = rtc_id
 
         ste_id = self.data.get("match_ste_0_id")
