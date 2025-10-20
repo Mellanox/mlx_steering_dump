@@ -182,7 +182,9 @@ class dr_parse_matcher():
             return _str + "\n"
 
         if self.match_ste_1_id != None:
-            _str += ", TX: " + get_fw_ste_distribution_statistics(self.match_ste_1_id, row_log_sz, col_log_sz)
+            tx_row_log_sz = self.attr.get_tx_row_log_sz()
+            tx_col_log_sz = self.attr.get_tx_col_log_sz()
+            _str += ", TX: " + get_fw_ste_distribution_statistics(self.match_ste_1_id, tx_row_log_sz, tx_col_log_sz)
 
         return _str + "\n"
 
@@ -364,7 +366,8 @@ class dr_parse_matcher_attr():
     def __init__(self, data):
         keys = ["mlx5dr_debug_res_type", "matcher_id", "priority",
                 "mode", "sz_row_log", "sz_col_log", "use_rule_idx",
-                "flow_src", "insertion", "distribution", "match", "isolated"]
+                "flow_src", "insertion", "distribution", "match", "isolated",
+                "tx_sz_row_log", "tx_sz_col_log"]
         self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
         if self.data["flow_src"] == "1":
             self.data["flow_src"]  = "FDB ingress"
@@ -380,6 +383,20 @@ class dr_parse_matcher_attr():
 
     def get_col_log_sz(self):
         return int(self.data.get("sz_col_log"))
+
+    def get_tx_row_log_sz(self):
+        sz = self.data.get("tx_sz_row_log")
+        if sz != None and sz !='-1':
+            return int(sz)
+
+        return self.get_row_log_sz()
+
+    def get_tx_col_log_sz(self):
+        sz = self.data.get("tx_sz_col_log")
+        if sz != None and sz !='-1':
+            return int(sz)
+
+        return self.get_col_log_sz()
 
     def dump_str(self, verbosity):
         _keys = ["mlx5dr_debug_res_type"]
@@ -403,11 +420,15 @@ class dr_parse_matcher_attr():
         self.data["mode"] = "RULE" if self.data["mode"] == "0" else "HTABLE"
         self.data["insertion"] = "INDEX" if self.data.get("insertion") == "1" else "HASH"
         self.data["distribution"] = "LINEAR" if self.data.get("distribution") == "1" else "HASH"
-        self.data["log_sz"] = "%sX%s" % (self.data.get("sz_row_log"), self.data.get("sz_col_log"))
         self.data["priority"] = hex(self.priority)
         self.data["match"] = "Always hit" if self.data.get("match") == "1" else "Default"
         self.data["isolated"] = "True" if self.data.get("isolated") == "1" else ""
 
+        tx_sz_row = self.data.get("tx_sz_row_log")
+        log_sz_str = "%sX%s" % (self.data.get("sz_row_log"), self.data.get("sz_col_log"))
+        if tx_sz_row != None and tx_sz_row !='-1':
+            log_sz_str = "rx %s tx %sX%s" % (log_sz_str, tx_sz_row, self.data.get("tx_sz_col_log"))
+        self.data["log_sz"] = log_sz_str
 
 class dr_parse_matcher_match_template():
     def __init__(self, data):
