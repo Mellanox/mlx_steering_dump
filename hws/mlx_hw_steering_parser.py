@@ -3,6 +3,7 @@
 #SPDX-License-Identifier: BSD-3-Clause
 #Copyright (c) 2025 NVIDIA CORPORATION. All rights reserved.
 
+import multiprocessing as mp
 from pathlib import Path
 import sys
 import os
@@ -263,6 +264,8 @@ def parse_args():
                         help = "Indicates the user name on the remote setup")
     parser.add_argument("--remote_path", type=str, default="", dest="remote_path",
                         help = "Indicates the dump tool location on the remote setup, this is optional")
+    parser.add_argument("--max_cores", type=int, default=0,
+                        help="Maximum cores to use. Default is 0, which means use all cores, up to 16")
     parser.add_argument("-h", "--help", action="help", default=argparse.SUPPRESS,
                         help='Show this help message and exit.')
 
@@ -342,8 +345,12 @@ def parse_args():
         dr_connect_to_remote()
         sys.exit(0)
 
+    _config_args["max_cores"] = min(16, mp.cpu_count()) if args.max_cores == 0 else args.max_cores
+
+
 if __name__ == "__main__":
     try:
+        mp.set_start_method("fork")
         parse_args()
         validate_env_caps()
         env_init()
