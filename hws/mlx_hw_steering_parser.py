@@ -203,6 +203,10 @@ def env_destroy():
     if csv_file != None:
         csv_file.close()
 
+    output_file = _config_args.get("output_file")
+    if output_file is not None:
+        output_file.close()
+
 
 #Check and validate environment capabilities
 def validate_env_caps():
@@ -371,6 +375,7 @@ if __name__ == "__main__":
 
         output_file_name = file_path + ".parsed"
         output_file = open(output_file_name, 'w+')
+        _config_args["output_file"] = output_file
 
         for ctx in ctxs:
             ctx.load_to_db()
@@ -388,7 +393,7 @@ if __name__ == "__main__":
                 csv_file.write(MLX5DR_DEBUG_RES_TYPE_HW_RRESOURCES_DUMP_END + '\n')
 
             ctx.pre_parse()
-            output_file.write(ctx.tree_print(verbose, ""))
+            ctx.tree_print(verbose, "", output_file)
 
         print("")#empty line
         print(OUTPUT_FILE_STR + file_path)
