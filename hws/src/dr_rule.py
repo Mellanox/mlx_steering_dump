@@ -129,9 +129,18 @@ def split_dict(dic, slice_size):
     return slices
 
 
-def dr_parse_rules(matcher, verbosity, tabs):
-    _str = ''
+def print_results(results, next_result, output_file):
+    result = results.get(next_result)
+    while result is not None:
+        output_file.write(result)
+        next_result += 1
+        result = results.get(next_result)
+    return next_result
+
+
+def dr_parse_rules(matcher, verbosity, tabs, output_file):
     _tabs = tabs + TAB
+    has_parsed_rule = False
     progress_bar_i = _config_args.get("progress_bar_i")
     progress_bar_total = _db._total_matcher_match_fw_stes[0]
     if progress_bar_i == 0:
@@ -181,6 +190,7 @@ def dr_parse_rules(matcher, verbosity, tabs):
         fw_ste_slices = split_dict(fw_ste_dic, SLICE_SIZE)
         req_q = mp.Queue()
         resp_q = mp.Queue()
+
         # The STE dictioary can be quite huge and we don't want to send slices
         # of it through a request queue because that would involve pickling
         # them. Instead, we rely on the fact that workers are spawned using
@@ -204,6 +214,7 @@ def dr_parse_rules(matcher, verbosity, tabs):
         gc.disable()
         processes = []
         results = {}
+        next_result = 0
 
         for i in range(num_workers):
             p = mp.Process(target=worker_thread,
@@ -219,23 +230,20 @@ def dr_parse_rules(matcher, verbosity, tabs):
                 slice_idx, result = resp_q.get(timeout=1)
             except Exception as e:
                 continue
+            if result:
+                has_parsed_rule = True
             if _config_args["ordered_output"]:
                 results[slice_idx] = result
+                next_result = print_results(results, next_result, output_file)
             else:
-                _str += result
+                output_file.write(result)
 
         [p.join() for p in processes]
         gc.enable()
-
-        # Ordered output requires that we buffer all of the output, so it will
-        # be slower.
-        if _config_args["ordered_output"]:
-            for _, s in sorted(results.items()):
-                _str += s
 
         progress_bar_i += 1
         interactive_progress_bar(progress_bar_i, progress_bar_total, PARSING_THE_RULES_STR)
 
     _config_args["progress_bar_i"] = progress_bar_i
 
-    return _str
+    return has_parsed_rule

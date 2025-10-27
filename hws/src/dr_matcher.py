@@ -233,7 +233,7 @@ class dr_parse_matcher():
 
         return _str
 
-    def tree_print(self, verbosity, tabs):
+    def tree_print(self, verbosity, tabs, output_file):
         if self.id in _db._col_matchers:
             return ''
         _str = tabs + self.dump_str(verbosity)
@@ -265,17 +265,15 @@ class dr_parse_matcher():
             for at in self.action_templates:
                 _str = _str + tabs + at.dump_str(tabs, verbosity)
 
+        output_file.write(_str)
         if _config_args.get("parse_hw_resources") and (tbl_level != DR_ROOT_TBL_LEVEL):
-            _str += tabs + 'Rules:\n'
-            _rules_str = dr_parse_rules(self, verbosity, tabs)
+            output_file.write(f'{tabs}Rules:\n')
+            main_has_rules = dr_parse_rules(self, verbosity, tabs, output_file)
+            col_has_rules = False
             if col_matcher:
-                _rules_str += dr_parse_rules(col_matcher, verbosity, tabs)
-            if _rules_str != "":
-                _str += _rules_str
-            else:
-                _str += tabs + TAB + "No rules\n"
-
-        return _str
+                col_has_rules = dr_parse_rules(col_matcher, verbosity, tabs, output_file)
+            if not main_has_rules and not col_has_rules:
+                output_file.write(f'{tabs}{TAB}No rules\n')
 
     def add_attr(self, attr):
         self.attr = attr
