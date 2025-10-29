@@ -61,7 +61,7 @@ class dr_dump_domain(dr_obj):
         self.vports = []
         self.flex_parsers = []
         sw_format_ver = self.data.get("sw_format_ver")
-        if sw_format_ver != None:
+        if sw_format_ver is not None:
             dr_utils_dic["sw_format_ver"] = int(sw_format_ver);
 
     def dump_str(self):

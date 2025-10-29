@@ -3,13 +3,18 @@
 
 from src.dr_common import *
 from src.dr_db import _db, _config_args
-from src.dr_hl import _fields_text_values
+from src.dr_hl import FIELDS_TEXT_VALUES
 from src.dr_action import dr_ste_parse_ste_actions_arr
-from src.dr_common_functions import dr_get_counter_data
+from src.dr_common_functions import action_pretiffy, dr_get_counter_data
 
 
-def fields_handler(_fields, verbosity=0, show_field_val=False):
-    _str = ""
+def combine_union_fields(_fields: dict[str, int]) -> dict[str, int]:
+    """
+    Combine union fields into a single field
+
+    >>> combine_union_fields({"smac_47_16_o": 0x1234, "smac_15_0_o": 0x5678})
+    {'smac_o': 305419896} # in hex, this is 0x12345678
+    """
     fields = {}
     union_fields = {"smac_47_16_o": 0, "smac_15_0_o": 0, "dmac_47_16_o": 0,
                     "dmac_15_0_o": 0, "ipv6_address_127_96_src_o": 0,
@@ -84,27 +89,24 @@ def fields_handler(_fields, verbosity=0, show_field_val=False):
         fields["ipv6_addr_src_i"] |= union_fields["ipv6_address_63_32_src_i"] << 32
         fields["ipv6_addr_src_i"] |= union_fields["ipv6_address_31_0_src_i"]
 
-    for field in fields:
-        if _str != "":
-            _str += ", "
+    return fields
 
+def printable_fields(_fields, verbosity: int, show_field_val: bool) -> list[str]:
+    fields = combine_union_fields(_fields)
+    field_strings = []
+    for field in fields:
         value = fields.get(field)
         if type(value) == str:
-            _str += field + ": " + value
+            field_strings.append(field + ": " + value)
             continue
 
-        if show_field_val:
-            tv_field = _fields_text_values.get(field)
-            if tv_field != None:
-                _str += field + ": " + tv_field.get(value)
-                if verbosity > 2:
-                    _str += ' (' + hex(value) + ')'
-            else:
-                _str += field + ": " + hex(value)
+        if show_field_val and (tv_field := FIELDS_TEXT_VALUES.get(field)):
+            suffix = ' (' + hex(value) + ')' if verbosity > 2 else ""
+            field_strings.append(field + ": " + tv_field.get(value) + suffix)
         else:
-            _str += field + ": " + hex(value)
+            field_strings.append(field + ": " + hex(value))
 
-    return _str
+    return field_strings
 
 def compare_ste_op_translate(op, inverse):
     _str = ""
@@ -170,7 +172,7 @@ def raw_ste_parser(raw_ste):
 
     #Get definer
     definer = _db._definers.get(ste["match_definer_context_index"])
-    if definer == None:
+    if definer is None:
         ste["parsed_tag"] = {}
         return ste
 
@@ -246,11 +248,11 @@ def raw_ste_parser(raw_ste):
         count = 0
         tag = tags.get(selector)
         for field in selector_arr:
-            if (field != None):
+            if field is not None:
                 tag_value = int(field[1], 2) & int(tag[count : count + len(field[1])], 2)
                 if tag_value != 0:
                     pre_tag = parsed_tag.get(field[0])
-                    if pre_tag != None:
+                    if pre_tag is not None:
                         parsed_tag[field[0]] = pre_tag | tag_value
                     else:
                         parsed_tag[field[0]] = tag_value
@@ -288,64 +290,73 @@ class dr_parse_ste():
         _str = prefix + self.data.get("id") + ':\n'
         return _str
 
-    def dump_actions(self, verbosity, tabs, is_last):
-        if not(self.parsed):
+    def dump_actions(self, verbosity: int, is_last: bool, transform_for_print: bool) -> dict:
+        if not self.parsed:
             self.parse()
 
-        _str = tabs + 'Actions:\n'
-        _tabs = tabs + TAB
-        flag = False
-
+        counter = {"idx": self.counter_id}
         if self.counter_id != 0:
-            _str += "%sCounter: idx: %s%s\n" % (_tabs, hex(self.counter_id), dr_get_counter_data(self.counter_id))
-            flag = True
+            counter["data"] = dr_get_counter_data(self.counter_id)
 
-        for action in self.action_arr:
-            if action != '':
-                _str += _tabs + action
-                flag = True
-
+        goto = None
         if is_last or verbosity > 3:
-            _str += _tabs + 'Go To:'
+            goto = {
+                "loc": str(self.hit_loc),
+            }
             if self.hit_loc.gvmi_str == _config_args.get("vhca_id"):
-                obj = _db._term_dest_db.get(hex(self.hit_loc.index))
-            else:
-                obj = None
-            if obj != None:
-                _str += ' ' + obj.get("type") + ' ' + obj.get("id")
+                dest = _db._term_dest_db.get(hex(self.hit_loc.index))
+                if dest is not None:
+                    goto["type"] = dest.get("type")
+                    goto["id"] = dest.get("id")
+
+        obj = {
+            "counter": counter,
+            "modify_actions": self.action_arr,
+            "go_to": goto,
+        }
+
+        if not transform_for_print:
+            return obj
+
+        def maybe_pretiffy_action(maybe_action):
+            """modify_header action patterns are already parsed in the CSV file"""
+            if type(maybe_action) is dict:
+                return action_pretiffy(maybe_action)
+            return maybe_action
+
+        maybe_counter = f"Counter: idx: {hex(counter['idx'])}" if counter["idx"] != 0 else None
+        maybe_gotos = None
+        modify_actions = [maybe_pretiffy_action(a) for a in obj["modify_actions"]]
+        gotos = obj["go_to"]
+        if gotos:
+            maybe_id_str = f" {gotos['id']}" if "id" in gotos else ""
+            maybe_type_str = f" {gotos['type']}" if "type" in gotos else ""
+            loc_str = ''
+            if maybe_id_str and maybe_type_str:
                 if verbosity > 2:
-                    _str += ' (' + str(self.hit_loc) + ')'
+                    loc_str = f" ({gotos['loc']})"
             else:
-                _str += ' ' + str(self.hit_loc)
+                loc_str = str(self.hit_loc)
                 if self.hit_loc.log_sz > 0:
-                    _str += ' (log_sz: ' + hex(self.hit_loc.log_sz) + ')'
-            _str += '\n'
-            flag = True
+                    loc_str += ' (log_sz: ' + hex(self.hit_loc.log_sz) + ')'
+            loc_str = ' ' + gotos['loc']
+            maybe_gotos = f"Go To:{maybe_type_str}{maybe_id_str}{loc_str}"
+        filtered_actions = [a for a in [maybe_counter, *modify_actions, maybe_gotos] if a]
+        return {"Actions:": filtered_actions} if filtered_actions else {}
 
-        if flag:
-            return _str
-        else:
-            return ''
-
-    def dump_fields(self, verbosity, tabs):
-        if not(self.parsed):
+    def dump_fields_str(self, verbosity, tabs):
+        if not self.parsed:
             self.parse()
 
         _str = tabs + 'Tag:\n'
         tabs = tabs + TAB
-        fields_handler_str = fields_handler(self.fields_dic, verbosity, True)
-        if fields_handler_str == '':
+        formatted_fields = printable_fields(combine_union_fields(self.fields_dic), verbosity, True)
+        if not formatted_fields:
             _str += tabs + 'Empty Tag\n'
         else:
-            _str += tabs + fields_handler_str + '\n'
+            _str += tabs + ", ".join(formatted_fields) + '\n'
 
         return _str
-
-    def dump_miss(self, verbosity, tabs):
-        if not len(self.fields_dic):
-            return ''
-
-        return tabs + 'Miss address: ' + str(self.miss_loc) + '\n'
 
     def dump_raw_ste(self, verbosity, tabs):
         _str = tabs + 'Raw STE:\n'
@@ -362,21 +373,45 @@ class dr_parse_ste():
 
         return _str
 
-    def tree_print(self, verbosity, tabs, prefix, is_last):
-        _str = tabs + self.dump_str(verbosity, prefix)
-        tabs = tabs + TAB
-
-        _str += self.dump_fields(verbosity, tabs)
+    def dump_object(
+        self,
+        verbosity: int,
+        prefix: str,
+        is_last: bool,
+        transform_for_print: bool,
+    ) -> dict:
+        """
+        We can't make dr_parse_ste Printable because this function needs to know
+        whether the STE is the last one in the array, so the function signature
+        won't match.
+        """
+        if not self.parsed:
+            self.parse()
+        out = {
+            "fields": self.fields_dic,
+        }
 
         if verbosity > 3:
-            _str += self.dump_miss(verbosity, tabs)
+            out["miss"] = self.miss_loc.__dict__
 
-        _str += self.dump_actions(verbosity, tabs, is_last)
+        # Add this after "fields" to preserve the existing order of the items
+        out["actions"] = self.dump_actions(verbosity, is_last, transform_for_print)
+
+        if not transform_for_print:
+            return {"data": self.data} | out
 
         if verbosity > 2:
-            _str += self.dump_raw_ste(verbosity, tabs)
+            out["raw_ste"] = self.dump_raw_ste(verbosity, '')
 
-        return _str
+        if "miss" in out:
+            if not self.fields_dic:
+                out.pop("miss")
+            else:
+                out["miss"] = 'Miss address: ' + str(self.miss_loc)
+
+        out["fields"] = self.dump_fields_str(verbosity, '')
+
+        return {self.dump_str(verbosity, prefix): list(out.values())}
 
     def get_addr(self):
         return self.data.get("id")

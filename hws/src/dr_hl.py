@@ -22,7 +22,7 @@ class tv_ip:
         i_3 = ip & 0x000000ff
         return '%d.%d.%d.%d' % (i_0, i_1, i_2, i_3)
 
-_fields_text_values = {
+FIELDS_TEXT_VALUES = {
                         "l3_type_o": tv_l3_type,
                         "l3_type_i": tv_l3_type,
                         "l4_type_bwc_o": tv_l4_type_bwc,

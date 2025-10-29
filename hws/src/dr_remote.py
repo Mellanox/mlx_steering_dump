@@ -53,26 +53,26 @@ def remote_cmd(cmd, host, user, password, time_out=60):
 def build_options():
     op = ""
 
-    if _config_args.get("device") != None:
+    if _config_args.get("device") is not None:
         op += " -d %s " % (_config_args.get("device"))
 
     if _config_args.get("verbose") > 0:
         op += " -%s " % (_config_args.get("verbose") * "v")
 
-    if _config_args.get("statistics") == True:
+    if _config_args.get("statistics"):
         op += " -s "
 
     if _config_args.get("args.extra_hw_res") != "":
         op += " --extra_hw_res %s " % _config_args.get("args.extra_hw_res")
 
-    if _config_args.get("parse_hw_resources") == False:
+    if not _config_args.get("parse_hw_resources"):
         op += " --skip_parse "
 
     return op
 
 
 def dr_connect_to_remote():
-    if _config_args.get("remote_dep_lib") == False:
+    if not _config_args.get("remote_dep_lib"):
         globals()["pexpect"] = import_library("pexpect")
         globals()["tempfile"] = import_library("tempfile")
         globals()["getpass"] = import_library("getpass")

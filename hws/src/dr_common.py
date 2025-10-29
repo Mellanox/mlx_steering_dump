@@ -1,6 +1,7 @@
 #SPDX-License-Identifier: BSD-3-Clause
 #Copyright (c) 2021 NVIDIA CORPORATION. All rights reserved.
 
+from abc import ABC, abstractmethod
 import subprocess as sp
 from src.dr_db import _config_args
 
@@ -68,7 +69,7 @@ def dump_obj_str(keys, data, end_of_line="\n"):
             continue
 
         _str = _str + key + " "
-        if data[key] == None:
+        if data[key] is None:
             _str = _str + "NONE"
         else:
             _str = _str + data[key]
@@ -76,6 +77,14 @@ def dump_obj_str(keys, data, end_of_line="\n"):
             _str = _str + ", "
 
     return _str + end_of_line
+
+
+class Printable(ABC):
+    Value = dict | list | str
+
+    @abstractmethod
+    def dump_obj(self, verbosity: int, transform_for_print: bool) -> Value:
+        raise NotImplementedError("dump_obj is not implemented")
 
 
 MLX5DR_DEBUG_RES_TYPE_CONTEXT = "4000"
@@ -238,18 +247,18 @@ def call_resource_dump(dev, dev_name, segment, index1, num_of_obj1, num_of_obj2,
     _input = 'resourcedump dump -d ' + dev
     _input += ' --segment ' + _segments_dic.get(segment)
     _input += ' --index1 ' + index1
-    if num_of_obj1 != None:
+    if num_of_obj1 is not None:
         _input += ' --num-of-obj1 ' + num_of_obj1
-    if num_of_obj2 != None:
+    if num_of_obj2 is not None:
         _input += ' --num-of-obj2 ' + num_of_obj2
-    if depth != None:
+    if depth is not None:
         _input += ' --depth=' + depth
     if _config_args.get("resourcedump_mem_mode"):
         _input += ' --mem ' + dev_name
-        _input += ' --bin ' + _config_args.get("tmp_file_path")
+        _input += ' --bin ' + str(_config_args.get("tmp_file_path"))
 
     vhca_id = _config_args.get("_vhca_id")
-    if vhca_id != None and vhca_id != "0":
+    if vhca_id is not None and vhca_id != "0":
         _input += ' --virtual-hca-id ' + vhca_id
 
     status, output = sp.getstatusoutput(_input)

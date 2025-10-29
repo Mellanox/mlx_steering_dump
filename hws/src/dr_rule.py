@@ -7,7 +7,7 @@ from src.dr_ste import *
 from src.dr_visual import interactive_progress_bar
 
 
-class dr_parse_rule():
+class dr_parse_rule(Printable):
     def __init__(self, tbl_type):
         self.ste_arr = []
         self.prefix = ''
@@ -32,20 +32,22 @@ class dr_parse_rule():
         self.ste_arr.append(ste)
 
 
-    def tree_print(self, verbosity, tabs, matcher):
-        _str = tabs + self.dump_str(verbosity)
-        tabs = tabs + TAB
+    def dump_obj(self, verbosity, transform_for_print: bool) -> dict:
+        stes = []
+        last_i = len(self.ste_arr) - 1
+        for i, ste in enumerate(self.ste_arr):
+            is_last = i == last_i
+            stes.append(ste.dump_object(verbosity, self.prefix, is_last, transform_for_print))
 
-        def tree_print_stes(stes, prefix):
-            nonlocal _str
-            last_i = len(stes) - 1
-            for i, ste in enumerate(stes):
-                is_last = i == last_i
-                _str += ste.tree_print(verbosity, tabs, prefix, is_last)
+        if not transform_for_print:
+            return {
+                "tbl_type": self.tbl_type,
+                "stes": stes,
+            }
 
-        tree_print_stes(self.ste_arr, self.prefix)
-
-        return _str
+        return {
+            self.dump_str(verbosity): stes,
+        }
 
 
 def dr_hw_get_ste_from_loc(loc, hint_loc=[], ignore_hint=False, curr_matcher_idx=None):
@@ -58,7 +60,7 @@ def dr_hw_get_ste_from_loc(loc, hint_loc=[], ignore_hint=False, curr_matcher_idx
     addr = hex(loc.index)
     fw_ste_index = None
     for index in hint_loc:
-        if index == None:
+        if index is None:
             continue
         _range = _db._stes_range_db.get(index)
         if addr >= _range[0] and addr <= _range[1]:
@@ -70,16 +72,15 @@ def dr_hw_get_ste_from_loc(loc, hint_loc=[], ignore_hint=False, curr_matcher_idx
         if matcher_range[0] <= addr <= matcher_range[1]:
             fw_ste_index = curr_matcher_idx
 
-    if fw_ste_index == None:
+    if fw_ste_index is None:
         return None
 
     fw_ste_stes = _db._fw_ste_db.get(fw_ste_index)
     return fw_ste_stes.get(addr)
 
 
-def dr_parse_rules(matcher, verbosity, tabs):
-    _str = ''
-    _tabs = tabs + TAB
+def dr_parse_rules(matcher, verbosity: int, transform_for_print: bool) -> list:
+    rules = []
     progress_bar_i = _config_args.get("progress_bar_i")
     progress_bar_total = _db._total_matcher_match_fw_stes[0]
     if progress_bar_i == 0:
@@ -119,7 +120,7 @@ def dr_parse_rules(matcher, verbosity, tabs):
 
     for _tbl_type, match_ste_id, hint_loc in dumps:
         fw_ste_dic = _db._fw_ste_db.get(match_ste_id)
-        if fw_ste_dic == None:
+        if fw_ste_dic is None:
             continue
 
         for ste_addr in fw_ste_dic:
@@ -128,15 +129,15 @@ def dr_parse_rules(matcher, verbosity, tabs):
                 ste.get_entry_format() == STE_ENTRY_TYPE_4DW_RANGE_MATCH:
                     continue
             rule = dr_parse_rule(_tbl_type)
-            while ste != None:
+            while ste is not None:
                 rule.add_ste(ste)
                 hit_loc = ste.get_hit_location()
                 ste = dr_hw_get_ste_from_loc(hit_loc, hint_loc + _db._action_ste_indexes_arr, False, match_ste_id)
-            _str += rule.tree_print(verbosity, _tabs, matcher)
+            rules.append(rule.dump_obj(verbosity, transform_for_print))
 
         progress_bar_i += 1
         interactive_progress_bar(progress_bar_i, progress_bar_total, PARSING_THE_RULES_STR)
 
     _config_args["progress_bar_i"] = progress_bar_i
 
-    return _str
+    return rules

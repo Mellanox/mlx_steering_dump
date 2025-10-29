@@ -18,7 +18,7 @@ def get_mst_dev(dev_name):
         exit()
     output_arr = output.split('\n')
 
-    if dev_name.startswith("0000:") == True:
+    if dev_name.startswith("0000:"):
         dev_name = dev_name[5:]
 
     for l in output_arr:
@@ -67,7 +67,7 @@ class Version():
             return True
         return self.minor > other.minor
 
-class dr_parse_context():
+class dr_parse_context(Printable):
     def __init__(self, data):
         keys = ["mlx5dr_debug_res_type", "id", "hws_support",
                 "dev_name", "debug_version"]
@@ -83,7 +83,7 @@ class dr_parse_context():
 
     def load_to_db(self):
         if _config_args.get("dump_hw_resources"):
-            if _config_args.get("device") == None:
+            if _config_args.get("device") is None:
                 _config_args["dev_name"] = self.data.get("dev_name");
                 _config_args["device"] = get_mst_dev(self.data.get("dev_name"))
             else:
@@ -102,33 +102,46 @@ class dr_parse_context():
         # Load matchers base address
         for matcher_key in _db._matchers:
             matcher = _db._matchers.get(matcher_key)
-            if matcher.match_ste_0_id != None:
+            if matcher.match_ste_0_id is not None:
                 base_addr = _db._stes_range_db.get(matcher.match_ste_0_id)
-                if base_addr != None:
+                if base_addr is not None:
                     matcher.add_base_addr_0(base_addr[0])
 
-            if matcher.match_ste_1_id != None:
+            if matcher.match_ste_1_id is not None:
                 base_addr = _db._stes_range_db.get(matcher.match_ste_1_id)
-                if base_addr != None:
+                if base_addr is not None:
                     matcher.add_base_addr_1(base_addr[0])
 
-    def tree_print(self, verbosity, tabs):
-        _str = tabs + self.dump_str(verbosity)
-        tabs = tabs + TAB
 
-        _str = _str + tabs + self.attr.dump_str(verbosity)
+    def dump_obj(self, verbosity: int, transform_for_print: bool) -> dict:
+        obj = {
+            "attr": self.attr.dump_obj(verbosity, transform_for_print),
+            "caps": self.caps.dump_obj(verbosity, transform_for_print),
+            "send_engine": [
+                se.dump_obj(verbosity, transform_for_print)
+                for se in self.send_engine
+            ],
+            "tables": [
+                t.dump_obj(verbosity, transform_for_print)
+                for t in sorted(self.tables)
+            ]
+        }
 
-        if verbosity > 0:
-            _str = _str + tabs + self.caps.dump_str(verbosity)
+        if not transform_for_print:
+            return {"data": self.data} | obj
 
-        if verbosity > 3:
-            for se in self.send_engine:
-                _str = _str + se.tree_print(verbosity, tabs)
+        # The printable text format treats these as inline (without indentation)
+        maybe_caps = [obj["caps"]] if verbosity > 0 else []
+        maybe_send_engine = obj["send_engine"] if verbosity > 3 else []
 
-        for t in sorted(self.tables):
-            _str = _str + t.tree_print(verbosity, tabs)
-
-        return _str
+        return {
+            self.dump_str(verbosity): [
+                obj["attr"],
+                *maybe_caps,
+                *maybe_send_engine,
+                *obj["tables"],
+            ]
+        }
 
     def fix_data(self):
         self.data["hws_support"] = "True" if self.data["hws_support"] == "1" else "False"
@@ -154,7 +167,7 @@ class dr_parse_context_attr():
         self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
         _config_args["vhca_id"] = self.data.get("vhca_id")
         shared_dev_name = None if self.data.get("shared_dev_name") == 'None' else self.data.get("shared_dev_name")
-        if _config_args.get("dump_hw_resources") and shared_dev_name != None:
+        if _config_args.get("dump_hw_resources") and shared_dev_name is not None:
             _config_args["shared_dev_name"] = shared_dev_name
             _config_args["shared_device"] = get_mst_dev(shared_dev_name)
             _config_args["shared_vhca_id"] = self.data.get("shared_vhca_id")
@@ -167,6 +180,12 @@ class dr_parse_context_attr():
             arr.extend(["shared_dev_name", "shared_vhca_id"])
 
         return dump_obj_str(arr, self.data)
+
+    def dump_obj(self, verbosity: int, transform_for_print: bool) -> dict | str:
+        if not transform_for_print:
+            return {"data": self.data}
+
+        return self.dump_str(verbosity)
 
 
 class dr_parse_context_caps():
@@ -187,20 +206,20 @@ class dr_parse_context_caps():
         _config_args["fw_version_major"] = int(self.data.get("fw_version").split(".")[0])
         _config_args["cx8"] = True if (_config_args.get("fw_version_major") >= FW_VERSION_MAJOR_CX8) else False
 
-        if _config_args.get("dump_hw_resources") == True:
-            if _config_args.get("extra_hw_res_pat") == True:
+        if _config_args.get("dump_hw_resources"):
+            if _config_args.get("extra_hw_res_pat"):
                 expected_fw_version = "%s.%s" % (_config_args.get("fw_version_major"), FW_VERSION_MINOR_EXTRA_HW_RES)
                 if self.data.get("fw_version") < expected_fw_version:
-                    if _config_args.get("extra_hw_res_all") == True:
+                    if _config_args.get("extra_hw_res_all"):
                         _config_args["dump_hw_resources"] = False
                     else:
                         print("To dump Pattern/Argument HW resources, please use FW version %s or higher" % expected_fw_version)
                         sys.exit(0)
 
-            if _config_args.get("extra_hw_res_counter") == True:
+            if _config_args.get("extra_hw_res_counter"):
                 expected_fw_version = "%s.%s" % (_config_args.get("fw_version_major"), FW_VERSION_MINOR_EXTRA_HW_RES_COUNTER)
                 if self.data.get("fw_version") < expected_fw_version:
-                    if _config_args.get("extra_hw_res_all") == True:
+                    if _config_args.get("extra_hw_res_all"):
                         _config_args["extra_hw_res_counter"] = False
                     else:
                         print("To dump Counter HW resources, please use FW version %s or higher" % expected_fw_version)
@@ -214,7 +233,7 @@ class dr_parse_context_caps():
 
         _config_args["linear_match_definer"] = self.data.get("linear_match_definer")
         _config_args["linear_match_definer_field_name"] = self.data.get("linear_match_definer_field_name")
-        if _config_args.get("linear_match_definer") != None:
+        if _config_args.get("linear_match_definer") is not None:
             #Add to _definers DB as None so in STE parsing tag parsing will be skipped
             _db._definers[int(_config_args.get("linear_match_definer"))] = None
 
@@ -240,8 +259,14 @@ class dr_parse_context_caps():
 
         return dump_obj_str(_keys, self.data)
 
+    def dump_obj(self, verbosity: int, transform_for_print: bool) -> dict | str:
+        if not transform_for_print:
+            return {"data": self.data}
 
-class dr_parse_context_send_engine():
+        return self.dump_str(verbosity)
+
+
+class dr_parse_context_send_engine(Printable):
     def __init__(self, data):
         keys = ["mlx5dr_debug_res_type", "ctx_id", "id", "used_entries",
                 "th_entries", "rings", "num_entries", "err", "ci", "pi",
@@ -254,20 +279,23 @@ class dr_parse_context_send_engine():
                              "used_entries", "th_entries", "rings",
                              "num_entries", "err", "ci", "pi"], self.data)
 
-    def tree_print(self, verbosity, tabs):
-        _str = tabs + self.dump_str(verbosity)
-        tabs = tabs + TAB
+    def dump_obj(self, verbosity: int, transform_for_print: bool) -> dict:
+        obj = {
+            "send_ring": [sr.dump_obj(verbosity, transform_for_print) for sr in self.send_ring]
+        }
 
-        for sr in self.send_ring:
-            _str = _str + tabs + sr.dump_str(verbosity)
+        if not transform_for_print:
+            return {"data": self.data} | obj
 
-        return _str
+        return {
+            self.dump_str(verbosity): obj["send_ring"]
+        }
 
     def add_send_ring(self, send_ring):
         self.send_ring.append(send_ring)
 
 
-class dr_parse_context_send_ring():
+class dr_parse_context_send_ring(Printable):
     def __init__(self, data):
         keys = ["mlx5dr_debug_res_type", "ctx_id", "id", "send_engine_index",
                 "cqn", "cq_cons_index", "cq_ncqe_mask", "cq_buf_sz",
@@ -282,3 +310,9 @@ class dr_parse_context_send_ring():
                              "cq_cqe_log_sz", "cq_poll_wqe", "cq_cqe_sz",
                              "sqn", "sq_obj_id", "sq_cur_post",
                              "sq_buf_mask"], self.data)
+
+    def dump_obj(self, verbosity: int, transform_for_print: bool) -> dict | str:
+        if not transform_for_print:
+            return self.data
+
+        return self.dump_str(verbosity)

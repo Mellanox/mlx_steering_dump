@@ -11,12 +11,12 @@ def get_fw_ste_distribution_statistics(fw_ste_id, row_log_sz, col_log_sz):
     arr = [0] * (1 << col_log_sz)
     _str = str(arr)
     base_addr = _db._stes_range_db.get(fw_ste_id)
-    if base_addr == None:
+    if base_addr is None:
         return _str
 
     base_addr = int(base_addr[0], 16)
     ste_addr_db = _db._fw_ste_db.get(fw_ste_id)
-    if ste_addr_db == None:
+    if ste_addr_db is None:
         return _str
 
     for addr in ste_addr_db:
@@ -28,7 +28,7 @@ def get_fw_ste_distribution_statistics(fw_ste_id, row_log_sz, col_log_sz):
 
     return _str
 
-class dr_parse_matcher():
+class dr_parse_matcher(Printable):
     def __init__(self, data):
         keys = ["mlx5dr_debug_res_type", "id", "tbl_id", "num_of_mt",
                 "end_ft_id", "col_matcher_id", "match_rtc_0_id", "match_ste_0_id",
@@ -98,15 +98,15 @@ class dr_parse_matcher():
             self.action_ste_1_id = ste_id
 
         aliased_rtc_0_id = self.data.get("aliased_rtc_0_id")
-        if aliased_rtc_0_id != None and aliased_rtc_0_id != '0':
+        if aliased_rtc_0_id is not None and aliased_rtc_0_id != '0':
             self.aliased_rtc_0_id = aliased_rtc_0_id
 
         rx_icm_addr = self.data.get("rx_icm_addr")
-        if rx_icm_addr == None:
+        if rx_icm_addr is None:
             rx_icm_addr = "0x0"
 
         tx_icm_addr = self.data.get("tx_icm_addr")
-        if tx_icm_addr == None:
+        if tx_icm_addr is None:
             tx_icm_addr = "0x0"
 
         self.data["end_ft_id"] = hex(int(self.data.get("end_ft_id")))
@@ -146,16 +146,16 @@ class dr_parse_matcher():
         if verbosity > 1:
             _keys.extend(["end_ft_id"])
             ft_idx = _db._ft_idx_dic.get(self.data.get("end_ft_id"))
-            if ft_idx != None:
+            if ft_idx is not None:
                 self.fix_address(ft_idx[0], ft_idx[1])
 
             if self.data.get("rx_icm_addr") != "0x0":
-                if self.base_addr_0 != None and self.base_addr_0 != "0xffffffff":
+                if self.base_addr_0 is not None and self.base_addr_0 != "0xffffffff":
                     self.data["rx_base_addr"] = self.base_addr_0
                     _keys.extend(["rx_base_addr"])
                 _keys.extend(["rx_icm_addr"])
             if self.data.get("tx_icm_addr") != "0x0":
-                if self.base_addr_1 != None and self.base_addr_1 != "0xffffffff":
+                if self.base_addr_1 is not None and self.base_addr_1 != "0xffffffff":
                     self.data["tx_base_addr"] = self.base_addr_1
                     _keys.extend(["tx_base_addr"])
                 _keys.extend(["tx_icm_addr"])
@@ -166,7 +166,7 @@ class dr_parse_matcher():
         return dump_obj_str(_keys, self.data)
 
 
-    def dump_matcher_statistcs(self):
+    def dump_matcher_statistics(self) -> str:
         row_log_sz = self.attr.get_row_log_sz()
         col_log_sz = self.attr.get_col_log_sz()
         tbl_type = _db._tbl_type_db.get(self.data.get("tbl_id"))
@@ -181,7 +181,7 @@ class dr_parse_matcher():
         if tbl_type == DR_TBL_TYPE_FDB_UNIFIED:
             return _str + "\n"
 
-        if self.match_ste_1_id != None:
+        if self.match_ste_1_id is not None:
             tx_row_log_sz = self.attr.get_tx_row_log_sz()
             tx_col_log_sz = self.attr.get_tx_col_log_sz()
             _str += ", TX: " + get_fw_ste_distribution_statistics(self.match_ste_1_id, tx_row_log_sz, tx_col_log_sz)
@@ -189,93 +189,113 @@ class dr_parse_matcher():
         return _str + "\n"
 
 
-    def dump_matcher_resources(self, verbosity, tabs):
+    def dump_matcher_resources_obj(self, verbosity: int, transform_for_print: bool) -> dict | list:
         _keys = ["match_rtc_0_id", "match_ste_0_id"]
         rtc_0_arr = []
         rtc_1_arr = []
         ste_0_arr = []
         ste_1_arr = []
 
-        if self.aliased_rtc_0_id != None:
+        if self.aliased_rtc_0_id is not None:
             _keys.append("aliased_rtc_0_id")
-        if self.match_ste_1_id != None:
+        if self.match_ste_1_id is not None:
             _keys.extend(["match_rtc_1_id", "match_ste_1_id"])
 
-        _str = tabs + "Resources: " + dump_obj_str(_keys, self.data, end_of_line="")
-
-        if self.action_rtc_0_id != None:
+        if self.action_rtc_0_id is not None:
             rtc_0_arr = [self.action_rtc_0_id]
             ste_0_arr = [self.action_ste_0_id]
 
-        if self.action_rtc_1_id != None:
+        if self.action_rtc_1_id is not None:
             rtc_1_arr = [self.action_rtc_1_id]
             ste_1_arr = [self.action_ste_1_id]
 
         for obj in self.resizable_arrays:
-            if obj.action_rtc_0_id != None:
+            if obj.action_rtc_0_id is not None:
                 rtc_0_arr += [obj.action_rtc_0_id]
                 ste_0_arr += [obj.action_ste_0_id]
-            if obj.action_rtc_1_id != None:
+            if obj.action_rtc_1_id is not None:
                 rtc_1_arr += [obj.action_rtc_1_id]
                 ste_1_arr += [obj.action_ste_1_id]
 
-        if len(rtc_0_arr) != 0:
-            _str += ", action_rtc_0: [%s], action_ste_0: [%s]" % (", ".join(rtc_0_arr), ", ".join(ste_0_arr))
-
-        if len(rtc_1_arr) != 0:
-            _str += ", action_rtc_1: [%s], action_ste_1: [%s]" % (", ".join(rtc_1_arr), ", ".join(ste_1_arr))
-
-        _str += "\n"
-
+        col_matcher_data = None
         if self.col_matcher_id != "0x0":
-            col_matcher = _db._matchers.get(self.col_matcher_id)
-            _str += tabs +"Resources (C): " + dump_obj_str(_keys, col_matcher.data)
+            col_matcher_data = _db._matchers.get(self.col_matcher_id).data
 
-        return _str
+        if not transform_for_print:
+            matcher_data = {k: v for k, v in self.data.items() if k in _keys}
+            return {
+                "matcher_data": matcher_data,
+                "col_matcher_data": col_matcher_data,
+            }
 
-    def tree_print(self, verbosity, tabs):
+        out = [
+            "Resources: " + dump_obj_str(_keys, self.data)
+        ]
+
+        if rtc_0_arr:
+            out.append("action_rtc_0: [%s], action_ste_0: [%s]" % (", ".join(rtc_0_arr), ", ".join(ste_0_arr)))
+
+        if rtc_1_arr:
+            out.append("action_rtc_1: [%s], action_ste_1: [%s]" % (", ".join(rtc_1_arr), ", ".join(ste_1_arr)))
+        if col_matcher_data is not None:
+            out.append("Resources (C): " + dump_obj_str(_keys, col_matcher_data))
+
+        return out
+
+
+    def dump_obj(self, verbosity: int, transform_for_print: bool) -> dict:
         if self.id in _db._col_matchers:
-            return ''
-        _str = tabs + self.dump_str(verbosity)
-        tabs = tabs + TAB
+            return {}
+
+        out = {
+            "attr": self.attr.dump_obj(verbosity, transform_for_print),
+        }
+
         tbl_level = _db._tbl_level_db.get(self.data.get("tbl_id"))
         col_matcher = _db._matchers.get(self.col_matcher_id)
-
-        _str = _str + tabs + self.attr.dump_str(verbosity)
-
         if tbl_level != DR_ROOT_TBL_LEVEL:
-            if col_matcher and verbosity > 0:
-                _str = _str + tabs + col_matcher.attr.dump_str(verbosity).replace(':', ' (C):')
-            if verbosity > 0:
-                _str = _str + self.dump_matcher_resources(verbosity, tabs)
-
-            if _config_args.get("statistics") == True:
-                _str += tabs + self.dump_matcher_statistcs()
-
-                if self.col_matcher_id != "0x0":
-                    _str += tabs + col_matcher.dump_matcher_statistcs().replace("Statistics:", "Statistics (C):")
-
-            if self.hash_definer != None:
-                definer_str = self.hash_definer.dump_fields()
-                if len(definer_str) != 0:
-                    definer_str = definer_str.replace(', ', '\n' + TAB + tabs)
-                    _str += tabs + 'Hash fields:\n' + tabs + TAB + definer_str + '\n'
-            for mt in self.match_template:
-                _str = _str + tabs + mt.dump_str(tabs, verbosity)
-            for at in self.action_templates:
-                _str = _str + tabs + at.dump_str(tabs, verbosity)
-
-        if _config_args.get("parse_hw_resources") and (tbl_level != DR_ROOT_TBL_LEVEL):
-            _str += tabs + 'Rules:\n'
-            _rules_str = dr_parse_rules(self, verbosity, tabs)
             if col_matcher:
-                _rules_str += dr_parse_rules(col_matcher, verbosity, tabs)
-            if _rules_str != "":
-                _str += _rules_str
-            else:
-                _str += tabs + TAB + "No rules\n"
+                out["col_matcher_attr"] = col_matcher.attr.dump_obj(verbosity, transform_for_print)
+                out["col_matcher_statistics"] = col_matcher.dump_matcher_statistics()
+            out["matcher_resources"] = self.dump_matcher_resources_obj(verbosity, transform_for_print)
+            out["statistics"] = self.dump_matcher_statistics()
 
-        return _str
+            if self.hash_definer is not None:
+                out["hash_fields"] = self.hash_definer.dump_fields(verbosity, transform_for_print)
+
+            out["match_templates"] = [mt.dump_obj(verbosity, transform_for_print) for mt in self.match_template]
+            out["action_templates"] = [at.dump_obj(verbosity, transform_for_print) for at in self.action_templates]
+
+            if _config_args.get("parse_hw_resources"):
+                out["rules"] = dr_parse_rules(self, verbosity, transform_for_print)
+                if col_matcher:
+                    out["rules"] += dr_parse_rules(col_matcher, verbosity, transform_for_print)
+
+        if not transform_for_print:
+            return {"data": self.data} | out
+
+        if "col_matcher_attr" in out:
+            if verbosity == 0:
+                out.pop("col_matcher_attr")
+            else:
+                out["col_matcher_attr"] = out["col_matcher_attr"].replace(':', ' (C):')
+        if verbosity == 0:
+            out.pop("matcher_resources", None)
+        if not _config_args.get("statistics"):
+            out.pop("statistics", None)
+            out.pop("col_matcher_statistics", None)
+        if "col_matcher_statistics" in out:
+            if self.col_matcher_id == "0x0":
+                out.pop("col_matcher_statistics")
+            else:
+                out["col_matcher_statistics"] = out["col_matcher_statistics"].replace("Statistics:", "Statistics (C):")
+        if "hash_fields" in out:
+            out["hash_fields"] = {'Hash fields:': out["hash_fields"]}
+
+        if "rules" in out:
+            out["rules"] = {'Rules:': out["rules"] or "No rules"}
+
+        return {self.dump_str(verbosity): list(out.values())}
 
     def add_attr(self, attr):
         self.attr = attr
@@ -309,11 +329,11 @@ class dr_parse_matcher():
     def save_to_db(self):
         total_match_fw_stes = 0
 
-        if self.match_ste_0_id != None:
+        if self.match_ste_0_id is not None:
             _db._fw_ste_indexes_arr.append(self.match_ste_0_id)
             total_match_fw_stes += 1
 
-        if self.match_ste_1_id != None:
+        if self.match_ste_1_id is not None:
             _db._fw_ste_indexes_arr.append(self.match_ste_1_id)
             total_match_fw_stes += 1
 
@@ -322,10 +342,10 @@ class dr_parse_matcher():
             _db._total_matcher_match_fw_stes[0] = _tmp + total_match_fw_stes
 
 
-        if self.action_ste_0_id != None:
+        if self.action_ste_0_id is not None:
             _db._fw_ste_indexes_arr.append(self.action_ste_0_id)
 
-        if self.action_ste_1_id != None:
+        if self.action_ste_1_id is not None:
             _db._fw_ste_indexes_arr.append(self.action_ste_1_id)
 
         _db._matchers[self.id] = self
@@ -348,21 +368,21 @@ class dr_parse_matcher():
     def get_ste_arrays(self, ste_0=True, ste_1=True):
         res = []
 
-        if ste_0 and self.action_ste_0_id != None:
+        if ste_0 and self.action_ste_0_id is not None:
             res.append(self.action_ste_0_id)
-        if ste_1 and self.action_ste_1_id != None:
+        if ste_1 and self.action_ste_1_id is not None:
             res.append(self.action_ste_1_id)
 
         for obj in self.resizable_arrays:
-            if ste_0 and obj.action_ste_0_id != None:
+            if ste_0 and obj.action_ste_0_id is not None:
                 res.append(obj.action_ste_0_id)
-            if ste_1 and obj.action_ste_1_id != None:
+            if ste_1 and obj.action_ste_1_id is not None:
                 res.append(obj.action_ste_1_id)
 
         return res
 
 
-class dr_parse_matcher_attr():
+class dr_parse_matcher_attr(Printable):
     def __init__(self, data):
         keys = ["mlx5dr_debug_res_type", "matcher_id", "priority",
                 "mode", "sz_row_log", "sz_col_log", "use_rule_idx",
@@ -386,14 +406,14 @@ class dr_parse_matcher_attr():
 
     def get_tx_row_log_sz(self):
         sz = self.data.get("tx_sz_row_log")
-        if sz != None and sz !='-1':
+        if sz is not None and sz !='-1':
             return int(sz)
 
         return self.get_row_log_sz()
 
     def get_tx_col_log_sz(self):
         sz = self.data.get("tx_sz_col_log")
-        if sz != None and sz !='-1':
+        if sz is not None and sz !='-1':
             return int(sz)
 
         return self.get_col_log_sz()
@@ -426,11 +446,18 @@ class dr_parse_matcher_attr():
 
         tx_sz_row = self.data.get("tx_sz_row_log")
         log_sz_str = "%sX%s" % (self.data.get("sz_row_log"), self.data.get("sz_col_log"))
-        if tx_sz_row != None and tx_sz_row !='-1':
+        if tx_sz_row is not None and tx_sz_row !='-1':
             log_sz_str = "rx %s tx %sX%s" % (log_sz_str, tx_sz_row, self.data.get("tx_sz_col_log"))
         self.data["log_sz"] = log_sz_str
 
-class dr_parse_matcher_match_template():
+
+    def dump_obj(self, verbosity: int, transform_for_print: bool) -> dict | str:
+        if not transform_for_print:
+            return self.data
+
+        return self.dump_str(verbosity)
+
+class dr_parse_matcher_match_template(Printable):
     def __init__(self, data):
         keys = ["mlx5dr_debug_res_type", "id", "matcher_id", "fc_sz", "flags", "fcr_sz", "fcc_sz"]
         self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
@@ -440,43 +467,50 @@ class dr_parse_matcher_match_template():
         self.fix_data()
 
     def fix_data(self):
-        if self.data.get("fcr_sz") == None:
+        if self.data.get("fcr_sz") is None:
             self.data["fcr_sz"] = "0"
-        if self.data.get("fcc_sz") == None:
+        if self.data.get("fcc_sz") is None:
             self.data["fcc_sz"] = "0"
 
-    def dump_str(self, tabs, verbosity):
-        _tabs = tabs + TAB
-        __tabs = _tabs + TAB
-        _str = ':'
-        if self.match_definer != None:
-            definer_str = self.match_definer.dump_fields()
-            if len(definer_str) != 0:
-                _str = ':\n' + _tabs + 'Match fields:\n' + __tabs + definer_str
-                _str = _str.replace(', ', '\n' + __tabs)
+    def dump_obj(self, verbosity: int, transform_for_print: bool) -> dict | str:
+        def prettify_field_name(name: str) -> str:
+            return name.replace('_', ' ').capitalize() + ":"
 
-            range_definer_str = ''
-            if self.range_definer != None:
-                range_definer_str = self.range_definer.dump_fields()
-            if len(range_definer_str) != 0:
-                _str += '\n' + _tabs + 'Range fields:\n' + __tabs + range_definer_str
-                _str = _str.replace(', ', '\n' + __tabs)
+        obj = {}
+        if self.match_definer is not None:
+            obj["match_fields"] = self.match_definer.dump_fields(verbosity, transform_for_print)
 
-            compare_definer_str = ''
-            if self.compare_definer != None:
-                compare_definer_str = self.compare_definer.dump_fields()
-            if len(compare_definer_str) != 0:
-                _str += '\n' + _tabs + 'Compare fields:\n' + __tabs + compare_definer_str
-                _str = _str.replace(', ', '\n' + __tabs)
+        if self.range_definer is not None:
+            obj["range_fields"] = self.range_definer.dump_fields(verbosity, transform_for_print)
 
-        if verbosity > 2:
-            if _str != ':':
-                _str += '\n' + _tabs
-            return dump_obj_str(["mlx5dr_debug_res_type", "id", "flags",
-                                 "fc_sz", "fcr_sz", "fcc_sz"], self.data).replace(":", _str)
+        if self.compare_definer is not None:
+            obj["compare_fields"] = self.compare_definer.dump_fields(verbosity, transform_for_print)
 
-        return dump_obj_str(["mlx5dr_debug_res_type", "id"],
-                             self.data).replace(":", _str)
+        if not transform_for_print:
+            return {"data": self.data} | obj
+
+        base_obj = dump_obj_str(["mlx5dr_debug_res_type", "id"], self.data)
+        # The current version adds a space for some reason. If we may break
+        # compatibility, it should be removed.
+        maybe_obj_suffix = [" " + dump_obj_str(
+                ["flags", "fc_sz", "fcr_sz", "fcc_sz"], self.data
+            )
+        ] if verbosity > 2 else []
+
+        # prettify the keys and values and drop empty values
+        pretty_obj = {
+            prettify_field_name(k): '\n'.join(v)
+            for k, v in obj.items() if v
+        }
+
+        if pretty_obj:
+            return {
+                base_obj: [
+                    pretty_obj,
+                    *maybe_obj_suffix,
+                ]
+            }
+        return base_obj.rstrip() + "".join(maybe_obj_suffix)
 
     def add_match_definer(self, definer):
         self.match_definer = definer
@@ -488,16 +522,14 @@ class dr_parse_matcher_match_template():
         self.compare_definer = definer
 
 
-class dr_parse_matcher_action_template():
+class dr_parse_matcher_action_template(Printable):
     def __init__(self, data):
         keys = ["mlx5dr_debug_res_type", "id", "matcher_id", "only_term",
                 "num_of_action_stes", "num_of_actions"]
         self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
         self.num_actions = int(self.data.get("num_of_actions"))
         if self.num_actions > 0:
-            self.data["action_combinations"] = data[6]#Actions combinations start index is 6
-            for ac in data[7:]:#Actions combinations start index is 6, 7 for the second
-                self.data["action_combinations"] += ', ' + ac
+            self.data["action_combinations"] = data[6:] # Actions combinations start index is 6
 
     def dump_str(self, tabs, verbosity):
         _keys = ["mlx5dr_debug_res_type", "id"]
@@ -508,9 +540,15 @@ class dr_parse_matcher_action_template():
         _str = dump_obj_str(_keys, self.data)
 
         if self.num_actions > 0:
-            _str += _tabs + 'Action combinations: ' + self.data.get("action_combinations") + '\n'
+            _str += _tabs + 'Action combinations: ' + ", ".join(self.data.get("action_combinations")) + '\n'
 
         return _str
+
+    def dump_obj(self, verbosity: int, transform_for_print: bool) -> dict | str:
+        if not transform_for_print:
+            return self.data
+
+        return self.dump_str('', verbosity)
 
 
 class dr_parse_matcher_resizable_array():
@@ -549,11 +587,11 @@ class dr_parse_matcher_resizable_array():
                     return True
             return False
 
-        if self.action_ste_0_id != None:
+        if self.action_ste_0_id is not None:
             if not check_id(self.action_ste_0_id):
                 _db._fw_ste_indexes_arr.append(self.action_ste_0_id)
 
-        if self.action_ste_1_id != None:
+        if self.action_ste_1_id is not None:
             if not check_id(self.action_ste_1_id):
                 _db._fw_ste_indexes_arr.append(self.action_ste_1_id)
 
@@ -579,13 +617,13 @@ class dr_parse_action_ste_table():
             self.tx_ste = ste_id
 
     def save_to_db(self):
-        if self.rx_ste != None:
+        if self.rx_ste is not None:
             # Add to the index ranges that need to be dumped.
             _db._fw_ste_indexes_arr.append(self.rx_ste)
             # Also add to the list of action STE ranges that will be searched
             # for rules that use action STEs.
             _db._action_ste_indexes_arr.append(self.rx_ste)
 
-        if self.tx_ste != None:
+        if self.tx_ste is not None:
             _db._fw_ste_indexes_arr.append(self.tx_ste)
             _db._action_ste_indexes_arr.append(self.tx_ste)

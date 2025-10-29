@@ -4,7 +4,7 @@
 from src.dr_common import *
 from src.dr_db import _db, _config_args
 
-class dr_parse_table():
+class dr_parse_table(Printable):
     def __init__(self, data):
         keys = ["mlx5dr_debug_res_type", "id", "ctx_id", "ft_id", "type",
                 "fw_ft_type", "level", "local_ft_id", "rx_icm_addr",
@@ -43,10 +43,10 @@ class dr_parse_table():
         if self.level ==  0:
             return dump_obj_str(_keys, self.data)
 
-        if _config_args.get("shared_device") != None:
+        if _config_args.get("shared_device") is not None:
             _keys.extend(["local_ft_id"])
             ft_idx = _db._ft_idx_dic.get(self.data.get("local_ft_id"))
-            if ft_idx != None:
+            if ft_idx is not None:
                 self.fix_address(ft_idx[0], ft_idx[1], True)
 
             if self.data.get("local_rx_icm_addr") != "0x0":
@@ -56,7 +56,7 @@ class dr_parse_table():
 
         _keys.extend(["ft_id"])
         ft_idx = _db._ft_idx_dic.get(self.data.get("ft_id"))
-        if ft_idx != None:
+        if ft_idx is not None:
             self.fix_address(ft_idx[0], ft_idx[1])
 
         if self.data.get("rx_icm_addr") != "0x0":
@@ -66,36 +66,39 @@ class dr_parse_table():
 
         return dump_obj_str(_keys, self.data)
 
-    def tree_print(self, verbosity, tabs):
-        _str = tabs + self.dump_str(verbosity)
-        tabs = tabs + TAB
+    def dump_obj(self, verbosity: int, transform_for_print: bool) -> dict:
+        if not transform_for_print:
+            return {
+                "data": self.data,
+                "matchers": [
+                    m.dump_obj(verbosity, False)
+                    for m in sorted(self.matchers)
+                ]
+            }
 
+        matchers = []
         for m in sorted(self.matchers):
             if verbosity < 2 and m.data["id"] in self.col_matcher_ids:
                 continue
-            _str = _str + m.tree_print(verbosity, tabs)
+            if not m:
+                continue
+            matchers.append(m)
             if verbosity < 2 and m.data["col_matcher_id"] != "0x0":
                 self.col_matcher_ids[m.data["col_matcher_id"]] = ""
 
-        return _str
+        return {
+            self.dump_str(verbosity): [m.dump_obj(verbosity, True) for m in matchers]
+        }
 
     def fix_data(self):
-        rx_icm_addr = self.data.get("rx_icm_addr")
-        if rx_icm_addr == None:
-            rx_icm_addr = "0x0"
-        tx_icm_addr = self.data.get("tx_icm_addr")
-        if tx_icm_addr == None:
-            tx_icm_addr = "0x0"
-        local_rx_icm_addr = self.data.get("local_rx_icm_addr")
-        if local_rx_icm_addr == None:
-            local_rx_icm_addr = "0x0"
-        local_tx_icm_addr = self.data.get("local_tx_icm_addr")
-        if local_tx_icm_addr == None:
-            local_tx_icm_addr = "0x0"
+        rx_icm_addr = self.data.get("rx_icm_addr", "0x0")
+        tx_icm_addr = self.data.get("tx_icm_addr", "0x0")
+        local_rx_icm_addr = self.data.get("local_rx_icm_addr", "0x0")
+        local_tx_icm_addr = self.data.get("local_tx_icm_addr", "0x0")
 
         self.data["type"] = dr_table_type[int(self.data["type"])]
-        self.data["ft_id"] = hex(int(self.data.get("ft_id"))) if self.data.get("ft_id") != None else "0x0"
-        self.data["local_ft_id"] = hex(int(self.data.get("local_ft_id"))) if self.data.get("local_ft_id") != None else "0x0"
+        self.data["ft_id"] = hex(int(self.data.get("ft_id"))) if self.data.get("ft_id") is not None else "0x0"
+        self.data["local_ft_id"] = hex(int(self.data.get("local_ft_id"))) if self.data.get("local_ft_id") is not None else "0x0"
 
         if self.level == 0:
             return

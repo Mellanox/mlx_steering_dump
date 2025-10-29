@@ -3,12 +3,26 @@
 #SPDX-License-Identifier: BSD-3-Clause
 #Copyright (c) 2021 NVIDIA CORPORATION. All rights reserved.
 
+from io import TextIOWrapper
+import json
 from pathlib import Path
 import sys
 import os
 import argparse
 import csv
 import time
+
+MINIMUM_PYTHON_VERSION = (3, 9)
+
+def check_python_version_supported():
+    if sys.version_info < MINIMUM_PYTHON_VERSION:
+        file_name = Path(__file__).name
+        printable_version = '.'.join(map(str, MINIMUM_PYTHON_VERSION))
+        print(f"Error: {file_name} requires Python {printable_version} or newer")
+        sys.exit(1)
+
+# Need to execute this before parsing the rest of the file
+check_python_version_supported()
 
 from src import dr_trigger
 from src.dr_common import *
@@ -25,9 +39,8 @@ from src.dr_remote import dr_connect_to_remote
 
 MAX_SUPPORTED_VERSION = Version("1.0.any_generator")
 
-
 # mapping csv records types to it's relevant parser function
-switch_csv_res_type = {
+SWITCH_CSV_RES_TYPE = {
     MLX5DR_DEBUG_RES_TYPE_CONTEXT: dr_parse_context,
     MLX5DR_DEBUG_RES_TYPE_CONTEXT_ATTR: dr_parse_context_attr,
     MLX5DR_DEBUG_RES_TYPE_CONTEXT_CAPS: dr_parse_context_caps,
@@ -47,6 +60,8 @@ switch_csv_res_type = {
     MLX5DR_DEBUG_RES_TYPE_FW_STE: dr_parse_fw_ste,
     MLX5DR_DEBUG_RES_TYPE_FW_STE_STATS: dr_parse_fw_ste_stats,
     MLX5DR_DEBUG_RES_TYPE_STE: dr_parse_ste,
+    MLX5DR_DEBUG_RES_TYPE_HW_RRESOURCES_DUMP_START: lambda x: x,    # no-op
+    MLX5DR_DEBUG_RES_TYPE_HW_RRESOURCES_DUMP_END: lambda x: x,      # no-op
     MLX5DR_DEBUG_RES_TYPE_ADDRESS: dr_parse_address,
     MLX5DR_DEBUG_RES_TYPE_CONTEXT_STC: dr_parse_stc,
     MLX5DR_DEBUG_RES_TYPE_PATTERN: dr_parse_pattern,
@@ -56,27 +71,76 @@ switch_csv_res_type = {
     MLX5DR_DEBUG_RES_TYPE_FT_ANCHORS: dr_parse_ft_anchor,
 }
 
-unsupported_obj_list = []
-
-def print_unsupported_obj_list():
-    if len(unsupported_obj_list) == 0:
-        return None
-    _str = "Unsupported objects detected:"
-    for o in unsupported_obj_list:
-        _str = _str + " " + str(o) + ","
-
-    print(_str[:-1])
+def print_unsupported_obj_list(unsupported_obj_list: list):
+    if unsupported_obj_list:
+        print(f"Unsupported objects detected: {', '.join(unsupported_obj_list)}")
 
 
 def dr_csv_get_obj(line):
     res_type = line[0]
-    if res_type not in switch_csv_res_type.keys():
+    if res_type not in SWITCH_CSV_RES_TYPE.keys():
         return None
 
-    parser = switch_csv_res_type[line[0]]
+    parser = SWITCH_CSV_RES_TYPE[res_type]
     return parser(line)
 
-def dr_parse_csv_file(csv_file, load_to_db):
+
+def pretty_obj_repr(obj, indent: int = 0) -> str:
+    """
+    Return a string representation of an object with indentation, but without
+    the structural markers, '{', '[', and so on, of JSON. Almost like YAML but
+    with only the indentation.
+
+    To keep the existing compact representation, only dict values are indented.
+    Trailing whitespace is stripped to avoid doubling newlines. Leading
+    whitespace is preserved to preserve the behaviour of a bug in
+    dr_parse_matcher_match_template. Interior newlines get indented to preserve
+    formatting. A final trailing newline is always added.
+
+    >>> print(pretty_obj_repr({"a": 1, "b": "multiline\\nvalue"}))
+    a
+        1
+    b
+        multiline
+        value
+    <BLANKLINE>
+
+    >>> print(pretty_obj_repr([1, "2", [3, "4\\n\\t ", "5 ", " 6"]]))
+    1
+    2
+    3
+    4
+    5
+     6
+    <BLANKLINE>
+
+    >>> print(pretty_obj_repr(
+    ...     ["top-level-value", {"key": ["list", "of", "values"]}, {"key": "another-value"}]
+    ... ))
+    top-level-value
+    key
+        list
+        of
+        values
+    key
+        another-value
+    <BLANKLINE>
+    """
+    indentation = TAB * indent
+    def literal(val):
+        return indentation + str(val).rstrip().replace("\n", "\n" + indentation) + "\n"
+
+    if isinstance(obj, dict):
+        s = "".join([literal(k) + pretty_obj_repr(v, indent + 1) for k, v in obj.items()])
+        return s
+    elif isinstance(obj, list):
+        s = "".join([pretty_obj_repr(v, indent) for v in obj])
+        return s
+    else:
+        return literal(obj)
+
+
+def dr_parse_csv_file(csv_file: TextIOWrapper, load_to_db: bool) -> tuple[list, list]:
     ctxs = []
     ctx = None
     last_table = None
@@ -86,10 +150,14 @@ def dr_parse_csv_file(csv_file, load_to_db):
     last_fw_ste = None
     min_ste_addr = ''
     max_ste_addr = ''
+    unsupported_obj_list = []
     print("Loading input file ...")
     csv_reader = csv.reader(csv_file)
-    for line in csv_reader:
+    for i, line in enumerate(csv_reader):
         obj = dr_csv_get_obj(line)
+        if obj is None:
+            print(f"Skipping unknown object on line {i} of {csv_file.name}")
+            continue
         if line[0] == MLX5DR_DEBUG_RES_TYPE_STE:
             obj.load_to_db()
             ste_addr = obj.get_addr()
@@ -118,68 +186,109 @@ def dr_parse_csv_file(csv_file, load_to_db):
                                 "the latest version of the dump tool from GitHub.")
             ctxs.append(ctx)
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_CONTEXT_ATTR:
+            if ctx is None:
+                print("Cannot add attribute without context")
+                continue
             ctx.add_attr(obj)
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_CONTEXT_CAPS:
+            if ctx is None:
+                print("Cannot add caps without context")
+                continue
             ctx.add_caps(obj)
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_CONTEXT_SEND_ENGINE:
             last_send_engine = obj
+            if ctx is None:
+                print("Cannot add send engine without context")
+                continue
             ctx.add_send_engine(obj)
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_CONTEXT_SEND_RING:
+            if last_send_engine is None:
+                print("Cannot add send ring without send engine")
+                continue
             last_send_engine.add_send_ring(obj)
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_TABLE:
             last_table = obj
+            if ctx is None:
+                print("Cannot add table without context")
+                continue
             ctx.add_table(obj)
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_MATCHER:
             last_matcher = obj
+            if last_table is None:
+                print("Cannot add matcher without table")
+                continue
             last_table.add_matcher(obj)
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_MATCHER_ATTR:
+            if last_matcher is None:
+                print("Cannot add matcher attribute without matcher")
+                continue
             last_matcher.add_attr(obj)
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_MATCHER_MATCH_TEMPLATE:
             last_matcher_template = obj
+            if last_matcher is None:
+                print("Cannot add matcher template without matcher")
+                continue
             last_matcher.add_match_template(obj)
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_MATCHER_ACTION_TEMPLATE:
+            if last_matcher is None:
+                print("Cannot add matcher action template without matcher")
+                continue
             last_matcher.add_action_template(obj)
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_MATCHER_TEMPLATE_MATCH_DEFINER:
-            if last_matcher_template != None:
-                last_matcher_template.add_match_definer(obj)
+            if last_matcher_template is None:
+                print("Cannot add matcher template match definer without matcher template")
+                continue
+            last_matcher_template.add_match_definer(obj)
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_MATCHER_TEMPLATE_RANGE_DEFINER:
+            if last_matcher_template is None:
+                print("Cannot add matcher template range definer without matcher template")
+                continue
             last_matcher_template.add_range_definer(obj)
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_MATCHER_TEMPLATE_HASH_DEFINER:
-            last_matcher.add_hash_definer(obj)
+            if last_matcher_template is None:
+                print("Cannot add matcher template hash definer without matcher template")
+                continue
+            last_matcher_template.add_hash_definer(obj)
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_MATCHER_TEMPLATE_COMPARE_MATCH_DEFINER:
+            if last_matcher_template is None:
+                print("Cannot add matcher template compare match definer without matcher template")
+                continue
             last_matcher_template.add_compare_definer(obj)
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_MATCHER_RESIZABLE_ARRAY:
+            if last_matcher is None:
+                print("Cannot add matcher resizable array without matcher")
+                continue
             last_matcher.add_resizable_array(obj)
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_MATCHER_ACTION_RTC_ARRAY:
             last_matcher.add_resizable_array(obj)
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_CONTEXT_STC:
             obj.load_to_db()
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_HW_RRESOURCES_DUMP_START:
-            if not(load_to_db):
-                return ctxs
+            if not load_to_db:
+                return ctxs, unsupported_obj_list
             _config_args["hw_resources_present"] = True
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_FT_ANCHORS:
             obj.load_to_db()
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_FW_STE:
-            if last_fw_ste != None:
+            if last_fw_ste is not None:
                 last_fw_ste.add_stes_range(min_ste_addr, max_ste_addr)
             obj.init_fw_ste_db()
             max_ste_addr = '0x00000000'
             min_ste_addr = '0xffffffff'
             last_fw_ste = obj
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_FW_STE_STATS:
-                min_ste_addr = obj.get_min_addr()
-                max_ste_addr = obj.get_max_addr()
+            min_ste_addr = obj.get_min_addr()
+            max_ste_addr = obj.get_max_addr()
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_HW_RRESOURCES_DUMP_END:
-            if last_fw_ste != None:
+            if last_fw_ste is not None:
                 last_fw_ste.add_stes_range(min_ste_addr, max_ste_addr)
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_ACTION_STE_TABLE:
-            pass
+            print("Action STE table is not supported yet")
         else:
             if line[0] not in unsupported_obj_list:
                 unsupported_obj_list.append(line[0])
 
-    return ctxs
+    return ctxs, unsupported_obj_list
 
 
 #General env initialization
@@ -189,17 +298,12 @@ def env_init():
         tmp_file_path = Path(_config_args.get("file_path")).with_name(tmp_file_name)
         tmp_file_path.touch()
 
-        _config_args["tmp_file_path"] = str(tmp_file_path)
-        _config_args["tmp_file"] = None
+        _config_args["tmp_file_path"] = tmp_file_path
 
 
 def env_destroy():
-    tmp_file = _config_args.get("tmp_file")
-    if tmp_file != None:
-        tmp_file.close()
-
     csv_file = _config_args.get("csv_file")
-    if csv_file != None:
+    if csv_file is not None:
         csv_file.close()
 
 
@@ -254,6 +358,8 @@ def parse_args():
                         help = "Indicates the user name on the remote setup")
     parser.add_argument("--remote_path", type=str, default="", dest="remote_path",
                         help = "Indicates the dump tool location on the remote setup, this is optional")
+    parser.add_argument("--json", action="store_true", default=False, dest="json",
+                        help = "Emit the steering dump as JSON.")
     parser.add_argument("-h", "--help", action="help", default=argparse.SUPPRESS,
                         help='Show this help message and exit.')
 
@@ -264,6 +370,8 @@ def parse_args():
         sys.exit(0)
     else:
         _config_args["file_path"] = args.file_path
+
+    _config_args["json"] = args.json
 
     _config_args["extra_hw_res_all"] = False
     _config_args["extra_hw_res_arg"] = False
@@ -294,7 +402,7 @@ def parse_args():
         elif hw_res == "counter":
             _config_args["extra_hw_res_counter"] = True
 
-    if _config_args.get("extra_hw_res_arg") == True and not(_config_args.get("extra_hw_res_pat")):
+    if _config_args.get("extra_hw_res_arg") and not(_config_args.get("extra_hw_res_pat")):
         _config_args["extra_hw_res_arg"] = False
 
     if (args.hw_parse):
@@ -343,17 +451,19 @@ if __name__ == "__main__":
 
         with open(file_path, 'r+') as csv_file:
             load_to_db = False if _config_args.get("dump_hw_resources") else _config_args.get("load_hw_resources")
-            ctxs = dr_parse_csv_file(csv_file, load_to_db)
+            ctxs, unsupported_obj_list = dr_parse_csv_file(csv_file, load_to_db)
 
         if _config_args.get("dump_hw_resources"):
             csv_file = open(_config_args.get("file_path"), 'a+')
             _config_args["csv_file"] = csv_file
         else:
-            if _config_args.get("hw_resources_present") == False:
+            if not _config_args.get("hw_resources_present"):
                 _config_args["parse_hw_resources"] = False
                 _config_args["load_hw_resources"] = False
 
-        output_file_name = file_path + ".parsed"
+        json_format = _config_args.get("json")
+        output_file_suffix = ".json" if json_format else ".parsed"
+        output_file_name = file_path + output_file_suffix
         output_file = open(output_file_name, 'w+')
 
         for ctx in ctxs:
@@ -368,18 +478,22 @@ if __name__ == "__main__":
                 _config_args["progress_bar_i"] = 0
                 interactive_progress_bar(0, _config_args.get("total_fw_ste"), PARSING_THE_RULES_STR)
 
-            if _config_args.get("csv_file") != None and _config_args.get("hw_resources_dump_started") == True:
+            if _config_args.get("csv_file") is not None and _config_args.get("hw_resources_dump_started"):
                 csv_file.write(MLX5DR_DEBUG_RES_TYPE_HW_RRESOURCES_DUMP_END + '\n')
 
             ctx.pre_parse()
-            output_file.write(ctx.tree_print(verbose, ""))
+            obj = ctx.dump_obj(verbose, transform_for_print=not json_format)
+            if json_format:
+                output_file.write(json.dumps(obj, indent=4))
+            else:
+                output_file.write(pretty_obj_repr(obj))
 
         print("")#empty line
         print(OUTPUT_FILE_STR + file_path)
         print(PARSED_OUTPUT_FILE_STR + output_file_name)
 
         if verbose > 0:
-            print_unsupported_obj_list()
+            print_unsupported_obj_list(unsupported_obj_list)
 
     except OSError as e:
         print(e)
