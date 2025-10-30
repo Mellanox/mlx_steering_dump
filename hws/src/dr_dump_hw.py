@@ -1,6 +1,8 @@
 #SPDX-License-Identifier: BSD-3-Clause
 #Copyright (c) 2021 NVIDIA CORPORATION. All rights reserved.
 
+import multiprocessing as mp
+import queue
 from src.dr_common import *
 from src.dr_db import _db, _config_args
 from src.dr_ste import dr_parse_ste
@@ -110,38 +112,25 @@ def parse_fw_stc_rd_bin_output(stc_index, load_to_db, file):
         _db._term_dest_db.update(_dests)
 
 
-def parse_fw_ste_rd_bin_output(fw_ste_index, load_to_db, file):
+def fw_ste_rd_bin_chunk_parser(f_path, f_seek, chunk_sz, fw_ste_index, load_to_db):
     min_addr = '0xffffffff'
     max_addr = '0x00000000'
     first_ste = True
     ste_dic = {}
     count = 0
+    _str = ''
 
-    _config_args["tmp_file"] = open(_config_args.get("tmp_file_path"), 'rb+')
-    bin_file = _config_args.get("tmp_file")
-
-    file.write(MLX5DR_DEBUG_RES_TYPE_FW_STE + ',' + fw_ste_index + '\n')
-
-    #First read DW(4B) each time till reaching first STE
-    data = bin_file.read(4)
-    while data:
-        data = hex(int.from_bytes(data, byteorder='big'))
-        if data[2:8] == RESOURCE_DUMP_SEGMENT_TYPE_STE_BIN:
-            #Seek to the first STE location in the bin_file
-            bin_file.seek(count)
-            break
-
-        count += 4
-        data = bin_file.read(4)
+    bin_file = open(f_path, 'rb')
+    bin_file.seek(f_seek)
 
     #Each STE dump contain 64B(STE) + 16(STE prefix)
     data = bin_file.read(80)
-
-    while data:
+    while data and count < chunk_sz:
+        count += 80
         #Leading zeros will be ignored
         data = hex(int.from_bytes(data, byteorder='big'))
         if data[2:8] == RESOURCE_DUMP_SEGMENT_TYPE_STE_BIN:
-            ste = '0x' + data[32:]
+            ste = f'0x{data[32:]}'
             hit_add = ste[32 : 41]
             if first_ste:
                 ste_addr = '0x' + data[16:24]
@@ -149,11 +138,8 @@ def parse_fw_ste_rd_bin_output(fw_ste_index, load_to_db, file):
                     min_addr = ste_addr
                 first_ste = False
             if int(hit_add, 16) & STE_ALWAYS_HIT_ADDRESS != STE_ALWAYS_HIT_ADDRESS:
-                ste_addr = '0x' + data[16:24]
-                ste_prefix = MLX5DR_DEBUG_RES_TYPE_STE + ','
-                ste_prefix += ste_addr + ','
-                ste_prefix += fw_ste_index + ','
-                file.write(ste_prefix + ste + '\n')
+                ste_addr = f'0x{data[16:24]}'
+                _str += f'{MLX5DR_DEBUG_RES_TYPE_STE},{ste_addr},{fw_ste_index},{ste}\n'
                 if load_to_db:
                     ste = dr_parse_ste([MLX5DR_DEBUG_RES_TYPE_STE, ste_addr, fw_ste_index, ste])
                     ste_dic[ste_addr] = ste
@@ -164,13 +150,97 @@ def parse_fw_ste_rd_bin_output(fw_ste_index, load_to_db, file):
         data = bin_file.read(80)
 
     bin_file.close()
+    return _str, ste_dic, min_addr, max_addr
+
+def parse_fw_ste_rd_bin_output_thread_worker(req_q, resp_q):
+    while True:
+        try:
+            # The control thread posts all of the work items before starting the
+            # workers, and no other items are posted after that. So we don't
+            # need to block.
+            f_path, f_seek, chunk_sz, fw_ste_index, load_to_db = req_q.get_nowait()
+        except queue.Empty:
+            # No more work, we're done.
+            return
+
+        resp_q.put(fw_ste_rd_bin_chunk_parser(f_path, f_seek, chunk_sz, fw_ste_index, load_to_db))
+
+def parse_fw_ste_rd_bin_output(fw_ste_index, load_to_db, file):
+    """
+    Let's parse the tmp_file in threads, that we can parse every 256K STE (16B + 64B * 256K = 20MB)
+    of file data in a new thread.
+    """
+    tmp_file_path = _config_args.get("tmp_file_path")
+    num_workers = _config_args.get("max_cores")
+    min_addr = '0xffffffff'
+    max_addr = '0x00000000'
+    num_of_chunks = 0
+    resp_q = mp.Queue()
+    req_q = mp.Queue()
+    bin_file_sz = 0
+    processes = []
+    ste_dic = {}
+    count = 0
+
+    _config_args["tmp_file"] = open(tmp_file_path, 'rb')
+    bin_file = _config_args.get("tmp_file")
+
+    # Get the file size
+    bin_file.seek(0, 2)
+    bin_file_sz = bin_file.tell()
+    # Seek to the beginning of the file
+    bin_file.seek(0, 0)
+
+    file.write(f'{MLX5DR_DEBUG_RES_TYPE_FW_STE},{fw_ste_index}\n')
+
+    # First read DW(4B) each time till reaching first STE
+    data = bin_file.read(4)
+    while data:
+        data = hex(int.from_bytes(data, byteorder='big'))
+        if data[2:8] == RESOURCE_DUMP_SEGMENT_TYPE_STE_BIN:
+            break
+
+        count += 4
+        data = bin_file.read(4)
+
+    bin_file.close()
     _config_args["tmp_file"] = None
+
+    # Now we are at the first STE
+    # Split the file into chunks and send to the workers
+    # chunk_sz = 256K STEs ((16B + 64B) * 256K = 20MB)
+    chunk_sz = 256 * 1024 * 80
+    while count < bin_file_sz:
+        req_q.put((tmp_file_path, count, chunk_sz, fw_ste_index, load_to_db))
+        # Split the read to chunk_sz STEs
+        count += chunk_sz
+        num_of_chunks += 1
+
+    for i in range(min(num_workers, num_of_chunks)):
+        p = mp.Process(target=parse_fw_ste_rd_bin_output_thread_worker, args=(req_q, resp_q))
+        processes.append(p)
+
+    [p.start() for p in processes]
+
+    while any([p.is_alive() for p in processes]) or not resp_q.empty():
+        try:
+            _str, _ste_dic, _min_addr, _max_addr = resp_q.get(timeout=1)
+        except Exception as e:
+            continue
+        file.write(_str)
+        ste_dic.update(_ste_dic)
+        if _min_addr < min_addr:
+            min_addr = _min_addr
+        if _max_addr > max_addr:
+            max_addr = _max_addr
+
+    [p.join() for p in processes]
 
     if load_to_db:
         _db._fw_ste_db[fw_ste_index] = ste_dic
         _db._stes_range_db[fw_ste_index] = (min_addr, max_addr)
 
-    file.write("%s,%s,%s,%s\n" % (MLX5DR_DEBUG_RES_TYPE_FW_STE_STATS, fw_ste_index, min_addr, max_addr))
+    file.write(f'{MLX5DR_DEBUG_RES_TYPE_FW_STE_STATS},{fw_ste_index},{min_addr},{max_addr}\n')
 
 
 def parse_fw_ste_rd_output(data, fw_ste_index, load_to_db, file):
@@ -199,9 +269,9 @@ def parse_fw_ste_rd_output(data, fw_ste_index, load_to_db, file):
                         max_addr = ste_addr
 
     if load_to_db:
-        #Save the STE's to FW STE DB
+        # Save the STE's to FW STE DB
         _db._fw_ste_db[fw_ste_index] = ste_dic
-        #Save the STE's range for this FW STE
+        # Save the STE's range for this FW STE
         _db._stes_range_db[fw_ste_index] = (min_addr, max_addr)
 
 
