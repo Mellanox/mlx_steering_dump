@@ -65,7 +65,7 @@ Running syntax
 | -v | Increase output verbosity - v, vv, vvv & vvvv for extra verbosity |
 | --skip_dump | Skip HW resources dumping |
 | --skip_parse | Skip HW dumped resources parsing |
-| -d DEVICE | Provide MST device, otherwise it will be guessed automatically |
+| -d DEVICE | Provide device identifier (MST device path, PCI BDF, IB device name, or netdev), otherwise it will be guessed automatically |
 | --pid APP_PID | Trigger DPDK/DOCA app <PID> |
 | --port APP_PORT | Trigger DPDK/DOCA app <PORT> (must provide PID with -pid) |
 | --extra_hw_res [pat, arg, counter, all] | Request extra HW resources to be dumped/parsed. 'all' option will dump all the HW resources supported by current FW. Usage example: -extra_hw_res pat,arg |

@@ -1,51 +1,16 @@
 #SPDX-License-Identifier: BSD-3-Clause
-#Copyright (c) 2021 NVIDIA CORPORATION. All rights reserved.
+#Copyright (c) 2025 NVIDIA CORPORATION. All rights reserved.
 
 
 import re
+import os
 import sys
 import subprocess as sp
 
 from src.dr_common import *
 from src.dr_db import _config_args, _ctx_db, _db
+from src.dr_device_resolver import resolve_device
 
-
-def get_mst_dev(dev_name):
-    status, output = sp.getstatusoutput('mst status -v')
-    if status != 0:
-        print(output)
-        print('MFT Error')
-        exit()
-    output_arr = output.split('\n')
-
-    if dev_name.startswith("0000:") == True:
-        dev_name = dev_name[5:]
-
-    for l in output_arr:
-        if dev_name in l:
-            l_arr = l.split()
-            if len(l_arr) > 1 and l_arr[1] != 'NA':
-                return l_arr[1]
-
-    return None
-
-def get_mst_rdma_dev(dev_name):
-    status, output = sp.getstatusoutput('mst status -v')
-    if status != 0:
-        print(output)
-        print('MFT Error')
-        exit()
-    output_arr = output.split('\n')
-
-    for l in output_arr:
-        if dev_name in l:
-            l_arr = l.split()
-            if len(l_arr) < 3:
-                continue
-            if l_arr[1] == dev_name and l_arr[3] != 'NA':
-                return l_arr[3]
-
-    return None
 
 class Version():
     def __init__(self, string):
@@ -83,13 +48,23 @@ class dr_parse_context():
 
     def load_to_db(self):
         if _config_args.get("dump_hw_resources"):
-            if _config_args.get("device") == None:
-                _config_args["dev_name"] = self.data.get("dev_name");
-                _config_args["device"] = get_mst_dev(self.data.get("dev_name"))
-            else:
-                _config_args["dev_name"] = get_mst_rdma_dev(_config_args.get("device"))
+            # We're about to dump HW resources - need to resolve device
+            # Use -d flag if provided, otherwise use device name from CSV (written by triggered app)
+            device_to_resolve = _config_args.get("device") or self.data.get("dev_name")
+
+            # Resolve device to get both PCI and RDMA identifiers for resourcedump
+            try:
+                dev_id = resolve_device(device_to_resolve)
+                # Use PCI BDF for resourcedump (most universal)
+                _config_args["device"] = dev_id.pci_bdf if dev_id.pci_bdf else dev_id.mst_dev
+                # Use RDMA device name for --mem parameter
+                _config_args["dev_name"] = dev_id.rdma_dev if dev_id.rdma_dev else self.data.get("dev_name")
+            except Exception as e:
+                print(f"Error resolving device '{device_to_resolve}': {e}")
+                sys.exit(1)
         else:
-            _config_args["dev_name"] = self.data.get("dev_name");
+            # Only parsing existing CSV - no HW dump, no device resolution needed
+            _config_args["dev_name"] = self.data.get("dev_name")
 
         _db.load(self.ctx_db)
 
@@ -155,8 +130,14 @@ class dr_parse_context_attr():
         _config_args["vhca_id"] = self.data.get("vhca_id")
         shared_dev_name = None if self.data.get("shared_dev_name") == 'None' else self.data.get("shared_dev_name")
         if _config_args.get("dump_hw_resources") and shared_dev_name != None:
+            # We're about to dump HW resources - resolve shared device from CSV
             _config_args["shared_dev_name"] = shared_dev_name
-            _config_args["shared_device"] = get_mst_dev(shared_dev_name)
+            try:
+                shared_dev_id = resolve_device(shared_dev_name)
+                _config_args["shared_device"] = shared_dev_id.pci_bdf if shared_dev_id.pci_bdf else shared_dev_id.mst_dev
+            except Exception as e:
+                print(f"Error resolving shared device '{shared_dev_name}': {e}")
+                sys.exit(1)
             _config_args["shared_vhca_id"] = self.data.get("shared_vhca_id")
 
     def dump_str(self, verbosity):

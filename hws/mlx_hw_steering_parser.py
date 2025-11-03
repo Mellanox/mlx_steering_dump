@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 #SPDX-License-Identifier: BSD-3-Clause
-#Copyright (c) 2021 NVIDIA CORPORATION. All rights reserved.
+#Copyright (c) 2025 NVIDIA CORPORATION. All rights reserved.
 
 from pathlib import Path
 import sys
@@ -239,7 +239,9 @@ def parse_args():
     parser.add_argument("--skip_parse", action="store_false", default=True, dest="hw_parse",
                         help="Skip HW dumped resources parsing.")
     parser.add_argument("-d", dest="device", type=str, default="",
-                        help="Provide MST device for HW resources dumping, or remote MST device if --remote_ip was specified")
+                        help="Provide device identifier for HW resources dumping. Accepts: MST device (/dev/mst/...), "
+                             "PCI address (0000:bb:dd.f or bb:dd.f), IB device (mlx5_2), or netdev (eth0). "
+                             "If --remote_ip is specified, provide the remote MST device identifier.")
     parser.add_argument("--pid", dest="app_pid", type=int, default=-1,
                         help="Trigger DPDK/DOCA app <PID>.")
     parser.add_argument("--port", dest="app_port", type=int, default=0,
