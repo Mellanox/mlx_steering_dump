@@ -212,17 +212,21 @@ def validate_env_caps():
             print('Cannot Dump HW resources <-hw>, need Python3')
             exit()
 
-        status, output = sp.getstatusoutput('resourcedump -v')
+        # Detect and validate the resourcedump tool
+        try:
+            tool = detect_resourcedump_tool()
+        except SystemExit:
+            # detect_resourcedump_tool() already printed error and called exit()
+            raise
+        
+        # Check tool version for mem mode support
+        status, output = sp.getstatusoutput(f'{tool} -v')
         if status != 0:
-            print(output)
-            print('MFT Error')
+            print(f'Error: {tool} validation failed')
             exit()
+        
         output = output.split(', ')
-        if output[0] != 'resourcedump':
-            print('Can not Dump HW resources, no MFT')
-            exit()
-
-        mft_version = output[1]
+        mft_version = output[1] if len(output) > 1 else ''
         if mft_version >= MEM_MODE_MIN_MFT_VERSION:
             _config_args["resourcedump_mem_mode"] = True
 

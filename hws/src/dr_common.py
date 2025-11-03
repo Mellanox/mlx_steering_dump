@@ -1,5 +1,5 @@
 #SPDX-License-Identifier: BSD-3-Clause
-#Copyright (c) 2021 NVIDIA CORPORATION. All rights reserved.
+#Copyright (c) 2025 NVIDIA CORPORATION. All rights reserved.
 
 import subprocess as sp
 from src.dr_db import _config_args
@@ -234,8 +234,32 @@ _segments_dic = {
     "QUERY_FT_META": "0x4016",
 }
 
+def detect_resourcedump_tool():
+    """
+    Detect which resource dump tool is available.
+    Detection is done once and cached in _config_args.
+    Returns the tool name to use.
+    """
+    if _config_args.get("resourcedump_tool") is not None:
+        return _config_args["resourcedump_tool"]
+    
+    # Tools in order of preference
+    tools = ["resourcedump", "mstresourcedump"]
+    
+    for tool in tools:
+        status, _ = sp.getstatusoutput(f'which {tool}')
+        if status == 0:
+            _config_args["resourcedump_tool"] = tool
+            return tool
+    
+    # No tool found
+    print(f"Error: None of the following tools found in PATH: {', '.join(tools)}")
+    print("Please install package \"mft\" (Mellanox Firmware Tools)")
+    exit(1)
+
 def call_resource_dump(dev, dev_name, segment, index1, num_of_obj1, num_of_obj2, depth):
-    _input = 'resourcedump dump -d ' + dev
+    tool = detect_resourcedump_tool()
+    _input = tool + ' dump -d ' + dev
     _input += ' --segment ' + _segments_dic.get(segment)
     _input += ' --index1 ' + index1
     if num_of_obj1 != None:
