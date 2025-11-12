@@ -144,7 +144,14 @@ def aso_decoder(aso_32, aso_context_number, dest_reg_id, aso_context_type, aso_f
 
     if take_from_reg == True:
         _str += ' (from register)'
-        _str += ': ctx_idx: ' + hex(aso_context_number & 0xffffffc0)
+        """
+        To get the aso_pointer take upper bits of aso_context_number[31:Index](*),
+        lower bits from regsiter defined in aso_context_number[5:0].
+        (*): Index is the bit after the first '1' in the aso_context_number field.
+        """
+        aso_pointer = aso_context_number & 0xffffffe0
+        aso_pointer = aso_pointer & (aso_pointer - 1)
+        _str += ': ctx_start_idx: ' + hex(aso_pointer)
     else:
         _str += ': ctx_idx: ' + hex(aso_context_number)
 
@@ -157,7 +164,7 @@ def aso_decoder(aso_32, aso_context_number, dest_reg_id, aso_context_type, aso_f
     _str += ', dest_reg_id: ' + hex(dest_reg_id)
 
     if take_from_reg == True:
-        reg_64_id = 2 * (aso_context_number & 0x3f)
+        reg_64_id = 2 * (aso_context_number & 0x1f)
         _str += ', take_from_register: reg_c_%s_%s\n' % (reg_64_id, reg_64_id + 1)
         return (2, [_str])
 
