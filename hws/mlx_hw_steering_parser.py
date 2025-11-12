@@ -192,12 +192,23 @@ def env_init():
 
         _config_args["tmp_file_path"] = str(tmp_file_path)
         _config_args["tmp_file"] = None
+        _config_args["tmp_file_arr"] = []
 
 
 def env_destroy():
     tmp_file = _config_args.get("tmp_file")
     if tmp_file != None:
         tmp_file.close()
+
+    tmp_file_path = _config_args.get("tmp_file_path")
+    if tmp_file_path is not None and os.path.exists(tmp_file_path):
+        os.remove(tmp_file_path)
+
+    tmp_file_arr = _config_args.get("tmp_file_arr")
+    if tmp_file_arr is not None:
+        for tmp_file_path in tmp_file_arr:
+            if os.path.exists(tmp_file_path):
+                os.remove(tmp_file_path)
 
     csv_file = _config_args.get("csv_file")
     if csv_file != None:
