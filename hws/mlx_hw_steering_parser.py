@@ -229,6 +229,9 @@ def validate_env_caps():
         mft_version = output[1] if len(output) > 1 else ''
         if mft_version >= MEM_MODE_MIN_MFT_VERSION:
             _config_args["resourcedump_mem_mode"] = True
+        else:
+            print(f'Note: This MFT version <{mft_version}> does not support MKEY writing (resourcedump --mem flag).\n'
+                  '      Querying HW will be very slow, expecting long runtime.\n')
 
 
 #Parse user command args, and save them to _config_args.
