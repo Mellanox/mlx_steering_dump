@@ -72,6 +72,8 @@ Running syntax
 | -s | Show dump statistics, such as STE's distribution |
 | --remote_ip REMOTE_IP | Indicates to extract HW resources from the remote setup <IP> |
 | --user_name USER_NAME | Indicates the user name on the remote setup |
+| --max_cores N | The maximum number of CPU cores to use for parsing. The default is to use all of the cores in the system, but no more than 16 |
+| --no_ordered_output | Allow the parse output to be non deterministic. Saves a few seconds, but hinders any diffing. |
 | -h, --help | It will show the help message and exit |
 
 Required package

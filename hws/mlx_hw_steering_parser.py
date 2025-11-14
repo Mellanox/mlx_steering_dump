@@ -3,6 +3,7 @@
 #SPDX-License-Identifier: BSD-3-Clause
 #Copyright (c) 2025 NVIDIA CORPORATION. All rights reserved.
 
+import multiprocessing as mp
 from pathlib import Path
 import sys
 import os
@@ -202,6 +203,10 @@ def env_destroy():
     if csv_file != None:
         csv_file.close()
 
+    output_file = _config_args.get("output_file")
+    if output_file is not None:
+        output_file.close()
+
 
 #Check and validate environment capabilities
 def validate_env_caps():
@@ -260,6 +265,10 @@ def parse_args():
                         help = "Indicates the user name on the remote setup")
     parser.add_argument("--remote_path", type=str, default="", dest="remote_path",
                         help = "Indicates the dump tool location on the remote setup, this is optional")
+    parser.add_argument("--max_cores", type=int, default=0,
+                        help="Maximum cores to use. Default is 0, which means use all cores, up to 16")
+    parser.add_argument("--no_ordered_output", default=False, action="store_true",
+                        help="Whether to order output by STE address. Default is on")
     parser.add_argument("-h", "--help", action="help", default=argparse.SUPPRESS,
                         help='Show this help message and exit.')
 
@@ -339,8 +348,13 @@ def parse_args():
         dr_connect_to_remote()
         sys.exit(0)
 
+    _config_args["max_cores"] = min(16, mp.cpu_count()) if args.max_cores == 0 else args.max_cores
+    _config_args["ordered_output"] = not args.no_ordered_output
+
+
 if __name__ == "__main__":
     try:
+        mp.set_start_method("fork")
         parse_args()
         validate_env_caps()
         env_init()
@@ -361,6 +375,7 @@ if __name__ == "__main__":
 
         output_file_name = file_path + ".parsed"
         output_file = open(output_file_name, 'w+')
+        _config_args["output_file"] = output_file
 
         for ctx in ctxs:
             ctx.load_to_db()
@@ -378,7 +393,7 @@ if __name__ == "__main__":
                 csv_file.write(MLX5DR_DEBUG_RES_TYPE_HW_RRESOURCES_DUMP_END + '\n')
 
             ctx.pre_parse()
-            output_file.write(ctx.tree_print(verbose, ""))
+            ctx.tree_print(verbose, "", output_file)
 
         print("")#empty line
         print(OUTPUT_FILE_STR + file_path)
