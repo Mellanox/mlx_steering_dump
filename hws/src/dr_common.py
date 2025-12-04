@@ -257,7 +257,8 @@ def detect_resourcedump_tool():
     print("Please install package \"mft\" (Mellanox Firmware Tools)")
     exit(1)
 
-def call_resource_dump(dev, dev_name, segment, index1, num_of_obj1, num_of_obj2, depth):
+def call_resource_dump(dev, dev_name, segment, index1, num_of_obj1, num_of_obj2, depth,
+                       tmp_file_path=None):
     tool = detect_resourcedump_tool()
     _input = tool + ' dump -d ' + dev
     _input += ' --segment ' + _segments_dic.get(segment)
@@ -270,7 +271,10 @@ def call_resource_dump(dev, dev_name, segment, index1, num_of_obj1, num_of_obj2,
         _input += ' --depth=' + depth
     if _config_args.get("resourcedump_mem_mode"):
         _input += ' --mem ' + dev_name
+    if tmp_file_path is None:
         _input += ' --bin ' + _config_args.get("tmp_file_path")
+    else:
+        _input += ' --bin ' + tmp_file_path
 
     vhca_id = _config_args.get("_vhca_id")
     if vhca_id != None and vhca_id != "0":

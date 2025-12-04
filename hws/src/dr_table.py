@@ -66,18 +66,16 @@ class dr_parse_table():
 
         return dump_obj_str(_keys, self.data)
 
-    def tree_print(self, verbosity, tabs):
-        _str = tabs + self.dump_str(verbosity)
+    def tree_print(self, verbosity, tabs, output_file):
+        output_file.write(f'{tabs}{self.dump_str(verbosity)}')
         tabs = tabs + TAB
 
         for m in sorted(self.matchers):
             if verbosity < 2 and m.data["id"] in self.col_matcher_ids:
                 continue
-            _str = _str + m.tree_print(verbosity, tabs)
+            m.tree_print(verbosity, tabs, output_file)
             if verbosity < 2 and m.data["col_matcher_id"] != "0x0":
                 self.col_matcher_ids[m.data["col_matcher_id"]] = ""
-
-        return _str
 
     def fix_data(self):
         rx_icm_addr = self.data.get("rx_icm_addr")
