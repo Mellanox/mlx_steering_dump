@@ -87,13 +87,7 @@ def parse_fw_stc_rd_bin_output(stc_index, load_to_db, file):
                 file.write(write_line)
                 if obj.get("type") == 'FW_STE_TABLE':
                     _id = str(int(obj.get("id"), 16))
-                    flag = True
-                    for fw_ste_index in _db._fw_ste_indexes_arr:
-                        if fw_ste_index == _id:
-                            flag = False
-                            break
-
-                    if flag:
+                    if _id not in _db._fw_ste_indexes_arr:
                         _db._fw_ste_indexes_arr.append(_id)
 
                 elif obj.get("type") == 'MODIFY_LIST':

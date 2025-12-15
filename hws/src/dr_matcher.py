@@ -307,11 +307,11 @@ class dr_parse_matcher():
     def save_to_db(self):
         total_match_fw_stes = 0
 
-        if self.match_ste_0_id != None:
+        if self.match_ste_0_id != None and self.match_ste_0_id not in _db._fw_ste_indexes_arr:
             _db._fw_ste_indexes_arr.append(self.match_ste_0_id)
             total_match_fw_stes += 1
 
-        if self.match_ste_1_id != None:
+        if self.match_ste_1_id != None and self.match_ste_1_id not in _db._fw_ste_indexes_arr:
             _db._fw_ste_indexes_arr.append(self.match_ste_1_id)
             total_match_fw_stes += 1
 
@@ -320,10 +320,10 @@ class dr_parse_matcher():
             _db._total_matcher_match_fw_stes[0] = _tmp + total_match_fw_stes
 
 
-        if self.action_ste_0_id != None:
+        if self.action_ste_0_id != None and self.action_ste_0_id not in _db._fw_ste_indexes_arr:
             _db._fw_ste_indexes_arr.append(self.action_ste_0_id)
 
-        if self.action_ste_1_id != None:
+        if self.action_ste_1_id != None and self.action_ste_1_id not in _db._fw_ste_indexes_arr:
             _db._fw_ste_indexes_arr.append(self.action_ste_1_id)
 
         _db._matchers[self.id] = self
@@ -541,19 +541,11 @@ class dr_parse_matcher_resizable_array():
             self.action_ste_1_id = ste_id
 
     def save_to_db(self):
-        def check_id(_id):
-            for fw_ste_index in _db._fw_ste_indexes_arr:
-                if fw_ste_index == _id:
-                    return True
-            return False
+        if self.action_ste_0_id != None and self.action_ste_0_id not in _db._fw_ste_indexes_arr:
+            _db._fw_ste_indexes_arr.append(self.action_ste_0_id)
 
-        if self.action_ste_0_id != None:
-            if not check_id(self.action_ste_0_id):
-                _db._fw_ste_indexes_arr.append(self.action_ste_0_id)
-
-        if self.action_ste_1_id != None:
-            if not check_id(self.action_ste_1_id):
-                _db._fw_ste_indexes_arr.append(self.action_ste_1_id)
+        if self.action_ste_1_id != None and self.action_ste_1_id not in _db._fw_ste_indexes_arr:
+            _db._fw_ste_indexes_arr.append(self.action_ste_1_id)
 
 
 class dr_parse_action_ste_table():
@@ -579,11 +571,17 @@ class dr_parse_action_ste_table():
     def save_to_db(self):
         if self.rx_ste != None:
             # Add to the index ranges that need to be dumped.
-            _db._fw_ste_indexes_arr.append(self.rx_ste)
+            if self.rx_ste not in _db._fw_ste_indexes_arr:
+                _db._fw_ste_indexes_arr.append(self.rx_ste)
             # Also add to the list of action STE ranges that will be searched
             # for rules that use action STEs.
-            _db._action_ste_indexes_arr.append(self.rx_ste)
+            if self.rx_ste not in _db._action_ste_indexes_arr:
+                _db._action_ste_indexes_arr.append(self.rx_ste)
 
         if self.tx_ste != None:
-            _db._fw_ste_indexes_arr.append(self.tx_ste)
-            _db._action_ste_indexes_arr.append(self.tx_ste)
+            if self.tx_ste not in _db._fw_ste_indexes_arr:
+                _db._fw_ste_indexes_arr.append(self.tx_ste)
+
+            if self.tx_ste not in _db._action_ste_indexes_arr:
+                _db._action_ste_indexes_arr.append(self.tx_ste)
+
