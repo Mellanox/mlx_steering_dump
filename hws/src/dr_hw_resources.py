@@ -73,15 +73,8 @@ class dr_parse_address():
     def load_to_db(self):
         if self.get_type() == 'FW_STE_TABLE':
             _id = str(int(self.get_id(), 16))
-            flag = True
-            for fw_ste_index in _db._fw_ste_indexes_arr:
-                if fw_ste_index == _id:
-                    flag = False
-                    break
-
-            if flag:
+            if _id not in _db._fw_ste_indexes_arr:
                 _db._fw_ste_indexes_arr.append(_id)
-
         else:
             _db._term_dest_db[self.get_addr()] = {'type': self.get_type(), 'id': self.get_id()}
 
