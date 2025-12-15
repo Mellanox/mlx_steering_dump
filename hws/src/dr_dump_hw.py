@@ -1,6 +1,7 @@
 #SPDX-License-Identifier: BSD-3-Clause
 #Copyright (c) 2021 NVIDIA CORPORATION. All rights reserved.
 
+from pathlib import Path
 import os
 import multiprocessing as mp
 import queue
@@ -375,6 +376,7 @@ def dump_fw_ste(load_to_db, dev, dev_name, file, total_resources, load_bar_idx):
 
     for fw_ste_index in _db._fw_ste_indexes_arr:
         _tmp_file_path = tmp_file_path.replace('.bin', f'_ste{fw_ste_index}.bin')
+        Path(_tmp_file_path).touch()
         _config_args["tmp_file_arr"].append(_tmp_file_path)
         req_q.put((fw_ste_index, _tmp_file_path))
 
