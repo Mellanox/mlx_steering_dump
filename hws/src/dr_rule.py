@@ -175,6 +175,9 @@ def dr_parse_rules(matcher, verbosity, tabs, output_file):
     dumps = tbl_type_to_dumps[tbl_type]
 
     for _tbl_type, match_ste_id, hint_loc in dumps:
+        if matcher.second_ste_present:
+            hint_loc.append(match_ste_id)
+
         fw_ste_dic = _db._fw_ste_db.get(match_ste_id)
         if not fw_ste_dic:
             continue
