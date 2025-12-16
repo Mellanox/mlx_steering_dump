@@ -111,7 +111,6 @@ def parse_fw_stc_rd_bin_output(stc_index, load_to_db, file):
 def parse_fw_ste_rd_bin_output_chunk(f_path, f_seek, chunk_sz, fw_ste_index, load_to_db):
     min_addr = '0xffffffff'
     max_addr = '0x00000000'
-    first_ste = True
     ste_dic = {}
     count = 0
     _str = ''
@@ -128,19 +127,17 @@ def parse_fw_ste_rd_bin_output_chunk(f_path, f_seek, chunk_sz, fw_ste_index, loa
         if data[2:8] == RESOURCE_DUMP_SEGMENT_TYPE_STE_BIN:
             ste = f'0x{data[32:]}'
             hit_add = ste[32 : 41]
-            if first_ste:
-                ste_addr = '0x' + data[16:24]
-                if ste_addr < min_addr:
-                    min_addr = ste_addr
-                first_ste = False
+            ste_addr = '0x' + data[16:24]
+            if ste_addr < min_addr:
+                min_addr = ste_addr
+            if ste_addr > max_addr:
+                max_addr = ste_addr
             if int(hit_add, 16) & STE_ALWAYS_HIT_ADDRESS != STE_ALWAYS_HIT_ADDRESS:
                 ste_addr = f'0x{data[16:24]}'
                 _str += f'{MLX5DR_DEBUG_RES_TYPE_STE},{ste_addr},{fw_ste_index},{ste}\n'
                 if load_to_db:
                     ste = dr_parse_ste([MLX5DR_DEBUG_RES_TYPE_STE, ste_addr, fw_ste_index, ste])
                     ste_dic[ste_addr] = ste
-                    if ste_addr > max_addr:
-                        max_addr = ste_addr
 
         #Each STE dump contain 64B(STE) + 16(STE prefix)
         data = bin_file.read(80)
