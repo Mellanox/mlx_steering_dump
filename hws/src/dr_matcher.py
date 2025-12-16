@@ -55,6 +55,7 @@ class dr_parse_matcher():
         self.base_addr_0 = None
         self.base_addr_1 = None
         self.hash_definer = None
+        self.second_ste_present = False
         self.resizable_arrays = []
         self.fix_data()
         self.save_to_db()
@@ -176,6 +177,10 @@ class dr_parse_matcher():
         elif tbl_type == DR_TBL_TYPE_FDB:
             _str += "RX: "
 
+        # In case of range/compare matcher, actual size is *2
+        if self.second_ste_present:
+            col_log_sz += 1
+
         _str += get_fw_ste_distribution_statistics(self.match_ste_0_id, row_log_sz, col_log_sz)
 
         if tbl_type == DR_TBL_TYPE_FDB_UNIFIED:
@@ -286,6 +291,8 @@ class dr_parse_matcher():
 
     def add_match_template(self, template):
         self.match_template.append(template)
+        if template.second_ste_present:
+            self.second_ste_present = True
 
     def add_action_template(self, template):
         self.action_templates.append(template)
@@ -435,6 +442,7 @@ class dr_parse_matcher_match_template():
         self.match_definer = None
         self.range_definer = None
         self.compare_definer = None
+        self.second_ste_present = False
         self.fix_data()
 
     def fix_data(self):
@@ -442,6 +450,9 @@ class dr_parse_matcher_match_template():
             self.data["fcr_sz"] = "0"
         if self.data.get("fcc_sz") == None:
             self.data["fcc_sz"] = "0"
+
+        if self.data.get("fcr_sz") != "0" or self.data.get("fcc_sz") != "0":
+            self.second_ste_present = True
 
     def dump_str(self, tabs, verbosity):
         _tabs = tabs + TAB
