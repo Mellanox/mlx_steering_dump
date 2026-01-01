@@ -54,6 +54,10 @@ def parse_fw_stc_rd_bin_output(stc_index, load_to_db, file):
     bin_file = _config_args.get("tmp_file")
     stc = ''
     count = 0
+    action_stc_segment_sz = _config_args.get("resource_dump_segment_action_stc_bin_sz")
+    stc_param_start_ofset = _config_args.get("stc_param_start_ofset")
+    stc_param_end_ofset = _config_args.get("stc_param_end_ofset")
+    stc_action_type_offset = _config_args.get("stc_action_type_offset")
 
     #First read DW(4B) each time till reaching first STC
     data = bin_file.read(4)
@@ -76,11 +80,12 @@ def parse_fw_stc_rd_bin_output(stc_index, load_to_db, file):
         data_type = data[2:8]
         if data_type == RESOURCE_DUMP_SEGMENT_TYPE_STC_BIN:
             stc = '0x' + data[32:]
-            data = bin_file.read(48)
+            data = bin_file.read(action_stc_segment_sz)
             continue
-        elif data_type[:-1] == RESOURCE_DUMP_SEGMENT_TYPE_ACTION_STC_BIN:
+        elif RESOURCE_DUMP_SEGMENT_TYPE_ACTION_STC_BIN in data_type:
             stc_action = '0x' + data[31:]
-            obj = dr_parse_fw_stc_action_get_obj_id(stc_action)
+            obj = dr_parse_fw_stc_action_get_obj_id(stc_action, stc_param_start_ofset,
+                                                    stc_param_end_ofset, stc_action_type_offset)
             if obj != None:
                 addr = dr_parse_fw_stc_get_addr(stc)
                 write_line = '%s,%s,%s,%s\n' % (MLX5DR_DEBUG_RES_TYPE_ADDRESS, addr, obj.get("type"), obj.get("id"))
