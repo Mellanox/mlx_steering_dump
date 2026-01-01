@@ -187,11 +187,18 @@ class dr_parse_context_caps():
                         print("To dump Counter HW resources, please use FW version %s or higher" % expected_fw_version)
                         sys.exit(0)
 
-        expected_fw_version = "%s.%s" % (_config_args.get("fw_version_major"), FW_VERSION_MINOR_STC_ACTION_TYPE_SHIFT)
-        if self.data.get("fw_version") >= expected_fw_version:
-            _config_args["stc_action_type_shift"] = 0x8
+        _config_args["resource_dump_segment_action_stc_bin_sz"] = 48
+        _config_args["stc_param_start_ofset"] = 2
+        _config_args["stc_param_end_ofset"] = 22
+        if self.data.get("fw_version") >= f'{_config_args.get("fw_version_major")}.{FW_VERSION_MINOR_STC_ACTION_PARAM_LIST}':
+            _config_args["stc_action_type_offset"] = 17
+            _config_args["resource_dump_segment_action_stc_bin_sz"] = 272
+            _config_args["stc_param_start_ofset"] = 19
+            _config_args["stc_param_end_ofset"] = 35
+        elif self.data.get("fw_version") >= f'{_config_args.get("fw_version_major")}.{FW_VERSION_MINOR_STC_ACTION_TYPE_SHIFT}':
+            _config_args["stc_action_type_offset"] = 48
         else:
-            _config_args["stc_action_type_shift"] = 0x0
+            _config_args["stc_action_type_offset"] = 40
 
         _config_args["linear_match_definer"] = self.data.get("linear_match_definer")
         _config_args["linear_match_definer_field_name"] = self.data.get("linear_match_definer_field_name")

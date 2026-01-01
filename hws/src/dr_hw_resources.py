@@ -107,11 +107,9 @@ stc_param_id_loc_dic = {
 }
 
 
-def dr_parse_fw_stc_action_get_obj_id(raw):
-    stc_param = raw[2:22]
-    stc_action_type_shift = _config_args.get("stc_action_type_shift")
-    action_type = raw[(40 + stc_action_type_shift):(42 + stc_action_type_shift)]
-
+def dr_parse_fw_stc_action_get_obj_id(raw, stc_param_start_ofset, stc_param_end_ofset, stc_action_type_offset):
+    stc_param = raw[stc_param_start_ofset:stc_param_end_ofset]
+    action_type = raw[stc_action_type_offset:stc_action_type_offset + 2]
     obj = stc_param_id_loc_dic.get(action_type)
 
     if obj != None:
