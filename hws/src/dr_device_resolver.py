@@ -77,6 +77,12 @@ def _detect_device_type(device_str):
         if os.path.exists(f'/sys/class/infiniband/{device_str}'):
             return 'ib'
 
+    # Bonding InfiniBand device: typically mlx5_bond_N
+    # Check both pattern and sysfs
+    if re.match(r'^mlx\d+_bond_\d+$', device_str):
+        if os.path.exists(f'/sys/class/infiniband/{device_str}'):
+            return 'ib'
+
     # Netdev: check if it exists in /sys/class/net/
     if os.path.exists(f'/sys/class/net/{device_str}'):
         return 'netdev'
