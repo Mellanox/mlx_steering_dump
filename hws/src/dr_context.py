@@ -45,20 +45,21 @@ class dr_parse_context():
         self.send_engine = []
         self.ctx_db = _ctx_db()
         self.load_to_db()
+        self.ctx_resolve_device()
 
-    def load_to_db(self):
+    def ctx_resolve_device(self):
         if _config_args.get("dump_hw_resources"):
             # We're about to dump HW resources - need to resolve device
             # Use -d flag if provided, otherwise use device name from CSV (written by triggered app)
             device_to_resolve = _config_args.get("device") or self.data.get("dev_name")
-
+            device_was_provided = _config_args.get("device") is not None
             # Resolve device to get both PCI and RDMA identifiers for resourcedump
             try:
                 dev_id = resolve_device(device_to_resolve)
                 # Use PCI BDF for resourcedump (most universal)
                 _config_args["device"] = dev_id.pci_bdf if dev_id.pci_bdf else dev_id.mst_dev
                 # Use RDMA device name for --mem parameter
-                _config_args["dev_name"] = dev_id.rdma_dev if dev_id.rdma_dev else self.data.get("dev_name")
+                _config_args["dev_name"] = dev_id.rdma_dev if device_was_provided else self.data.get("dev_name")
             except Exception as e:
                 print(f"Error resolving device '{device_to_resolve}': {e}")
                 sys.exit(1)
@@ -66,6 +67,7 @@ class dr_parse_context():
             # Only parsing existing CSV - no HW dump, no device resolution needed
             _config_args["dev_name"] = self.data.get("dev_name")
 
+    def load_to_db(self):
         _db.load(self.ctx_db)
 
     def dump_str(self, verbosity):
