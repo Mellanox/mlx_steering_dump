@@ -55,9 +55,29 @@ def dr_action_insert_inline_parser(action_arr, index):
 def dr_action_insert_pointer_parser(action_arr, index):
     action_dw_0 = action_arr[index]
     action_dw_1 = action_arr[index + 1]
-    action = dr_parse_insert_by_pointer_action(action_dw_0, action_dw_1)
+    action = dr_parse_insert_by_pointer_action(action_dw_0, action_dw_1, True)
+    sz_bytes = action.get("size")
+    action["size"] = '%s Bytes' % hex(sz_bytes)
+    str_arr = [action_pretiffy(action)]
 
-    return (2, [action_pretiffy(action)])
+    if _config_args.get("extra_hw_res_arg") == True:
+        arg_index = hex(action.get("pointer"))
+        arg_str = _db._argument_db.get(arg_index)
+        if (arg_str is not None) and (len(arg_str) >= (sz_bytes * 2)):
+            data = f'{' ':16}data: 0000:'
+            for i in range(sz_bytes):
+                if i % 0x10 == 0 and i > 0:
+                    str_arr.append(f'{data}\n')
+                    data = f'{' ':22}{i:04x}:'
+                elif i % 0x8 == 0 and i > 0:
+                    data += ' '
+
+                data += f' {arg_str[2 * i]}{arg_str[(2 * i) + 1]}'
+
+                if i == sz_bytes - 1:
+                    str_arr.append(f'{data}\n')
+
+    return (2, str_arr)
 
 def dr_action_accelerated_modify_list_parser(action_arr, index):
     verbose = _config_args.get("verbose")

@@ -95,6 +95,7 @@ class dr_parse_stc():
 #according to stc obj param
 stc_param_id_loc_dic = {
     STC_ACTION_HEADER_MODIFY_LIST: {'type': 'MODIFY_LIST', 'loc': (8, 16)},
+    STC_ACTION_INSERT_HEADER: {'type': 'INSERT_HEADER', 'inline_data': (1, 2), 'loc': (8, 16)},
     STC_ACTION_JUMP_TO_STE_TABLE: {'type': 'FW_STE_TABLE', 'loc': (0, 8)},
     STC_ACTION_JUMP_TO_TIR: {'type': 'TIR', 'loc': (2, 8)},
     STC_ACTION_JUMP_TO_FLOW_TABLE: {'type': 'FT', 'loc': (2, 8)},
@@ -118,6 +119,10 @@ def dr_parse_fw_stc_action_get_obj_id(raw, stc_param_start_ofset, stc_param_end_
            (action_type == STC_ACTION_TYPE_ALLOW) or \
            (action_type == STC_ACTION_JUMP_TO_QP):
             return {"type": obj.get("type"), "id": ''}
+        elif (action_type == STC_ACTION_INSERT_HEADER):
+            inline_loc = obj.get("inline_data")
+            if int(stc_param[inline_loc[0]:inline_loc[1]], 16) & 0x4 == 0x4:
+                return None
 
         id_loc = obj.get("loc")
         return {"type": obj.get("type"), "id": hex(int(stc_param[id_loc[0]:id_loc[1]], 16))}

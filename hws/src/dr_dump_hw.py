@@ -95,7 +95,7 @@ def parse_fw_stc_rd_bin_output(stc_index, load_to_db, file):
                     if _id not in _db._fw_ste_indexes_arr:
                         _db._fw_ste_indexes_arr.append(_id)
 
-                elif obj.get("type") == 'MODIFY_LIST':
+                elif obj.get("type") == 'MODIFY_LIST' or obj.get("type") == 'INSERT_HEADER':
                     _db._arg_obj_indexes_dic[obj.get("id")] = ''
 
                 elif obj.get("type") == 'FLOW_COUNTER':
