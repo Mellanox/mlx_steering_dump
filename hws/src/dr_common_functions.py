@@ -250,10 +250,11 @@ def dr_parse_insert_inline_action(action_dw_0, action_dw_1, parse_value=True):
     return action
 
 
-def dr_parse_insert_by_pointer_action(action_dw_0, action_dw_1):
+def dr_parse_insert_by_pointer_action(action_dw_0, action_dw_1, int_size_bytes=False):
     action = {"type" : "Insert pointer"}
     start_anchor = 0
     start_offset = 0
+    sz_bytes = 0
 
     if _config_args.get("cx8"):
         start_anchor = int(action_dw_0[8 : 15], 2)
@@ -267,7 +268,12 @@ def dr_parse_insert_by_pointer_action(action_dw_0, action_dw_1):
     #Offset in words granularity
     action["start_offset"] = '%s Bytes' % hex(start_offset * 2)
     #Size in words granularity
-    action["size"] = '%s Bytes' % hex(int(action_dw_0[23 : 29], 2) * 2)
+    sz_bytes = int(action_dw_0[23 : 29], 2) * 2
+    if int_size_bytes:
+        action["size"] = sz_bytes
+    else:
+        action["size"] = '%s Bytes' % hex(sz_bytes)
+
     action["attributes"] = int(action_dw_0[29 : 32], 2)
     action["pointer"] = int(action_dw_1[0 : 32], 2)
 
