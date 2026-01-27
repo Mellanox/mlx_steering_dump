@@ -34,6 +34,7 @@ switch_csv_res_type = {
     MLX5DR_DEBUG_RES_TYPE_CONTEXT_CAPS: dr_parse_context_caps,
     MLX5DR_DEBUG_RES_TYPE_CONTEXT_SEND_ENGINE: dr_parse_context_send_engine,
     MLX5DR_DEBUG_RES_TYPE_CONTEXT_SEND_RING: dr_parse_context_send_ring,
+    MLX5DR_DEBUG_RES_TYPE_CONTEXT_RESOURCE_QUEUE: dr_parse_context_resource_queue,
     MLX5DR_DEBUG_RES_TYPE_TABLE: dr_parse_table,
     MLX5DR_DEBUG_RES_TYPE_MATCHER: dr_parse_matcher,
     MLX5DR_DEBUG_RES_TYPE_MATCHER_ATTR: dr_parse_matcher_attr,
@@ -127,6 +128,8 @@ def dr_parse_csv_file(csv_file, load_to_db):
             ctx.add_send_engine(obj)
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_CONTEXT_SEND_RING:
             last_send_engine.add_send_ring(obj)
+        elif line[0] == MLX5DR_DEBUG_RES_TYPE_CONTEXT_RESOURCE_QUEUE:
+            ctx.add_resource_queue(obj)
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_TABLE:
             last_table = obj
             ctx.add_table(obj)
