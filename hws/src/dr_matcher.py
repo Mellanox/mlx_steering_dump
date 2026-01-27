@@ -437,7 +437,8 @@ class dr_parse_matcher_attr():
 
 class dr_parse_matcher_match_template():
     def __init__(self, data):
-        keys = ["mlx5dr_debug_res_type", "id", "matcher_id", "fc_sz", "flags", "fcr_sz", "fcc_sz"]
+        keys = ["mlx5dr_debug_res_type", "id", "matcher_id", "fc_sz", "flags",
+                "fcr_sz", "fcc_sz", "is_ll"]
         self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
         self.match_definer = None
         self.range_definer = None
@@ -454,14 +455,20 @@ class dr_parse_matcher_match_template():
         if self.data.get("fcr_sz") != "0" or self.data.get("fcc_sz") != "0":
             self.second_ste_present = True
 
+        if self.data.get("is_ll") == None:
+            self.data["is_ll"] = "0"
+
     def dump_str(self, tabs, verbosity):
         _tabs = tabs + TAB
         __tabs = _tabs + TAB
         _str = ':'
         if self.match_definer != None:
+            if (self.data["is_ll"] == "1"):
+                _str = ' (low level):'
+
             definer_str = self.match_definer.dump_fields()
             if len(definer_str) != 0:
-                _str = ':\n' + _tabs + 'Match fields:\n' + __tabs + definer_str
+                _str += '\n' + _tabs + 'Match fields:\n' + __tabs + definer_str
                 _str = _str.replace(', ', '\n' + __tabs)
 
             range_definer_str = ''
