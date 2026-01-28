@@ -43,6 +43,7 @@ class dr_parse_context():
         self.attr = None
         self.caps = None
         self.send_engine = []
+        self.resource_queues = []
         self.ctx_db = _ctx_db()
         self.load_to_db()
         self.ctx_resolve_device()
@@ -101,6 +102,8 @@ class dr_parse_context():
         if verbosity > 3:
             for se in self.send_engine:
                 _str = _str + se.tree_print(verbosity, tabs)
+            for queue in self.resource_queues:
+                _str = _str + tabs + queue.dump_str(verbosity)
 
         output_file.write(_str)
 
@@ -121,6 +124,9 @@ class dr_parse_context():
 
     def add_send_engine(self, send_engine):
         self.send_engine.append(send_engine)
+
+    def add_resource_queue(self, resource_queue):
+        self.resource_queues.append(resource_queue)
 
 
 class dr_parse_context_attr():
@@ -272,3 +278,15 @@ class dr_parse_context_send_ring():
                              "cq_cqe_log_sz", "cq_poll_wqe", "cq_cqe_sz",
                              "sqn", "sq_obj_id", "sq_cur_post",
                              "sq_buf_mask"], self.data)
+
+
+class dr_parse_context_resource_queue():
+    def __init__(self, data):
+        self.keys = ["mlx5dr_debug_res_type", "ctx_id", "id", "cqn",
+                     "cq_ncqe_mask", "cq_buf_sz", "cq_ncqe", "cq_cqe_log_sz",
+                     "cq_cqe_sz", "sqn", "sq_cur_post", "sq_buf_mask",
+                     "num_wqebbs", "pending_batch"]
+        self.data = dict(zip(self.keys, data + [None] * (len(self.keys) - len(data))))
+
+    def dump_str(self, verbosity):
+        return dump_obj_str(self.keys, self.data)
