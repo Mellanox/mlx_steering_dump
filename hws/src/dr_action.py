@@ -64,11 +64,11 @@ def dr_action_insert_pointer_parser(action_arr, index):
         arg_index = hex(action.get("pointer"))
         arg_str = _db._argument_db.get(arg_index)
         if (arg_str is not None) and (len(arg_str) >= (sz_bytes * 2)):
-            data = f'{' ':16}data: 0000:'
+            data = f'{" ":16}data: 0000:'
             for i in range(sz_bytes):
                 if i % 0x10 == 0 and i > 0:
                     str_arr.append(f'{data}\n')
-                    data = f'{' ':22}{i:04x}:'
+                    data = f'{" ":22}{i:04x}:'
                 elif i % 0x8 == 0 and i > 0:
                     data += ' '
 
