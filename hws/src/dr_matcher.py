@@ -464,7 +464,7 @@ class dr_parse_matcher_match_template():
         _str = ':'
         if self.match_definer != None:
             if (self.data["is_ll"] == "1"):
-                _str = ' (low level):'
+                _str += '\n' + _tabs + 'Low_level: yes'
 
             definer_str = self.match_definer.dump_fields()
             if len(definer_str) != 0:
