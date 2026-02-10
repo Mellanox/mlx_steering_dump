@@ -492,7 +492,7 @@ modify_pattern_anchor_dic = {
 
 
 ASO_CONTEXT_TYPE_STR_ARR = ["IPSec", "Connection Tracking", "Policers", "Race Avoidance",
-                            "First Hit", "MACSEC", "Entropy", "Multipath", "Buffer Management",
+                            "First Hit", "MACSEC", "None", "Entropy (Multipath)", "Buffer Management",
                             "memory"]
 ASO_CONTEXT_TYPE_IPSEC = 0x0
 ASO_CONTEXT_TYPE_CONN_TRACK = 0x1
@@ -500,8 +500,7 @@ ASO_CONTEXT_TYPE_POLICERS = 0x2
 ASO_CONTEXT_TYPE_RACE_AVOIDANCE = 0x3
 ASO_CONTEXT_TYPE_FIRST_HIT = 0x4
 ASO_CONTEXT_TYPE_MACSEC = 0x5
-ASO_CONTEXT_TYPE_ENTROPY = 0x6
-ASO_CONTEXT_TYPE_MULTIPATH = 0x7
+ASO_CONTEXT_TYPE_ENTROPY = 0x7
 ASO_CONTEXT_TYPE_BUFF_MGMT = 0x8
 ASO_CONTEXT_TYPE_MEMORY = 0x9
 
