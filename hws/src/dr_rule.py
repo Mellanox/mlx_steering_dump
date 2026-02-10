@@ -180,6 +180,8 @@ def dr_parse_rules(matcher, verbosity, tabs, output_file):
 
         fw_ste_dic = _db._fw_ste_db.get(match_ste_id)
         if not fw_ste_dic:
+            progress_bar_i += 1
+            interactive_progress_bar(progress_bar_i, progress_bar_total, PARSING_THE_RULES_STR)
             continue
 
         has_parsed_rule = True
