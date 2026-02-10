@@ -189,6 +189,14 @@ def dr_parse_rules(matcher, verbosity, tabs, output_file):
         if num_workers == 0:
             num_workers = mp.cpu_count()
 
+        if num_workers == 1:
+            output_file.write(dr_parse_stes(fw_ste_dic, _tbl_type, match_ste_id,
+                              hint_loc, verbosity, _tabs, matcher))
+
+            progress_bar_i += 1
+            interactive_progress_bar(progress_bar_i, progress_bar_total, PARSING_THE_RULES_STR)
+            continue
+
         fw_ste_slices = split_dict(fw_ste_dic, SLICE_SIZE)
         req_q = mp.Queue()
         resp_q = mp.Queue()
