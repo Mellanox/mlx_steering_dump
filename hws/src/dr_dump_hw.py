@@ -403,16 +403,45 @@ def dump_hw_resources(load_to_db, dev, dev_name, file):
     interactive_progress_bar(0, total_resources, DUMPING_HW_RESOURCES)
     i = 0
 
-    for ft_id in _db._ft_idx_arr:
-        query_and_parse_ft_meta_rd_bin_output(ft_id, load_to_db, dev, dev_name, file)
-
     for stc_index in _db._stc_indexes_arr:
         output = call_resource_dump(dev, dev_name, "STC", stc_index, None, 'all', None)
         parse_fw_stc_rd_bin_output(stc_index, load_to_db, file)
         i += 1
+
+    # In this Phase we've the Args & Counters
+    if dump_arg:
+        total_resources += len(_db._arg_obj_indexes_dic)
+    if dump_counter:
+        total_resources += len(_db._flow_counter_indexes_dic)
+
+    total_resources += len(_db._ft_idx_arr)
+
+    _config_args["total_resources"] = total_resources
+    interactive_progress_bar(i, total_resources, DUMPING_HW_RESOURCES)
+
+    # Dump FT info
+    for ft_id in _db._ft_idx_arr:
+        query_and_parse_ft_meta_rd_bin_output(ft_id, load_to_db, dev, dev_name, file)
+        i += 1
         interactive_progress_bar(i, total_resources, DUMPING_HW_RESOURCES)
 
-    #Dump FW STE's
+    # Dump Arg's
+    if dump_arg == True:
+        for arg_index in _db._arg_obj_indexes_dic:
+            output = call_resource_dump(dev, dev_name, "MODIFY_ARGUMENT", arg_index, None, 'all', None)
+            parse_fw_modify_argument_rd_bin_output(arg_index,  load_to_db, file)
+            i += 1
+            interactive_progress_bar(i, total_resources, DUMPING_HW_RESOURCES)
+
+    # Dump Counters
+    if dump_counter == True:
+        for counter_idx in _db._flow_counter_indexes_dic:
+            output = call_resource_dump(dev, dev_name, "FLOW_COUNTER", counter_idx, 'all', None, None)
+            parse_fw_counter_rd_bin_output(counter_idx,  load_to_db, file)
+            i += 1
+            interactive_progress_bar(i, total_resources, DUMPING_HW_RESOURCES)
+
+    # Dump FW STE's
     if _config_args.get("resourcedump_mem_mode"):
         dump_fw_ste(load_to_db, dev, dev_name, file, total_resources, i)
     else:
@@ -421,19 +450,6 @@ def dump_hw_resources(load_to_db, dev, dev_name, file):
             parse_fw_ste_rd_output(output, fw_ste_index, load_to_db, file)
             i += 1
             interactive_progress_bar(i, total_resources, DUMPING_HW_RESOURCES)
-
-    #Dump Arg's
-    if dump_arg == True:
-        for arg_index in _db._arg_obj_indexes_dic:
-            output = call_resource_dump(dev, dev_name, "MODIFY_ARGUMENT", arg_index, None, 'all', None)
-            parse_fw_modify_argument_rd_bin_output(arg_index,  load_to_db, file)
-
-    #Dump Counters
-    if dump_counter == True:
-        for counter_idx in _db._flow_counter_indexes_dic:
-            output = call_resource_dump(dev, dev_name, "FLOW_COUNTER", counter_idx, 'all', None, None)
-            parse_fw_counter_rd_bin_output(counter_idx,  load_to_db, file)
-
 
 def dr_hw_data_engine(obj, file):
     if _config_args.get("dump_hw_resources"):
