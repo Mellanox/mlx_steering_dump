@@ -153,16 +153,19 @@ def parse_fw_ste_rd_bin_output_chunk(f_path, f_seek, chunk_sz, fw_ste_index, loa
 def parse_fw_ste_rd_bin_output_worker(req_q, resp_q):
     while True:
         try:
-            # The control process posts all of the work items before starting
-            # the workers, and no other items are posted after that. So we don't
-            # need to block.
-            f_path, f_seek, chunk_sz, fw_ste_index, load_to_db = req_q.get_nowait()
-        except queue.Empty:
-            # No more work, we're done.
+            work_item = req_q.get(timeout=1)
+        except Exception as e:
+            print(f'Failed to get work item: {type(e).__name__}: {e}', flush=True)
+            return
+        if work_item is None:
             return
 
-        resp_q.put(parse_fw_ste_rd_bin_output_chunk(f_path, f_seek, chunk_sz,
-                                                    fw_ste_index, load_to_db))
+        try:
+            f_path, f_seek, chunk_sz, fw_ste_index, load_to_db = work_item
+            resp_q.put(parse_fw_ste_rd_bin_output_chunk(f_path, f_seek, chunk_sz,
+                                                        fw_ste_index, load_to_db))
+        except Exception as e:
+            print(f'Failed to parse binary output: {type(e).__name__}: {e}', flush=True)
 
 def parse_fw_ste_rd_bin_output(fw_ste_index, load_to_db, file, tmp_file_path):
     # Let's parse the tmp_file in separate processes, that we can parse every
@@ -210,17 +213,20 @@ def parse_fw_ste_rd_bin_output(fw_ste_index, load_to_db, file, tmp_file_path):
         num_of_chunks += 1
 
     for i in range(min(num_workers, num_of_chunks)):
+        req_q.put(None)
         p = mp.Process(target=parse_fw_ste_rd_bin_output_worker, args=(req_q, resp_q))
         processes.append(p)
 
     [p.start() for p in processes]
 
+    num_of_results = 0
     while any([p.is_alive() for p in processes]) or not resp_q.empty():
         try:
             _str, _ste_dic, _min_addr, _max_addr = resp_q.get(timeout=1)
-        except Exception as e:
+        except queue.Empty:
             continue
         file.write(_str)
+        num_of_results += 1
         ste_dic.update(_ste_dic)
         if _min_addr < min_addr:
             min_addr = _min_addr
@@ -228,6 +234,10 @@ def parse_fw_ste_rd_bin_output(fw_ste_index, load_to_db, file, tmp_file_path):
             max_addr = _max_addr
 
     [p.join() for p in processes]
+
+    if num_of_results < num_of_chunks:
+        print(f'Got only {num_of_results} results, expected {num_of_chunks}. '
+              f'Results are incomplete.')
 
     if load_to_db:
         _db._fw_ste_db[fw_ste_index] = ste_dic

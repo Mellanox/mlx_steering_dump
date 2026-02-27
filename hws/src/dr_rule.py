@@ -100,20 +100,24 @@ def dr_parse_stes(fw_ste_dic, tbl_type, match_ste_id, hint_loc, verbosity,
     return _str
 
 
-def worker_process(idx, ste_slices, tbl_type, match_ste_id, hint_loc, verbosity,
+def worker_process(ste_slices, tbl_type, match_ste_id, hint_loc, verbosity,
                    tabs, matcher, req_q, resp_q):
     while True:
         try:
-            # The control process posts all of the work items before starting
-            # the workers, and no other items are posted after that. So we don't
-            # need to block.
-            slice_idx = req_q.get_nowait()
-        except queue.Empty:
-            # No more work, we're done.
+            slice_idx = req_q.get(timeout=1)
+        except Exception as e:
+            # This should not happen, we pad the request queue with enough None
+            # values to always avoid timing out and wasting time.
+            print(f'Failed to get work item: {type(e).__name__}: {e}', flush=True)
             return
-        _str = dr_parse_stes(ste_slices[slice_idx], tbl_type, match_ste_id, hint_loc, verbosity,
-                             tabs, matcher)
-        resp_q.put((slice_idx, _str))
+        if slice_idx is None:
+            return
+        try:
+            _str = dr_parse_stes(ste_slices[slice_idx], tbl_type, match_ste_id,
+                                 hint_loc, verbosity, tabs, matcher)
+            resp_q.put((slice_idx, _str))
+        except Exception as e:
+            print(f'Failed to parse STE chunk: {type(e).__name__}: {e}', flush=True)
 
 
 def split_dict(dic, slice_size):
@@ -227,8 +231,9 @@ def dr_parse_rules(matcher, verbosity, tabs, output_file):
         next_result = 0
 
         for i in range(num_workers):
+            req_q.put(None)
             p = mp.Process(target=worker_process,
-                           args=(i, fw_ste_slices, _tbl_type, match_ste_id,
+                           args=(fw_ste_slices, _tbl_type, match_ste_id,
                                  hint_loc, verbosity, _tabs, matcher,
                                  req_q, resp_q))
             processes.append(p)
@@ -236,12 +241,19 @@ def dr_parse_rules(matcher, verbosity, tabs, output_file):
         [p.start() for p in processes]
         gc.enable()
 
-        while len(results) < len(fw_ste_slices):
-            slice_idx, result = resp_q.get()
+        while any([p.is_alive() for p in processes]) or not resp_q.empty():
+            try:
+                slice_idx, result = resp_q.get(timeout=1)
+            except queue.Empty:
+                continue
             results[slice_idx] = result
             next_result = print_results(results, next_result, output_file)
 
         [p.join() for p in processes]
+
+        if len(results) < len(fw_ste_slices):
+            print(f'Got only {len(results)} parse results, expected '
+                  f'{len(fw_ste_slices)}. Results are incomplete.')
 
         progress_bar_i += 1
         interactive_progress_bar(progress_bar_i, progress_bar_total, PARSING_THE_RULES_STR)
