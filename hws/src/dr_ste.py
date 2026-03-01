@@ -209,7 +209,8 @@ def raw_ste_parser(raw_ste):
     parsed_tag = {}
 
     if ste["entry_format"] == STE_ENTRY_TYPE_4DW_RANGE_MATCH:
-        arg_0_field = definer_fields.get("dw_selector_4")[0][0]
+        dw4_fields = definer_fields.get("dw_selector_4", [])
+        arg_0_field = dw4_fields[0][0] if dw4_fields else "unknown_field"
         base_0 = ''
         arg_1 = tags.get("dw_selector_arg_1")
         match = int(arg_1[0 : 1], 2)
@@ -223,18 +224,21 @@ def raw_ste_parser(raw_ste):
         if base_0_src == 0x1:
             base_0 = hex(int(tags.get("dw_selector_base_0"), 2))
         else:
-            base_0 = definer_fields.get("dw_selector_2")[0][0]
+            dw2_fields = definer_fields.get("dw_selector_2", [])
+            base_0 = dw2_fields[0][0] if dw2_fields else "unknown_field"
 
         _str = "%s %s %s" % (arg_0_field, op, base_0)
 
         if match == 0x1:
-            arg_1_field = definer_fields.get("dw_selector_5")[0][0]
+            dw5_fields = definer_fields.get("dw_selector_5", [])
+            arg_1_field = dw5_fields[0][0] if dw5_fields else "unknown_field"
             op = compare_ste_op_translate(operator_1, inverse_1)
             base_1 = ''
             if base_1_src == 0x1:
                 base_1 = hex(int(tags.get("dw_selector_base_1"), 2))
             else:
-                base_1 = definer_fields.get("dw_selector_3")[0][0]
+                dw3_fields = definer_fields.get("dw_selector_3", [])
+                base_1 = dw3_fields[0][0] if dw3_fields else "unknown_field"
 
             _str = "%s , %s %s %s" % (_str, arg_1_field, op, base_1)
 
