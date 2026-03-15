@@ -16,7 +16,6 @@ def query_and_parse_ft_meta_rd_bin_output(ft_id, load_to_db, dev, dev_name, file
     output = call_resource_dump(dev, dev_name, "QUERY_FT_META", ft_id, None, None, None)
     _config_args["tmp_file"] = open(_config_args.get("tmp_file_path"), 'rb+')
     bin_file = _config_args.get("tmp_file")
-    stc = ''
     count = 0
 
     #First read DW(4B) each time till reaching FT META
@@ -46,7 +45,71 @@ def query_and_parse_ft_meta_rd_bin_output(ft_id, load_to_db, dev, dev_name, file
             if tx_icm_addr != "0x0":
                 _db._term_dest_db[tx_icm_addr] = {"type": "FT", "id": ft_id}
 
+def parse_stc_rd_bin_output(stc_index, load_to_db, file):
+    _dests = {}
+    _config_args["tmp_file"] = open(_config_args.get("tmp_file_path"), 'rb+')
+    bin_file = _config_args.get("tmp_file")
+    count = 0
+    stc_meta = ''
+    stc_meta_segment_sz = _config_args.get("resource_dump_segment_action_stc_meta_bin_sz")
+    stc_raw_segment_sz = _config_args.get("resource_dump_segment_action_stc_raw_bin_sz")
+    stc_param_start_ofset = _config_args.get("stc_param_start_ofset")
+    stc_param_end_ofset = _config_args.get("stc_param_end_ofset")
+    stc_action_type_offset = _config_args.get("stc_action_type_offset")
 
+    #First read DW(4B) each time till reaching first STC
+    data = bin_file.read(4)
+    while data:
+        data = hex(int.from_bytes(data, byteorder='big'))
+        if data[4:8] == RESOURCE_DUMP_SEGMENT_TYPE_STC_INFO_META_BIN:
+            #Seek to the first STC location in the bin_file
+            bin_file.seek(count)
+            break
+
+        count += 4
+        data = bin_file.read(4)
+
+    #Read first STC INFO
+    data = bin_file.read(stc_meta_segment_sz)
+
+    while data:
+        #Leading zeros will be ignored
+        data = hex(int.from_bytes(data, byteorder='big'))
+        data_type = data[4:8]
+        if data_type == RESOURCE_DUMP_SEGMENT_TYPE_STC_INFO_META_BIN:
+            stc_meta = '0x' + data[32:]
+            data = bin_file.read(stc_raw_segment_sz)
+            continue
+        elif data_type == RESOURCE_DUMP_SEGMENT_TYPE_STC_INFO_RAW_BIN:
+            stc_raw = '0x' + data[32:]
+            obj = dr_parse_fw_stc_action_get_obj_id(stc_meta, stc_param_start_ofset,
+                                                    stc_param_end_ofset, stc_action_type_offset)
+
+            if obj != None:
+                addr = dr_parse_fw_stc_get_addr(stc_raw)
+                write_line = '%s,%s,%s,%s\n' % (MLX5DR_DEBUG_RES_TYPE_ADDRESS, addr, obj.get("type"), obj.get("id"))
+                file.write(write_line)
+                if obj.get("type") == 'FW_STE_TABLE':
+                    _id = str(int(obj.get("id"), 16))
+                    if _id not in _db._fw_ste_indexes_arr:
+                        _db._fw_ste_indexes_arr.append(_id)
+
+                elif obj.get("type") == 'MODIFY_LIST' or obj.get("type") == 'INSERT_HEADER':
+                    _db._arg_obj_indexes_dic[obj.get("id")] = ''
+
+                elif obj.get("type") == 'FLOW_COUNTER':
+                    _db._flow_counter_indexes_dic[obj.get("id")] = ''
+
+                else:
+                    _dests[addr] = obj
+
+        data = bin_file.read(stc_meta_segment_sz)
+
+    bin_file.close()
+    _config_args["tmp_file"] = None
+
+    if load_to_db:
+        _db._term_dest_db.update(_dests)
 
 def parse_fw_stc_rd_bin_output(stc_index, load_to_db, file):
     _dests = {}
@@ -63,7 +126,7 @@ def parse_fw_stc_rd_bin_output(stc_index, load_to_db, file):
     data = bin_file.read(4)
     while data:
         data = hex(int.from_bytes(data, byteorder='big'))
-        if data[2:8] == RESOURCE_DUMP_SEGMENT_TYPE_STC_BIN:
+        if data[4:8] == RESOURCE_DUMP_SEGMENT_TYPE_STC_BIN:
             #Seek to the first STC location in the bin_file
             bin_file.seek(count)
             break
@@ -77,7 +140,7 @@ def parse_fw_stc_rd_bin_output(stc_index, load_to_db, file):
     while data:
         #Leading zeros will be ignored
         data = hex(int.from_bytes(data, byteorder='big'))
-        data_type = data[2:8]
+        data_type = data[4:8]
         if data_type == RESOURCE_DUMP_SEGMENT_TYPE_STC_BIN:
             stc = '0x' + data[32:]
             data = bin_file.read(action_stc_segment_sz)
@@ -113,7 +176,7 @@ def parse_fw_stc_rd_bin_output(stc_index, load_to_db, file):
         _db._term_dest_db.update(_dests)
 
 
-def parse_fw_ste_rd_bin_output_chunk(f_path, f_seek, chunk_sz, fw_ste_index, load_to_db):
+def parse_fw_ste_rd_bin_output_chunk(f_path, f_seek, chunk_sz, fw_ste_index, load_to_db, segment_type):
     min_addr = '0xffffffff'
     max_addr = '0x00000000'
     ste_dic = {}
@@ -125,20 +188,24 @@ def parse_fw_ste_rd_bin_output_chunk(f_path, f_seek, chunk_sz, fw_ste_index, loa
 
     #Each STE dump contain 64B(STE) + 16(STE prefix)
     data = bin_file.read(80)
+    _data = hex(int.from_bytes(data, byteorder='big'))
+    if _data[4:8] == segment_type:
+        min_addr = f'0x{(int(_data[16:24], 16)):0{8}x}'
+
     while data and count < chunk_sz:
         count += 80
         #Leading zeros will be ignored
         data = hex(int.from_bytes(data, byteorder='big'))
-        if data[2:8] == RESOURCE_DUMP_SEGMENT_TYPE_STE_BIN:
+        if data[4:8] == segment_type:
             ste = f'0x{data[32:]}'
             hit_add = ste[32 : 41]
-            ste_addr = '0x' + data[16:24]
-            if ste_addr < min_addr:
-                min_addr = ste_addr
+            if segment_type == RESOURCE_DUMP_SEGMENT_TYPE_STE_INFO_BIN:
+                ste_addr = f'0x{(int(data[16:24], 16) + int(data[24:32], 16)):0{8}x}'
+            else:
+                ste_addr = '0x' + data[16:24]
             if ste_addr > max_addr:
                 max_addr = ste_addr
             if int(hit_add, 16) & STE_ALWAYS_HIT_ADDRESS != STE_ALWAYS_HIT_ADDRESS:
-                ste_addr = f'0x{data[16:24]}'
                 _str += f'{MLX5DR_DEBUG_RES_TYPE_STE},{ste_addr},{fw_ste_index},{ste}\n'
                 if load_to_db:
                     ste = dr_parse_ste([MLX5DR_DEBUG_RES_TYPE_STE, ste_addr, fw_ste_index, ste])
@@ -161,9 +228,9 @@ def parse_fw_ste_rd_bin_output_worker(req_q, resp_q):
             return
 
         try:
-            f_path, f_seek, chunk_sz, fw_ste_index, load_to_db = work_item
+            f_path, f_seek, chunk_sz, fw_ste_index, load_to_db, segment_type = work_item
             resp_q.put(parse_fw_ste_rd_bin_output_chunk(f_path, f_seek, chunk_sz,
-                                                        fw_ste_index, load_to_db))
+                                                        fw_ste_index, load_to_db, segment_type))
         except Exception as e:
             print(f'Failed to parse binary output: {type(e).__name__}: {e}', flush=True)
 
@@ -181,6 +248,10 @@ def parse_fw_ste_rd_bin_output(fw_ste_index, load_to_db, file, tmp_file_path):
     processes = []
     ste_dic = {}
     count = 0
+    segment_type = RESOURCE_DUMP_SEGMENT_TYPE_STE_INFO_BIN
+
+    if _config_args.get("legacy_rd"):
+        segment_type = RESOURCE_DUMP_SEGMENT_TYPE_STE_BIN
 
     # Get the file size
     bin_file.seek(0, 2)
@@ -194,7 +265,7 @@ def parse_fw_ste_rd_bin_output(fw_ste_index, load_to_db, file, tmp_file_path):
     data = bin_file.read(4)
     while data:
         data = hex(int.from_bytes(data, byteorder='big'))
-        if data[2:8] == RESOURCE_DUMP_SEGMENT_TYPE_STE_BIN:
+        if data[4:8] == segment_type:
             break
 
         count += 4
@@ -207,7 +278,7 @@ def parse_fw_ste_rd_bin_output(fw_ste_index, load_to_db, file, tmp_file_path):
     # chunk_sz = 256K STEs ((16B + 64B) * 256K = 20MB)
     chunk_sz = 256 * 1024 * 80
     while count < bin_file_sz:
-        req_q.put((tmp_file_path, count, chunk_sz, fw_ste_index, load_to_db))
+        req_q.put((tmp_file_path, count, chunk_sz, fw_ste_index, load_to_db, segment_type))
         # Split the read to chunk_sz STEs
         count += chunk_sz
         num_of_chunks += 1
@@ -278,7 +349,7 @@ def parse_fw_ste_rd_output(data, fw_ste_index, load_to_db, file):
         _db._stes_range_db[fw_ste_index] = (min_addr, max_addr)
 
 
-def parse_fw_modify_argument_rd_bin_output(arg_index,  load_to_db, file):
+def parse_fw_modify_argument_rd_bin_output(arg_index,  load_to_db, file, segment_type):
     arg_dic = {}
     arr = []
     file_str = "%s,%s" % (MLX5DR_DEBUG_RES_TYPE_ARGUMENT, arg_index)
@@ -290,7 +361,7 @@ def parse_fw_modify_argument_rd_bin_output(arg_index,  load_to_db, file):
     data = bin_file.read(4)
     while data:
         data = hex(int.from_bytes(data, byteorder='big'))
-        if data[2:8] == RESOURCE_DUMP_SEGMENT_TYPE_MODIFY_ARG_BIN:
+        if data[4:8] == segment_type:
             #Seek to the first argument location in the bin_file
             bin_file.seek(count)
             break
@@ -303,8 +374,8 @@ def parse_fw_modify_argument_rd_bin_output(arg_index,  load_to_db, file):
 
     while data:
         data = hex(int.from_bytes(data, byteorder='big'))
-        data_type = data[2:8]
-        if data_type == RESOURCE_DUMP_SEGMENT_TYPE_MODIFY_ARG_BIN:
+        data_type = data[4:8]
+        if data_type == segment_type:
             index = hex(int(data[16:24], 16))
             file_str = "%s,%s,%s" % (MLX5DR_DEBUG_RES_TYPE_ARGUMENT, arg_index, index)
             arr = data[32:]
@@ -320,7 +391,7 @@ def parse_fw_modify_argument_rd_bin_output(arg_index,  load_to_db, file):
         _db._argument_db.update(arg_dic)
 
 
-def parse_fw_counter_rd_bin_output(counter_index,  load_to_db, file):
+def parse_fw_counter_rd_bin_output(counter_index,  load_to_db, file, segment_type):
     counters_dic = {}
     file_str = "%s,%s" % (MLX5DR_DEBUG_RES_TYPE_COUNTER, counter_index)
     _config_args["tmp_file"] = open(_config_args.get("tmp_file_path"), 'rb+')
@@ -331,7 +402,7 @@ def parse_fw_counter_rd_bin_output(counter_index,  load_to_db, file):
     data = bin_file.read(4)
     while data:
         data = hex(int.from_bytes(data, byteorder='big'))
-        if data[2:8] == RESOURCE_DUMP_SEGMENT_TYPE_FLOW_COUNTER_BIN:
+        if data[3:7] == segment_type:
             #Seek to the first counter location in the bin_file
             bin_file.seek(count)
             break
@@ -345,8 +416,8 @@ def parse_fw_counter_rd_bin_output(counter_index,  load_to_db, file):
     while data:
         #Leading zeros will be ignored, add zero to keep alignment
         data = "0%s" % hex(int.from_bytes(data, byteorder='big'))
-        data_type = data[3:8]
-        if data_type == RESOURCE_DUMP_SEGMENT_TYPE_FLOW_COUNTER_BIN:
+        data_type = data[4:8]
+        if data_type == segment_type:
             index = hex(int(data[16:24], 16))
             file_str = "%s,%s,%s" % (MLX5DR_DEBUG_RES_TYPE_COUNTER, counter_index, index)
             packets = hex((int(data[32:40], 16) << 32) | int(data[40:48], 16))
@@ -370,8 +441,10 @@ def dump_fw_ste_worker(req_q, resp_q, dev, dev_name):
         except queue.Empty:
             return
 
-        resp = call_resource_dump(dev, dev_name, "FW_STE", fw_ste_index, None, 'all', None,
-                                  tmp_file_path)
+        rd_segment_type = "FW_STE" if _config_args.get("legacy_rd") else "STE_INFO"
+        all_or_active = "all" if _config_args.get("legacy_rd") else "active"
+        resp = call_resource_dump(dev, dev_name, rd_segment_type, fw_ste_index, None,
+                                  all_or_active, None, tmp_file_path)
         resp_q.put((fw_ste_index, tmp_file_path))
 
 def dump_fw_ste(load_to_db, dev, dev_name, file, total_resources, load_bar_idx):
@@ -413,9 +486,17 @@ def dump_hw_resources(load_to_db, dev, dev_name, file):
     interactive_progress_bar(0, total_resources, DUMPING_HW_RESOURCES)
     i = 0
 
+    if _config_args.get("legacy_rd"):
+        rd_segment_type = "STC"
+    else:
+        rd_segment_type = "STC_INFO"
+
     for stc_index in _db._stc_indexes_arr:
-        output = call_resource_dump(dev, dev_name, "STC", stc_index, None, 'all', None)
-        parse_fw_stc_rd_bin_output(stc_index, load_to_db, file)
+        output = call_resource_dump(dev, dev_name, rd_segment_type, stc_index, None, 'all', None)
+        if _config_args.get("legacy_rd"):
+            parse_fw_stc_rd_bin_output(stc_index, load_to_db, file)
+        else:
+            parse_stc_rd_bin_output(stc_index, load_to_db, file)
         i += 1
 
     # In this Phase we've the Args & Counters
@@ -437,17 +518,29 @@ def dump_hw_resources(load_to_db, dev, dev_name, file):
 
     # Dump Arg's
     if dump_arg == True:
+        if _config_args.get("legacy_rd"):
+            segment_type = RESOURCE_DUMP_SEGMENT_TYPE_MODIFY_ARG_BIN
+            rd_segment_type = "MODIFY_ARGUMENT"
+        else:
+            segment_type = RESOURCE_DUMP_SEGMENT_TYPE_MOD_ARG_BIN
+            rd_segment_type = "HEADER_MOD_ARG"
         for arg_index in _db._arg_obj_indexes_dic:
-            output = call_resource_dump(dev, dev_name, "MODIFY_ARGUMENT", arg_index, None, 'all', None)
-            parse_fw_modify_argument_rd_bin_output(arg_index,  load_to_db, file)
+            output = call_resource_dump(dev, dev_name, rd_segment_type, arg_index, None, 'all', None)
+            parse_fw_modify_argument_rd_bin_output(arg_index,  load_to_db, file, segment_type)
             i += 1
             interactive_progress_bar(i, total_resources, DUMPING_HW_RESOURCES)
 
     # Dump Counters
     if dump_counter == True:
+        if _config_args.get("legacy_rd"):
+            segment_type = RESOURCE_DUMP_SEGMENT_TYPE_FLOW_COUNTER_BIN
+            rd_segment_type = "FLOW_COUNTER"
+        else:
+            segment_type = RESOURCE_DUMP_SEGMENT_TYPE_FLOW_COUNT_BIN
+            rd_segment_type = "FLOW_COUNT"
         for counter_idx in _db._flow_counter_indexes_dic:
-            output = call_resource_dump(dev, dev_name, "FLOW_COUNTER", counter_idx, 'all', None, None)
-            parse_fw_counter_rd_bin_output(counter_idx,  load_to_db, file)
+            output = call_resource_dump(dev, dev_name, rd_segment_type, counter_idx, 'all', None, None)
+            parse_fw_counter_rd_bin_output(counter_idx,  load_to_db, file, segment_type)
             i += 1
             interactive_progress_bar(i, total_resources, DUMPING_HW_RESOURCES)
 

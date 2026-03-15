@@ -107,9 +107,11 @@ def dr_action_accelerated_modify_list_parser(action_arr, index):
         pat_arr = _db._pattern_db.get(pat_index)
         if pat_arr == None:
             if dump_pat == True:
-                output = call_resource_dump(dev, dev_name, "HW_MODIFY_PATT", pat_index, None, None, None)
+                segment_type = RESOURCE_DUMP_SEGMENT_TYPE_MODIFY_PAT_BIN
+                rd_segment_type = "HW_MODIFY_PATT"
+                output = call_resource_dump(dev, dev_name, rd_segment_type, pat_index, None, None, None)
                 pat_sz = PAT_ARG_BULK_SIZE if (i != num_of_pat - 1) else leftover
-                pat_arr = parse_fw_modify_pattern_rd_bin_output(pat_index,  load_to_db, file, pat_sz)
+                pat_arr = parse_fw_modify_pattern_rd_bin_output(pat_index,  load_to_db, file, pat_sz, segment_type)
 
         if pat_arr == None:
             continue
