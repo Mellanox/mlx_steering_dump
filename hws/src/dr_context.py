@@ -195,18 +195,27 @@ class dr_parse_context_caps():
                         print("To dump Counter HW resources, please use FW version %s or higher" % expected_fw_version)
                         sys.exit(0)
 
-        _config_args["resource_dump_segment_action_stc_bin_sz"] = 48
-        _config_args["stc_param_start_ofset"] = 2
-        _config_args["stc_param_end_ofset"] = 22
-        if self.data.get("fw_version") >= f'{_config_args.get("fw_version_major")}.{FW_VERSION_MINOR_STC_ACTION_PARAM_LIST}':
-            _config_args["stc_action_type_offset"] = 17
-            _config_args["resource_dump_segment_action_stc_bin_sz"] = 272
-            _config_args["stc_param_start_ofset"] = 19
+        if self.data.get("fw_version") >= f'{_config_args.get("fw_version_major")}.{FW_VERSION_MINOR_NEW_RD_SEGMENTS}':
+            _config_args["legacy_rd"] = False
+            _config_args["resource_dump_segment_action_stc_raw_bin_sz"] = 80
+            _config_args["resource_dump_segment_action_stc_meta_bin_sz"] = 248
+            _config_args["stc_param_start_ofset"] = 2
             _config_args["stc_param_end_ofset"] = 35
-        elif self.data.get("fw_version") >= f'{_config_args.get("fw_version_major")}.{FW_VERSION_MINOR_STC_ACTION_TYPE_SHIFT}':
-            _config_args["stc_action_type_offset"] = 48
+            _config_args["stc_action_type_offset"] = 464
         else:
-            _config_args["stc_action_type_offset"] = 40
+            _config_args["legacy_rd"] = True
+            _config_args["resource_dump_segment_action_stc_bin_sz"] = 48
+            _config_args["stc_param_start_ofset"] = 2
+            _config_args["stc_param_end_ofset"] = 22
+            if self.data.get("fw_version") >= f'{_config_args.get("fw_version_major")}.{FW_VERSION_MINOR_STC_ACTION_PARAM_LIST}':
+                _config_args["stc_action_type_offset"] = 17
+                _config_args["resource_dump_segment_action_stc_bin_sz"] = 272
+                _config_args["stc_param_start_ofset"] = 19
+                _config_args["stc_param_end_ofset"] = 35
+            elif self.data.get("fw_version") >= f'{_config_args.get("fw_version_major")}.{FW_VERSION_MINOR_STC_ACTION_TYPE_SHIFT}':
+                _config_args["stc_action_type_offset"] = 48
+            else:
+                _config_args["stc_action_type_offset"] = 40
 
         _config_args["linear_match_definer"] = self.data.get("linear_match_definer")
         _config_args["linear_match_definer_field_name"] = self.data.get("linear_match_definer_field_name")
