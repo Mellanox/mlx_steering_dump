@@ -282,20 +282,31 @@ def dr_parse_fw_modify_pattern(raw):
     action_type = int(raw[0:2], 16)
     return dr_parse_fw_modify_pattern_dic.get(action_type)(raw)
 
-def parse_fw_modify_pattern_rd_bin_output(pattern_index, load_to_db, file, num_of_pat):
+def parse_fw_modify_pattern_rd_bin_output(pattern_index, load_to_db, file, num_of_pat, segment_type):
     arr = []
+    count = 0
     read_sz = num_of_pat * MODIFY_PATTERN_BYTES_SZ
     file_str = "%s,%s" % (MLX5DR_DEBUG_RES_TYPE_PATTERN, pattern_index)
     _config_args["tmp_file"] = open(_config_args.get("tmp_file_path"), 'rb+')
     bin_file = _config_args.get("tmp_file")
 
-    #There are 36B of prefix data before first pattern dump
-    data = bin_file.read(36)
+    #First read DW(4B) each time till reaching first pattern
+    data = bin_file.read(4)
+    while data:
+        data = hex(int.from_bytes(data, byteorder='big'))
+        if data[4:8] == segment_type:
+            #Seek to the first pattern location in the bin_file
+            bin_file.seek(count)
+            break
+
+        count += 4
+        data = bin_file.read(4)
+
     #Segment prefix till pattern data
     data = bin_file.read(16)
     data = hex(int.from_bytes(data, byteorder='big'))
-    data_type = data[2:8]
-    if data_type == RESOURCE_DUMP_SEGMENT_TYPE_MODIFY_PAT_BIN:
+    data_type = data[4:8]
+    if data_type == segment_type:
         while read_sz:
             data = bin_file.read(MODIFY_PATTERN_BYTES_SZ)
             if data:
