@@ -145,6 +145,8 @@ def raw_ste_parser(raw_ste):
     next_table_base_39_32 = int(raw_ste[120 : 128], 2)
     next_table_base_31_5 = int(raw_ste[128 : 155], 2)
     ste["hit_loc"] = hit_location_calc(next_table_base_63_48, next_table_base_39_32, next_table_base_31_5)
+    ste["reparse"] = int(raw_ste[92 : 93], 2)
+    ste["hash_after_actions"] = int(raw_ste[157 : 158], 2)
 
     dw_selector_8 = raw_ste[160 : 192]
     dw_selector_7 = raw_ste[192 : 224]
@@ -275,6 +277,8 @@ class dr_parse_ste():
         self.action_arr = None
         self.parsed = False
         self.counter_id = 0;
+        self.reparse = 0
+        self.hash_after_actions = 0
         if parse:
             self.parse()
 
@@ -286,6 +290,8 @@ class dr_parse_ste():
         self.action_arr = parsed_ste.get("actions")
         self.counter_id = parsed_ste.get("counter_id")
         self.entry_format = parsed_ste.get("entry_format")
+        self.reparse = parsed_ste.get("reparse")
+        self.hash_after_actions = parsed_ste.get("hash_after_actions")
         self.parsed = True
 
     def dump_str(self, verbosity, prefix='STE '):
@@ -369,11 +375,22 @@ class dr_parse_ste():
 
         return _str
 
+    def dump_ctrl(self, verbosity, tabs):
+        _str = ''
+        if verbosity > 2:
+            _str += f'{tabs}Ctrl:\n'
+            tabs = tabs + TAB
+            _str += f'{tabs}reparse: {self.reparse}, hash_after_actions: {self.hash_after_actions}\n'
+
+        return _str
+
     def tree_print(self, verbosity, tabs, prefix, is_last):
         _str = tabs + self.dump_str(verbosity, prefix)
         tabs = tabs + TAB
 
         _str += self.dump_fields(verbosity, tabs)
+
+        _str += self.dump_ctrl(verbosity, tabs)
 
         if verbosity > 3:
             _str += self.dump_miss(verbosity, tabs)
