@@ -347,3 +347,28 @@ def import_library(library_name):
     except ImportError:
         raise ImportError("The %s library is not installed. Please install it to use this script." % library_name)
 
+# Search for largest less than or equal value(val) in a sorted ascending array(arr)
+def largest_le(arr, val):
+    lo, hi = 0, len(arr) - 1
+    best = None
+
+    while lo <= hi:
+        mid = (lo + hi) // 2
+        if arr[mid] <= val:
+            best = arr[mid]
+            lo = mid + 1
+        else:
+            hi = mid - 1
+
+    return best
+
+def get_matcher_idx_from_ste_addr(ste_addr):
+    min_addr = largest_le(_db._matchers_ordered_range_arr, ste_addr)
+    if min_addr is not None:
+        val = _db._matcher_base_addr_db.get(min_addr)
+        if val is not None:
+            if val.get("max_addr") >= ste_addr:
+                return val.get("id")
+
+    return None
+

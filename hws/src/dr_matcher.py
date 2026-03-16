@@ -4,6 +4,7 @@
 from src.dr_common import *
 from src.dr_db import _config_args, _db
 from src.dr_rule import dr_parse_rules
+from src.dr_common_functions import largest_le
 
 
 def get_fw_ste_distribution_statistics(fw_ste_id, row_log_sz, col_log_sz):
@@ -303,13 +304,23 @@ class dr_parse_matcher():
     def add_resizable_array(self, obj):
         self.resizable_arrays.append(obj)
 
+    def add_dest_matcher(self, addr):
+        row_log_sz = self.attr.get_row_log_sz()
+        col_log_sz = self.attr.get_col_log_sz()
+        sz = 1 << (row_log_sz + col_log_sz)
+        max_addr = hex(int(addr, 16) + sz - 1)
+        _db._term_dest_db[addr] = {"type": "matcher", "id": self.id}
+        _db._matcher_base_addr_db[addr] = {"id": self.id, "max_addr": max_addr}
+        _db._matchers_ordered_range_arr.extend([addr, max_addr])
+        _db._matchers_ordered_range_arr.sort()
+
     def add_base_addr_0(self, addr):
         self.base_addr_0 = addr
-        _db._term_dest_db[addr] = {"type": "matcher", "id": self.id}
+        self.add_dest_matcher(addr)
 
     def add_base_addr_1(self, addr):
         self.base_addr_1 = addr
-        _db._term_dest_db[addr] = {"type": "matcher", "id": self.id}
+        self.add_dest_matcher(addr)
 
     def save_to_db(self):
         total_match_fw_stes = 0
