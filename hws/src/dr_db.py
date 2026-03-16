@@ -53,6 +53,8 @@ class _ctx_db:
         #This will save FT anchor index
         self._ft_idx_arr = []
         self._ft_idx_dic = {}
+        self._matcher_base_addr_db = {}
+        self._matchers_ordered_range_arr = []
 
     def load(self, _new):
         self._definers = _new._definers
@@ -73,5 +75,7 @@ class _ctx_db:
         self._counters_db = _new._counters_db
         self._ft_idx_arr = _new._ft_idx_arr
         self._ft_idx_dic = _new._ft_idx_dic
+        self._matcher_base_addr_db = _new._matcher_base_addr_db
+        self._matchers_ordered_range_arr = _new._matchers_ordered_range_arr
 
 _db = _ctx_db()

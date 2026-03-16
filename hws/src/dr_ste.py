@@ -5,7 +5,7 @@ from src.dr_common import *
 from src.dr_db import _db, _config_args
 from src.dr_hl import _fields_text_values
 from src.dr_action import dr_ste_parse_ste_actions_arr
-from src.dr_common_functions import dr_get_counter_data
+from src.dr_common_functions import dr_get_counter_data, get_matcher_idx_from_ste_addr
 
 
 def fields_handler(_fields, verbosity=0, show_field_val=False):
@@ -321,7 +321,10 @@ class dr_parse_ste():
                     _str += ' (' + str(self.hit_loc) + ')'
             else:
                 _str += ' ' + str(self.hit_loc)
-                if self.hit_loc.log_sz > 0:
+                matcher_idx = get_matcher_idx_from_ste_addr(hex(self.hit_loc.index))
+                if matcher_idx != None:
+                    _str += f' (jump to matcher {matcher_idx})'
+                elif self.hit_loc.log_sz > 0:
                     _str += ' (log_sz: ' + hex(self.hit_loc.log_sz) + ')'
             _str += '\n'
             flag = True
