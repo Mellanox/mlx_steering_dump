@@ -320,6 +320,7 @@ def parse_fw_modify_pattern_rd_bin_output(pattern_index, load_to_db, file, num_o
             read_sz -= MODIFY_PATTERN_BYTES_SZ
 
     file.write("%s\n" % file_str)
+    file.flush()
 
     if load_to_db:
         _db._pattern_db[pattern_index] = arr
