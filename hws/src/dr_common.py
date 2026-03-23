@@ -195,11 +195,11 @@ class ste_location():
         if size > 1:
             self.calc_log_sz(size)
 
-    def calc_log_sz(size):
+    def calc_log_sz(self, size):
         count = 0
         while (size & 0x1) != 0x1:
             count +=1
-            size == size >> 1
+            size = size >> 1
 
         self.log_sz = count
 
