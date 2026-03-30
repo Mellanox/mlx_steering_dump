@@ -5,12 +5,69 @@ from pathlib import Path
 import os
 import multiprocessing as mp
 import queue
+import subprocess as sp
 from src.dr_common import *
 from src.dr_db import _db, _config_args
 from src.dr_ste import dr_parse_ste
 from src.dr_hw_resources import dr_parse_fw_stc_action_get_obj_id, dr_parse_fw_stc_get_addr, dr_parse_fw_modify_pattern
 from src.dr_visual import interactive_progress_bar
 
+def dr_dump_send_queue(sqn, queue_size, entry_num):
+    dev = _config_args.get("device")
+    dev_name = _config_args.get("dev_name")
+
+    # Phase 1: Get pi value from first command
+    cmd1 = f"fwqd {dev} {sqn} sq --num 1"
+    #print(f"Phase 1 - Executing command: {cmd1}")
+    try:
+        status, output = sp.getstatusoutput(cmd1)
+        if status != 0:
+            print(f"Phase 1 command failed with return code: {status}")
+            print(f"Output: {output}")
+            return (output if output else "Phase 1 command failed with no error message", None)
+
+        # Extract pi value from the output
+        pi = None
+        for line in output.split('\n'):
+            if 'pi' in line:
+                # Look for pattern like "pi 0x140" or "pi: 0x140"
+                parts = line.split()
+                for i, part in enumerate(parts):
+                    if part in ['pi', 'pi:'] and i + 1 < len(parts):
+                        pi_value = parts[i + 1]
+                        # Convert hex string to integer if it starts with 0x
+                        if pi_value.startswith('0x'):
+                            pi = int(pi_value, 16)
+                        else:
+                            pi = int(pi_value)
+                        break
+                if pi is not None:
+                    break
+
+        if pi is None:
+            print("Warning: Could not extract pi value from phase 1 output, using default 200")
+            return ("Warning: Could not extract pi value from phase 1 output, using default 200", None)
+        # Phase 2: Run command with queue size value
+        # Take min of pi and queue_size
+        processed_pi = min(pi, queue_size)
+        if entry_num > 0:
+            processed_pi = min(processed_pi, entry_num)
+        start_entry = 0 if pi < queue_size else pi - queue_size
+        cmd2 = f"fwqd {dev} {sqn} sq --num {processed_pi} --fi {start_entry}"
+        #print(f"Phase 2 - Executing command: {cmd2}")
+        status, output = sp.getstatusoutput(cmd2)
+        if status != 0:
+            print(f"Phase 2 command failed with return code: {status}")
+            print(f"Output: {output}")
+            return (output if output else "Phase 2 command failed with no error message", None)
+        return (output, processed_pi)
+
+    except sp.TimeoutExpired as e:
+        print(f"Command timed out after 30 seconds")
+        return ("Command timed out", None)
+    except Exception as e:
+        print(f"Exception occurred: {type(e).__name__}: {str(e)}")
+        return (f"Exception: {str(e)}", None)
 
 def query_and_parse_ft_meta_rd_bin_output(ft_id, load_to_db, dev, dev_name, file):
     output = call_resource_dump(dev, dev_name, "QUERY_FT_META", ft_id, None, None, None)
