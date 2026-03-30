@@ -45,6 +45,7 @@ class dr_parse_context():
         self.send_engine = []
         self.resource_queues = []
         self.ctx_db = _ctx_db()
+        self.send_ring_in_error = False
         self.load_to_db()
         self.ctx_resolve_device()
 
@@ -99,9 +100,9 @@ class dr_parse_context():
         if verbosity > 0:
             _str = _str + tabs + self.caps.dump_str(verbosity)
 
-        if verbosity > 3:
+        if verbosity > 3 or self.send_ring_in_error:
             for se in self.send_engine:
-                _str = _str + se.tree_print(verbosity, tabs)
+                _str = _str + se.tree_print(max(verbosity, 3), tabs)
             for queue in self.resource_queues:
                 _str = _str + tabs + queue.dump_str(verbosity)
 
@@ -245,7 +246,6 @@ class dr_parse_context_caps():
 
         return dump_obj_str(_keys, self.data)
 
-
 class dr_parse_context_send_engine():
     def __init__(self, data):
         keys = ["mlx5dr_debug_res_type", "ctx_id", "id", "used_entries",
@@ -279,15 +279,22 @@ class dr_parse_context_send_ring():
                 "cq_ncqe", "cq_cqe_log_sz", "cq_poll_wqe", "cq_cqe_sz", "sqn",
                 "sq_obj_id", "sq_cur_post", "sq_buf_mask"]
         self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
+        self.wqe_err = None
 
     def dump_str(self, verbosity):
-        return dump_obj_str(["mlx5dr_debug_res_type", "ctx_id", "id",
+        ret = dump_obj_str(["mlx5dr_debug_res_type", "ctx_id", "id",
                              "send_engine_index", "cqn", "cq_cons_index",
                              "cq_ncqe_mask", "cq_buf_sz", "cq_ncqe",
                              "cq_cqe_log_sz", "cq_poll_wqe", "cq_cqe_sz",
                              "sqn", "sq_obj_id", "sq_cur_post",
                              "sq_buf_mask"], self.data)
 
+        if self.wqe_err:
+            ret = ret + self.wqe_err.dump_str(max(verbosity, 4))
+        return ret
+
+    def add_wqe_err(self, wqe_err):
+        self.wqe_err = wqe_err
 
 class dr_parse_context_resource_queue():
     def __init__(self, data):

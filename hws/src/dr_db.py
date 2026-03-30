@@ -10,8 +10,8 @@ class _ctx_db:
         self._definers = {}
         #Store matchers
         self._matchers = {}
-        #Store collision matchers ids
-        self._col_matchers = []
+        #Store collision matchers ids (using set for O(1) lookup)
+        self._col_matchers = set()
         #Store FT's indexes
         self._ft_indexes_arr = []
         #Store FW STE's indexes
@@ -55,6 +55,8 @@ class _ctx_db:
         self._ft_idx_dic = {}
         self._matcher_base_addr_db = {}
         self._matchers_ordered_range_arr = []
+        #This hash table holds parsed STC outputs, with keys as (stc_base, cur_stc) tuples
+        self._stc_parsed_cache = {}
 
     def load(self, _new):
         self._definers = _new._definers
@@ -77,5 +79,6 @@ class _ctx_db:
         self._ft_idx_dic = _new._ft_idx_dic
         self._matcher_base_addr_db = _new._matcher_base_addr_db
         self._matchers_ordered_range_arr = _new._matchers_ordered_range_arr
+        self._stc_parsed_cache = _new._stc_parsed_cache
 
 _db = _ctx_db()
