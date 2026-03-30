@@ -272,14 +272,12 @@ def resolve_device(device_str):
         # MST device provided
         mst_dev = device_str
         pci_bdf = _get_pci_from_mst(mst_dev)
-        if pci_bdf:
+        rdma_dev = _get_rdma_from_mst(mst_dev)
+        if pci_bdf and not rdma_dev:
             rdma_dev = _get_rdma_from_pci(pci_bdf)
-        else:
-            # Try to get RDMA directly from mst status
-            rdma_dev = _get_rdma_from_mst(mst_dev)
-            if rdma_dev:
-                # Try to get PCI from RDMA
-                pci_bdf = _get_pci_from_sysfs(rdma_dev, 'ib')
+        elif rdma_dev and not pci_bdf:
+            # Try to get PCI from RDMA
+            pci_bdf = _get_pci_from_sysfs(rdma_dev, 'ib')
 
     elif device_type == 'pci':
         # PCI BDF provided
