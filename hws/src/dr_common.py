@@ -93,6 +93,7 @@ MLX5DR_DEBUG_RES_TYPE_CONTEXT_SEND_ENGINE = "4003"
 MLX5DR_DEBUG_RES_TYPE_CONTEXT_SEND_RING = "4004"
 MLX5DR_DEBUG_RES_TYPE_CONTEXT_STC = "4005"
 MLX5DR_DEBUG_RES_TYPE_CONTEXT_RESOURCE_QUEUE = "4006"
+MLX5DR_DEBUG_RES_TYPE_CONTEXT_SEND_RING_WQE_ERR = "4007"
 
 MLX5DR_DEBUG_RES_TYPE_TABLE = "4100"
 
@@ -129,6 +130,7 @@ class_name_arr = {
     MLX5DR_DEBUG_RES_TYPE_CONTEXT_SEND_ENGINE: "Send_engine",
     MLX5DR_DEBUG_RES_TYPE_CONTEXT_SEND_RING: "Send_ring",
     MLX5DR_DEBUG_RES_TYPE_CONTEXT_RESOURCE_QUEUE: "Resource queue",
+    MLX5DR_DEBUG_RES_TYPE_CONTEXT_SEND_RING_WQE_ERR: "Send_ring_wqe_err",
     MLX5DR_DEBUG_RES_TYPE_TABLE: "Table",
     MLX5DR_DEBUG_RES_TYPE_MATCHER: "Matcher",
     MLX5DR_DEBUG_RES_TYPE_MATCHER_ATTR: "Attr",
@@ -154,6 +156,7 @@ DR_ACTION_ACCELERATED_MODIFY_LIST = 0xe
 DR_ACTION_IPSEC_ENC = 0x10
 DR_ACTION_IPSEC_DEC = 0x11
 DR_ACTION_ASO = 0x12
+DR_ACTION_ASO_32 = 0x23
 DR_ACTION_TRAILER = 0x13
 DR_ACTION_COUNTER = 0x14
 DR_ACTION_ADD_FIELD = 0x1b
@@ -161,6 +164,42 @@ DR_ACTION_PSP_ENC = 0x1f
 DR_ACTION_PSP_DEC = 0x20
 DR_ACTION_ASO_32 = 0x23
 DR_ACTION_GEN_CQE = 0x28
+DR_ACTION_JUMP_TO_STE_TABLE = 0x80
+DR_ACTION_JUMP_TO_TIR = 0x81
+DR_ACTION_JUMP_TO_FLOW_TABLE = 0x82
+DR_ACTION_JUMP_TO_DROP = 0x83
+DR_ACTION_JUMP_TO_ALLOW = 0x84
+DR_ACTION_JUMP_TO_VPORT = 0x85
+DR_ACTION_JUMP_TO_UPLINK = 0x86
+
+
+stc_action_type_info = {
+    DR_ACTION_NOPE: ("NOP", 1, [0x0], [0,5,6,7]),
+    DR_ACTION_COPY: ("FIELD_COPY", 2, [0xffffffff, 0xffffffff], [5,6,7]),
+    DR_ACTION_SET: ("FIELD_SET", 2, [0xffffffff, 0xffffffff]),
+    DR_ACTION_ADD: ("FIELD_ADD", 2, [0xffffffff, 0xffffffff]),
+    DR_ACTION_REMOVE_BY_SIZE: ("REMOVE_WORDS", 1, [0xffffffff],[5,6,7]),
+    DR_ACTION_REMOVE_HEADER2HEADER: ("HEADER_REMOVE", 1, [0xffffffff], [5,6,7]),
+    DR_ACTION_INSERT_POINTER: ("HEADER_INSERT", 2, [0xffffffff, 0xffffffff],[5,6,7]),
+    DR_ACTION_FLOW_TAG: ("TAG", 1, [0x00ffffff],[5,6,7]),
+    DR_ACTION_ACCELERATED_MODIFY_LIST: ("MODIFY_HEADER", 2, [0xffffffff, 0xffffffff],[5,6,7]),
+    DR_ACTION_IPSEC_ENC: ("IPSEC_ENCRYPT", 3, [0xffffffff, 0x0, 0x0],[5,6]),
+    DR_ACTION_IPSEC_DEC: ("IPSEC_DECRYPT", 3, [0xffffffff, 0x0, 0x0],[5,6]),
+    DR_ACTION_ASO: ("EXECUTE_ASO", 2, [0xffffffff, 0xffffffff],[5,6]),
+    DR_ACTION_ASO_32: ("EXECUTE_ASO_32", 2, [0xffffffff, 0xffffffff],[5,6]),
+    DR_ACTION_TRAILER: ("TRAILER", 1, [0xffffffff]),
+    DR_ACTION_COUNTER: ("COUNT", 1, [0x00ffffff],[0,7]),
+    DR_ACTION_ADD_FIELD: ("FIELD_ADD_TO_FIELD", 2, [0xffffffff, 0xffffffff],[5,6]),
+    DR_ACTION_PSP_ENC: ("PSP_ENCRYPT", 3, [0xffffffff, 0x0, 0x0],[5,6]),
+    DR_ACTION_PSP_DEC: ("PSP_DECRYPT", 3, [0xffffffff, 0x0, 0x0],[5,6]),
+    DR_ACTION_JUMP_TO_STE_TABLE: ("JUMP_TO_STE_TABLE", 1, [0xffffffff],[3]),
+    DR_ACTION_JUMP_TO_TIR: ("TIR", 1, [0xffffffff],[3]),
+    DR_ACTION_JUMP_TO_FLOW_TABLE: ("GOTO_TO_FLOW_TABLE", 1, [0xffffffff],[3]),
+    DR_ACTION_JUMP_TO_DROP: ("DROP", 1, [0xffffffff],[3]),
+    DR_ACTION_JUMP_TO_ALLOW: ("JUMP_TO_ALLOW", 1, [0xffffffff],[3]),
+    DR_ACTION_JUMP_TO_VPORT: ("GOTO_TO_VPORT", 1, [0xffffffff],[3]),
+    DR_ACTION_JUMP_TO_UPLINK: ("GOTO_TO_UPLINK", 1, [0xffffffff],[3]),
+}
 
 def hex_to_bin_str(_n, _len):
     n = str(bin(int(_n, 16)))[2:]
@@ -295,7 +334,6 @@ def call_resource_dump(dev, dev_name, segment, index1, num_of_obj1, num_of_obj2,
     vhca_id = _config_args.get("_vhca_id")
     if vhca_id != None and vhca_id != "0":
         _input += ' --virtual-hca-id ' + vhca_id
-
     status, output = sp.getstatusoutput(_input)
     # FIXME: "Error" isn't always printed on the first line.
     if status != 0 or ((len(output) >= 10) and ('Error' in output[0:10])):

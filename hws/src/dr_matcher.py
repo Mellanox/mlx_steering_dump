@@ -347,7 +347,7 @@ class dr_parse_matcher():
         _db._matchers[self.id] = self
 
         if self.col_matcher_id != "0x0":
-            _db._col_matchers.append(self.col_matcher_id)
+            _db._col_matchers.add(self.col_matcher_id)
 
         if self.data.get("rx_icm_addr") != "0x0":
             _db._term_dest_db[self.data.get("rx_icm_addr")] = {"type": "FT", "id": self.data.get("end_ft_id")}
