@@ -553,11 +553,11 @@ ASO_CONTEXT_TYPE_STR_ARR = [
     "None",                   # 0x6
     "Entropy (Multipath)",    # 0x7
     "Queue Management",       # 0x8
-    "memory",                 # 0x9
+    "Memory",                 # 0x9
     "unsupported",            # 0xA
     "unsupported",            # 0xB
     "unsupported",            # 0xC
-    "unsupported",            # 0xD
+    "FIFO",            # 0xD
     "unsupported",            # 0xE
     "Counter",                # 0xF
 ]
@@ -571,12 +571,14 @@ ASO_CONTEXT_TYPE_MACSEC = 0x5
 ASO_CONTEXT_TYPE_ENTROPY = 0x7
 ASO_CONTEXT_TYPE_QUEUE_MNG = 0x8
 ASO_CONTEXT_TYPE_MEMORY = 0x9
+ASO_CONTEXT_TYPE_FIFO = 0xd
 ASO_CONTEXT_TYPE_COUNTER = 0xF
 
 URISC_INSTRUCTION_ARR = ["LOAD", "STORE", "INC", "XOR", "OR", "AND", "FFS_ID_MSB", "FFS_BITMAP_MSB",
                          "FFS_ID_LSB", "FFS_BITMAP_LSB", "RESET", "FFS_AND_RESET_ID_MSB",
                          "FFS_AND_RESET_BITMAP_MSB", "FFS_AND_RESET_ID_LSB", "FFS_AND_RESET_BITMAP_LSB"]
 
+ASO_FIFO_INSTRUCTION_ARR = ["PUSH_TAIL", "PUSH_HEAD", "POP"]
 
 ACTION_GEN_CQE_START_REG_STR_ARR = ["metadata_reg_c_0", "metadata_reg_c_2", "metadata_reg_c_4",
                                     "metadata_reg_c_6", "metadata_reg_c_8", "metadata_reg_c_10",
