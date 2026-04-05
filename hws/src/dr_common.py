@@ -552,7 +552,7 @@ ASO_CONTEXT_TYPE_STR_ARR = [
     "MACSEC",                 # 0x5
     "None",                   # 0x6
     "Entropy (Multipath)",    # 0x7
-    "Buffer Management",      # 0x8
+    "Queue Management",       # 0x8
     "memory",                 # 0x9
     "unsupported",            # 0xA
     "unsupported",            # 0xB
@@ -569,7 +569,7 @@ ASO_CONTEXT_TYPE_RACE_AVOIDANCE = 0x3
 ASO_CONTEXT_TYPE_FIRST_HIT = 0x4
 ASO_CONTEXT_TYPE_MACSEC = 0x5
 ASO_CONTEXT_TYPE_ENTROPY = 0x7
-ASO_CONTEXT_TYPE_BUFF_MGMT = 0x8
+ASO_CONTEXT_TYPE_QUEUE_MNG = 0x8
 ASO_CONTEXT_TYPE_MEMORY = 0x9
 ASO_CONTEXT_TYPE_COUNTER = 0xF
 
