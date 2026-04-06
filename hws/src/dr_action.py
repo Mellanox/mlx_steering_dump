@@ -333,6 +333,21 @@ def dr_action_add_field_parser(action_arr, index):
 
     return (2, [action_pretiffy(action)])
 
+def dr_action_parser_parser(action_arr, index):
+    action_dw_0 = action_arr[index]
+    action = {"type" : "Parser"}
+
+    if int(action_dw_0[11 : 12], 2) == 0x1:
+        action["reparse"] = 0x1
+
+    if int(action_dw_0[12 : 13], 2) == 0x1:
+        action["icrc_calc"] = 0x1
+
+    if int(action_dw_0[13 : 14], 2) == 0x1:
+        action["gen_icrc"] = 0x1
+
+    return (1, [action_pretiffy(action)])
+
 def dr_action_gen_cqe(action_arr, index):
     action_dw_0 = action_arr[index]
     action_dw_1 = action_arr[index + 1]
@@ -369,6 +384,7 @@ switch_actions_parser = {
     DR_ACTION_PSP_ENC: dr_action_psp_enc_parser,
     DR_ACTION_PSP_DEC: dr_action_psp_dec_parser,
     DR_ACTION_ASO_32: dr_action_aso_32_parser,
+    DR_ACTION_PARSER: dr_action_parser_parser,
     DR_ACTION_GEN_CQE: dr_action_gen_cqe,
 }
 
