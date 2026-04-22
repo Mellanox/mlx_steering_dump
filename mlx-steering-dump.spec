@@ -3,7 +3,7 @@
 
 Summary: NVIDIA SW and HW steering dump parser
 Name: mlx-steering-dump
-Version: 1.0.0
+Version: 26.04.001
 Release: 0%{?_dist}
 License: GPLv2 or BSD
 Url: https://github.com/Mellanox/mlx_steering_dump
@@ -48,6 +48,9 @@ install -m 644 debian/mlx_steering_dump.1 %{buildroot}%{_mandir}/man1/
 %{_mandir}/man1/mlx_steering_dump.1*
 
 %changelog
+* Wed Apr 22 2026 Yevgeny Kliteynik <kliteyn@nvidia.com>
+- Update spec: set version 26.04.001
+
 * Thu Feb 26 2026 Yevgeny Kliteynik <kliteyn@nvidia.com>
 - Update spec: fix branding, license, description, manpage references
 
