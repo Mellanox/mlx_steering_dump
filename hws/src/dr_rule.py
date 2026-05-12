@@ -192,6 +192,9 @@ def dr_parse_rules(matcher, verbosity, tabs, output_file):
         num_workers = _config_args["max_cores"]
         if num_workers == 0:
             num_workers = mp.cpu_count()
+        # Don't bother spawning threads etc for small matchers.
+        if len(fw_ste_dic) <= SLICE_SIZE:
+            num_workers = 1
 
         if num_workers == 1:
             output_file.write(dr_parse_stes(fw_ste_dic, _tbl_type, match_ste_id,
