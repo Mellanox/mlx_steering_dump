@@ -1,20 +1,20 @@
 #!/usr/bin/env python3
 
 #SPDX-License-Identifier: BSD-3-Clause
-#Copyright (c) 2025 NVIDIA CORPORATION. All rights reserved.
+#Copyright (c) 2026 NVIDIA CORPORATION. All rights reserved.
 
-import multiprocessing as mp
-from pathlib import Path
 import sys
 import os
 import argparse
 import csv
 import time
+import multiprocessing as mp
 
 from src import dr_trigger
 from src.dr_common import *
 from src.dr_context import *
-from src.dr_wqe import dr_wqe_error
+from src.dr_wqe import dr_wqe_error, dr_wqe_parse_queue
+from src.dr_dump_hw import dr_dump_send_queue
 from src.dr_table import *
 from src.dr_matcher import *
 from src.dr_definer import *
@@ -25,9 +25,6 @@ from src.dr_ste import *
 from src.dr_db import _config_args, _db
 from src.dr_remote import dr_connect_to_remote
 
-MAX_SUPPORTED_VERSION = Version("1.0.any_generator")
-
-
 # mapping csv records types to it's relevant parser function
 switch_csv_res_type = {
     MLX5DR_DEBUG_RES_TYPE_CONTEXT: dr_parse_context,
@@ -35,7 +32,6 @@ switch_csv_res_type = {
     MLX5DR_DEBUG_RES_TYPE_CONTEXT_CAPS: dr_parse_context_caps,
     MLX5DR_DEBUG_RES_TYPE_CONTEXT_SEND_ENGINE: dr_parse_context_send_engine,
     MLX5DR_DEBUG_RES_TYPE_CONTEXT_SEND_RING: dr_parse_context_send_ring,
-    MLX5DR_DEBUG_RES_TYPE_CONTEXT_RESOURCE_QUEUE: dr_parse_context_resource_queue,
     MLX5DR_DEBUG_RES_TYPE_CONTEXT_SEND_RING_WQE_ERR: dr_wqe_error,
     MLX5DR_DEBUG_RES_TYPE_TABLE: dr_parse_table,
     MLX5DR_DEBUG_RES_TYPE_MATCHER: dr_parse_matcher,
@@ -47,7 +43,6 @@ switch_csv_res_type = {
     MLX5DR_DEBUG_RES_TYPE_MATCHER_TEMPLATE_HASH_DEFINER: dr_parse_definer,
     MLX5DR_DEBUG_RES_TYPE_MATCHER_TEMPLATE_COMPARE_MATCH_DEFINER: dr_parse_definer,
     MLX5DR_DEBUG_RES_TYPE_MATCHER_RESIZABLE_ARRAY: dr_parse_matcher_resizable_array,
-    MLX5DR_DEBUG_RES_TYPE_MATCHER_ACTION_RTC_ARRAY: dr_parse_matcher_resizable_array,
     MLX5DR_DEBUG_RES_TYPE_FW_STE: dr_parse_fw_ste,
     MLX5DR_DEBUG_RES_TYPE_FW_STE_STATS: dr_parse_fw_ste_stats,
     MLX5DR_DEBUG_RES_TYPE_STE: dr_parse_ste,
@@ -56,8 +51,6 @@ switch_csv_res_type = {
     MLX5DR_DEBUG_RES_TYPE_PATTERN: dr_parse_pattern,
     MLX5DR_DEBUG_RES_TYPE_ARGUMENT: dr_parse_argument,
     MLX5DR_DEBUG_RES_TYPE_COUNTER: dr_parse_res_counter,
-    MLX5DR_DEBUG_RES_TYPE_ACTION_STE_TABLE: dr_parse_action_ste_table,
-    MLX5DR_DEBUG_RES_TYPE_FT_ANCHORS: dr_parse_ft_anchor,
 }
 
 unsupported_obj_list = []
@@ -115,11 +108,6 @@ def dr_parse_csv_file(csv_file, load_to_db):
                 obj.load_to_db()
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_CONTEXT:
             ctx = obj
-            version = ctx.dump_version
-            if version > MAX_SUPPORTED_VERSION:
-                raise Exception(f"Version {version} is newer than what the tool "
-                                f"supports ({MAX_SUPPORTED_VERSION}). Please fetch "
-                                "the latest version of the dump tool from GitHub.")
             ctxs.append(ctx)
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_CONTEXT_ATTR:
             ctx.add_attr(obj)
@@ -131,8 +119,6 @@ def dr_parse_csv_file(csv_file, load_to_db):
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_CONTEXT_SEND_RING:
             last_send_ring = obj
             last_send_engine.add_send_ring(obj)
-        elif line[0] == MLX5DR_DEBUG_RES_TYPE_CONTEXT_RESOURCE_QUEUE:
-            ctx.add_resource_queue(obj)
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_CONTEXT_SEND_RING_WQE_ERR:
             last_send_ring.add_wqe_err(obj)
             ctx.send_ring_in_error = True
@@ -160,16 +146,11 @@ def dr_parse_csv_file(csv_file, load_to_db):
             last_matcher_template.add_compare_definer(obj)
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_MATCHER_RESIZABLE_ARRAY:
             last_matcher.add_resizable_array(obj)
-        elif line[0] == MLX5DR_DEBUG_RES_TYPE_MATCHER_ACTION_RTC_ARRAY:
-            last_matcher.add_resizable_array(obj)
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_CONTEXT_STC:
             obj.load_to_db()
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_HW_RRESOURCES_DUMP_START:
             if not(load_to_db):
                 return ctxs
-            _config_args["hw_resources_present"] = True
-        elif line[0] == MLX5DR_DEBUG_RES_TYPE_FT_ANCHORS:
-            obj.load_to_db()
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_FW_STE:
             if last_fw_ste != None:
                 last_fw_ste.add_stes_range(min_ste_addr, max_ste_addr)
@@ -183,8 +164,6 @@ def dr_parse_csv_file(csv_file, load_to_db):
         elif line[0] == MLX5DR_DEBUG_RES_TYPE_HW_RRESOURCES_DUMP_END:
             if last_fw_ste != None:
                 last_fw_ste.add_stes_range(min_ste_addr, max_ste_addr)
-        elif line[0] == MLX5DR_DEBUG_RES_TYPE_ACTION_STE_TABLE:
-            pass
         else:
             if line[0] not in unsupported_obj_list:
                 unsupported_obj_list.append(line[0])
@@ -195,11 +174,16 @@ def dr_parse_csv_file(csv_file, load_to_db):
 #General env initialization
 def env_init():
     if _config_args.get("resourcedump_mem_mode"):
-        tmp_file_name = 'tmp_' + str(time.time()) + '.bin'
-        tmp_file_path = Path(_config_args.get("file_path")).with_name(tmp_file_name)
-        tmp_file_path.touch()
+        tmp_file_path = ''
+        file_path_arr = _config_args.get("file_path").split('/')
+        for i in range(0, len(file_path_arr) - 1):
+            tmp_file_path += file_path_arr[i] + '/'
 
-        _config_args["tmp_file_path"] = str(tmp_file_path)
+        tmp_file_path += 'tmp_' + str(time.time()) + '.bin'
+        fd = open(tmp_file_path, 'w+')
+        fd.close()
+
+        _config_args["tmp_file_path"] = tmp_file_path
         _config_args["tmp_file"] = None
         _config_args["tmp_file_arr"] = []
 
@@ -223,10 +207,6 @@ def env_destroy():
     if csv_file != None:
         csv_file.close()
 
-    output_file = _config_args.get("output_file")
-    if output_file is not None:
-        output_file.close()
-
 
 #Check and validate environment capabilities
 def validate_env_caps():
@@ -237,26 +217,19 @@ def validate_env_caps():
             print('Cannot Dump HW resources <-hw>, need Python3')
             exit()
 
-        # Detect and validate the resourcedump tool
-        try:
-            tool = detect_resourcedump_tool()
-        except SystemExit:
-            # detect_resourcedump_tool() already printed error and called exit()
-            raise
-        
-        # Check tool version for mem mode support
-        status, output = sp.getstatusoutput(f'{tool} -v')
+        status, output = sp.getstatusoutput('resourcedump -v')
         if status != 0:
-            print(f'Error: {tool} validation failed')
+            print(output)
+            print('MFT Error')
             exit()
-        
         output = output.split(', ')
-        mft_version = output[1] if len(output) > 1 else ''
+        if output[0] != 'resourcedump':
+            print('Can not Dump HW resources, no MFT')
+            exit()
+
+        mft_version = output[1]
         if mft_version >= MEM_MODE_MIN_MFT_VERSION:
             _config_args["resourcedump_mem_mode"] = True
-        else:
-            print(f'Note: This MFT version <{mft_version}> does not support MKEY writing (resourcedump --mem flag).\n'
-                  '      Querying HW will be very slow, expecting long runtime.\n')
 
 
 #Parse user command args, and save them to _config_args.
@@ -266,28 +239,14 @@ def parse_args():
                                      add_help=False)
     parser.add_argument("-f", dest="file_path", default="", help="Input steering dump file path.", required=True)
     parser.add_argument("-v", action="count", dest="verbose", default=0, help="Increase output verbosity - v, vv, vvv & vvvv for extra verbosity.")
-    parser.add_argument("--skip_dump", action="store_false", default=True, dest="dump_hw_resources",
-                        help="Skip HW resources dumping.")
-    parser.add_argument("--skip_parse", action="store_false", default=True, dest="hw_parse",
-                        help="Skip HW dumped resources parsing.")
+    #parser.add_argument("--skip_parse", action="store_false", default=True, dest="hw_parse",
+    #                    help="Skip HW dumped resources parsing.")
     parser.add_argument("-d", dest="device", type=str, default="",
-                        help="Provide device identifier for HW resources dumping. Accepts: MST device (/dev/mst/...), "
-                             "PCI address (0000:bb:dd.f or bb:dd.f), IB device (mlx5_2), or netdev (eth0). "
-                             "If --remote_ip is specified, provide the remote MST device identifier.")
-    parser.add_argument("--pid", dest="app_pid", type=int, default=-1,
-                        help="Trigger DPDK/DOCA app <PID>.")
-    parser.add_argument("--port", dest="app_port", type=int, default=0,
-                        help="Trigger DPDK/DOCA app <PORT> newer dpdk, and doca supports -1 for all ports (must provide PID with -pid).")
-    parser.add_argument("--extra_hw_res", type=str, default="", dest="extra_hw_res", metavar="[pat, arg, counter, all]",
-                        help = "Request extra HW resources to be dumped/parsed. \'all\' option will dump all the HW resources supported by current FW. Usage example: --extra_hw_res pat,arg")
-    parser.add_argument("-s", action="store_true", default=False, dest="statistics",
-                        help="Show dump statistics.")
-    parser.add_argument("--remote_ip", type=str, default="", dest="remote_ip",
-                        help = "Indicates to extract HW resources from the remote setup <IP>")
-    parser.add_argument("--user_name", type=str, default="", dest="user_name",
-                        help = "Indicates the user name on the remote setup")
-    parser.add_argument("--remote_path", type=str, default="", dest="remote_path",
-                        help = "Indicates the dump tool location on the remote setup, this is optional")
+                        help="Provide MST device for HW resources dumping, or remote MST device if --remote_ip was specified")
+    parser.add_argument("-q", "--queue", dest="queue_id", type=int, default=0,
+                        help="Dump send queue.")
+    parser.add_argument("--entry_num", dest="entry_num", type=int, default=-1,
+                        help="Number of entries to dump from the send queue.")
     parser.add_argument("--max_cores", type=int, default=0,
                         help="Maximum cores to use. Default is 0, which means use all cores, up to 16")
     parser.add_argument("-h", "--help", action="help", default=argparse.SUPPRESS,
@@ -301,49 +260,19 @@ def parse_args():
     else:
         _config_args["file_path"] = args.file_path
 
-    _config_args["extra_hw_res_all"] = False
-    _config_args["extra_hw_res_arg"] = False
-    _config_args["extra_hw_res_pat"] = False
-    _config_args["extra_hw_res_counter"] = False
+    _config_args["dump_hw_resources"] = True
 
-    if (args.dump_hw_resources):
-        _config_args["dump_hw_resources"] = True
-        if (args.device == ""):
-            _config_args["device"] = None
-        else:
-            _config_args["device"] = args.device
+    if args.queue_id > -1:
+        _config_args["queue_id"] = args.queue_id
     else:
-        _config_args["dump_hw_resources"] = False
+        _config_args["queue_id"] = -1
 
-    _config_args["args.extra_hw_res"] = args.extra_hw_res
-    for hw_res in args.extra_hw_res.split(","):
-        if hw_res == "all":
-            _config_args["extra_hw_res_all"] = True
-            _config_args["extra_hw_res_pat"] = True
-            _config_args["extra_hw_res_arg"] = True
-            _config_args["extra_hw_res_counter"] = True
-            break
-        elif hw_res == "pat":
-            _config_args["extra_hw_res_pat"] = True
-        elif hw_res == "arg":
-            _config_args["extra_hw_res_arg"] = True
-        elif hw_res == "counter":
-            _config_args["extra_hw_res_counter"] = True
-
-    if _config_args.get("extra_hw_res_arg") == True and not(_config_args.get("extra_hw_res_pat")):
-        _config_args["extra_hw_res_arg"] = False
-
-    if (args.hw_parse):
-        _config_args["parse_hw_resources"] = True
-        _config_args["load_hw_resources"] = True
+    if args.entry_num > -1:
+        _config_args["entry_num"] = args.entry_num
     else:
-        _config_args["parse_hw_resources"] = False
-        _config_args["load_hw_resources"] = False
+        _config_args["entry_num"] = 0
 
-    if (args.app_pid > 0):
-        if dr_trigger.trigger_dump(args.app_pid, args.app_port, args.file_path, 0) is None:
-            sys.exit(-1)
-        _config_args["app_pid"] = args.app_pid
+    _config_args["max_cores"] = min(16, mp.cpu_count()) if args.max_cores == 0 else args.max_cores
 
     if (os.stat(args.file_path).st_size == 0):
         print("Empty input file, no data to parse")
@@ -355,67 +284,41 @@ def parse_args():
         _config_args["verbose"] = args.verbose
 
     _config_args["resourcedump_mem_mode"] = False
-    _config_args["hw_resources_present"] = False
-
-    _config_args["statistics"] = args.statistics
-
-    if args.remote_ip != "" and args.dump_hw_resources:
-        _config_args["remote"] = True
-        _config_args["remote_ip"] = args.remote_ip
-        _config_args["user_name"] = args.user_name
-        _config_args["dump_tool_remote_path"] = args.remote_path
-        _config_args["password"] = None
-        _config_args["remote_dep_lib"] = False
-        dr_connect_to_remote()
-        sys.exit(0)
-
-    _config_args["max_cores"] = min(16, mp.cpu_count()) if args.max_cores == 0 else args.max_cores
-
 
 if __name__ == "__main__":
     try:
-        mp.set_start_method("fork")
         parse_args()
         validate_env_caps()
         env_init()
         file_path = _config_args.get("file_path")
         verbose = _config_args.get("verbose")
 
-        with open(file_path, 'r+') as csv_file:
-            load_to_db = False if _config_args.get("dump_hw_resources") else _config_args.get("load_hw_resources")
-            ctxs = dr_parse_csv_file(csv_file, load_to_db)
-
-        if _config_args.get("dump_hw_resources"):
-            csv_file = open(_config_args.get("file_path"), 'a+')
-            _config_args["csv_file"] = csv_file
-        else:
-            if _config_args.get("hw_resources_present") == False:
-                _config_args["parse_hw_resources"] = False
-                _config_args["load_hw_resources"] = False
+        csv_file = open(file_path, 'r+')
+        ctxs = dr_parse_csv_file(csv_file, False)
+        csv_file.close()
 
         output_file_name = file_path + ".parsed"
         output_file = open(output_file_name, 'w+')
-        _config_args["output_file"] = output_file
 
         for ctx in ctxs:
             ctx.load_to_db()
             _config_args["total_resources"] = len(_db._stc_indexes_arr) + len(_db._fw_ste_indexes_arr)
             _config_args["total_fw_ste"] = len(_db._fw_ste_indexes_arr)
 
-            if _config_args.get("dump_hw_resources"):
-                dr_hw_data_engine(ctx, csv_file)
 
-            if _config_args.get("parse_hw_resources"):
-                _config_args["progress_bar_i"] = 0
-                interactive_progress_bar(0, _config_args.get("total_fw_ste"), PARSING_THE_RULES_STR)
+            if _config_args.get("queue_id") > -1:
+                for se in ctx.send_engine:
+                    if int(se.data["id"]) == _config_args.get("queue_id"):
+                        queue_size = int(se.data["num_entries"])
+                        for sr in se.send_ring:
+                            output, pi = dr_dump_send_queue(int(sr.data["sqn"]) , queue_size,
+                                                            _config_args.get("entry_num"))
+                            dr_wqe_parse_queue(output, pi, _config_args["verbose"])
+                            break
 
-            if _config_args.get("csv_file") != None and _config_args.get("hw_resources_dump_started") == True:
-                csv_file.write(MLX5DR_DEBUG_RES_TYPE_HW_RRESOURCES_DUMP_END + '\n')
+            output_file.write(ctx.tree_print(verbose, ""))
 
-            ctx.pre_parse()
-            ctx.tree_print(verbose, "", output_file)
-
-        print("")#empty line
+        print("")
         print(OUTPUT_FILE_STR + file_path)
         print(PARSED_OUTPUT_FILE_STR + output_file_name)
 
