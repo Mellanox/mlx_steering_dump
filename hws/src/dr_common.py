@@ -186,7 +186,7 @@ stc_action_type_info = {
     DR_ACTION_IPSEC_DEC: ("IPSEC_DECRYPT", 3, [0xffffffff, 0x0, 0x0],[5,6]),
     DR_ACTION_ASO: ("EXECUTE_ASO", 2, [0xffffffff, 0xffffffff],[5,6]),
     DR_ACTION_ASO_32: ("EXECUTE_ASO_32", 2, [0xffffffff, 0xffffffff],[5,6]),
-    DR_ACTION_TRAILER: ("TRAILER", 1, [0xffffffff]),
+    DR_ACTION_TRAILER: ("TRAILER", 1, [0xffffffff],[5,6,7]),
     DR_ACTION_COUNTER: ("COUNT", 1, [0x00ffffff],[0,7]),
     DR_ACTION_ADD_FIELD: ("FIELD_ADD_TO_FIELD", 2, [0xffffffff, 0xffffffff],[5,6]),
     DR_ACTION_PSP_ENC: ("PSP_ENCRYPT", 3, [0xffffffff, 0x0, 0x0],[5,6]),
