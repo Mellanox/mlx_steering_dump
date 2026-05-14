@@ -8,6 +8,7 @@ from typing import Dict, Any, Optional
 import struct
 import subprocess
 import os
+import re
 import sys
 
 from src.dr_common import *
@@ -1068,6 +1069,25 @@ def get_wqe_parser(data: Union[str, List[str]], verbosity: int = 0):
     return dr_wqe_unknown(data_bytes, gen_ctrl_seg, verbosity)
 
 
+_HEX_DWORDS_LINE_RE = re.compile(r'^(?:[0-9a-fA-F]{1,8})(?:\s+[0-9a-fA-F]{1,8})*$')
+
+
+def _extract_hex_dwords(text):
+    """Return ``text`` if it consists only of whitespace-separated hex DWORD
+    tokens (1-8 hex chars each), or ``""`` otherwise.
+
+    Used to defend against banner / status lines that ``fwqd`` (or any
+    upstream tool) may write to stderr and that ``sp.getstatusoutput``
+    interleaves into stdout - e.g. ``running command: wqdump -d ...``
+    contains hex chars (``c``, ``d``, ``e``, ``f``, ``a``, ``b``) and
+    would otherwise be appended to the WQE data as literal noise.
+    """
+    stripped = text.strip()
+    if not stripped:
+        return ""
+    return stripped if _HEX_DWORDS_LINE_RE.match(stripped) else ""
+
+
 def dr_wqe_parse_queue(data, num_entries, verbosity=0):
     """Parse WQE queue dump data.
 
@@ -1154,8 +1174,10 @@ def dr_wqe_parse_queue(data, num_entries, verbosity=0):
                 idx_part = line.split(']')[0]
                 current_idx = idx_part.split('=')[1].strip()
 
-                # Get hex data from the rest of the line after "]"
-                hex_data = line.split(']')[1].strip()
+                # Get hex data from the rest of the line after "]"; only keep
+                # it if the trailing text is purely hex DWORDs (i.e. real WQE
+                # data, not a banner that happened to share the line).
+                hex_data = _extract_hex_dwords(line.split(']')[1])
                 if hex_data:
                     current_wqe_data.append(hex_data)
             except (IndexError, ValueError) as e:
@@ -1163,11 +1185,14 @@ def dr_wqe_parse_queue(data, num_entries, verbosity=0):
                 continue
 
         elif current_idx is not None:
-            # This is a continuation line with hex data
-            if any(c in '0123456789abcdefABCDEF' for c in line):
-                # Skip lines that are headers or other metadata
-                if not any(keyword in line.lower() for keyword in ['entries', 'ts:', 'pi', 'ci']):
-                    current_wqe_data.append(line.strip())
+            # This is a continuation line with hex data. Require the *whole*
+            # line to be hex DWORDs, otherwise it's banner / status text such
+            # as "running command: wqdump ..." that the upstream tool may
+            # interleave (via stderr) into the dump and that would otherwise
+            # be appended verbatim and crash get_wqe_parser later.
+            hex_data = _extract_hex_dwords(line)
+            if hex_data:
+                current_wqe_data.append(hex_data)
 
     # Process the last WQE(s) if within num_entries limit
     if current_wqe_data and current_idx is not None and wqe_count < num_entries:

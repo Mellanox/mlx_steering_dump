@@ -316,7 +316,7 @@ if __name__ == "__main__":
                             dr_wqe_parse_queue(output, pi, _config_args["verbose"])
                             break
 
-            output_file.write(ctx.tree_print(verbose, ""))
+            ctx.tree_print(verbose, "", output_file)
 
         print("")
         print(OUTPUT_FILE_STR + file_path)
