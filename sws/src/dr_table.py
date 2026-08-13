@@ -70,14 +70,14 @@ class dr_dump_table(dr_obj):
                 rx_s_anchor,
                 tx_s_anchor)
 
-    def print_tree_view(self, dump_ctx, verbose, raw):
+    def print_tree_view(self, dump_ctx, verbose, raw, statistics):
         print_dr(dr_print_color.TABLE, self.dump_str(verbose))
         inc_indent()
 
         for m in self.matcher_list:
             dump_ctx.matcher = m
             dump_ctx.rule = None
-            m.print_tree_view(dump_ctx, verbose, raw)
+            m.print_tree_view(dump_ctx, verbose, raw, statistics)
 
         dec_indent()
 

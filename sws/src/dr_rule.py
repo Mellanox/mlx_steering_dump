@@ -79,7 +79,7 @@ class dr_dump_rule(dr_obj):
 
         return action_str + "\n"
 
-    def print_tree_view(self, dump_ctx, verbose, raw):
+    def print_tree_view(self, dump_ctx, verbose, raw, statistics):
         print_dr(dr_print_color.RULE, self.dump_str())
         inc_indent()
         print_dr(dr_print_color.RULE_MATCH, self.dump_match_str(verbose, raw))
