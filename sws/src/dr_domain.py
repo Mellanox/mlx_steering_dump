@@ -77,7 +77,7 @@ class dr_dump_domain(dr_obj):
             _srd(self.data, "num_mh_buddy"),
             _srd(self.data, "num_ptrn_buddy"))
 
-    def print_tree_view(self, dump_ctx, verbose, raw):
+    def print_tree_view(self, dump_ctx, verbose, raw, statistics):
         print_dr(dr_print_color.DOMAIN, self.dump_str())
         inc_indent()
         if verbose > 1:
@@ -100,7 +100,7 @@ class dr_dump_domain(dr_obj):
             dump_ctx.table = t
             dump_ctx.matcher = None
             dump_ctx.rule = None
-            t.print_tree_view(dump_ctx, verbose, raw)
+            t.print_tree_view(dump_ctx, verbose, raw, statistics)
 
         dec_indent()
         dec_indent()
@@ -115,7 +115,7 @@ class dr_dump_domain(dr_obj):
     def fix_data(self):
         self.data["type"] = domain_type_str(self.data["type"])
         self.data["gvmi"] = hex(int(self.data["gvmi"], 16))
-        self.data["support_sw_steering"] = True if self.data["support_sw_steering"] is "1" else False
+        self.data["support_sw_steering"] = True if self.data["support_sw_steering"] == "1" else False
 
     def add_table(self, table):
         self.table_list.append(table)
