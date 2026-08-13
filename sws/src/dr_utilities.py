@@ -70,7 +70,7 @@ class dr_obj(object):
     def set(self, field_name, value):
         self.data[field_name] = value
 
-    def print_tree_view(self, dump_ctx, verbose, raw):
+    def print_tree_view(self, dump_ctx, verbose, raw, statistics):
         print_dr(dr_print_color.RESET, self.dump_str())
 
     def print_rule_view(self, dump_ctx, verbose, raw):

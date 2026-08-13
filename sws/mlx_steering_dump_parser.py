@@ -128,7 +128,7 @@ def dr_csv_get_obj(line):
     return parser(line)
 
 
-def print_ctx(dump_ctx, view, verbose, raw, colored):
+def print_ctx(dump_ctx, view, verbose, raw, colored, statistics):
     dr_obj = None
     if dump_ctx.domain:
         dr_obj = dump_ctx.domain
@@ -143,7 +143,7 @@ def print_ctx(dump_ctx, view, verbose, raw, colored):
         set_colored_prints()
 
     if view == DR_DUMP_VIEW_TREE:
-        dr_obj.print_tree_view(dump_ctx, verbose, raw)
+        dr_obj.print_tree_view(dump_ctx, verbose, raw, statistics)
     else:
         dr_obj.print_rule_view(dump_ctx, verbose, raw)
 
@@ -285,6 +285,8 @@ def parse_args():
     parser.add_argument('-t', action='store_true', default=False, dest='tree_view',
                         help='tree view (default is rule view)')
     parser.add_argument("-v", action="count", dest='verbose', default=0, help="increase output verbosity")
+    parser.add_argument('-s', action='store_true', default=False, dest='statistics',
+                        help='show hash table statistics (tree view only)')
     parser.add_argument('-r', action='store_true', default=False, dest='raw', help='raw output')
     parser.add_argument('-c', action='store_true', default=False, dest='colored', help='colored output')
     parser.add_argument('-port', dest="dpdk_port", type=int, default=0,
@@ -308,6 +310,11 @@ if __name__ == '__main__':
     if (args.dpdk_pid > 0):
         if dr_trigger.trigger_dump(args.dpdk_pid, args.dpdk_port, args.FILEPATH, args.flow_ptr) is None:
             sys.exit(-1)
+    statistics = args.statistics and not args.flow_ptr
+    if args.statistics and args.flow_ptr:
+        print_dr(dr_print_color.ERROR,
+                 "Statistics are not available for a single rule dump (-flowptr)\n")
+
     domain_obj = None
     with open(args.FILEPATH) as csv_file:
         csv_reader = csv.reader(csv_file)
@@ -315,7 +322,7 @@ if __name__ == '__main__':
             dump_ctx, domain_obj = parse_domain(csv_reader, domain_obj, args.verbose)
             print_ctx(dump_ctx, DR_DUMP_VIEW_TREE if args.tree_view
             else DR_DUMP_VIEW_RULE, args.verbose,
-                      args.raw, args.colored)
+                      args.raw, args.colored, statistics)
     if args.verbose:
         dr_report_unsupported_objects()
 

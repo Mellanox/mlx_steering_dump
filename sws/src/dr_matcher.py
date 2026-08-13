@@ -30,6 +30,7 @@
 
 from src.dr_utilities import _srd, dict_join_str, print_dr, dr_obj, \
     inc_indent, dec_indent, dr_print_color
+from src.dr_statistics import get_matcher_statistics
 from src.parsers import dr_matcher_mask_parser
 from src.parsers import mlx5_ifc_parser
 from src.dr_constants import *
@@ -67,16 +68,44 @@ class dr_dump_matcher(dr_obj):
             _srd(self.data, "priority"),
             rx_tx_e_anchor)
 
-    def print_tree_view(self, dump_ctx, verbose, raw):
+    def dump_statistics_str(self):
+        """
+        One line per direction holding the miss list depth of every hash table
+        the matcher walks. Entry i of a level counts the STEs that sit i
+        collisions away from the entry they hashed to, so a level whose weight
+        is all in entry 0 has no collisions at all.
+        """
+        statistics_str = ""
+
+        for matcher_rx_tx, entry_rec_type, direction in (
+                (self.matcher_rx, DR_DUMP_REC_TYPE_RULE_RX_ENTRY_V1, "RX"),
+                (self.matcher_tx, DR_DUMP_REC_TYPE_RULE_TX_ENTRY_V1, "TX")):
+            if matcher_rx_tx is None:
+                continue
+
+            htbls = get_matcher_statistics(self, matcher_rx_tx, entry_rec_type)
+            if not htbls:
+                continue
+
+            statistics_str += "Statistics: %s: %s\n" % (
+                direction,
+                ", ".join("L%d: %s" % (h.level, h.get_distribution())
+                          for h in htbls))
+
+        return statistics_str
+
+    def print_tree_view(self, dump_ctx, verbose, raw, statistics):
         print_dr(dr_print_color.MATCHER, self.dump_str())
         inc_indent()
         print_dr(dr_print_color.MATCHER_MASK, self.mask.dump_str())
+        if statistics:
+            print_dr(dr_print_color.MATCHER, self.dump_statistics_str())
         dec_indent()
 
         inc_indent()
         for r in self.rule_list:
             dump_ctx.rule = None
-            r.print_tree_view(dump_ctx, verbose, raw)
+            r.print_tree_view(dump_ctx, verbose, raw, statistics)
         dec_indent()
 
     def print_rule_view(self, dump_ctx, verbose, raw):
@@ -148,7 +177,8 @@ class dr_dump_matcher_mask(dr_obj):
 
 class dr_dump_matcher_rx_tx(dr_obj):
     def __init__(self, data):
-        keys = ["dr_dump_rec_type", "id", "matcher_id", "num_of_builders", "s_htbl", "e_anchor"]
+        keys = ["dr_dump_rec_type", "id", "matcher_id", "num_of_builders", "s_htbl", "e_anchor",
+                "chunk_size"]
         self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
 
     def dump_string(self):
