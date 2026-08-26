@@ -225,8 +225,12 @@ def aso_decoder(aso_32, aso_context_number, dest_reg_id, aso_context_type,
     elif aso_context_type == ASO_CONTEXT_TYPE_ENTROPY:
         _str += ' [policy_index_last: ' + hex(aso_fields & 0x1) + ']'
     elif aso_context_type == ASO_CONTEXT_TYPE_QUEUE_MNG:
-        _str += ' [line_id: ' + hex(aso_fields & 0x7)
-        _str += ', credits_to_consume: ' + hex((aso_fields & 0xf0) >> 4) + ']'
+        _op = (aso_fields & 0x700) >> 8
+        q_op = ASO_QUEUE_MNG_OPCODE_DIC.get(_op)
+        if q_op is None:
+            q_op = _op
+        _str += f' [operation: {q_op}'
+        _str += f', credits_to_consume: {hex((aso_fields & 0xf0) >> 4)}]'
     elif aso_context_type == ASO_CONTEXT_TYPE_MEMORY:
         _str += ' [line_id: ' + hex(aso_fields & 0x7)
         opcode = (aso_fields & 0xf0) >> 4
