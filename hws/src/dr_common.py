@@ -581,6 +581,8 @@ URISC_INSTRUCTION_ARR = ["LOAD", "STORE", "INC", "XOR", "OR", "AND", "FFS_ID_MSB
 
 ASO_FIFO_INSTRUCTION_ARR = ["PUSH_TAIL", "PUSH_HEAD", "POP"]
 
+ASO_QUEUE_MNG_OPCODE_DIC = {0x0: "PRODUCER", 0x2:  "CONSUMER"}
+
 ACTION_GEN_CQE_START_REG_STR_ARR = ["metadata_reg_c_0", "metadata_reg_c_2", "metadata_reg_c_4",
                                     "metadata_reg_c_6", "metadata_reg_c_8", "metadata_reg_c_10",
                                     "metadata_reg_c_12", "metadata_reg_c_14"]
