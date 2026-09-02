@@ -161,19 +161,29 @@ def dr_action_flow_tag_parser(action_arr, index):
 
     return (1, [action_pretiffy(action)])
 
+def take_from_reg_index_parser(idx):
+    """
+    To get the idx take upper bits of idx[31:Index](*),
+    lower bits from regsiter defined in idx[5:0].
+    (*): Index is the bit after the first '1' in the idx.
+    """
+    idx = idx & 0xffffffe0
+    return idx & (idx - 1)
+
+def take_from_reg_idx_str(idx):
+    """
+    Register C selector defined in idx[5:0].
+    """
+    reg_c64 = idx & 0x1f
+    return f'reg_c_{reg_c64 * 2}_{(reg_c64 * 2) + 1}'
+
 def aso_decoder(aso_32, aso_context_number, dest_reg_id, aso_context_type,
                 check_ordering, aso_fields, take_from_reg=False):
     _str = 'ASO_32' if aso_32 else 'ASO'
 
     if take_from_reg == True:
         _str += ' (from register)'
-        """
-        To get the aso_pointer take upper bits of aso_context_number[31:Index](*),
-        lower bits from regsiter defined in aso_context_number[5:0].
-        (*): Index is the bit after the first '1' in the aso_context_number field.
-        """
-        aso_pointer = aso_context_number & 0xffffffe0
-        aso_pointer = aso_pointer & (aso_pointer - 1)
+        aso_pointer = take_from_reg_index_parser(aso_context_number)
         _str += ': ctx_start_idx: ' + hex(aso_pointer)
     else:
         _str += ': ctx_idx: ' + hex(aso_context_number)
@@ -192,8 +202,7 @@ def aso_decoder(aso_32, aso_context_number, dest_reg_id, aso_context_type,
         _str += ', dest_reg_id: ' + hex(dest_reg_id)
 
     if take_from_reg == True:
-        reg_64_id = 2 * (aso_context_number & 0x1f)
-        _str += ', take_from_register: reg_c_%s_%s\n' % (reg_64_id, reg_64_id + 1)
+        _str += f', take_from_register: {take_from_reg_idx_str(aso_context_number)}\n'
         return (2, [_str])
 
     if _config_args.get("verbose") > 2:
