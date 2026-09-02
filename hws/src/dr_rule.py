@@ -87,16 +87,22 @@ def dr_hw_get_ste_from_loc(loc, hint_loc=[], ignore_hint=False, curr_matcher_idx
 def dr_parse_stes(fw_ste_dic, tbl_type, match_ste_id, hint_loc, verbosity,
                   tabs, matcher):
     _str = ''
+    # To prevent infinity loops if application had such bug
+    max_depth = 16
     for ste_addr, ste in fw_ste_dic.items():
         if ste.get_entry_format() == STE_ENTRY_TYPE_RANGE_MATCH or \
             ste.get_entry_format() == STE_ENTRY_TYPE_4DW_RANGE_MATCH:
                 continue
         rule = dr_parse_rule(tbl_type)
-        while ste != None:
+        while ste != None and max_depth:
             rule.add_ste(ste)
             hit_loc = ste.get_hit_location()
             ste = dr_hw_get_ste_from_loc(hit_loc, hint_loc + _db._action_ste_indexes_arr, False, match_ste_id)
+            max_depth = max_depth - 1
         _str += rule.tree_print(verbosity, tabs, matcher)
+        if max_depth == 0:
+            print(f'Exiting Loop detected in:\n{_str}')
+            exit(-1)
     return _str
 
 

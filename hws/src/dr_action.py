@@ -161,18 +161,28 @@ def dr_action_flow_tag_parser(action_arr, index):
 
     return (1, [action_pretiffy(action)])
 
+def take_from_reg_index_parser(idx):
+    """
+    To get the idx take upper bits of idx[31:Index](*),
+    lower bits from regsiter defined in idx[5:0].
+    (*): Index is the bit after the first '1' in the idx.
+    """
+    idx = idx & 0xffffffe0
+    return idx & (idx - 1)
+
+def take_from_reg_idx_str(idx):
+    """
+    Register C selector defined in idx[5:0].
+    """
+    reg_c64 = idx & 0x1f
+    return f'reg_c_{reg_c64 * 2}_{(reg_c64 * 2) + 1}'
+
 def aso_decoder(aso_32, aso_context_number, dest_reg_id, aso_context_type, aso_fields, take_from_reg=False):
     _str = 'ASO_32' if aso_32 else 'ASO'
 
     if take_from_reg == True:
         _str += ' (from register)'
-        """
-        To get the aso_pointer take upper bits of aso_context_number[31:Index](*),
-        lower bits from regsiter defined in aso_context_number[5:0].
-        (*): Index is the bit after the first '1' in the aso_context_number field.
-        """
-        aso_pointer = aso_context_number & 0xffffffe0
-        aso_pointer = aso_pointer & (aso_pointer - 1)
+        aso_pointer = take_from_reg_index_parser(aso_context_number)
         _str += ': ctx_start_idx: ' + hex(aso_pointer)
     else:
         _str += ': ctx_idx: ' + hex(aso_context_number)
@@ -186,8 +196,7 @@ def aso_decoder(aso_32, aso_context_number, dest_reg_id, aso_context_type, aso_f
     _str += ', dest_reg_id: ' + hex(dest_reg_id)
 
     if take_from_reg == True:
-        reg_64_id = 2 * (aso_context_number & 0x1f)
-        _str += ', take_from_register: reg_c_%s_%s\n' % (reg_64_id, reg_64_id + 1)
+        _str += f', take_from_register: {take_from_reg_idx_str(aso_context_number)}\n'
         return (2, [_str])
 
     if aso_context_type != ASO_CONTEXT_TYPE_IPSEC:
@@ -204,9 +213,13 @@ def aso_decoder(aso_32, aso_context_number, dest_reg_id, aso_context_type, aso_f
         _str += ', set_bit: ' + hex((aso_fields & 0x200) >> 9) + ']'
     elif aso_context_type == ASO_CONTEXT_TYPE_ENTROPY:
         _str += ' [policy_index_last: ' + hex(aso_fields & 0x1) + ']'
-    elif aso_context_type == ASO_CONTEXT_TYPE_BUFF_MGMT:
-        _str += ' [line_id: ' + hex(aso_fields & 0x7)
-        _str += ', credits_to_consume: ' + hex((aso_fields & 0xf0) >> 4) + ']'
+    elif aso_context_type == ASO_CONTEXT_TYPE_QUEUE_MNG:
+        _op = (aso_fields & 0x700) >> 8
+        q_op = ASO_QUEUE_MNG_OPCODE_DIC.get(_op)
+        if q_op is None:
+            q_op = _op
+        _str += f' [operation: {q_op}'
+        _str += f', credits_to_consume: {hex((aso_fields & 0xf0) >> 4)}]'
     elif aso_context_type == ASO_CONTEXT_TYPE_MEMORY:
         _str += ' [line_id: ' + hex(aso_fields & 0x7)
         opcode = (aso_fields & 0xf0) >> 4
@@ -215,6 +228,13 @@ def aso_decoder(aso_32, aso_context_number, dest_reg_id, aso_context_type, aso_f
             opcode_str = '%s (%s)' % (URISC_INSTRUCTION_ARR[opcode], opcode_str)
 
         _str += ', opcode: ' + opcode_str + ']'
+    elif aso_context_type == ASO_CONTEXT_TYPE_FIFO:
+        opcode = aso_fields & 0x3
+        opcode_str = hex(opcode)
+        if opcode < len(ASO_FIFO_INSTRUCTION_ARR):
+            opcode_str = f'{ASO_FIFO_INSTRUCTION_ARR[opcode]} ({opcode_str})'
+
+        _str += f' [opcode: {opcode_str}]'
 
     _str += '\n'
 
@@ -252,6 +272,20 @@ def dr_action_ipsec_dec_parser(action_arr, index):
     action_dw_0 = action_arr[index]
     action = {"type" : "IPsec decryption"}
     action["sadb_ctx_idx"] = int(action_dw_0[8 : 32], 2)
+
+    return (1, [action_pretiffy(action)])
+
+def dr_action_macsec_enc_parser(action_arr, index):
+    action_dw_0 = action_arr[index]
+    action = {"type" : "MACSec encryption"}
+    action["ctx_idx"] = int(action_dw_0[8 : 32], 2)
+
+    return (1, [action_pretiffy(action)])
+
+def dr_action_macsec_dec_parser(action_arr, index):
+    action_dw_0 = action_arr[index]
+    action = {"type" : "MACSec decryption"}
+    action["ctx_idx"] = int(action_dw_0[8 : 32], 2)
 
     return (1, [action_pretiffy(action)])
 
@@ -302,6 +336,24 @@ def dr_action_add_field_parser(action_arr, index):
 
     return (2, [action_pretiffy(action)])
 
+def dr_action_parser_parser(action_arr, index):
+    action_dw_0 = action_arr[index]
+    action = {"type" : "Parser"}
+
+    reparse = int(action_dw_0[11 : 12], 2)
+    if reparse == 0x1:
+        action["reparse"] = reparse
+
+    icrc_calc = int(action_dw_0[12 : 13], 2)
+    if icrc_calc == 0x1:
+        action["icrc_calc"] = icrc_calc
+
+    gen_icrc = int(action_dw_0[13 : 14], 2)
+    if gen_icrc == 0x1:
+        action["gen_icrc"] = gen_icrc
+
+    return (1, [action_pretiffy(action)])
+
 def dr_action_gen_cqe(action_arr, index):
     action_dw_0 = action_arr[index]
     action_dw_1 = action_arr[index + 1]
@@ -335,9 +387,12 @@ switch_actions_parser = {
     DR_ACTION_IPSEC_DEC: dr_action_ipsec_dec_parser,
     DR_ACTION_TRAILER: dr_action_trailer_parser,
     DR_ACTION_ADD_FIELD : dr_action_add_field_parser,
+    DR_ACTION_MACSEC_ENC: dr_action_macsec_enc_parser,
+    DR_ACTION_MACSEC_DEC: dr_action_macsec_dec_parser,
     DR_ACTION_PSP_ENC: dr_action_psp_enc_parser,
     DR_ACTION_PSP_DEC: dr_action_psp_dec_parser,
     DR_ACTION_ASO_32: dr_action_aso_32_parser,
+    DR_ACTION_PARSER: dr_action_parser_parser,
     DR_ACTION_GEN_CQE: dr_action_gen_cqe,
 }
 

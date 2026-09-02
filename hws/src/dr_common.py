@@ -159,9 +159,12 @@ DR_ACTION_ASO = 0x12
 DR_ACTION_TRAILER = 0x13
 DR_ACTION_COUNTER = 0x14
 DR_ACTION_ADD_FIELD = 0x1b
+DR_ACTION_MACSEC_ENC = 0x1d
+DR_ACTION_MACSEC_DEC = 0x1e
 DR_ACTION_PSP_ENC = 0x1f
 DR_ACTION_PSP_DEC = 0x20
 DR_ACTION_ASO_32 = 0x23
+DR_ACTION_PARSER = 0x27
 DR_ACTION_GEN_CQE = 0x28
 DR_ACTION_JUMP_TO_STE_TABLE = 0x80
 DR_ACTION_JUMP_TO_TIR = 0x81
@@ -544,8 +547,8 @@ modify_pattern_anchor_dic = {
 
 
 ASO_CONTEXT_TYPE_STR_ARR = ["IPSec", "Connection Tracking", "Policers", "Race Avoidance",
-                            "First Hit", "MACSEC", "None", "Entropy (Multipath)", "Buffer Management",
-                            "memory"]
+                            "First Hit", "MACSEC", "None", "Entropy (Multipath)", "Queue Management",
+                            "Memory", "NOT_SUPP", "NOT_SUPP", "NOT_SUPP", "FIFO"]
 ASO_CONTEXT_TYPE_IPSEC = 0x0
 ASO_CONTEXT_TYPE_CONN_TRACK = 0x1
 ASO_CONTEXT_TYPE_POLICERS = 0x2
@@ -553,13 +556,17 @@ ASO_CONTEXT_TYPE_RACE_AVOIDANCE = 0x3
 ASO_CONTEXT_TYPE_FIRST_HIT = 0x4
 ASO_CONTEXT_TYPE_MACSEC = 0x5
 ASO_CONTEXT_TYPE_ENTROPY = 0x7
-ASO_CONTEXT_TYPE_BUFF_MGMT = 0x8
+ASO_CONTEXT_TYPE_QUEUE_MNG = 0x8
 ASO_CONTEXT_TYPE_MEMORY = 0x9
+ASO_CONTEXT_TYPE_FIFO = 0xd
 
 URISC_INSTRUCTION_ARR = ["LOAD", "STORE", "INC", "XOR", "OR", "AND", "FFS_ID_MSB", "FFS_BITMAP_MSB",
                          "FFS_ID_LSB", "FFS_BITMAP_LSB", "RESET", "FFS_AND_RESET_ID_MSB",
                          "FFS_AND_RESET_BITMAP_MSB", "FFS_AND_RESET_ID_LSB", "FFS_AND_RESET_BITMAP_LSB"]
 
+ASO_FIFO_INSTRUCTION_ARR = ["PUSH_TAIL", "PUSH_HEAD", "POP"]
+
+ASO_QUEUE_MNG_OPCODE_DIC = {0x0: "PRODUCER", 0x2:  "CONSUMER"}
 
 ACTION_GEN_CQE_START_REG_STR_ARR = ["metadata_reg_c_0", "metadata_reg_c_2", "metadata_reg_c_4",
                                     "metadata_reg_c_6", "metadata_reg_c_8", "metadata_reg_c_10",
