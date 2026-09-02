@@ -290,6 +290,20 @@ def dr_action_ipsec_dec_parser(action_arr, index):
 
     return (1, [action_pretiffy(action)])
 
+def dr_action_macsec_enc_parser(action_arr, index):
+    action_dw_0 = action_arr[index]
+    action = {"type" : "MACSec encryption"}
+    action["ctx_idx"] = int(action_dw_0[8 : 32], 2)
+
+    return (1, [action_pretiffy(action)])
+
+def dr_action_macsec_dec_parser(action_arr, index):
+    action_dw_0 = action_arr[index]
+    action = {"type" : "MACSec decryption"}
+    action["ctx_idx"] = int(action_dw_0[8 : 32], 2)
+
+    return (1, [action_pretiffy(action)])
+
 def dr_action_psp_enc_parser(action_arr, index):
     action_dw_0 = action_arr[index]
     action = {"type" : "PSP encryption"}
@@ -385,6 +399,8 @@ switch_actions_parser = {
     DR_ACTION_IPSEC_DEC: dr_action_ipsec_dec_parser,
     DR_ACTION_TRAILER: dr_action_trailer_parser,
     DR_ACTION_ADD_FIELD : dr_action_add_field_parser,
+    DR_ACTION_MACSEC_ENC: dr_action_macsec_enc_parser,
+    DR_ACTION_MACSEC_DEC: dr_action_macsec_dec_parser,
     DR_ACTION_PSP_ENC: dr_action_psp_enc_parser,
     DR_ACTION_PSP_DEC: dr_action_psp_dec_parser,
     DR_ACTION_ASO_32: dr_action_aso_32_parser,
