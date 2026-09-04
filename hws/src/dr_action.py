@@ -161,7 +161,8 @@ def dr_action_flow_tag_parser(action_arr, index):
 
     return (1, [action_pretiffy(action)])
 
-def aso_decoder(aso_32, aso_context_number, dest_reg_id, aso_context_type, aso_fields, take_from_reg=False):
+def aso_decoder(aso_32, aso_context_number, dest_reg_id, aso_context_type,
+                check_ordering, aso_fields, take_from_reg=False):
     _str = 'ASO_32' if aso_32 else 'ASO'
 
     if take_from_reg == True:
@@ -189,6 +190,9 @@ def aso_decoder(aso_32, aso_context_number, dest_reg_id, aso_context_type, aso_f
         reg_64_id = 2 * (aso_context_number & 0x1f)
         _str += ', take_from_register: reg_c_%s_%s\n' % (reg_64_id, reg_64_id + 1)
         return (2, [_str])
+
+    if _config_args.get("verbose") > 2:
+        _str += f', check_odering: {check_ordering}'
 
     if aso_context_type != ASO_CONTEXT_TYPE_IPSEC:
         _str += ', fields: ' + hex(aso_fields)
@@ -225,10 +229,12 @@ def dr_action_aso_parser(action_arr, index):
     action_dw_1 = action_arr[index + 1]
     aso_context_number = int(action_dw_0[8 : 32], 2)
     dest_reg_id = int(action_dw_1[0 : 2], 2)
+    aso_check_ordering = int(action_dw_1[3], 2)
     aso_context_type = int(action_dw_1[4 : 8], 2)
     aso_fields = int(action_dw_1[16 : 32], 2)
 
-    return aso_decoder(False, aso_context_number, dest_reg_id, aso_context_type, aso_fields)
+    return aso_decoder(False, aso_context_number, dest_reg_id, aso_context_type,
+                       aso_check_ordering, aso_fields)
 
 def dr_action_aso_32_parser(action_arr, index):
     action_dw_0 = action_arr[index]
@@ -237,9 +243,11 @@ def dr_action_aso_32_parser(action_arr, index):
     take_from_reg = True if (int(action_dw_0[8 : 9], 2) == 1) else False
     dest_reg_id = int(action_dw_0[12 : 16], 2)
     aso_context_type = int(action_dw_0[16 : 20], 2)
+    aso_check_ordering = int(action_dw_0[20], 2)
     aso_fields = int(action_dw_0[22 : 32], 2)
 
-    return aso_decoder(True, aso_context_number, dest_reg_id, aso_context_type, aso_fields, take_from_reg)
+    return aso_decoder(True, aso_context_number, dest_reg_id, aso_context_type,
+                       aso_check_ordering, aso_fields, take_from_reg)
 
 def dr_action_ipsec_enc_parser(action_arr, index):
     action_dw_0 = action_arr[index]
