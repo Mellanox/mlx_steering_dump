@@ -71,9 +71,9 @@ def _detect_device_type(device_str):
     if re.match(pci_pattern, device_str):
         return 'pci'
 
-    # InfiniBand device: typically mlx5_N
+    # InfiniBand device: typically mlx5_N, rdma*, roce*
     # Check both pattern and sysfs
-    if re.match(r'^mlx\d+_\d+$', device_str):
+    if re.match(r'^mlx\d+_\d+$|rdma\S+$|roce\S+$', device_str):
         if os.path.exists(f'/sys/class/infiniband/{device_str}'):
             return 'ib'
 
