@@ -171,7 +171,8 @@ class dr_parse_context_caps():
                 "flex_parser_id_gtpu_first_ext_dw_0", "nic_ft_max_level",
                 "nic_ft_reparse", "fdb_ft_max_level", "fdb_ft_reparse",
                 "log_header_modify_argument_granularity",
-                "linear_match_definer", "linear_match_definer_field_name"]
+                "linear_match_definer", "linear_match_definer_field_name",
+                "counter_aso_index_access"]
         self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
 
         _config_args["fw_version_major"] = int(self.data.get("fw_version").split(".")[0])
@@ -223,6 +224,7 @@ class dr_parse_context_caps():
         if _config_args.get("linear_match_definer") != None:
             #Add to _definers DB as None so in STE parsing tag parsing will be skipped
             _db._definers[int(_config_args.get("linear_match_definer"))] = None
+        _config_args["counter_aso_index_access"] = self.data.get("counter_aso_index_access")
 
     def dump_str(self, verbosity):
         _keys = ["mlx5dr_debug_res_type", "ctx_id"]
@@ -242,7 +244,8 @@ class dr_parse_context_caps():
                           "fdb_ft_max_level", "fdb_ft_reparse",
                           "log_header_modify_argument_granularity",
                           "linear_match_definer",
-                          "linear_match_definer_field_name"])
+                          "linear_match_definer_field_name",
+                          "counter_aso_index_access"])
 
         return dump_obj_str(_keys, self.data)
 
