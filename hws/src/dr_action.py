@@ -184,7 +184,12 @@ def aso_decoder(aso_32, aso_context_number, dest_reg_id, aso_context_type,
     else:
         _str += ASO_CONTEXT_TYPE_STR_ARR[aso_context_type] + ' (' + hex(aso_context_type) + ')'
 
-    _str += ', dest_reg_id: ' + hex(dest_reg_id)
+    # IP-Sec and MacSec register ignored
+    # Counter has no use for return register
+    if aso_context_type not in [ASO_CONTEXT_TYPE_IPSEC,
+                                ASO_CONTEXT_TYPE_MACSEC,
+                                ASO_CONTEXT_TYPE_COUNTER]:
+        _str += ', dest_reg_id: ' + hex(dest_reg_id)
 
     if take_from_reg == True:
         reg_64_id = 2 * (aso_context_number & 0x1f)
@@ -194,8 +199,19 @@ def aso_decoder(aso_32, aso_context_number, dest_reg_id, aso_context_type,
     if _config_args.get("verbose") > 2:
         _str += f', check_odering: {check_ordering}'
 
-    if aso_context_type != ASO_CONTEXT_TYPE_IPSEC:
+    print_aso_fields = True
+    parse_counter_aso_fields = False
+    if aso_context_type == ASO_CONTEXT_TYPE_IPSEC:
+        print_aso_fields = False
+    elif aso_context_type == ASO_CONTEXT_TYPE_COUNTER:
+        counter_aso_index_access = _config_args.get("counter_aso_index_access")
+        if counter_aso_index_access is not None and int(counter_aso_index_access) == 1:
+            parse_counter_aso_fields = True
+        else:
+            print_aso_fields = False
+    if print_aso_fields:
         _str += ', fields: ' + hex(aso_fields)
+
     if aso_context_type == ASO_CONTEXT_TYPE_CONN_TRACK:
         _str += ' [direction: ' + hex(aso_fields & 0x1) + ']'
     elif aso_context_type == ASO_CONTEXT_TYPE_POLICERS:
@@ -217,8 +233,9 @@ def aso_decoder(aso_32, aso_context_number, dest_reg_id, aso_context_type,
         opcode_str = hex(opcode)
         if opcode < len(URISC_INSTRUCTION_ARR):
             opcode_str = '%s (%s)' % (URISC_INSTRUCTION_ARR[opcode], opcode_str)
-
         _str += ', opcode: ' + opcode_str + ']'
+    elif aso_context_type == ASO_CONTEXT_TYPE_COUNTER and parse_counter_aso_fields:
+        _str += ' [line_id: ' + hex(aso_fields & 0x3) + ']'
 
     _str += '\n'
 
