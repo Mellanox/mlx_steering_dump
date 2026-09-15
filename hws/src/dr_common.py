@@ -543,9 +543,25 @@ modify_pattern_anchor_dic = {
 }
 
 
-ASO_CONTEXT_TYPE_STR_ARR = ["IPSec", "Connection Tracking", "Policers", "Race Avoidance",
-                            "First Hit", "MACSEC", "None", "Entropy (Multipath)", "Buffer Management",
-                            "memory"]
+ASO_CONTEXT_TYPE_STR_ARR = [
+    "IPSec",                  # 0x0
+    "Connection Tracking",    # 0x1
+    "Policers",               # 0x2
+    "Race Avoidance",         # 0x3
+    "First Hit",              # 0x4
+    "MACSEC",                 # 0x5
+    "None",                   # 0x6
+    "Entropy (Multipath)",    # 0x7
+    "Buffer Management",      # 0x8
+    "memory",                 # 0x9
+    "unsupported",            # 0xA
+    "unsupported",            # 0xB
+    "unsupported",            # 0xC
+    "unsupported",            # 0xD
+    "unsupported",            # 0xE
+    "Counter",                # 0xF
+]
+
 ASO_CONTEXT_TYPE_IPSEC = 0x0
 ASO_CONTEXT_TYPE_CONN_TRACK = 0x1
 ASO_CONTEXT_TYPE_POLICERS = 0x2
@@ -555,6 +571,7 @@ ASO_CONTEXT_TYPE_MACSEC = 0x5
 ASO_CONTEXT_TYPE_ENTROPY = 0x7
 ASO_CONTEXT_TYPE_BUFF_MGMT = 0x8
 ASO_CONTEXT_TYPE_MEMORY = 0x9
+ASO_CONTEXT_TYPE_COUNTER = 0xF
 
 URISC_INSTRUCTION_ARR = ["LOAD", "STORE", "INC", "XOR", "OR", "AND", "FFS_ID_MSB", "FFS_BITMAP_MSB",
                          "FFS_ID_LSB", "FFS_BITMAP_LSB", "RESET", "FFS_AND_RESET_ID_MSB",
