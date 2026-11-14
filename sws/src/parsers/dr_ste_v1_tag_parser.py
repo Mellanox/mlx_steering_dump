@@ -33,7 +33,7 @@ from src.dr_utilities import _val
 from src.dr_utilities import add_inner_to_key
 import src.dr_prettify as dr_prettify
 from src.parsers.dr_ste_v0_tag_parser import mlx5_ifc_ste_v0_general_purpose_bits_tag_parser, \
-    mlx5_ifc_ste_v0_eth_l3_ipv6_dst_bits_tag_parser_p, mlx5_ifc_ste_v0_mpls_bits_tag_parser, \
+    mlx5_ifc_ste_v0_eth_l3_ipv6_dst_bits_tag_parser_p, \
     mlx5_ifc_ste_v0_register_0_bits_tag_parser, mlx5_ifc_ste_v0_register_1_bits_tag_parser, \
     mlx5_ifc_ste_v0_eth_l3_ipv6_src_bits_tag_parser_p, mlx5_ifc_ste_v0_flex_parser_0_bits_tag_parser, \
     mlx5_ifc_ste_v0_flex_parser_1_bits_tag_parser
@@ -222,6 +222,29 @@ def mlx5_ifc_ste_eth_l4_misc_v1_bits_tag_parser(bin_str):
     ret["seq_num"] = _val(bin_str[64: 96])
     ret["length"] = _val(bin_str[96: 112])
     ret["checksum"] = _val(bin_str[112: 128])
+    return ret
+
+
+def mlx5_ifc_ste_mpls_v1_bits_tag_parser(bin_str):
+    ret = {}
+    ret["reserved_at_0"] = _val(bin_str[0: 21])
+    ret["mpls_ok"] = _val(bin_str[21: 22])
+    ret["mpls4_s_bit"] = _val(bin_str[22: 23])
+    ret["mpls4_qualifier"] = _val(bin_str[23: 24])
+    ret["mpls3_s_bit"] = _val(bin_str[24: 25])
+    ret["mpls3_qualifier"] = _val(bin_str[25: 26])
+    ret["mpls2_s_bit"] = _val(bin_str[26: 27])
+    ret["mpls2_qualifier"] = _val(bin_str[27: 28])
+    ret["mpls1_s_bit"] = _val(bin_str[28: 29])
+    ret["mpls1_qualifier"] = _val(bin_str[29: 30])
+    ret["mpls0_s_bit"] = _val(bin_str[30: 31])
+    ret["mpls0_qualifier"] = _val(bin_str[31: 32])
+    ret["mpls0_label"] = _val(bin_str[32: 52])
+    ret["mpls0_exp"] = _val(bin_str[52: 55])
+    ret["mpls0_s_bos"] = _val(bin_str[55: 56])
+    ret["mpls0_ttl"] = _val(bin_str[56: 64])
+    ret["mpls1_label"] = _val(bin_str[64: 96])
+    ret["mpls2_label"] = _val(bin_str[96: 128])
     return ret
 
 
@@ -679,8 +702,8 @@ switch_tag_parser = {
     DR_STE_V1_LU_TYPE_IPV6_DES_O: [mlx5_ifc_ste_v0_eth_l3_ipv6_dst_bits_tag_parser_p, False],
     DR_STE_V1_LU_TYPE_IPV6_SRC_I: [mlx5_ifc_ste_v0_eth_l3_ipv6_src_bits_tag_parser_p, True],
     DR_STE_V1_LU_TYPE_IPV6_SRC_O: [mlx5_ifc_ste_v0_eth_l3_ipv6_src_bits_tag_parser_p, False],
-    DR_STE_V1_LU_TYPE_MPLS_I: [mlx5_ifc_ste_v0_mpls_bits_tag_parser, True],
-    DR_STE_V1_LU_TYPE_MPLS_O: [mlx5_ifc_ste_v0_mpls_bits_tag_parser, False],
+    DR_STE_V1_LU_TYPE_MPLS_I: [mlx5_ifc_ste_mpls_v1_bits_tag_parser, True],
+    DR_STE_V1_LU_TYPE_MPLS_O: [mlx5_ifc_ste_mpls_v1_bits_tag_parser, False],
     DR_STE_V1_LU_TYPE_SRC_QP_GVMI: [mlx5_ifc_ste_src_gvmi_qp_v1_bits_tag_parser, False],
     DR_STE_V1_LU_TYPE_STEERING_REGISTERS_0: [mlx5_ifc_ste_v0_register_0_bits_tag_parser, False],
     DR_STE_V1_LU_TYPE_STEERING_REGISTERS_1: [mlx5_ifc_ste_v0_register_1_bits_tag_parser, False],
